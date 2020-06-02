@@ -1,0 +1,302 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{ea127063-e60c-4bb5-9a8a-741aeef844bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{7a074e16-c00a-4bf6-88af-b837dfa2ac52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ogg">
+      <UniqueIdentifier>{31f833d6-f73d-42ca-99e7-0a69c3d6cf0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ogg\includes">
+      <UniqueIdentifier>{eefb7898-35ff-42a4-8186-6a7221096de0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ogg\src">
+      <UniqueIdentifier>{df08364a-f114-4e5b-a193-023f2c125331}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ogg\includes\ogg">
+      <UniqueIdentifier>{87fbf54f-106f-4868-a98d-ee701b717140}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vorbis">
+      <UniqueIdentifier>{6a6d40bc-0c70-499f-8850-5d3fdcc74d6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vorbis\include">
+      <UniqueIdentifier>{e0ca2e0b-afa3-45b3-a12f-8e535d02d584}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vorbis\src">
+      <UniqueIdentifier>{39882be2-d231-4f9f-a46f-c372755189eb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\music_mikmod.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\music_modplug.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\music_mpg123.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\music_nativemidi.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\music_ogg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\music_opus.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\music_timidity.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\music_wav.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\effect_position.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\effect_stereoreverse.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\effects_internal.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\load_aiff.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\load_voc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\mixer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\music.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\music_cmd.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\music_flac.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\music_fluidsynth.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\music_mad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libogg-1.3.2\src\framing.c">
+      <Filter>ogg\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libogg-1.3.2\src\bitwise.c">
+      <Filter>ogg\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\smallft.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\synthesis.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\tone.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\vorbisenc.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\vorbisfile.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\window.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\bitrate.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\block.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\codebook.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\envelope.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\floor0.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\floor1.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\info.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\lookup.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\lpc.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\lsp.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\mapping0.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\mdct.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\psy.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\registry.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\res0.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\sharedbook.c">
+      <Filter>vorbis\src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\music_timidity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\music_wav.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\effects_internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\load_aiff.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\load_voc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\mixer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\music.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\music_cmd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\music_flac.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\music_fluidsynth.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\music_mad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\music_mikmod.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\music_modplug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\music_mpg123.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\music_nativemidi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\music_ogg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\music_opus.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libogg-1.3.2\include\ogg\ogg.h">
+      <Filter>ogg\includes\ogg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libogg-1.3.2\include\ogg\os_types.h">
+      <Filter>ogg\includes\ogg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\include\vorbis\codec.h">
+      <Filter>vorbis\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\include\vorbis\vorbisenc.h">
+      <Filter>vorbis\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\include\vorbis\vorbisfile.h">
+      <Filter>vorbis\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\smallft.h">
+      <Filter>vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\window.h">
+      <Filter>vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\backends.h">
+      <Filter>vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\bitrate.h">
+      <Filter>vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\codebook.h">
+      <Filter>vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\codec_internal.h">
+      <Filter>vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\envelope.h">
+      <Filter>vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\highlevel.h">
+      <Filter>vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\lookup.h">
+      <Filter>vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\lookup_data.h">
+      <Filter>vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\lpc.h">
+      <Filter>vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\lsp.h">
+      <Filter>vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\masking.h">
+      <Filter>vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\mdct.h">
+      <Filter>vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\misc.h">
+      <Filter>vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\os.h">
+      <Filter>vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\psy.h">
+      <Filter>vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\registry.h">
+      <Filter>vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\scales.h">
+      <Filter>vorbis\src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\external\SDL2_mixer-2.0.4\external\libogg-1.3.2\include\ogg\config_types.h.in">
+      <Filter>ogg\includes\ogg</Filter>
+    </None>
+    <None Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\lookups.pl">
+      <Filter>vorbis\src</Filter>
+    </None>
+    <None Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\Makefile.am">
+      <Filter>vorbis\src</Filter>
+    </None>
+    <None Include="..\external\SDL2_mixer-2.0.4\external\libvorbis-1.3.5\lib\Makefile.in">
+      <Filter>vorbis\src</Filter>
+    </None>
+  </ItemGroup>
+</Project>

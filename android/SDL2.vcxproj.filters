@@ -1,0 +1,330 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{f33f8a55-78f6-4a62-90cf-23f5ba6212fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\audio">
+      <UniqueIdentifier>{2cc650f1-302f-4d72-a3ea-40df153797fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\atomic">
+      <UniqueIdentifier>{073cbd03-957b-4624-94f4-0d8b970bb2e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core">
+      <UniqueIdentifier>{4d6bcc8a-0d57-49e6-a22c-6fbc74917d52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\cpuinfo">
+      <UniqueIdentifier>{ea03866e-95e0-42ce-88c1-0e2a23d9f222}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\dynapi">
+      <UniqueIdentifier>{e6b383a3-9be0-4019-a891-6048499e51c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\events">
+      <UniqueIdentifier>{6ece0ac7-341b-47c4-89c1-c7369c22b112}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\file">
+      <UniqueIdentifier>{84ba13e3-9f32-444f-a930-157f91db732d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\haptic">
+      <UniqueIdentifier>{335f747b-2923-4d84-a77a-16b9f2d7928f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\joystick">
+      <UniqueIdentifier>{06552d48-58a8-48dc-b1a7-93ad351a2b60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\dlopen">
+      <UniqueIdentifier>{a391415e-d708-40dc-a3f3-72f54d71a050}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\power">
+      <UniqueIdentifier>{bf7e1f6a-49ff-48b0-943e-f2364a3e5271}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\filesystem">
+      <UniqueIdentifier>{8bf5b817-5f7f-44b4-bfdb-e3446f6f254a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\render">
+      <UniqueIdentifier>{898d317c-fedf-40d9-8737-3111a48b1a60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\stdlib">
+      <UniqueIdentifier>{75a7e361-6bea-4f44-b4bd-85855742fb6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\thread">
+      <UniqueIdentifier>{938f11c5-bb29-46e5-bae8-66e24050587d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\timer">
+      <UniqueIdentifier>{ffc5faa3-6a24-48a4-b4c6-0383f9f2eff7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\video">
+      <UniqueIdentifier>{e3fd3a85-7e7b-4d70-be90-31dd9adbe816}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\test">
+      <UniqueIdentifier>{756fbf40-f114-4eda-bbab-25ea024d271d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\sensor">
+      <UniqueIdentifier>{3a27ba1a-2417-4993-a492-5fe04737d9d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\hidapi">
+      <UniqueIdentifier>{97a7804d-c11d-4093-a7a6-6a21cda91a8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{f0a1bd93-02dd-466b-b9f3-888cbf01c12c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\cpufeatures">
+      <UniqueIdentifier>{adbf1e9b-eeaa-488d-aeee-0e170d4dc279}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\external\SDL2\src\audio\android\SDL_androidaudio.c" />
+    <ClCompile Include="..\external\SDL2\src\audio\dummy\SDL_dummyaudio.c" />
+    <ClCompile Include="..\external\SDL2\src\audio\openslES\SDL_openslES.c" />
+    <ClCompile Include="..\external\SDL2\src\audio\SDL_audio.c" />
+    <ClCompile Include="..\external\SDL2\src\audio\SDL_audiocvt.c" />
+    <ClCompile Include="..\external\SDL2\src\audio\SDL_audiodev.c" />
+    <ClCompile Include="..\external\SDL2\src\audio\SDL_audiotypecvt.c" />
+    <ClCompile Include="..\external\SDL2\src\audio\SDL_mixer.c" />
+    <ClCompile Include="..\external\SDL2\src\audio\SDL_wave.c" />
+    <ClCompile Include="..\external\SDL2\src\core\android\SDL_android.c" />
+    <ClCompile Include="..\external\SDL2\src\cpuinfo\SDL_cpuinfo.c" />
+    <ClCompile Include="..\external\SDL2\src\dynapi\SDL_dynapi.c" />
+    <ClCompile Include="..\external\SDL2\src\events\SDL_clipboardevents.c" />
+    <ClCompile Include="..\external\SDL2\src\events\SDL_displayevents.c" />
+    <ClCompile Include="..\external\SDL2\src\events\SDL_dropevents.c" />
+    <ClCompile Include="..\external\SDL2\src\events\SDL_events.c" />
+    <ClCompile Include="..\external\SDL2\src\events\SDL_gesture.c" />
+    <ClCompile Include="..\external\SDL2\src\events\SDL_keyboard.c" />
+    <ClCompile Include="..\external\SDL2\src\events\SDL_mouse.c" />
+    <ClCompile Include="..\external\SDL2\src\events\SDL_quit.c" />
+    <ClCompile Include="..\external\SDL2\src\events\SDL_touch.c" />
+    <ClCompile Include="..\external\SDL2\src\events\SDL_windowevents.c" />
+    <ClCompile Include="..\external\SDL2\src\filesystem\android\SDL_sysfilesystem.c" />
+    <ClCompile Include="..\external\SDL2\src\file\SDL_rwops.c" />
+    <ClCompile Include="..\external\SDL2\src\haptic\android\SDL_syshaptic.c" />
+    <ClCompile Include="..\external\SDL2\src\loadso\dlopen\SDL_sysloadso.c" />
+    <ClCompile Include="..\external\SDL2\src\power\android\SDL_syspower.c" />
+    <ClCompile Include="..\external\SDL2\src\power\SDL_power.c" />
+    <ClCompile Include="..\external\SDL2\src\render\direct3d11\SDL_render_d3d11.c" />
+    <ClCompile Include="..\external\SDL2\src\render\direct3d\SDL_render_d3d.c" />
+    <ClCompile Include="..\external\SDL2\src\render\opengles2\SDL_render_gles2.c" />
+    <ClCompile Include="..\external\SDL2\src\render\opengles2\SDL_shaders_gles2.c" />
+    <ClCompile Include="..\external\SDL2\src\render\opengles\SDL_render_gles.c" />
+    <ClCompile Include="..\external\SDL2\src\render\opengl\SDL_render_gl.c" />
+    <ClCompile Include="..\external\SDL2\src\render\opengl\SDL_shaders_gl.c" />
+    <ClCompile Include="..\external\SDL2\src\render\psp\SDL_render_psp.c" />
+    <ClCompile Include="..\external\SDL2\src\render\SDL_d3dmath.c" />
+    <ClCompile Include="..\external\SDL2\src\render\SDL_render.c" />
+    <ClCompile Include="..\external\SDL2\src\render\SDL_yuv_sw.c" />
+    <ClCompile Include="..\external\SDL2\src\render\software\SDL_blendfillrect.c" />
+    <ClCompile Include="..\external\SDL2\src\render\software\SDL_blendline.c" />
+    <ClCompile Include="..\external\SDL2\src\render\software\SDL_blendpoint.c" />
+    <ClCompile Include="..\external\SDL2\src\render\software\SDL_drawline.c" />
+    <ClCompile Include="..\external\SDL2\src\render\software\SDL_drawpoint.c" />
+    <ClCompile Include="..\external\SDL2\src\render\software\SDL_render_sw.c" />
+    <ClCompile Include="..\external\SDL2\src\render\software\SDL_rotate.c" />
+    <ClCompile Include="..\external\SDL2\src\SDL.c" />
+    <ClCompile Include="..\external\SDL2\src\SDL_assert.c" />
+    <ClCompile Include="..\external\SDL2\src\SDL_dataqueue.c" />
+    <ClCompile Include="..\external\SDL2\src\SDL_error.c" />
+    <ClCompile Include="..\external\SDL2\src\SDL_hints.c" />
+    <ClCompile Include="..\external\SDL2\src\SDL_log.c" />
+    <ClCompile Include="..\external\SDL2\src\sensor\android\SDL_androidsensor.c" />
+    <ClCompile Include="..\external\SDL2\src\sensor\SDL_sensor.c" />
+    <ClCompile Include="..\external\SDL2\src\stdlib\SDL_getenv.c" />
+    <ClCompile Include="..\external\SDL2\src\stdlib\SDL_iconv.c" />
+    <ClCompile Include="..\external\SDL2\src\stdlib\SDL_malloc.c" />
+    <ClCompile Include="..\external\SDL2\src\stdlib\SDL_qsort.c" />
+    <ClCompile Include="..\external\SDL2\src\stdlib\SDL_stdlib.c" />
+    <ClCompile Include="..\external\SDL2\src\stdlib\SDL_string.c" />
+    <ClCompile Include="..\external\SDL2\src\stdlib\SDL_strtokr.c" />
+    <ClCompile Include="..\external\SDL2\src\test\SDL_test_assert.c" />
+    <ClCompile Include="..\external\SDL2\src\test\SDL_test_common.c" />
+    <ClCompile Include="..\external\SDL2\src\test\SDL_test_compare.c" />
+    <ClCompile Include="..\external\SDL2\src\test\SDL_test_crc32.c" />
+    <ClCompile Include="..\external\SDL2\src\test\SDL_test_font.c" />
+    <ClCompile Include="..\external\SDL2\src\test\SDL_test_fuzzer.c" />
+    <ClCompile Include="..\external\SDL2\src\test\SDL_test_harness.c" />
+    <ClCompile Include="..\external\SDL2\src\test\SDL_test_imageBlit.c" />
+    <ClCompile Include="..\external\SDL2\src\test\SDL_test_imageBlitBlend.c" />
+    <ClCompile Include="..\external\SDL2\src\test\SDL_test_imageFace.c" />
+    <ClCompile Include="..\external\SDL2\src\test\SDL_test_imagePrimitives.c" />
+    <ClCompile Include="..\external\SDL2\src\test\SDL_test_imagePrimitivesBlend.c" />
+    <ClCompile Include="..\external\SDL2\src\test\SDL_test_log.c" />
+    <ClCompile Include="..\external\SDL2\src\test\SDL_test_md5.c" />
+    <ClCompile Include="..\external\SDL2\src\test\SDL_test_memory.c" />
+    <ClCompile Include="..\external\SDL2\src\test\SDL_test_random.c" />
+    <ClCompile Include="..\external\SDL2\src\thread\pthread\SDL_syscond.c" />
+    <ClCompile Include="..\external\SDL2\src\thread\pthread\SDL_sysmutex.c" />
+    <ClCompile Include="..\external\SDL2\src\thread\pthread\SDL_syssem.c" />
+    <ClCompile Include="..\external\SDL2\src\thread\pthread\SDL_systhread.c" />
+    <ClCompile Include="..\external\SDL2\src\thread\pthread\SDL_systls.c" />
+    <ClCompile Include="..\external\SDL2\src\thread\SDL_thread.c" />
+    <ClCompile Include="..\external\SDL2\src\timer\SDL_timer.c" />
+    <ClCompile Include="..\external\SDL2\src\timer\unix\SDL_systimer.c" />
+    <ClCompile Include="..\external\SDL2\src\video\android\SDL_androidclipboard.c" />
+    <ClCompile Include="..\external\SDL2\src\video\android\SDL_androidevents.c" />
+    <ClCompile Include="..\external\SDL2\src\video\android\SDL_androidgl.c" />
+    <ClCompile Include="..\external\SDL2\src\video\android\SDL_androidkeyboard.c" />
+    <ClCompile Include="..\external\SDL2\src\video\android\SDL_androidmessagebox.c" />
+    <ClCompile Include="..\external\SDL2\src\video\android\SDL_androidmouse.c" />
+    <ClCompile Include="..\external\SDL2\src\video\android\SDL_androidtouch.c" />
+    <ClCompile Include="..\external\SDL2\src\video\android\SDL_androidvideo.c" />
+    <ClCompile Include="..\external\SDL2\src\video\android\SDL_androidvulkan.c" />
+    <ClCompile Include="..\external\SDL2\src\video\android\SDL_androidwindow.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_blit.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_blit_0.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_blit_1.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_blit_A.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_blit_auto.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_blit_copy.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_blit_N.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_blit_slow.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_bmp.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_clipboard.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_egl.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_fillrect.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_pixels.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_rect.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_RLEaccel.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_shape.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_stretch.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_surface.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_video.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_vulkan_utils.c" />
+    <ClCompile Include="..\external\SDL2\src\video\SDL_yuv.c" />
+    <ClCompile Include="..\external\SDL2\src\video\yuv2rgb\yuv_rgb.c" />
+    <ClCompile Include="..\external\SDL2\src\cpufeatures\cpu-features.c">
+      <Filter>src\cpufeatures</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2\src\atomic\SDL_atomic.c">
+      <Filter>src\atomic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2\src\atomic\SDL_spinlock.c">
+      <Filter>src\atomic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2\src\hidapi\android\hid.cpp">
+      <Filter>src\hidapi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2\src\joystick\hidapi\SDL_hidapi_gamecube.c">
+      <Filter>src\joystick</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2\src\joystick\hidapi\SDL_hidapi_ps4.c">
+      <Filter>src\joystick</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2\src\joystick\hidapi\SDL_hidapi_switch.c">
+      <Filter>src\joystick</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2\src\joystick\hidapi\SDL_hidapi_xbox360.c">
+      <Filter>src\joystick</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2\src\joystick\hidapi\SDL_hidapi_xbox360w.c">
+      <Filter>src\joystick</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2\src\joystick\hidapi\SDL_hidapi_xboxone.c">
+      <Filter>src\joystick</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2\src\joystick\hidapi\SDL_hidapijoystick.c">
+      <Filter>src\joystick</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2\src\joystick\SDL_joystick.c">
+      <Filter>src\joystick</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2\src\joystick\SDL_gamecontroller.c">
+      <Filter>src\joystick</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2\src\joystick\android\SDL_sysjoystick.c">
+      <Filter>src\joystick</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2\src\haptic\SDL_haptic.c">
+      <Filter>src\haptic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL2\src\joystick\hidapi\SDL_hidapi_rumble.c">
+      <Filter>src\joystick</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\external\SDL2\include\begin_code.h" />
+    <ClInclude Include="..\external\SDL2\include\close_code.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_assert.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_atomic.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_audio.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_bits.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_blendmode.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_clipboard.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_config.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_config_android.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_config_iphoneos.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_config_macosx.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_config_minimal.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_config_os2.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_config_pandora.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_config_psp.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_config_windows.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_config_winrt.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_config_wiz.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_copying.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_cpuinfo.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_egl.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_endian.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_error.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_events.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_filesystem.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_gamecontroller.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_gesture.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_haptic.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_hints.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_joystick.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_keyboard.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_keycode.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_loadso.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_log.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_main.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_messagebox.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_mouse.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_mutex.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_name.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_opengl.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_opengles.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_opengles2.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_opengles2_gl2.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_opengles2_gl2ext.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_opengles2_gl2platform.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_opengles2_khrplatform.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_opengl_glext.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_pixels.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_platform.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_power.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_quit.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_rect.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_render.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_revision.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_rwops.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_scancode.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_sensor.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_shape.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_stdinc.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_surface.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_system.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_syswm.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_test.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_test_assert.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_test_common.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_test_compare.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_test_crc32.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_test_font.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_test_fuzzer.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_test_harness.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_test_images.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_test_log.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_test_md5.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_test_memory.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_test_random.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_thread.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_timer.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_touch.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_types.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_version.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_video.h" />
+    <ClInclude Include="..\external\SDL2\include\SDL_vulkan.h" />
+    <ClInclude Include="..\external\SDL2\src\cpufeatures\cpu-features.h">
+      <Filter>src\cpufeatures</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{A355810E-BD4D-42D6-A615-209F44E8FB2F}</ProjectGuid>
+    <RootNamespace>SweetCrush</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>SweetCrush</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(SolutionDir)external/SDL2/include;$(SolutionDir)external;$(SolutionDir)external/include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)external/SDL2_mixer/lib/$(PlatformShortName);$(SolutionDir)external/SDL2_image/lib/$(PlatformShortName);$(SolutionDir)external/glew/lib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <TargetName>$(ProjectName)d</TargetName>
+    <IntDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(SolutionDir)external/SDL2/include;$(SolutionDir)external;$(SolutionDir)external/include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)external/SDL2_mixer/lib/$(PlatformShortName);$(SolutionDir)external/SDL2_image/lib/$(PlatformShortName);$(SolutionDir)external/glew/lib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <IntDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Engine.lib;SDL2d.lib;SDL2_image.lib;SDL2maind.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>$(SolutionDir)\build\$(Platform)\$(Configuration);C:\Program Files (x86)\Visual Leak Detector\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>Engine.lib;SDL2.lib;SDL2_image.lib;SDL2main.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\build\$(Platform)\$(Configuration);C:\Program Files (x86)\Visual Leak Detector\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\external\inih-master\ini.c" />
+    <ClCompile Include="..\SweetCrush\src\Actions.cpp" />
+    <ClCompile Include="..\SweetCrush\src\AssetDefs.cpp" />
+    <ClCompile Include="..\SweetCrush\src\Board.cpp" />
+    <ClCompile Include="..\SweetCrush\src\BoostInfoPanel.cpp" />
+    <ClCompile Include="..\SweetCrush\src\Config.cpp" />
+    <ClCompile Include="..\SweetCrush\src\CreditsScreen.cpp" />
+    <ClCompile Include="..\SweetCrush\src\Game.cpp" />
+    <ClCompile Include="..\SweetCrush\src\GameCompletePanel.cpp" />
+    <ClCompile Include="..\SweetCrush\src\GameOverScreen.cpp" />
+    <ClCompile Include="..\SweetCrush\src\LeaveGamePanel.cpp" />
+    <ClCompile Include="..\SweetCrush\src\LevelCompletePanel.cpp" />
+    <ClCompile Include="..\SweetCrush\src\Levels.cpp" />
+    <ClCompile Include="..\SweetCrush\src\Localization.cpp" />
+    <ClCompile Include="..\SweetCrush\src\main.cpp" />
+    <ClCompile Include="..\SweetCrush\src\MainScreen.cpp" />
+    <ClCompile Include="..\SweetCrush\src\Match3.cpp" />
+    <ClCompile Include="..\SweetCrush\src\PlayScreen.cpp" />
+    <ClCompile Include="..\SweetCrush\src\SettingsScreen.cpp" />
+    <ClCompile Include="..\SweetCrush\src\TileSelector.cpp" />
+    <ClCompile Include="..\SweetCrush\src\UIDefs.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\external\inih-master\ini.h" />
+    <ClInclude Include="..\SweetCrush\src\Actions.h" />
+    <ClInclude Include="..\SweetCrush\src\AssetDefs.h" />
+    <ClInclude Include="..\SweetCrush\src\Board.h" />
+    <ClInclude Include="..\SweetCrush\src\BoostInfoPanel.h" />
+    <ClInclude Include="..\SweetCrush\src\Config.h" />
+    <ClInclude Include="..\SweetCrush\src\Constants.h" />
+    <ClInclude Include="..\SweetCrush\src\CreditsScreen.h" />
+    <ClInclude Include="..\SweetCrush\src\Game.h" />
+    <ClInclude Include="..\SweetCrush\src\GameCompletePanel.h" />
+    <ClInclude Include="..\SweetCrush\src\GameDrawOrder.h" />
+    <ClInclude Include="..\SweetCrush\src\GameOverScreen.h" />
+    <ClInclude Include="..\SweetCrush\src\GameSettings.h" />
+    <ClInclude Include="..\SweetCrush\src\ITileSelector.h" />
+    <ClInclude Include="..\SweetCrush\src\LeaveGamePanel.h" />
+    <ClInclude Include="..\SweetCrush\src\Level.h" />
+    <ClInclude Include="..\SweetCrush\src\LevelCompletePanel.h" />
+    <ClInclude Include="..\SweetCrush\src\Levels.h" />
+    <ClInclude Include="..\SweetCrush\src\Localization.h" />
+    <ClInclude Include="..\SweetCrush\src\MainScreen.h" />
+    <ClInclude Include="..\SweetCrush\src\Match3.h" />
+    <ClInclude Include="..\SweetCrush\src\MatchStats.h" />
+    <ClInclude Include="..\SweetCrush\src\PlayScreen.h" />
+    <ClInclude Include="..\SweetCrush\src\ScreenIds.h" />
+    <ClInclude Include="..\SweetCrush\src\SettingsScreen.h" />
+    <ClInclude Include="..\SweetCrush\src\TileSelector.h" />
+    <ClInclude Include="..\SweetCrush\src\UIDefs.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

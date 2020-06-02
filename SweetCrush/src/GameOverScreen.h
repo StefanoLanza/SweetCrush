@@ -1,0 +1,28 @@
+#pragma once
+
+#include <engine/FwdDecl.h>
+#include <engine/GameScreen.h>
+#include <engine/UI.h>
+
+struct MatchStats;
+
+class GameOverScreen final : public Wind::GameScreen {
+public:
+	GameOverScreen(Wind::Engine& engine, const MatchStats& matchStats);
+
+	void               LoadAssets() override;
+	void               BuildUI(Wind::UICanvas& canvas) override;
+	Wind::GameScreenId Tick(float dt) override;
+	void               Draw(Wind::GameScreenId topScreen) const override;
+	void               Enter(Wind::GameScreenId prevScreen) override;
+	void               Exit() override;
+
+private:
+	Wind::Engine&     mEngine;
+	const MatchStats& mMatchStats;
+	Wind::UIText      mTitle;
+	Wind::UIButton    mReplayLevelButton;
+	Wind::UIButton    mContinueButton;
+	Wind::UIPanel     mPanel;
+	Wind::FontPtr     mFont;
+};

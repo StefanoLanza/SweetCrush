@@ -1,0 +1,17 @@
+vs/*
+win32/*.vcxproj.user
+bin/SweetCrush*.*
+bin/SDL2.dll
+bin/*.ilk
+bin/*.pdb
+build/
+.vs/
+android/*.user
+android/Android.mk
+android/ARM
+android/SDL2_GradleApp/ARM
+android/SDL2_GradleApp/x86
+android/SDL2_GradleApp/.gradle/*
+android/SDL2_GradleApp/app/src/main/jniLibs/
+
+
