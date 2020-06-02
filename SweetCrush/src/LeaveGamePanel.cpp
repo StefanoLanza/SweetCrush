@@ -1,7 +1,7 @@
 #include "LeaveGamePanel.h"
 #include "Localization.h"
-#include "UIDefs.h"
 #include "ScreenIds.h"
+#include "UIDefs.h"
 #include <engine/Engine.h>
 #include <engine/TextRender.h>
 #include <engine/UI.h>

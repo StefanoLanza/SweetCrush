@@ -49,7 +49,7 @@ const UIBitmapDesc boosterIconDesc {
 };
 
 const UIBitmapDesc panelBitmapDesc {
-	"null.png", UIZeroPos, UIParentSize, UIHorizAlignment::center, UIVertAlignment::center, Color{0,0,0,200}, UIBlending::on, 0,
+	"null.png", UIZeroPos, UIParentSize, UIHorizAlignment::center, UIVertAlignment::center, Color { 0, 0, 0, 200 }, UIBlending::on, 0,
 };
 
 const UIPanelDesc panelDesc {
@@ -92,19 +92,19 @@ void BoostInfoPanel::ShowHelp(BoosterType boosterType) {
 	GameStringId titleStringId = GameStringId::empty;
 	GameStringId textStringId = GameStringId::empty;
 	switch (boosterType) {
-		case BoosterType::bomb:
-			titleStringId = GameStringId::bomb;
-			textStringId = GameStringId::bombDescription;
-			break;
-		case BoosterType::miniBomb:
-			titleStringId = GameStringId::miniBomb;
-			textStringId = GameStringId::miniBombDescription;
-			break;
-		case BoosterType::yellowStar:
-		case BoosterType::redStar:
-			titleStringId = GameStringId::star;
-			textStringId = GameStringId::starDescription;
-			break;
+	case BoosterType::bomb:
+		titleStringId = GameStringId::bomb;
+		textStringId = GameStringId::bombDescription;
+		break;
+	case BoosterType::miniBomb:
+		titleStringId = GameStringId::miniBomb;
+		textStringId = GameStringId::miniBombDescription;
+		break;
+	case BoosterType::yellowStar:
+	case BoosterType::redStar:
+		titleStringId = GameStringId::star;
+		textStringId = GameStringId::starDescription;
+		break;
 	}
 	mTitle.SetText(static_cast<StringId>(titleStringId));
 	mText.SetText(static_cast<StringId>(textStringId));

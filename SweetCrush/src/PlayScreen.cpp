@@ -307,7 +307,7 @@ void PlayScreen::DrawUI() const {
 	snprintf(tmp, sizeof(tmp), "LEVEL    %d", mMatchStats.level + 1);
 	textRenderer.Write(*mFonts[2], tmp, Vec2 { 40, y }, textStyle, DrawOrder::UI);
 
-	snprintf(tmp, sizeof(tmp), "%s    %06d", GetLocalizedString(GameStringId::score), mMatchStats.score);
+	snprintf(tmp, sizeof(tmp), "%s    %04d", GetLocalizedString(GameStringId::score), mMatchStats.score);
 	textRenderer.Write(*mFonts[2], tmp, Vec2 { 300, y }, textStyle, DrawOrder::UI);
 
 	const int time = static_cast<int>(mTime);
@@ -450,5 +450,6 @@ int PlayScreen::IncreaseScore(const Match& match) {
 	const int mul = (match.cascadeCount + 1);
 	inc *= mul;
 	mMatchStats.score += inc;
+	mMatchStats.score = std::min(9999, mMatchStats.score);
 	return inc;
 }

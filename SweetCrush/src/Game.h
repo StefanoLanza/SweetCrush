@@ -1,14 +1,14 @@
 #pragma once
 
+#include <engine/ActionMgr.h>
 #include <engine/FwdDecl.h>
 #include <engine/GameScreen.h>
 #include <engine/GlFrameBuffer.h>
 #include <engine/UI.h>
-#include <engine/ActionMgr.h>
 
 #include "GameSettings.h"
-#include "ScreenIds.h"
 #include "MatchStats.h"
+#include "ScreenIds.h"
 
 using namespace Wind;
 

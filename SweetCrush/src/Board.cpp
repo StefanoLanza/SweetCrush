@@ -1,27 +1,26 @@
 #include "Board.h"
-#include "Config.h"
 #include "AssetDefs.h" //FIXME
+#include "Config.h"
 #include <cassert>
 
-Board::Board(int cols, int rows) :
-	mCells { static_cast<size_t>(cols * rows) },
-	mCols { cols },
-	mRows { rows }
-{ 
+Board::Board(int cols, int rows)
+    : mCells { static_cast<size_t>(cols * rows) }
+    , mCols { cols }
+    , mRows { rows } {
 	assert(cols >= 1);
 	assert(rows >= 1);
 }
 
 int Board::GetCols() const {
-	return mCols; 
+	return mCols;
 }
 
 int Board::GetRows() const {
-	return mRows; 
+	return mRows;
 }
 
 Wind::Span<Cell> Board::GetCells() {
-	return  { mCells.data(), mCells.size() };
+	return { mCells.data(), mCells.size() };
 }
 
 Wind::Span<const Cell> Board::GetCells() const {
@@ -33,20 +32,20 @@ int Board::GetCellIndex(int col, int row) const {
 }
 
 Cell& Board::GetCell(int index) {
-	return mCells[index]; 
+	return mCells[index];
 }
 
 const Cell& Board::GetCell(int index) const {
-	return mCells[index]; 
+	return mCells[index];
 }
 
 Cell& Board::GetCell(int col, int row) {
 	assert(col >= 0 && col < mCols);
 	assert(row >= 0 && row < mRows);
-	return mCells[col + row * mCols]; 
+	return mCells[col + row * mCols];
 }
 
-const Cell& Board::GetCell(int col, int row) const  {
+const Cell& Board::GetCell(int col, int row) const {
 	assert(col >= 0 && col < mCols);
 	assert(row >= 0 && row < mRows);
 	return mCells[col + row * mCols];

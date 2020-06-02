@@ -42,14 +42,10 @@ enum class GameStringId : Wind::StringId {
 	//
 };
 
-enum class Language {
-	english,
-	spanish,
-	italian
-};
+enum class Language { english, spanish, italian };
 constexpr int NumLanguages = 3;
 
-void SetLanguage(Language language);
-void SetNextLanguage();
-Language GetCurrentLanguage();
+void        SetLanguage(Language language);
+void        SetNextLanguage();
+Language    GetCurrentLanguage();
 const char* GetLocalizedString(GameStringId str);

@@ -3,12 +3,7 @@
 #include <functional>
 
 struct TileSelectionEvent {
-	enum class Id {
-		select,
-		deselect,
-		drag,
-		undoDrag
-	}; 
+	enum class Id { select, deselect, drag, undoDrag };
 	Id  id;
 	int cellIdx;
 };
@@ -19,7 +14,7 @@ class ITileSelector {
 public:
 	virtual ~ITileSelector() = default;
 
-	virtual int GetSelectedCell() const = 0;
-	virtual void Reset() = 0;
+	virtual int                        GetSelectedCell() const = 0;
+	virtual void                       Reset() = 0;
 	virtual std::tuple<bool, int, int> SelectTiles() = 0;
 };

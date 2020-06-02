@@ -1,7 +1,7 @@
 #pragma once
 
-#include <memory>
 #include "FwdDecl.h"
+#include <memory>
 
 namespace Wind {
 
@@ -10,8 +10,8 @@ public:
 	Audio();
 	~Audio();
 
-	MusicPtr  LoadMusic(const char* fileName);
-	SoundPtr  LoadSound(const char* fileName);
+	MusicPtr LoadMusic(const char* fileName);
+	SoundPtr LoadSound(const char* fileName);
 
 private:
 	class Impl;

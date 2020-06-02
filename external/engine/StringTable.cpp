@@ -4,9 +4,9 @@
 namespace Wind {
 
 namespace {
-	const char** strTable = nullptr;
-	size_t strTableSize = 0;
-}
+const char** strTable = nullptr;
+size_t       strTableSize = 0;
+} // namespace
 
 void SetStringTable(const char** strings, size_t numStrings) {
 	strTable = strings;
@@ -19,4 +19,4 @@ const char* GetString(StringId str) {
 	return strTable[str];
 }
 
-}
+} // namespace Wind

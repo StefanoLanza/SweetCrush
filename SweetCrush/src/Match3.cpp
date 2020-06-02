@@ -17,26 +17,26 @@ int CountMatches(const Cell& cell, const Board& board, Direction dir) {
 	int drow = 0;
 	int iter = 0;
 	switch (dir) {
-		case Direction::left:
-			dcol = -1;
-			drow = 0;
-			iter = cell.col;
-			break;
-		case Direction::right:
-			dcol = +1;
-			drow = 0;
-			iter = board.GetCols() - 1 - cell.col;
-			break;
-		case Direction::top:
-			dcol = 0;
-			drow = -1;
-			iter = cell.row;
-			break;
-		case Direction::bottom:
-			dcol = 0;
-			drow = +1;
-			iter = board.GetRows() - 1 - cell.row;
-			break;
+	case Direction::left:
+		dcol = -1;
+		drow = 0;
+		iter = cell.col;
+		break;
+	case Direction::right:
+		dcol = +1;
+		drow = 0;
+		iter = board.GetCols() - 1 - cell.col;
+		break;
+	case Direction::top:
+		dcol = 0;
+		drow = -1;
+		iter = cell.row;
+		break;
+	case Direction::bottom:
+		dcol = 0;
+		drow = +1;
+		iter = board.GetRows() - 1 - cell.row;
+		break;
 	}
 	int matches = 0;
 	int col = cell.col + dcol;
@@ -211,43 +211,43 @@ void Match3::Update() {
 	mCollapseList.clear();
 
 	switch (mState) {
-		case State::selectTiles:
-			SelectTiles();
-			break;
-		case State::checkMatchesAfterSwap:
-			if (CheckMatchesAfterSwap()) {
-				mState = State::insertBoosters;
-			}
-			else {
-				// No matches, undo swap
-				mSwaps.push_back(mUserSwap);
-				mState = State::selectTiles;
-			}
-			break;
-		case State::insertBoosters:
-			InsertBoosters();
-			mState = State::collapseColumns;
-			break;
-		case State::collapseColumns:
-			CollapseColumns();
-			mState = State::generateNewGems;
-			break;
-		case State::generateNewGems:
-			GenerateNewGems();
-			mState = State::checkMatches;
-			break;
-		case State::checkMatches:
-			if (CheckMatches()) {
-				mState = State::insertBoosters;
-			}
-			else {
-				mCascadeCount = 0;
-				mState = State::selectTiles;
-			}
-			break;
-		default:
-			assert(false);
-			break;
+	case State::selectTiles:
+		SelectTiles();
+		break;
+	case State::checkMatchesAfterSwap:
+		if (CheckMatchesAfterSwap()) {
+			mState = State::insertBoosters;
+		}
+		else {
+			// No matches, undo swap
+			mSwaps.push_back(mUserSwap);
+			mState = State::selectTiles;
+		}
+		break;
+	case State::insertBoosters:
+		InsertBoosters();
+		mState = State::collapseColumns;
+		break;
+	case State::collapseColumns:
+		CollapseColumns();
+		mState = State::generateNewGems;
+		break;
+	case State::generateNewGems:
+		GenerateNewGems();
+		mState = State::checkMatches;
+		break;
+	case State::checkMatches:
+		if (CheckMatches()) {
+			mState = State::insertBoosters;
+		}
+		else {
+			mCascadeCount = 0;
+			mState = State::selectTiles;
+		}
+		break;
+	default:
+		assert(false);
+		break;
 	};
 
 	for (const CellPair& pair : mSwaps) {
@@ -506,15 +506,15 @@ void Match3::TriggerBooster(int cellIdx) {
 	assert(cell.category == TileCategory::booster);
 	const BoosterType boosterType = static_cast<BoosterType>(cell.tileId);
 	switch (boosterType) {
-		case BoosterType::yellowStar:
-			Star(cellIdx);
-			break;
-		case BoosterType::miniBomb:
-			MiniBomb(cell.col, cell.row);
-			break;
-		case BoosterType::bomb:
-			Bomb(cell.col, cell.row);
-			break;
+	case BoosterType::yellowStar:
+		Star(cellIdx);
+		break;
+	case BoosterType::miniBomb:
+		MiniBomb(cell.col, cell.row);
+		break;
+	case BoosterType::bomb:
+		Bomb(cell.col, cell.row);
+		break;
 	}
 	// Inform client
 	Match3Event event;

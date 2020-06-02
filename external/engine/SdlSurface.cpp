@@ -19,17 +19,17 @@ SdlSurface::SdlSurface(const char* fileName, const char* path)
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	int mode;
 	switch (mSurface->format->BytesPerPixel) {
-		case 4:
-			mode = GL_RGBA;
-			break;
-		case 3:
-			mode = GL_RGB;
-			break;
-		case 1:
-			mode = GL_LUMINANCE_ALPHA;
-			break;
-		default:
-			throw std::runtime_error("Image with unknown channel profile");
+	case 4:
+		mode = GL_RGBA;
+		break;
+	case 3:
+		mode = GL_RGB;
+		break;
+	case 1:
+		mode = GL_LUMINANCE_ALPHA;
+		break;
+	default:
+		throw std::runtime_error("Image with unknown channel profile");
 	}
 	glTexImage2D(GL_TEXTURE_2D, 0, mode, mSurface->w, mSurface->h, 0, mode, GL_UNSIGNED_BYTE, mSurface->pixels);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

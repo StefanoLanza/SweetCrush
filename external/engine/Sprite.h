@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Math.h"
 #include "FwdDecl.h"
+#include "Math.h"
 
 namespace Wind {
 

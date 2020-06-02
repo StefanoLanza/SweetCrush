@@ -22,7 +22,6 @@ private:
 	Wind::UIButton mSettingsButton;
 	Wind::UIButton mCreditsButton;
 	Wind::UIButton mQuitButton;
-	Wind::UIBitmap mPanelBitmap;
 	Wind::UIPanel  mPanel;
 	float          mTime;
 };

@@ -54,7 +54,7 @@ ActionFunc DrawMovingStar(const Cell& cell, const Engine& engine, Vec2 targetPos
 		prm.pivot = BitmapPivot::center;
 		prm.orientation = t * 3.f;
 		prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::overlays);
-			prm.blending = true;
+		prm.blending = true;
 		Vec2 xy = Lerp(xy0, starIconCoord, t);
 		if (sprites[def.sprite]) {
 			bitmapRender.DrawBitmapEx(*sprites[def.sprite], xy, prm);
@@ -82,7 +82,7 @@ Wind::ActionFunc DrawMatchScore(int score, const Cell& cell, const Engine& engin
 		char                tmp[64];
 		snprintf(tmp, sizeof(tmp), "%d", score);
 		float y = xy.y - t * scrollSpeed;
-		textRender.Write(font, tmp, Vec2{xy.x, y}, defaultTextStyle, DrawOrder::UI - 1); // below UI
+		textRender.Write(font, tmp, Vec2 { xy.x, y }, defaultTextStyle, DrawOrder::UI - 1); // below UI
 		return false;
 	};
 }

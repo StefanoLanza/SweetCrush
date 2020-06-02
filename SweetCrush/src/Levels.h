@@ -10,4 +10,3 @@ constexpr int numLevels = 1;
 constexpr int numLevels = 3;
 #endif
 extern const Level levels[numLevels];
-

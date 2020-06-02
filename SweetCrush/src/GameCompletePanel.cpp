@@ -1,8 +1,8 @@
 #include "GameCompletePanel.h"
-#include "Localization.h"
-#include "ScreenIds.h"
 #include "GameDrawOrder.h"
+#include "Localization.h"
 #include "MatchStats.h"
+#include "ScreenIds.h"
 #include "UIDefs.h"
 #include <engine/Engine.h>
 #include <engine/TextRender.h>
@@ -69,7 +69,7 @@ void GameCompletePanel::LoadAssets() {
 void GameCompletePanel::BuildUI(UICanvas& canvas) {
 	mPanel.AddText(mTitle);
 	mPanel.AddButton(mContinueButton);
-	//mPanel.AddBitmap(mPanelBitmap);
+	// mPanel.AddBitmap(mPanelBitmap);
 	canvas.GetPanel().AddPanel(mPanel);
 }
 

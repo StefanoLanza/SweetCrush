@@ -16,21 +16,21 @@ struct GameConfig {
 	float boardTop;
 	int   colorPalette;
 	// Animations
-	float tileMoveBackSpeed;       // pixels / sec
+	float tileMoveBackSpeed; // pixels / sec
 	float tileSwapSpeed;
 	float tileFallSpeed;
-	float tileFallYCoord;          // pixels
-	float bombExplosionTime;    // seconds
+	float tileFallYCoord;    // pixels
+	float bombExplosionTime; // seconds
 	float starMoveTime;
-	float tileScaleDuration;   // seconds
+	float tileScaleDuration; // seconds
 	float scoreTextDuration;
 	float scoreTextScrollSpeed;
 	// UI
-	float swapThreshold;           // [0, 1]
-	float startDragThreshold;      // pixels
+	float      swapThreshold;      // [0, 1]
+	float      startDragThreshold; // pixels
 	Wind::Vec2 targetGemCoord;
 	// Misc
-	bool  audioOn;
+	bool audioOn;
 };
 
 GameConfig DefaultGameConfig();

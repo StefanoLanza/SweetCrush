@@ -125,17 +125,17 @@ void Engine::Implementation::ParseEvent() {
 	while (SDL_PollEvent(&event)) {
 		mInput.ParseEvent(event, mWindow);
 		switch (event.type) {
-			case SDL_APP_WILLENTERBACKGROUND:
-				mBackground = true;
-				break;
-			case SDL_APP_WILLENTERFOREGROUND:
-				mBackground = false;
-				break;
-			case SDL_QUIT:
-				mQuit = true;
-				break;
-			default:
-				break;
+		case SDL_APP_WILLENTERBACKGROUND:
+			mBackground = true;
+			break;
+		case SDL_APP_WILLENTERFOREGROUND:
+			mBackground = false;
+			break;
+		case SDL_QUIT:
+			mQuit = true;
+			break;
+		default:
+			break;
 		}
 	}
 }

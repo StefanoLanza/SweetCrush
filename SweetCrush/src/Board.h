@@ -1,53 +1,48 @@
 #pragma once
 
+#include <cstdint>
 #include <engine/Math.h>
 #include <engine/Span.h>
-#include <cstdint>
 #include <vector>
 
 using TileId = uint8_t;
 
-enum class TileCategory {
-	none,
-	gem,
-	booster,
-	obstacle
-};
+enum class TileCategory { none, gem, booster, obstacle };
 
 enum class BoosterType {
-//	rocket,
-//	rocket2,
+	//	rocket,
+	//	rocket2,
 	miniBomb,
 	bomb,
 	yellowStar,
 	redStar,
-//	extraTime
+	//	extraTime
 };
 constexpr int NumBoosters = static_cast<int>(BoosterType::redStar) + 1;
 
 struct SpriteDef {
-/*	const char** bitmaps;
-	int          numBitmaps;
-	float        animationFreq;*/
+	/*	const char** bitmaps;
+	    int          numBitmaps;
+	    float        animationFreq;*/
 	const char* bitmap;
 };
 
 struct GemDef {
-	int          sprite;
+	int sprite;
 };
 
 struct ObstacleDef {
-	int          sprite;
+	int sprite;
 };
 
 struct BoosterDef {
-	int          sprite;
-	BoosterType  boosterType;
-	float        rotation;
+	int         sprite;
+	BoosterType boosterType;
+	float       rotation;
 };
 
 struct BoardTileDef {
-	int          sprite;
+	int sprite;
 };
 
 struct TileAnim {
@@ -79,19 +74,19 @@ class Board {
 public:
 	Board(int cols, int rows);
 
-	int GetCols() const;
-	int GetRows() const;
-	Wind::Span<Cell> GetCells();
+	int                    GetCols() const;
+	int                    GetRows() const;
+	Wind::Span<Cell>       GetCells();
 	Wind::Span<const Cell> GetCells() const;
-	int GetCellIndex(int col, int row) const;
-	Cell& GetCell(int index);
-	const Cell& GetCell(int index) const;
-	Cell& GetCell(int col, int row);
-	const Cell& GetCell(int col, int row) const;
-	bool IsInside(int col, int row) const;
+	int                    GetCellIndex(int col, int row) const;
+	Cell&                  GetCell(int index);
+	const Cell&            GetCell(int index) const;
+	Cell&                  GetCell(int col, int row);
+	const Cell&            GetCell(int col, int row) const;
+	bool                   IsInside(int col, int row) const;
 
 private:
 	std::vector<Cell> mCells;
-	int mCols;
-	int mRows;
+	int               mCols;
+	int               mRows;
 };

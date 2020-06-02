@@ -5,9 +5,7 @@
 
 namespace Wind {
 
-enum class Effect {
-	bloom
-};
+enum class Effect { bloom };
 
 class Blitter {
 public:
@@ -21,4 +19,4 @@ private:
 	std::unique_ptr<Impl> mPimpl;
 };
 
-}
+} // namespace Wind

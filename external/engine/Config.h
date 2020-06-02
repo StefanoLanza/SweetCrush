@@ -7,4 +7,4 @@
 #endif
 
 #define SHADERS_FOLDER ASSETS_FOLDER "shaders/"
-#define FONTS_FOLDER ASSETS_FOLDER "fonts/"
+#define FONTS_FOLDER   ASSETS_FOLDER "fonts/"

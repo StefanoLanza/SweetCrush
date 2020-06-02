@@ -5,13 +5,14 @@
 #include <SDL2/include/SDL.h>
 
 namespace Wind {
-	class SdlWindow;
+class SdlWindow;
 
-	class GlContext {
-	public:
-		GlContext(SdlWindow& sdlWindow);
-		operator SDL_GLContext() const;
-	private:
-		std::unique_ptr<void, void(*)(SDL_GLContext)> mContext;
-	};
-}
+class GlContext {
+public:
+	GlContext(SdlWindow& sdlWindow);
+	operator SDL_GLContext() const;
+
+private:
+	std::unique_ptr<void, void (*)(SDL_GLContext)> mContext;
+};
+} // namespace Wind

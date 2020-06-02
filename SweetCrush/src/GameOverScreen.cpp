@@ -39,7 +39,7 @@ const UITextDesc textDescs[] {
 	},
 	{
 	    "mediumFont",
-	    (StringId)GameStringId::replay,
+	    (StringId)GameStringId::retry,
 	    UIZeroPos,
 	    UIAutoSize,
 	    UIHorizAlignment::center,

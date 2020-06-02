@@ -5,6 +5,7 @@
 #include "Localization.h"
 #include "ScreenIds.h"
 #include "UIDefs.h"
+#include <cmath>
 #include <engine/BitmapRender.h>
 #include <engine/Engine.h>
 #include <engine/TextRender.h>
@@ -21,15 +22,12 @@ const UIButtonDesc buttonDescs[4] {
 	{ UIAbsolutePos(0, 800), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
 };
 const UITextDesc textDescs[5] {
-	{ "bigFont", (StringId)GameStringId::title, UIAbsolutePos(0, titleY), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, titleTextStyle },
+	{ "bigFont", (StringId)GameStringId::title, UIAbsolutePos(0, titleY), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top,
+	  titleTextStyle },
 	{ "mediumFont", (StringId)GameStringId::start, UIZeroPos, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
 	{ "mediumFont", (StringId)GameStringId::settings, UIZeroPos, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
 	{ "mediumFont", (StringId)GameStringId::credits, UIZeroPos, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
 	{ "mediumFont", (StringId)GameStringId::quit, UIZeroPos, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
-};
-
-const UIBitmapDesc panelBitmapDesc {
-	"null.png", UIZeroPos, UIParentSize, UIHorizAlignment::center, UIVertAlignment::center, Color { 0, 0, 0, 160 }, UIBlending::on, 0,
 };
 
 } // namespace
@@ -41,7 +39,6 @@ MainScreen::MainScreen(Engine& engine)
     , mSettingsButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2], engine))
     , mCreditsButton(MakeButton(buttonDescs[2], buttonBitmapDesc, textDescs[3], engine))
     , mQuitButton(MakeButton(buttonDescs[3], buttonBitmapDesc, textDescs[4], engine))
-    , mPanelBitmap(panelBitmapDesc, engine)
     , mPanel(UIDefaultPanelDesc)
     , mTime(0) {
 }
@@ -57,7 +54,6 @@ void MainScreen::BuildUI(UICanvas& canvas) {
 #ifdef _WIN32
 	mPanel.AddButton(mQuitButton);
 #endif
-	// mPanel.AddBitmap(mPanelBitmap);
 	canvas.GetPanel().AddPanel(mPanel);
 }
 
