@@ -3,7 +3,7 @@
 using namespace Wind;
 
 const SpriteDef spriteDefs[NumSprites] {
-	{ "wall.png" },
+	{ "null.png" },
 	{ "pastries/pastry_cookie01.png" },
 	{ "pastries/pastry_cookie02.png" },
 	{ "pastries/pastry_croissant.png" },

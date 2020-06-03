@@ -515,6 +515,8 @@ void Match3::TriggerBooster(int cellIdx) {
 	case BoosterType::bomb:
 		Bomb(cell.col, cell.row);
 		break;
+	default:
+		break;
 	}
 	// Inform client
 	Match3Event event;

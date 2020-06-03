@@ -95,16 +95,10 @@ struct Graphics::Impl {
 	void          Flush();
 	void          EnableClipRect(int x, int y, int width, int height);
 	void          DisableClipRect();
-	void          SetBlending(bool enabled);
-	void          SetProgram(ProgramHandle program);
-	void          SetMesh(MeshHandle mesh);
 	ProgramHandle NewProgram(const char* vs, const char* fs);
-	void          SetDefaultProgram();
-	void          BeginBatch(unsigned int drawOrder);
-	void          EndBatch();
+	void          Draw(const DrawCall& drawCall);
 	void          SetFloat4(int uniform, float x, float y, float z, float w);
 	void          SetTexture(int uniform, unsigned texture);
-	void          Draw(const DrawCall& drawCall);
 	void          RecompileShaders();
 	void          InitGL();
 
@@ -115,15 +109,9 @@ public:
 	const SdlWindow& mWindow;
 	int              mFBWidth = 0;
 	int              mFBHeight = 0;
-	ProgramHandle    mCurrProgram;
-	unsigned         mMeshIdx;
 	RectI            mClipRect;
 	bool             mClipRectEnabled = false;
-	bool             mBlending = true;
 	unsigned         mFirstUniform;
-	unsigned         mUniformCount;
-	unsigned         mDrawOrder;
-	bool             mBeginBatch;
 
 	std::vector<Mesh>          mMeshes;
 	std::vector<Target>        mTargets;
@@ -136,11 +124,7 @@ Graphics::Impl::Impl(const SdlWindow& window)
     : mWindow(window) {
 	mFBWidth = window.GetWidth();
 	mFBHeight = window.GetHeight();
-	mCurrProgram = NewProgram(SHADERS_FOLDER "quad.vs", SHADERS_FOLDER "quad.fs");
 	mFirstUniform = 0;
-	mUniformCount = 0;
-	mBeginBatch = false;
-	mMeshIdx = 0;
 }
 
 void Graphics::Impl::InitGL() {
@@ -153,31 +137,32 @@ void Graphics::Impl::ResetState() {
 	mTargets.clear();
 	mBatches.clear();
 	mShaderUniforms.clear();
-	SetDefaultProgram();
 	mFirstUniform = 0;
-	mUniformCount = 0;
-	SetMesh(quadMesh);
 }
 
-void Graphics::Impl::BeginBatch(unsigned int drawOrder) {
-	assert(! mBeginBatch);
-	mBeginBatch = true;
-	mUniformCount = 0;
-	mDrawOrder = drawOrder;
-}
+void Graphics::Impl::Draw(const DrawCall& drawCall) {
+	assert(drawCall.program != nullProgram);
+	assert(drawCall.mesh != nullMesh);
+	const unsigned meshIdx = static_cast<unsigned>(drawCall.mesh) - 1;
 
-void Graphics::Impl::EndBatch() {
-	assert(mBeginBatch);
+	DisableClipRect(); // FIXME
+
 	Batch batch;
 	batch.scissorRect = mClipRectEnabled ? mClipRect : RectI { 0, 0, 0, 0 };
-	batch.blending = mBlending;
-	batch.programIdx = static_cast<unsigned>(mCurrProgram) - 1;
+	batch.blending = drawCall.blending;
+	batch.programIdx = static_cast<unsigned>(drawCall.program) - 1;
 	batch.firstUniform = mFirstUniform;
-	batch.numUniforms = mUniformCount;
-	batch.sortKey = (static_cast<uint32_t>(mTargets.size() - 1) << 24) | (mDrawOrder << 16) | (mMeshIdx << 8);
+	batch.numUniforms = drawCall.numUniforms + 1;
+	batch.sortKey = (static_cast<uint32_t>(mTargets.size() - 1) << 24) | (drawCall.drawOrder << 16) | (meshIdx << 8);
 	mBatches.push_back(batch);
-	mBeginBatch = false;
-	mFirstUniform += mUniformCount;
+
+	SetTexture(0, drawCall.texture);
+	const float* u = drawCall.uniformData;
+	for (int i = 0; i < drawCall.numUniforms; ++i) {
+		SetFloat4(drawCall.uniforms[i], u[0], u[1], u[2], u[3]);
+		u += 4;
+	}
+	mFirstUniform += (drawCall.numUniforms + 1);
 }
 
 void Graphics::Impl::Flush() {
@@ -289,19 +274,6 @@ void Graphics::Impl::DisableClipRect() {
 	mClipRectEnabled = false;
 }
 
-void Graphics::Impl::SetBlending(bool enabled) {
-	mBlending = enabled;
-}
-
-void Graphics::Impl::SetProgram(ProgramHandle program) {
-	mCurrProgram = program;
-}
-
-void Graphics::Impl::SetMesh(MeshHandle mesh) {
-	assert(mesh != nullMesh);
-	mMeshIdx = static_cast<unsigned>(mesh) - 1;
-}
-
 void Graphics::Impl::RecompileShaders() {
 }
 
@@ -316,12 +288,7 @@ ProgramHandle Graphics::Impl::NewProgram(const char* vs, const char* fs) {
 	}
 }
 
-void Graphics::Impl::SetDefaultProgram() {
-	mCurrProgram = static_cast<ProgramHandle>(1);
-}
-
 void Graphics::Impl::SetFloat4(int uniform, float x, float y, float z, float w) {
-	assert(mBeginBatch);
 	mShaderUniforms.resize(mShaderUniforms.size() + 1);
 	ShaderUniform& su = mShaderUniforms.back();
 	su.type = ShaderUniformType::float4;
@@ -330,32 +297,14 @@ void Graphics::Impl::SetFloat4(int uniform, float x, float y, float z, float w) 
 	su.fvalue[1] = y;
 	su.fvalue[2] = z;
 	su.fvalue[3] = w;
-	++mUniformCount;
 }
 
 void Graphics::Impl::SetTexture(int uniform, unsigned texture) {
-	assert(mBeginBatch);
 	mShaderUniforms.resize(mShaderUniforms.size() + 1);
 	ShaderUniform& su = mShaderUniforms.back();
 	su.type = ShaderUniformType::texture;
 	su.uniform = uniform;
 	su.texture = texture;
-	++mUniformCount;
-}
-
-void Graphics::Impl::Draw(const DrawCall& drawCall) {
-	BeginBatch(drawCall.drawOrder);
-	SetProgram(drawCall.program);
-	SetMesh(drawCall.mesh);
-	SetTexture(0, drawCall.texture);
-	SetBlending(drawCall.blending);
-	DisableClipRect(); // FIXME
-	const float* u = drawCall.uniformData;
-	for (int i = 0; i < drawCall.numUniforms; ++i) {
-		SetFloat4(drawCall.uniforms[i], u[0], u[1], u[2], u[3]);
-		u += 4;
-	}
-	EndBatch();
 }
 
 Graphics::Graphics(const SdlWindow& window)

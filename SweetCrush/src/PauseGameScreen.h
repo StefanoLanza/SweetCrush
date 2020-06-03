@@ -4,9 +4,9 @@
 #include <engine/GameScreen.h>
 #include <engine/UI.h>
 
-class LeaveGamePanel final : public Wind::GameScreen {
+class PauseGameScreen final : public Wind::GameScreen {
 public:
-	LeaveGamePanel(Wind::Engine& engine);
+	PauseGameScreen(Wind::Engine& engine);
 
 	void               LoadAssets() override;
 	void               BuildUI(Wind::UICanvas& canvas) override;
@@ -18,8 +18,9 @@ public:
 public:
 	Wind::Engine&  mEngine;
 	Wind::UIText   mTitle;
-	Wind::UIButton mYesButton;
-	Wind::UIButton mNoButton;
+	Wind::UIButton mContinueButton;
+	Wind::UIButton mRestartLevelButton;
+	Wind::UIButton mExitGameButton;
 	Wind::UIBitmap mPanelBitmap;
 	Wind::UIPanel  mPanel;
 };

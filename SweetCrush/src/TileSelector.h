@@ -34,6 +34,7 @@ private:
 	const Wind::Input&    mInput;
 	TileSelectionCallback mCbk;
 	State                 mState;
+	int                   mFirstCellIdx;
 	int                   mSelectedCellIdx;
 	DragDirection         mDragDirection;
 	Wind::Vec2            mDragMouseCoords;

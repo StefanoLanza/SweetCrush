@@ -104,13 +104,13 @@
     <ClCompile Include="..\SweetCrush\src\Game.cpp" />
     <ClCompile Include="..\SweetCrush\src\GameCompletePanel.cpp" />
     <ClCompile Include="..\SweetCrush\src\GameOverScreen.cpp" />
-    <ClCompile Include="..\SweetCrush\src\LeaveGamePanel.cpp" />
     <ClCompile Include="..\SweetCrush\src\LevelCompletePanel.cpp" />
     <ClCompile Include="..\SweetCrush\src\Levels.cpp" />
     <ClCompile Include="..\SweetCrush\src\Localization.cpp" />
     <ClCompile Include="..\SweetCrush\src\main.cpp" />
     <ClCompile Include="..\SweetCrush\src\MainScreen.cpp" />
     <ClCompile Include="..\SweetCrush\src\Match3.cpp" />
+    <ClCompile Include="..\SweetCrush\src\PauseGameScreen.cpp" />
     <ClCompile Include="..\SweetCrush\src\PlayScreen.cpp" />
     <ClCompile Include="..\SweetCrush\src\SettingsScreen.cpp" />
     <ClCompile Include="..\SweetCrush\src\TileSelector.cpp" />
@@ -131,7 +131,6 @@
     <ClInclude Include="..\SweetCrush\src\GameOverScreen.h" />
     <ClInclude Include="..\SweetCrush\src\GameSettings.h" />
     <ClInclude Include="..\SweetCrush\src\ITileSelector.h" />
-    <ClInclude Include="..\SweetCrush\src\LeaveGamePanel.h" />
     <ClInclude Include="..\SweetCrush\src\Level.h" />
     <ClInclude Include="..\SweetCrush\src\LevelCompletePanel.h" />
     <ClInclude Include="..\SweetCrush\src\Levels.h" />
@@ -139,6 +138,7 @@
     <ClInclude Include="..\SweetCrush\src\MainScreen.h" />
     <ClInclude Include="..\SweetCrush\src\Match3.h" />
     <ClInclude Include="..\SweetCrush\src\MatchStats.h" />
+    <ClInclude Include="..\SweetCrush\src\PauseGameScreen.h" />
     <ClInclude Include="..\SweetCrush\src\PlayScreen.h" />
     <ClInclude Include="..\SweetCrush\src\ScreenIds.h" />
     <ClInclude Include="..\SweetCrush\src\SettingsScreen.h" />

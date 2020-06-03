@@ -2,7 +2,7 @@
 
 #include "Level.h"
 
-#define TEST_SHORT_GAME 1
+#define TEST_SHORT_GAME 0
 
 #if TEST_SHORT_GAME
 constexpr int numLevels = 1;

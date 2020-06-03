@@ -39,6 +39,8 @@ private:
 	int  IncreaseScore(const Match& match);
 	void PlayMusic() const;
 	void StopMusic() const;
+	void PauseMusic() const;
+	void ResumeMusic() const;
 	void PlaySound(int idx) const;
 
 private:
@@ -51,7 +53,7 @@ private:
 	std::unique_ptr<TileSelector> mTileSelector;
 	BoostInfoPanel                mBoostInfoPanel;
 	Wind::UIPanel                 mPanel;
-	Wind::UIButton                mOptionsButton;
+	Wind::UIButton                mPauseButton;
 	Match3                        mMatch3;
 	int                           mBoardFillCounter;
 	int                           mAnimCounter;

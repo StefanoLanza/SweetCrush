@@ -33,7 +33,7 @@ const UITextDesc textDescs[] {
 	},
 	{
 	    "mediumFont",
-	    (StringId)GameStringId::exitGame,
+	    (StringId)GameStringId::continueGame,
 	    UIZeroPos,
 	    UIAutoSize,
 	    UIHorizAlignment::center,
@@ -44,11 +44,6 @@ const UITextDesc textDescs[] {
 
 const UIBitmapDesc panelBitmapDesc {
 	"null.png", UIZeroPos, UIParentSize, UIHorizAlignment::center, UIVertAlignment::center, Color { 0, 0, 0, 200 }, UIBlending::on, 0,
-};
-
-const UIPanelDesc panelDesc {
-	UIZeroPos,
-	UIAbsoluteSize(800, 420),
 };
 
 } // namespace

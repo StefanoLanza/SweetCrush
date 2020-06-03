@@ -51,7 +51,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameConfig& gameConfig, const GameS
     , mTileSelector { std::make_unique<TileSelector>(mBoard, gameConfig, engine.GetInput()) }
     , mBoostInfoPanel(engine)
     , mPanel(UIDefaultPanelDesc)
-    , mOptionsButton(MakeButton(optionButtonDesc, optionButtonBitmapDesc, engine))
+    , mPauseButton(MakeButton(optionButtonDesc, optionButtonBitmapDesc, engine))
     , mMatch3 { mBoard, gameConfig, *mTileSelector }
     , mBoardFillCounter { 0 }
     , mAnimCounter { 0 }
@@ -77,22 +77,21 @@ void PlayScreen::BuildUI(UICanvas& canvas) {
 	mFonts[0] = mEngine.GetTextRenderer().AddFont("mediumFont");
 	mFonts[1] = mEngine.GetTextRenderer().AddFont("tiny");
 	mFonts[2] = mEngine.GetTextRenderer().AddFont("smallFont");
-	mPanel.AddButton(mOptionsButton);
+	mPanel.AddButton(mPauseButton);
 	canvas.GetPanel().AddPanel(mPanel);
 }
 
 GameScreenId PlayScreen::Tick(float dt) {
 	const Input& input = mEngine.GetInput();
-	if (mOptionsButton.IsPressed(input)) {
-		// TODO
+	if (mPauseButton.IsPressed(input)) {
+		return ScreenId::pauseGame;
 	}
 #if _WIN32
 	if (input.GetKeyPressed(SDLK_ESCAPE)) {
 #elif defined(__ANDROID__)
 	if (input.GetKeyPressed(SDLK_AC_BACK)) {
 #endif
-		return ScreenId::leaveGame;
-		//		mMusic->Pause();
+		return ScreenId::pauseGame;
 	}
 	if (mMatchStats.gameComplete) {
 		return ScreenId::gameComplete;
@@ -120,7 +119,7 @@ GameScreenId PlayScreen::Tick(float dt) {
 }
 
 void PlayScreen::Draw(GameScreenId topScreen) const {
-	if (topScreen != ScreenId::play && topScreen != ScreenId::leaveGame) {
+	if (topScreen != ScreenId::play && topScreen != ScreenId::pauseGame) {
 		return;
 	}
 	const BitmapRenderer& bitmapRender = mEngine.GetBitmapRenderer();
@@ -132,7 +131,7 @@ void PlayScreen::Enter(GameScreenId prevScreen) {
 	if (prevScreen == levelComplete) {
 		NextLevel();
 	}
-	else if (prevScreen == ScreenId::leaveGame) {
+	else if (prevScreen == ScreenId::pauseGame) {
 		// resume game
 	}
 	else if (prevScreen == ScreenId::gameOver) {
@@ -145,10 +144,12 @@ void PlayScreen::Enter(GameScreenId prevScreen) {
 	mPanel.SetVisible(true);
 }
 
-void PlayScreen::Exit() {
+void PlayScreen::Exit(/*GameScreenId newScreen*/) {
 	mBoostInfoPanel.Hide();
 	mPanel.SetVisible(false);
-	StopMusic();
+	//if (newScreen != ScreenId::leaveGame) {
+		StopMusic();
+	//}
 }
 
 void PlayScreen::NewGame() {
@@ -406,6 +407,18 @@ void PlayScreen::PlayMusic() const {
 void PlayScreen::StopMusic() const {
 	if (mMusic) {
 		mMusic->Stop();
+	}
+}
+
+void PlayScreen::PauseMusic() const {
+	if (mMusic) {
+		mMusic->Pause();
+	}
+}
+
+void PlayScreen::ResumeMusic() const {
+	if (mMusic) {
+		mMusic->Resume();
 	}
 }
 

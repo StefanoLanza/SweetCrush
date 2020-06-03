@@ -12,7 +12,7 @@ namespace {
 
 const UIButtonDesc buttonDescs[1] {
 	{
-	    UIAbsolutePos(0, 260),
+	    UIAbsolutePos(0, 440),
 	    UIAutoSize,
 	    UIHorizAlignment::center,
 	    UIVertAlignment::top,
@@ -23,7 +23,7 @@ const UITextDesc textDescs[2] {
 	{
 	    "mediumFont",
 	    (StringId)GameStringId::levelComplete,
-	    UIAbsolutePos(0, 60),
+	    UIAbsolutePos(0, titleY),
 	    UIAutoSize,
 	    UIHorizAlignment::center,
 	    UIVertAlignment::top,
@@ -54,9 +54,9 @@ const UIPanelDesc panelDesc {
 LevelCompletePanel::LevelCompletePanel(Engine& engine)
     : mEngine(engine)
     , mTitle(textDescs[0], engine)
-    , mNextLevelButton(MakeButton(buttonDescs[0], shortButtonBitmapDesc, textDescs[1], engine))
+    , mNextLevelButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
     , mPanelBitmap(panelBitmapDesc, engine)
-    , mPanel(panelDesc) {
+    , mPanel(UIDefaultPanelDesc) {
 }
 
 void LevelCompletePanel::LoadAssets() {

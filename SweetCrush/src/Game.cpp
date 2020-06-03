@@ -5,10 +5,10 @@
 #include "CreditsScreen.h"
 #include "GameCompletePanel.h"
 #include "GameOverScreen.h"
-#include "LeaveGamePanel.h"
 #include "LevelCompletePanel.h"
 #include "Localization.h"
 #include "MainScreen.h"
+#include "PauseGameScreen.h"
 #include "PlayScreen.h"
 #include "ScreenIds.h"
 #include "SettingsScreen.h"
@@ -46,7 +46,7 @@ void Game::Run() {
 	mScreens[3] = std::make_unique<PlayScreen>(mEngine, mGameConfig, mGameSettings, mRenderActionMgr, mMatchStats);
 	mScreens[4] = std::make_unique<GameOverScreen>(mEngine, mMatchStats);
 	mScreens[5] = std::make_unique<GameCompletePanel>(mEngine, mMatchStats);
-	mScreens[6] = std::make_unique<LeaveGamePanel>(mEngine);
+	mScreens[6] = std::make_unique<PauseGameScreen>(mEngine);
 	mScreens[7] = std::make_unique<LevelCompletePanel>(mEngine);
 
 	for (const auto& gs : mScreens) {
