@@ -35,9 +35,6 @@
     <ClCompile Include="..\SweetCrush\src\Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\SweetCrush\src\LeaveGamePanel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\SweetCrush\src\Localization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -56,10 +53,13 @@
     <ClCompile Include="..\SweetCrush\src\Levels.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\SweetCrush\src\GameCompletePanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\SweetCrush\src\LevelCompletePanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\SweetCrush\src\GameCompletePanel.cpp">
+    <ClCompile Include="..\SweetCrush\src\PauseGameScreen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -126,9 +126,6 @@
     <ClInclude Include="..\SweetCrush\src\GameSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\SweetCrush\src\LeaveGamePanel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\SweetCrush\src\GameOverScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -145,6 +142,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\SweetCrush\src\GameCompletePanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SweetCrush\src\PauseGameScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
