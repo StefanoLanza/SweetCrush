@@ -33,7 +33,7 @@ const UIButtonDesc buttonDescs[] {
 
 const UITextDesc textDescs[] {
 	{
-	    "mediumFont",
+	    "bigFont",
 	    (StringId)GameStringId::pauseGame,
 	    UIAbsolutePos(0, titleY),
 	    UIAutoSize,
@@ -70,15 +70,6 @@ const UITextDesc textDescs[] {
 	},
 };
 
-const UIBitmapDesc panelBitmapDesc {
-	"null.png", UIZeroPos, UIParentSize, UIHorizAlignment::center, UIVertAlignment::center, Color { 0, 0, 0, 230 }, UIBlending::on, 0,
-};
-
-const UIPanelDesc panelDesc {
-	UIZeroPos,
-	UIAbsoluteSize(800, 400),
-};
-
 } // namespace
 
 PauseGameScreen::PauseGameScreen(Engine& engine)
@@ -87,7 +78,6 @@ PauseGameScreen::PauseGameScreen(Engine& engine)
     , mContinueButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
     , mRestartLevelButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2], engine))
     , mExitGameButton(MakeButton(buttonDescs[2], buttonBitmapDesc, textDescs[3], engine))
-    , mPanelBitmap(panelBitmapDesc, engine)
     , mPanel(UIDefaultPanelDesc) {
 }
 
@@ -99,7 +89,6 @@ void PauseGameScreen::BuildUI(UICanvas& canvas) {
 	mPanel.AddButton(mContinueButton);
 	mPanel.AddButton(mRestartLevelButton);
 	mPanel.AddButton(mExitGameButton);
-	mPanel.AddBitmap(mPanelBitmap);
 	canvas.GetPanel().AddPanel(mPanel);
 }
 

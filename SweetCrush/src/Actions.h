@@ -11,6 +11,6 @@ struct GameConfig;
 Wind::ActionFunc MoveTile(Cell& cell, const Wind::Vec2& targetCoords, float speed);
 Wind::ActionFunc ReturnTile(Cell& cell, float speed);
 Wind::ActionFunc ScaleTile(Cell& cell, float startScale, float endScale);
-Wind::ActionFunc DrawMovingStar(const Cell& cell, const Wind::Engine& engine, Wind::Vec2 targetPos);
+Wind::ActionFunc DrawMovingSprite(const Cell& cell, const Wind::Engine& engine, Wind::Vec2 targetPos, int sprite);
 Wind::ActionFunc DrawExplosion(const Cell& cell, const Wind::Engine& engine, const GameConfig& gameConfig);
 Wind::ActionFunc DrawMatchScore(int score, const Cell& cell, const Wind::Engine& engine, const GameConfig& gameConfig, const Wind::Font& font);

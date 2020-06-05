@@ -5,7 +5,7 @@
 
 constexpr int NumGemTypes = 9;
 constexpr int NumBoardTiles = 1;
-constexpr int NumSprites = 15;
+constexpr int NumSprites = 16;
 constexpr int NumObstacleTypes = 1;
 constexpr int NumUIBitmaps = 2;
 

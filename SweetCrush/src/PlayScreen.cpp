@@ -103,7 +103,6 @@ GameScreenId PlayScreen::Tick(float dt) {
 	if (mBoostInfoPanel.Wait(input)) {
 		return ScreenId::play;
 	}
-	mMusic->Resume();
 
 	mTime = std::max(0.f, mTime - dt);
 	if (mTime > 0.f) {
@@ -119,7 +118,7 @@ GameScreenId PlayScreen::Tick(float dt) {
 }
 
 void PlayScreen::Draw(GameScreenId topScreen) const {
-	if (topScreen != ScreenId::play && topScreen != ScreenId::pauseGame) {
+	if (topScreen != ScreenId::play) {
 		return;
 	}
 	const BitmapRenderer& bitmapRender = mEngine.GetBitmapRenderer();
@@ -147,8 +146,8 @@ void PlayScreen::Enter(GameScreenId prevScreen) {
 void PlayScreen::Exit(/*GameScreenId newScreen*/) {
 	mBoostInfoPanel.Hide();
 	mPanel.SetVisible(false);
-	//if (newScreen != ScreenId::leaveGame) {
-		StopMusic();
+	// if (newScreen != ScreenId::leaveGame) {
+	PauseMusic();
 	//}
 }
 
@@ -254,27 +253,44 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		cell.tileAnim.spriteIdx = boosterDefs[typeIdx].sprite;
 		cell.tileAnim.rotation = boosterDefs[typeIdx].rotation;
 		cell.tileAnim.scale = 1.f;
-		// TODO some animation ?
 		break;
 	}
 	case Match3Event::Id::boosterTriggered: {
-		Cell& cell = mBoard.GetCell(event.booster.cellIdx);
-		if (event.booster.type == BoosterType::miniBomb) {
-			mRenderActionMgr.AddAction(&mAnimCounter, 0.f, mGameConfig.bombExplosionTime, DrawExplosion(cell, mEngine, mGameConfig));
-		}
-		/*		else if (event.booster.type == BoosterType::yellowStar) {
-		            mRenderActionMgr.AddAction(nullptr, 0.f, mGameConfig.starMoveTime, DrawMovingStar(cell, mEngine,
-		   mGameConfig.yellowStarIconCoord));
-		            ++mMatchStats.yellowStars;
-		            CheckLevelCompletion();
-		        }
-		        else if (event.booster.type == BoosterType::redStar) {
-		            mRenderActionMgr.AddAction(nullptr, 0.f, mGameConfig.starMoveTime, DrawMovingStar(cell, mEngine, mGameConfig.redStarIconCoord));
-		            ++mMatchStats.redStars;
-		            CheckLevelCompletion();
-		        }*/
+		TriggerBooster(event.booster);
 		break;
 	}
+	default:
+		break;
+	}
+}
+
+void PlayScreen::TriggerBooster(const Booster& booster) {
+	const Cell& cell = mBoard.GetCell(booster.cellIdx);
+	switch (booster.type) {
+	case BoosterType::hrocket: {
+		const auto& def = boosterDefs[(int)BoosterType::hrocket];
+		mRenderActionMgr.AddAction(&mAnimCounter, 0.f, mGameConfig.bombExplosionTime,
+		                           DrawMovingSprite(cell, mEngine, Vec2 { 0.f, cell.coords.y }, def.sprite));
+		mRenderActionMgr.AddAction(&mAnimCounter, 0.f, mGameConfig.bombExplosionTime,
+		                           DrawMovingSprite(cell, mEngine, Vec2 { RefWindowWidth, cell.coords.y }, def.sprite));
+		mMatch3.HorizontalRocket(cell.col, cell.row);
+	} break;
+	case BoosterType::vrocket: {
+		const auto& def = boosterDefs[(int)BoosterType::hrocket];
+		mRenderActionMgr.AddAction(&mAnimCounter, 0.f, mGameConfig.bombExplosionTime,
+		                           DrawMovingSprite(cell, mEngine, Vec2 { cell.coords.x, 0. }, def.sprite));
+		mRenderActionMgr.AddAction(&mAnimCounter, 0.f, mGameConfig.bombExplosionTime,
+		                           DrawMovingSprite(cell, mEngine, Vec2 { cell.coords.x, RefWindowHeight }, def.sprite));
+		mMatch3.VerticalRocket(cell.col, cell.row);
+	} break;
+	case BoosterType::miniBomb:
+		mRenderActionMgr.AddAction(&mAnimCounter, 0.f, mGameConfig.bombExplosionTime, DrawExplosion(cell, mEngine, mGameConfig));
+		mMatch3.MiniBomb(cell.col, cell.row);
+		break;
+	case BoosterType::bomb:
+		mRenderActionMgr.AddAction(&mAnimCounter, 0.f, mGameConfig.bombExplosionTime, DrawExplosion(cell, mEngine, mGameConfig));
+		mMatch3.Bomb(cell.col, cell.row);
+		break;
 	default:
 		break;
 	}
@@ -435,10 +451,11 @@ int PlayScreen::IncreaseScore(const Match& match) {
 		inc = 10;
 		break;
 	case ComboType::C4:
+		mMatch3.AddBooster(BoosterType::miniBomb, match.cellIdx);
 		inc = 40;
 		break;
 	case ComboType::C5:
-		mMatch3.AddBooster(BoosterType::yellowStar, match.cellIdx);
+		mMatch3.AddBooster(BoosterType::hrocket, match.cellIdx);
 		inc = 80;
 		break;
 	case ComboType::T3:
@@ -450,6 +467,7 @@ int PlayScreen::IncreaseScore(const Match& match) {
 		inc = 320;
 		break;
 	case ComboType::T5:
+		mMatch3.AddBooster(BoosterType::bomb, match.cellIdx);
 		inc = 640;
 		break;
 	case ComboType::L:

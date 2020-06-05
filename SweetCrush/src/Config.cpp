@@ -17,7 +17,7 @@ GameConfig DefaultGameConfig() {
 	config.tileSwapSpeed = 256.f;
 	config.tileFallSpeed = 1024.f;
 	config.tileFallYCoord = 0.f;
-	config.bombExplosionTime = 0.5f;
+	config.bombExplosionTime = 0.25f;
 	config.starMoveTime = 0.5f;
 	config.tileScaleDuration = 0.25f;
 	config.scoreTextDuration = 1.f;

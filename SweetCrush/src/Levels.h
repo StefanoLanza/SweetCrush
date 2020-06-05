@@ -7,6 +7,6 @@
 #if TEST_SHORT_GAME
 constexpr int numLevels = 1;
 #else
-constexpr int numLevels = 3;
+constexpr int numLevels = 4;
 #endif
 extern const Level levels[numLevels];

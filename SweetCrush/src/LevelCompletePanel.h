@@ -4,9 +4,11 @@
 #include <engine/GameScreen.h>
 #include <engine/UI.h>
 
+struct MatchStats;
+
 class LevelCompletePanel final : public Wind::GameScreen {
 public:
-	LevelCompletePanel(Wind::Engine& engine);
+	LevelCompletePanel(Wind::Engine& engine, const MatchStats& matchStats);
 
 	void               LoadAssets() override;
 	void               BuildUI(Wind::UICanvas& canvas) override;
@@ -16,9 +18,9 @@ public:
 	void               Exit() override;
 
 public:
-	Wind::Engine&  mEngine;
-	Wind::UIText   mTitle;
-	Wind::UIButton mNextLevelButton;
-	Wind::UIBitmap mPanelBitmap;
-	Wind::UIPanel  mPanel;
+	Wind::Engine&     mEngine;
+	const MatchStats& mMatchStats;
+	Wind::UIText      mTitle;
+	Wind::UIButton    mNextLevelButton;
+	Wind::UIPanel     mPanel;
 };

@@ -38,8 +38,6 @@ const char* eng[] = {
 	"Click on it to destroy nearby pastries",
 	"BOMB !",
 	"Click on it to destroy nearby pastries",
-	"STAR !",
-	"Click on stars to collect them",
 };
 
 const char* esp[] = {
@@ -77,8 +75,6 @@ const char* esp[] = {
 	"",
 	"BOMBA !",
 	"",
-	"ESTRELLA !",
-	"Clicca sulla stella per collezionarla",
 };
 
 const char* ita[] = {
@@ -115,8 +111,6 @@ const char* ita[] = {
 	"MINI BOMBA !",
 	"",
 	"BOMBA !",
-	"",
-	"STELLA !",
 	"",
 };
 

@@ -62,7 +62,7 @@ const UIPanelDesc panelDesc {
 BoostInfoPanel::BoostInfoPanel(Engine& engine)
     : mTitle(textDesc[0], engine)
     , mText(textDesc[1], engine)
-    , mOKButton(MakeButton(buttonDesc, shortButtonBitmapDesc, textDesc[2], engine))
+    , mOKButton(MakeButton(buttonDesc, buttonBitmapDesc, textDesc[2], engine))
     , mBoosterIcon(boosterIconDesc, engine)
     , mPanelBitmap(panelBitmapDesc, engine)
     , mPanel(panelDesc) {
@@ -100,10 +100,7 @@ void BoostInfoPanel::ShowHelp(BoosterType boosterType) {
 		titleStringId = GameStringId::miniBomb;
 		textStringId = GameStringId::miniBombDescription;
 		break;
-	case BoosterType::yellowStar:
-	case BoosterType::redStar:
-		titleStringId = GameStringId::star;
-		textStringId = GameStringId::starDescription;
+	default:
 		break;
 	}
 	mTitle.SetText(static_cast<StringId>(titleStringId));

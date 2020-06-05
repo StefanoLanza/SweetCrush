@@ -21,6 +21,5 @@ public:
 	Wind::UIButton mContinueButton;
 	Wind::UIButton mRestartLevelButton;
 	Wind::UIButton mExitGameButton;
-	Wind::UIBitmap mPanelBitmap;
 	Wind::UIPanel  mPanel;
 };

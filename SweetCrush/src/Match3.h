@@ -69,6 +69,11 @@ public:
 	void Update();
 	int  GetNumUserSwaps() const;
 	void AddBooster(BoosterType tileId, int cellIdx);
+	// Boosters
+	void HorizontalRocket(int col, int row);
+	void VerticalRocket(int col, int row);
+	void MiniBomb(int col, int row);
+	void Bomb(int col, int row);
 
 private:
 	// States
@@ -87,10 +92,6 @@ private:
 	void CollapseColumn(int col);
 	void KillMatches(const Cell& cell, int dcol, int drow);
 	void TriggerBooster(int cellIdx);
-	// Boosters
-	void MiniBomb(int col, int row);
-	void Bomb(int col, int row);
-	void Star(int cellIdx);
 	void DeleteAllTilesSameType(int tileId);
 
 private:

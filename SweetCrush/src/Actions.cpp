@@ -45,10 +45,9 @@ ActionFunc ScaleTile(Cell& cell, float startScale, float endScale) {
 	};
 }
 
-ActionFunc DrawMovingStar(const Cell& cell, const Engine& engine, Vec2 targetPos) {
-	return [&engine, xy0 = cell.coords, starIconCoord = targetPos](float dt, float t) {
+ActionFunc DrawMovingSprite(const Cell& cell, const Engine& engine, Vec2 targetPos, int sprite) {
+	return [&engine, xy0 = cell.coords, starIconCoord = targetPos, sprite](float dt, float t) {
 		const BitmapRenderer& bitmapRender = engine.GetBitmapRenderer();
-		const auto&           def = boosterDefs[(int)BoosterType::yellowStar];
 		BitmapExtParams       prm;
 		prm.scale = 1.f; // + t * 8.f; // TODO curve
 		prm.pivot = BitmapPivot::center;
@@ -56,12 +55,13 @@ ActionFunc DrawMovingStar(const Cell& cell, const Engine& engine, Vec2 targetPos
 		prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::overlays);
 		prm.blending = true;
 		Vec2 xy = Lerp(xy0, starIconCoord, t);
-		if (sprites[def.sprite]) {
-			bitmapRender.DrawBitmapEx(*sprites[def.sprite], xy, prm);
+		if (sprites[sprite]) {
+			bitmapRender.DrawBitmapEx(*sprites[sprite], xy, prm);
 		}
 		return false;
 	};
 }
+
 
 Wind::ActionFunc DrawExplosion(const Cell& cell, const Engine& engine, const GameConfig& gameConfig) {
 	Vec2 xy = cell.coords + Vec2 { gameConfig.cellWidth, gameConfig.cellHeight } * 0.5f;
@@ -70,7 +70,8 @@ Wind::ActionFunc DrawExplosion(const Cell& cell, const Engine& engine, const Gam
 		BitmapExtParams       prm;
 		prm.scale = 1.f + t * 8.f;
 		prm.pivot = BitmapPivot::center;
-		bitmapRender.DrawBitmapEx(*sprites[1], xy, prm);
+		prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::overlays);
+		bitmapRender.DrawBitmapEx(*sprites[15], xy, prm);
 		return false;
 	};
 }

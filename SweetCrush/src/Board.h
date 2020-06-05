@@ -7,18 +7,20 @@
 
 using TileId = uint8_t;
 
-enum class TileCategory { none, gem, booster, obstacle };
+enum class TileCategory {
+	none,
+	gem,
+	booster,
+	obstacle,
+};
 
 enum class BoosterType {
-	//	rocket,
-	//	rocket2,
+	hrocket,
+	vrocket,
 	miniBomb,
 	bomb,
-	yellowStar,
-	redStar,
-	//	extraTime
 };
-constexpr int NumBoosters = static_cast<int>(BoosterType::redStar) + 1;
+constexpr int NumBoosters = static_cast<int>(BoosterType::bomb) + 1;
 
 struct SpriteDef {
 	/*	const char** bitmaps;
@@ -37,7 +39,6 @@ struct ObstacleDef {
 
 struct BoosterDef {
 	int         sprite;
-	BoosterType boosterType;
 	float       rotation;
 };
 

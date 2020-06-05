@@ -13,11 +13,12 @@ const SpriteDef spriteDefs[NumSprites] {
 	{ "pastries/pastry_pie.png" },
 	{ "pastries/pastry_poptart01.png" },
 	{ "pastries/pastry_poptart02.png" },
-	{ "bomb_red.png" },
-	{ "bomb_blue.png" },
+	{ "pastries/pastry_starcookie01.png" }, // FIXME icons
+	{ "pastries/pastry_starcookie02.png" },
 	{ "pastries/pastry_starcookie01.png" },
 	{ "pastries/pastry_starcookie02.png" },
 	{ "board.png" },
+	{ "sparkle.png" },
 };
 
 const BoardTileDef boardTileDefs[NumBoardTiles] {
@@ -33,10 +34,10 @@ const ObstacleDef obstacleDefs[NumObstacleTypes] {
 };
 
 const BoosterDef boosterDefs[NumBoosters] {
-	{ 10, BoosterType::miniBomb, 0.f },
-	{ 11, BoosterType::bomb, 0.f },
-	{ 12, BoosterType::yellowStar, 0.5f },
-	{ 13, BoosterType::redStar, 0.5f },
+	{ 10, 0.5f },
+	{ 11, 0.5f },
+	{ 12, 0.5f },
+	{ 13, 0.5f },
 };
 
 Wind::BitmapPtr sprites[NumSprites];

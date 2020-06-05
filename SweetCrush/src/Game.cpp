@@ -47,7 +47,7 @@ void Game::Run() {
 	mScreens[4] = std::make_unique<GameOverScreen>(mEngine, mMatchStats);
 	mScreens[5] = std::make_unique<GameCompletePanel>(mEngine, mMatchStats);
 	mScreens[6] = std::make_unique<PauseGameScreen>(mEngine);
-	mScreens[7] = std::make_unique<LevelCompletePanel>(mEngine);
+	mScreens[7] = std::make_unique<LevelCompletePanel>(mEngine, mMatchStats);
 
 	for (const auto& gs : mScreens) {
 		gs->LoadAssets();

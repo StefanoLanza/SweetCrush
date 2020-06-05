@@ -37,8 +37,6 @@ enum class GameStringId : Wind::StringId {
 	miniBombDescription,
 	bomb,
 	bombDescription,
-	star,
-	starDescription,
 	//
 };
 

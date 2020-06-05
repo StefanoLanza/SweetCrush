@@ -282,6 +282,59 @@ void Match3::AddBooster(BoosterType boosterType, int cellIdx) {
 	mBoosters.push_back({ boosterType, cellIdx });
 }
 
+void Match3::HorizontalRocket(int /*col*/, int row) {
+	for (int ncol = 0; ncol < mBoard.GetCols(); ++ncol) {
+		int cellIdx = mBoard.GetCellIndex(ncol, row);
+		if (! HasObstacle(mBoard.GetCell(cellIdx))) {
+			RemoveTile(cellIdx);
+		}
+	}
+}
+
+void Match3::VerticalRocket(int col, int /*row*/) {
+	for (int nrow = 0; nrow < mBoard.GetRows(); ++nrow) {
+		int cellIdx = mBoard.GetCellIndex(col, nrow);
+		if (! HasObstacle(mBoard.GetCell(cellIdx))) {
+			RemoveTile(cellIdx);
+		}
+	}
+}
+
+void Match3::MiniBomb(int col, int row) {
+	const int dcol[4] = { -1, +1, 0, 0 };
+	const int drow[4] = { 0, 0, -1, +1 };
+	for (int i = 0; i < 4; ++i) {
+		int ncol = col + dcol[i];
+		int nrow = row + drow[i];
+		if (mBoard.IsInside(ncol, nrow)) {
+			int cellIdx = mBoard.GetCellIndex(ncol, nrow);
+			if (! HasObstacle(mBoard.GetCell(cellIdx))) {
+				RemoveTile(cellIdx);
+			}
+		}
+	}
+	// Delete booster
+	RemoveTile(mBoard.GetCellIndex(col, row));
+}
+
+void Match3::Bomb(int col, int row) {
+	constexpr int radius = 2;
+	for (int y = -radius; y < radius; ++y) {
+		int orow = row + y;
+		for (int x = -radius; x < radius; ++x) {
+			if (x * x + y * y <= radius * radius) { // within radius
+				int ocol = col + x;
+				if (mBoard.IsInside(ocol, orow)) {
+					int cellIdx = mBoard.GetCellIndex(ocol, orow);
+					if (! HasObstacle(mBoard.GetCell(cellIdx))) {
+						RemoveTile(cellIdx);
+					}
+				}
+			}
+		}
+	}
+}
+
 bool Match3::CheckCombos(int l, int r, int t, int b, TileId tileId, int cellIdx) {
 	bool        res = true;
 	Match3Event event;
@@ -505,19 +558,7 @@ void Match3::TriggerBooster(int cellIdx) {
 	const Cell& cell = mBoard.GetCell(cellIdx);
 	assert(cell.category == TileCategory::booster);
 	const BoosterType boosterType = static_cast<BoosterType>(cell.tileId);
-	switch (boosterType) {
-	case BoosterType::yellowStar:
-		Star(cellIdx);
-		break;
-	case BoosterType::miniBomb:
-		MiniBomb(cell.col, cell.row);
-		break;
-	case BoosterType::bomb:
-		Bomb(cell.col, cell.row);
-		break;
-	default:
-		break;
-	}
+
 	// Inform client
 	Match3Event event;
 	event.id = Match3Event::Id::boosterTriggered;
@@ -526,53 +567,6 @@ void Match3::TriggerBooster(int cellIdx) {
 	mCbk(event);
 
 	mState = State::collapseColumns;
-}
-
-void Match3::MiniBomb(int col, int row) {
-	int toKill[4];
-	int numToKill = 0;
-	if (col - 1 >= 0) {
-		toKill[numToKill++] = mBoard.GetCellIndex(col - 1, row);
-	}
-	if (col + 1 < mBoard.GetCols()) {
-		toKill[numToKill++] = mBoard.GetCellIndex(col + 1, row);
-	}
-	if (row - 1 >= 0) {
-		toKill[numToKill++] = mBoard.GetCellIndex(col, row - 1);
-	}
-	if (row + 1 < mBoard.GetRows()) {
-		toKill[numToKill++] = mBoard.GetCellIndex(col, row + 1);
-	}
-
-	for (int i = 0; i < numToKill; ++i) {
-		if (! HasObstacle(mBoard.GetCell(toKill[i]))) {
-			RemoveTile(toKill[i]);
-		}
-	}
-	// Delete booster
-	RemoveTile(mBoard.GetCellIndex(col, row));
-}
-
-void Match3::Bomb(int col, int row) {
-	constexpr int radius = 2;
-	for (int y = -radius; y < radius; ++y) {
-		int orow = row + y;
-		for (int x = -radius; x < radius; ++x) {
-			if (x * x + y * y <= radius * radius) { // within radius
-				int ocol = col + x;
-				if (mBoard.IsInside(ocol, orow)) {
-					int cellIdx = mBoard.GetCellIndex(ocol, orow);
-					if (! HasObstacle(mBoard.GetCell(cellIdx))) {
-						RemoveTile(cellIdx);
-					}
-				}
-			}
-		}
-	}
-}
-
-void Match3::Star(int cellIdx) {
-	RemoveTile(cellIdx);
 }
 
 void Match3::DeleteAllTilesSameType(int tileId) {
