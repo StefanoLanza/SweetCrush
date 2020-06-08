@@ -6,12 +6,14 @@
 #include <random>
 #include <vector>
 
+enum class BoosterType;
+
 struct CellPair {
 	int first;
 	int second;
 };
 
-enum class ComboType { C3, C4, C5, T3, T4, T5, L, X };
+enum class ComboType { C3, C4, C5, T3, T4, T5, L };
 
 enum class Direction { left, right, top, bottom };
 
@@ -57,6 +59,7 @@ using Match3Callback = std::function<void(const Match3Event& event)>;
 class Board;
 class TileSelector;
 struct GameConfig;
+struct Cell;
 
 class Match3 {
 public:
@@ -72,8 +75,7 @@ public:
 	// Boosters
 	void HorizontalRocket(int col, int row);
 	void VerticalRocket(int col, int row);
-	void MiniBomb(int col, int row);
-	void Bomb(int col, int row);
+	void Bomb(int col, int row, int radius);
 
 private:
 	// States

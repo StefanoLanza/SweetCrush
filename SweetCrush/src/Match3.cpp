@@ -1,5 +1,6 @@
 #include "Match3.h"
 #include "Board.h"
+#include "Boosters.h"
 #include "Config.h"
 #include "Constants.h"
 #include "TileSelector.h"
@@ -74,28 +75,39 @@ void SwapTiles(Board& board, int srcIdx, int dstIdx) {
 	std::swap(dst.tileAnim, src.tileAnim);
 }
 
-//   O
 //  OOO
 //   O
-bool XCombo(int l, int r, int t, int b) {
-	return l >= 1 && r >= 1 && t >= 1 && b >= 1;
+//   O
+bool T3Combo(int l, int r, int t, int b) {
+	return (l == 1 && r == 1 && t == 2 && b == 0) || //
+	       (l == 1 && r == 1 && b == 2 && t == 0) || //
+	       (t == 1 && b == 1 && l == 2 && r == 0) || //
+	       (t == 1 && b == 1 && r == 2 && l == 0);
 }
 
+//  OOOO
 //   O
 //   O
-// OOOO
-//   X
-bool TCombo(int l, int r, int t, int b) {
-	return (l >= 1 && r >= 1 && t >= 2 && b == 0) || //
-	       (l >= 1 && r >= 1 && b >= 2 && t == 0) || //
-	       (t >= 1 && b >= 1 && l >= 2 && r == 0) || //
-	       (t >= 1 && b >= 1 && r >= 2 && l == 0);
+bool T4Combo(int l, int r, int t, int b) {
+	return ((l + r == 3) && t == 2 && b == 0) || //
+	       ((l + r == 3) && b == 2 && t == 0) || //
+	       ((t + b == 3) && l == 2 && r == 0) || //
+	       ((t + b == 3) && r == 2 && l == 0);
 }
 
+// OOOOO
 //   O
 //   O
-// OOOX
-//   X
+bool T5Combo(int l, int r, int t, int b) {
+	return ((l + r == 4) && t == 2 && b == 0) || //
+	       ((l + r == 4) && b == 2 && t == 0) || //
+	       ((t + b == 4) && l == 2 && r == 0) || //
+	       ((t + b == 4) && r == 2 && l == 0);
+}
+
+// OOO
+//   O
+//   O
 bool LCombo(int l, int r, int t, int b) {
 	return (l >= 2 && t >= 2 && (r + b) == 0) || //
 	       (l >= 2 && b >= 2 && (r + t) == 0) || //
@@ -180,10 +192,6 @@ void Match3::NewBoard(uint32_t seed, const int gemIds[], int numGemIds) {
 	assert((int)std::size(mGemIds) >= numGemIds);
 	std::memcpy(mGemIds, gemIds, numGemIds * sizeof gemIds[0]);
 	mNumGemIds = numGemIds;
-
-	// FIXME TEST
-	//	mBoard.GetCell(38).tileId = 0;//wall
-	// mBoard.GetCell(38).category = TileCategory::obstacle;
 }
 
 void Match3::Run() {
@@ -282,68 +290,56 @@ void Match3::AddBooster(BoosterType boosterType, int cellIdx) {
 	mBoosters.push_back({ boosterType, cellIdx });
 }
 
-void Match3::HorizontalRocket(int /*col*/, int row) {
+void Match3::HorizontalRocket(int col, int row) {
 	for (int ncol = 0; ncol < mBoard.GetCols(); ++ncol) {
 		int cellIdx = mBoard.GetCellIndex(ncol, row);
-		if (! HasObstacle(mBoard.GetCell(cellIdx))) {
+		if (HasGem(mBoard.GetCell(cellIdx))) {
 			RemoveTile(cellIdx);
 		}
 	}
+	RemoveTile(mBoard.GetCellIndex(col, row)); // remove booster
 }
 
-void Match3::VerticalRocket(int col, int /*row*/) {
+void Match3::VerticalRocket(int col, int row) {
 	for (int nrow = 0; nrow < mBoard.GetRows(); ++nrow) {
 		int cellIdx = mBoard.GetCellIndex(col, nrow);
-		if (! HasObstacle(mBoard.GetCell(cellIdx))) {
+		if (HasGem(mBoard.GetCell(cellIdx))) {
 			RemoveTile(cellIdx);
 		}
 	}
+	RemoveTile(mBoard.GetCellIndex(col, row)); // remove booster
 }
 
-void Match3::MiniBomb(int col, int row) {
-	const int dcol[4] = { -1, +1, 0, 0 };
-	const int drow[4] = { 0, 0, -1, +1 };
-	for (int i = 0; i < 4; ++i) {
-		int ncol = col + dcol[i];
-		int nrow = row + drow[i];
-		if (mBoard.IsInside(ncol, nrow)) {
-			int cellIdx = mBoard.GetCellIndex(ncol, nrow);
-			if (! HasObstacle(mBoard.GetCell(cellIdx))) {
-				RemoveTile(cellIdx);
-			}
-		}
-	}
-	// Delete booster
-	RemoveTile(mBoard.GetCellIndex(col, row));
-}
-
-void Match3::Bomb(int col, int row) {
-	constexpr int radius = 2;
-	for (int y = -radius; y < radius; ++y) {
+void Match3::Bomb(int col, int row, int radius) {
+	for (int y = -radius; y <= radius; ++y) {
 		int orow = row + y;
-		for (int x = -radius; x < radius; ++x) {
+		for (int x = -radius; x <= radius; ++x) {
 			if (x * x + y * y <= radius * radius) { // within radius
 				int ocol = col + x;
 				if (mBoard.IsInside(ocol, orow)) {
 					int cellIdx = mBoard.GetCellIndex(ocol, orow);
-					if (! HasObstacle(mBoard.GetCell(cellIdx))) {
+					if (HasGem(mBoard.GetCell(cellIdx))) {
 						RemoveTile(cellIdx);
 					}
 				}
 			}
 		}
 	}
+	RemoveTile(mBoard.GetCellIndex(col, row)); // remove booster
 }
 
 bool Match3::CheckCombos(int l, int r, int t, int b, TileId tileId, int cellIdx) {
 	bool        res = true;
 	Match3Event event;
 
-	if (XCombo(l, r, t, b)) {
-		event.match.comboType = ComboType::X;
+	if (T3Combo(l, r, t, b)) {
+		event.match.comboType = ComboType::T3;
 	}
-	else if (TCombo(l, r, t, b)) {
-		event.match.comboType = ComboType::T4; // TODO T5
+	else if (T4Combo(l, r, t, b)) {
+		event.match.comboType = ComboType::T4;
+	}
+	else if (T5Combo(l, r, t, b)) {
+		event.match.comboType = ComboType::T5;
 	}
 	else if (LCombo(l, r, t, b)) {
 		event.match.comboType = ComboType::L;

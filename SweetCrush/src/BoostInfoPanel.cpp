@@ -45,7 +45,7 @@ const UITextDesc textDesc[] {
 };
 
 const UIBitmapDesc boosterIconDesc {
-	"null.png", UIAbsolutePos(520, 54), UIAbsoluteSize(64, 72), UIHorizAlignment::left, UIVertAlignment::top, whiteColor, UIBlending::on, 1,
+	"null.png", UIAbsolutePos(540, 50), UIAbsoluteSize(64, 72), UIHorizAlignment::left, UIVertAlignment::top, whiteColor, UIBlending::on, 1,
 };
 
 const UIBitmapDesc panelBitmapDesc {

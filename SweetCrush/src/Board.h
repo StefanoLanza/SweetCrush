@@ -14,42 +14,11 @@ enum class TileCategory {
 	obstacle,
 };
 
-enum class BoosterType {
-	hrocket,
-	vrocket,
-	miniBomb,
-	bomb,
-};
-constexpr int NumBoosters = static_cast<int>(BoosterType::bomb) + 1;
-
-struct SpriteDef {
-	/*	const char** bitmaps;
-	    int          numBitmaps;
-	    float        animationFreq;*/
-	const char* bitmap;
-};
-
-struct GemDef {
-	int sprite;
-};
-
-struct ObstacleDef {
-	int sprite;
-};
-
-struct BoosterDef {
-	int         sprite;
-	float       rotation;
-};
-
-struct BoardTileDef {
-	int sprite;
-};
-
 struct TileAnim {
 	Wind::Vec2 coords;
 	int        spriteIdx;
 	float      scale;
+	float      scaleDev;
 	float      rotation;
 };
 

@@ -147,6 +147,9 @@
     <ClInclude Include="..\SweetCrush\src\PauseGameScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\SweetCrush\src\Boosters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

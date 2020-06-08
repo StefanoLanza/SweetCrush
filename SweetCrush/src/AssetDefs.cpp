@@ -13,10 +13,10 @@ const SpriteDef spriteDefs[NumSprites] {
 	{ "gameartguppy/pastry_pie.png" },
 	{ "gameartguppy/pastry_poptart01.png" },
 	{ "gameartguppy/pastry_poptart02.png" },
-	{ "gameartguppy/pastry_starcookie01.png" }, // FIXME icons
-	{ "gameartguppy/pastry_starcookie02.png" },
-	{ "gameartguppy/pastry_starcookie01.png" },
-	{ "gameartguppy/pastry_starcookie02.png" },
+	{ "boosters/bomb_yellow.png" },
+	{ "boosters/bomb_green.png" },
+	{ "boosters/bomb_blue.png" },
+	{ "boosters/bomb_red.png" },
 	{ "gameartguppy/board.png" },
 	{ "sparkle.png" },
 };
@@ -34,10 +34,10 @@ const ObstacleDef obstacleDefs[NumObstacleTypes] {
 };
 
 const BoosterDef boosterDefs[NumBoosters] {
-	{ 10, 0.5f },
-	{ 11, 0.5f },
-	{ 12, 0.5f },
-	{ 13, 0.5f },
+	{ 10, 0.1f },
+	{ 11, 0.1f },
+	{ 12, 0.1f },
+	{ 13, 0.1f },
 };
 
 Wind::BitmapPtr sprites[NumSprites];

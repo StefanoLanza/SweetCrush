@@ -68,7 +68,7 @@ Wind::ActionFunc DrawExplosion(const Cell& cell, const Engine& engine, const Gam
 	return [&engine, xy](float dt, float t) {
 		const BitmapRenderer& bitmapRender = engine.GetBitmapRenderer();
 		BitmapExtParams       prm;
-		prm.scale = 1.f + t * 8.f;
+		prm.scale = 1.f + t * 4.f;
 		prm.pivot = BitmapPivot::center;
 		prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::overlays);
 		bitmapRender.DrawBitmapEx(*sprites[15], xy, prm);

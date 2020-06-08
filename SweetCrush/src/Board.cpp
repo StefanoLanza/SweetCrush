@@ -1,5 +1,4 @@
 #include "Board.h"
-#include "AssetDefs.h" //FIXME
 #include "Config.h"
 #include <cassert>
 

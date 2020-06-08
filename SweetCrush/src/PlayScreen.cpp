@@ -225,7 +225,7 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 	}
 	case Match3Event::Id::removeTile: {
 		Cell& cell = mBoard.GetCell(event.cellIdx);
-		actionMgr.AddAction(&mAnimCounter, 0.f, mGameConfig.tileScaleDuration, ScaleTile(cell, cell.tileAnim.scale, 0.f));
+		actionMgr.AddAction(&mAnimCounter, 0.f, mGameConfig.tileScaleDuration, ScaleTile(cell, 1.f, 0.f));
 		OnTileRemoved(cell);
 		break;
 	}
@@ -234,6 +234,7 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		cell.tileAnim.spriteIdx = gemDefs[event.newGem.targetGemId].sprite;
 		cell.tileAnim.coords = { cell.coords.x, mGameConfig.tileFallYCoord };
 		cell.tileAnim.scale = 1.f;
+		cell.tileAnim.scaleDev = 0.f;
 		cell.tileAnim.rotation = 0.f;
 		// Drop new tiles from the top
 		actionMgr.AddAction(&mAnimCounter, 0.f, actionUndefDuration, ReturnTile(cell, mGameConfig.tileFallSpeed));
@@ -257,8 +258,9 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		mBoostInfoPanel.ShowHelp(event.booster.type);
 		Cell& cell = mBoard.GetCell(event.booster.cellIdx);
 		cell.tileAnim.spriteIdx = boosterDefs[typeIdx].sprite;
-		cell.tileAnim.rotation = boosterDefs[typeIdx].rotation;
+		cell.tileAnim.rotation = 0.f; //boosterDefs[typeIdx].rotation;
 		cell.tileAnim.scale = 1.f;
+		cell.tileAnim.scaleDev = boosterDefs[typeIdx].scaleDev;
 		break;
 	}
 	case Match3Event::Id::boosterTriggered: {
@@ -275,31 +277,22 @@ void PlayScreen::TriggerBooster(const Booster& booster) {
 	switch (booster.type) {
 	case BoosterType::hrocket: {
 		const auto& def = boosterDefs[(int)BoosterType::hrocket];
-		mRenderActionMgr.AddAction(&mAnimCounter, 0.f, mGameConfig.bombExplosionTime,
-		                           DrawMovingSprite(cell, mEngine, Vec2 { 0.f, cell.coords.y }, def.sprite));
-		mRenderActionMgr.AddAction(&mAnimCounter, 0.f, mGameConfig.bombExplosionTime,
-		                           DrawMovingSprite(cell, mEngine, Vec2 { RefWindowWidth, cell.coords.y }, def.sprite));
 		mMatch3.HorizontalRocket(cell.col, cell.row);
 	} break;
 	case BoosterType::vrocket: {
 		const auto& def = boosterDefs[(int)BoosterType::hrocket];
-		mRenderActionMgr.AddAction(&mAnimCounter, 0.f, mGameConfig.bombExplosionTime,
-		                           DrawMovingSprite(cell, mEngine, Vec2 { cell.coords.x, 0. }, def.sprite));
-		mRenderActionMgr.AddAction(&mAnimCounter, 0.f, mGameConfig.bombExplosionTime,
-		                           DrawMovingSprite(cell, mEngine, Vec2 { cell.coords.x, RefWindowHeight }, def.sprite));
 		mMatch3.VerticalRocket(cell.col, cell.row);
 	} break;
 	case BoosterType::miniBomb:
-		mRenderActionMgr.AddAction(&mAnimCounter, 0.f, mGameConfig.bombExplosionTime, DrawExplosion(cell, mEngine, mGameConfig));
-		mMatch3.MiniBomb(cell.col, cell.row);
+		mMatch3.Bomb(cell.col, cell.row, 1);
 		break;
 	case BoosterType::bomb:
-		mRenderActionMgr.AddAction(&mAnimCounter, 0.f, mGameConfig.bombExplosionTime, DrawExplosion(cell, mEngine, mGameConfig));
-		mMatch3.Bomb(cell.col, cell.row);
+		mMatch3.Bomb(cell.col, cell.row, 2);
 		break;
 	default:
 		break;
 	}
+	mRenderActionMgr.AddAction(&mAnimCounter, 0.f, mGameConfig.bombExplosionTime, DrawExplosion(cell, mEngine, mGameConfig));
 }
 
 void PlayScreen::CheckLevelCompletion() {
@@ -356,6 +349,7 @@ void PlayScreen::DrawBoard(const BitmapRenderer& bitmapRender) const {
 	const float cellWidth = mGameConfig.cellWidth;
 	const float cellHeight = mGameConfig.cellHeight;
 	const float cellSpacing = mGameConfig.cellSpacing;
+	const float scaleFactor = std::cos(mTime * 4.f);
 	{
 		// Draw board tiles
 		BitmapExtParams prm;
@@ -378,7 +372,7 @@ void PlayScreen::DrawBoard(const BitmapRenderer& bitmapRender) const {
 			prm.height = cellHeight;
 			prm.pivot = BitmapPivot::center;
 			prm.orientation = mTime * cell.tileAnim.rotation;
-			prm.scale = cell.tileAnim.scale;
+			prm.scale = cell.tileAnim.scale + cell.tileAnim.scaleDev * scaleFactor;
 			prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::boardTile);
 			prm.blending = true;
 			Vec2 pos = cell.tileAnim.coords + Vec2 { cellWidth, cellHeight } * 0.5f;
@@ -413,6 +407,7 @@ void PlayScreen::SetupNewBoardAnimation() {
 			cell.tileAnim.spriteIdx = -1;
 		}
 		cell.tileAnim.scale = 0.f;
+		cell.tileAnim.scaleDev = 0.f;
 		cell.tileAnim.rotation = 0.f;
 		// tile.currCoords = { tile.idleCoords.x, mGameConfig.tileFallYCoord };
 		float delay = 0.f; //(mBoard.GetRows() - 1 - cell.row + cell.col) * 0.05f;
@@ -468,6 +463,10 @@ int PlayScreen::IncreaseScore(const Match& match) {
 		mMatch3.AddBooster(BoosterType::vrocket, match.cellIdx);
 		inc = 160;
 		break;
+	case ComboType::L:
+		mMatch3.AddBooster(BoosterType::bomb, match.cellIdx);
+		inc = 160;
+		break;
 	case ComboType::T4:
 		mMatch3.AddBooster(BoosterType::bomb, match.cellIdx);
 		inc = 320;
@@ -475,13 +474,6 @@ int PlayScreen::IncreaseScore(const Match& match) {
 	case ComboType::T5:
 		mMatch3.AddBooster(BoosterType::bomb, match.cellIdx);
 		inc = 640;
-		break;
-	case ComboType::L:
-		mMatch3.AddBooster(BoosterType::bomb, match.cellIdx);
-		inc = 160;
-		break;
-	case ComboType::X:
-		inc = 160;
 		break;
 	}
 	const int mul = (match.cascadeCount + 1);
