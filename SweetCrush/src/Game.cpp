@@ -35,7 +35,7 @@ void Game::Run() {
 
 	mGameSettings.audioOn = mGameConfig.audioOn;
 
-	mCanvas.SetBackground("background.png", mEngine);
+	mCanvas.SetBackground("gameartguppy/background.png", mEngine);
 #if _WIN32
 	mCanvas.SetMousePointer("cursor.png", mEngine);
 #endif
@@ -46,7 +46,7 @@ void Game::Run() {
 	mScreens[3] = std::make_unique<PlayScreen>(mEngine, mGameConfig, mGameSettings, mRenderActionMgr, mMatchStats);
 	mScreens[4] = std::make_unique<GameOverScreen>(mEngine, mMatchStats);
 	mScreens[5] = std::make_unique<GameCompletePanel>(mEngine, mMatchStats);
-	mScreens[6] = std::make_unique<PauseGameScreen>(mEngine);
+	mScreens[6] = std::make_unique<PauseGameScreen>(mEngine, mMatchStats);
 	mScreens[7] = std::make_unique<LevelCompletePanel>(mEngine, mMatchStats);
 
 	for (const auto& gs : mScreens) {

@@ -92,6 +92,14 @@ void BoostInfoPanel::ShowHelp(BoosterType boosterType) {
 	GameStringId titleStringId = GameStringId::empty;
 	GameStringId textStringId = GameStringId::empty;
 	switch (boosterType) {
+	case BoosterType::hrocket:
+		titleStringId = GameStringId::hRocket;
+		textStringId = GameStringId::hRocketDescription;
+		break;
+	case BoosterType::vrocket:
+		titleStringId = GameStringId::vRocket;
+		textStringId = GameStringId::vRocketDescription;
+		break;
 	case BoosterType::bomb:
 		titleStringId = GameStringId::bomb;
 		textStringId = GameStringId::bombDescription;

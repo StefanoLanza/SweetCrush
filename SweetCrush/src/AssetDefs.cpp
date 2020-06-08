@@ -4,20 +4,20 @@ using namespace Wind;
 
 const SpriteDef spriteDefs[NumSprites] {
 	{ "null.png" },
-	{ "pastries/pastry_cookie01.png" },
-	{ "pastries/pastry_cookie02.png" },
-	{ "pastries/pastry_croissant.png" },
-	{ "pastries/pastry_cupcake.png" },
-	{ "pastries/pastry_donut.png" },
-	{ "pastries/pastry_macaroon.png" },
-	{ "pastries/pastry_pie.png" },
-	{ "pastries/pastry_poptart01.png" },
-	{ "pastries/pastry_poptart02.png" },
-	{ "pastries/pastry_starcookie01.png" }, // FIXME icons
-	{ "pastries/pastry_starcookie02.png" },
-	{ "pastries/pastry_starcookie01.png" },
-	{ "pastries/pastry_starcookie02.png" },
-	{ "board.png" },
+	{ "gameartguppy/pastry_cookie01.png" },
+	{ "gameartguppy/pastry_cookie02.png" },
+	{ "gameartguppy/pastry_croissant.png" },
+	{ "gameartguppy/pastry_cupcake.png" },
+	{ "gameartguppy/pastry_donut.png" },
+	{ "gameartguppy/pastry_macaroon.png" },
+	{ "gameartguppy/pastry_pie.png" },
+	{ "gameartguppy/pastry_poptart01.png" },
+	{ "gameartguppy/pastry_poptart02.png" },
+	{ "gameartguppy/pastry_starcookie01.png" }, // FIXME icons
+	{ "gameartguppy/pastry_starcookie02.png" },
+	{ "gameartguppy/pastry_starcookie01.png" },
+	{ "gameartguppy/pastry_starcookie02.png" },
+	{ "gameartguppy/board.png" },
 	{ "sparkle.png" },
 };
 

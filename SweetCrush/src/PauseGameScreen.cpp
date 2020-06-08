@@ -1,5 +1,6 @@
 #include "PauseGameScreen.h"
 #include "Localization.h"
+#include "MatchStats.h"
 #include "ScreenIds.h"
 #include "UIDefs.h"
 #include <engine/Engine.h>
@@ -72,8 +73,9 @@ const UITextDesc textDescs[] {
 
 } // namespace
 
-PauseGameScreen::PauseGameScreen(Engine& engine)
+PauseGameScreen::PauseGameScreen(Engine& engine, MatchStats& matchStats)
     : mEngine(engine)
+    , mMatchStats(matchStats)
     , mTitle(textDescs[0], engine)
     , mContinueButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
     , mRestartLevelButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2], engine))
@@ -97,7 +99,12 @@ Wind::GameScreenId PauseGameScreen::Tick(float /*dt*/) {
 	if (mExitGameButton.IsPressed(input)) {
 		return ScreenId::mainMenu;
 	}
+	else if (mRestartLevelButton.IsPressed(input)) {
+		mMatchStats.restartLevel = true;
+		return ScreenId::play;
+	}
 	else if (mContinueButton.IsPressed(input)) {
+		mMatchStats.restartLevel = false;
 		return ScreenId::play;
 	}
 	return ScreenId::pauseGame;

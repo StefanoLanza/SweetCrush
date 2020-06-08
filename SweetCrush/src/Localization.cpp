@@ -34,10 +34,14 @@ const char* eng[] = {
 	"NEXT",
 	"GAME COMPLETE",
 	// Boosters
+	"HORIZONTAL ROCKET !",
+	"Click on it to destroy a row of sweets",
+	"VERTICAL ROCKET !",
+	"Click on it to destroy a column of sweets",
 	"MINI BOMB !",
-	"Click on it to destroy nearby pastries",
+	"Click on it to destroy four adjacent sweets",
 	"BOMB !",
-	"Click on it to destroy nearby pastries",
+	"Click on it to destroy nearby sweets",
 };
 
 const char* esp[] = {
@@ -71,7 +75,11 @@ const char* esp[] = {
 	"SIGUIENTE",
 	"JUEGO COMPLETO",
 	// Boosters
-	"MINO BOMBA !",
+	"RAZZO ORIZZONTALE !",
+	"",
+	"RAZZO VERTICALE !",
+	"",
+	"MINI BOMBA !",
 	"",
 	"BOMBA !",
 	"",
@@ -108,10 +116,14 @@ const char* ita[] = {
 	"CONTINUA",
 	"GIOCO COMPLETO",
 	// Boosters
+	"RAZZO ORIZZONTALE !",
+	"Cliccaci sopra per distruggere una riga di dolci",
+	"RAZZO VERTICALE !",
+	"Cliccaci sopra per distruggere una colonna di dolci",
 	"MINI BOMBA !",
-	"",
+	"Cliccaci sopra per distruggere quattro dolci adiacenti",
 	"BOMBA !",
-	"",
+	"Cliccaci sopra per distruggere i dolci a lui vicini",
 };
 
 const char** curr = nullptr;

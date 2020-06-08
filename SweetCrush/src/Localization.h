@@ -33,6 +33,10 @@ enum class GameStringId : Wind::StringId {
 	nextLevel,
 	gameComplete,
 	// boosters
+	hRocket,
+	hRocketDescription,
+	vRocket,
+	vRocketDescription,
 	miniBomb,
 	miniBombDescription,
 	bomb,

@@ -132,6 +132,9 @@ void PlayScreen::Enter(GameScreenId prevScreen) {
 	}
 	else if (prevScreen == ScreenId::pauseGame) {
 		// resume game
+		if (mMatchStats.restartLevel) {
+			ReplayLevel();
+		}
 	}
 	else if (prevScreen == ScreenId::gameOver) {
 		ReplayLevel();
@@ -139,16 +142,19 @@ void PlayScreen::Enter(GameScreenId prevScreen) {
 	else {
 		NewGame();
 	}
-	PlayMusic();
+	if (prevScreen == ScreenId::pauseGame) {
+		ResumeMusic();
+	}
+	else {
+		PlayMusic();
+	}
 	mPanel.SetVisible(true);
 }
 
-void PlayScreen::Exit(/*GameScreenId newScreen*/) {
+void PlayScreen::Exit() {
 	mBoostInfoPanel.Hide();
 	mPanel.SetVisible(false);
-	// if (newScreen != ScreenId::leaveGame) {
 	PauseMusic();
-	//}
 }
 
 void PlayScreen::NewGame() {
@@ -459,7 +465,7 @@ int PlayScreen::IncreaseScore(const Match& match) {
 		inc = 80;
 		break;
 	case ComboType::T3:
-		mMatch3.AddBooster(BoosterType::bomb, match.cellIdx);
+		mMatch3.AddBooster(BoosterType::vrocket, match.cellIdx);
 		inc = 160;
 		break;
 	case ComboType::T4:
@@ -471,7 +477,7 @@ int PlayScreen::IncreaseScore(const Match& match) {
 		inc = 640;
 		break;
 	case ComboType::L:
-		mMatch3.AddBooster(BoosterType::miniBomb, match.cellIdx);
+		mMatch3.AddBooster(BoosterType::bomb, match.cellIdx);
 		inc = 160;
 		break;
 	case ComboType::X:

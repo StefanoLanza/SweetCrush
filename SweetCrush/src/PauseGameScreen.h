@@ -4,9 +4,11 @@
 #include <engine/GameScreen.h>
 #include <engine/UI.h>
 
+struct MatchStats;
+
 class PauseGameScreen final : public Wind::GameScreen {
 public:
-	PauseGameScreen(Wind::Engine& engine);
+	PauseGameScreen(Wind::Engine& engine, MatchStats& matchStats);
 
 	void               LoadAssets() override;
 	void               BuildUI(Wind::UICanvas& canvas) override;
@@ -17,6 +19,7 @@ public:
 
 public:
 	Wind::Engine&  mEngine;
+	MatchStats&    mMatchStats;
 	Wind::UIText   mTitle;
 	Wind::UIButton mContinueButton;
 	Wind::UIButton mRestartLevelButton;
