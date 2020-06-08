@@ -147,6 +147,7 @@
     <ClInclude Include="..\SweetCrush\src\Actions.h" />
     <ClInclude Include="..\SweetCrush\src\AssetDefs.h" />
     <ClInclude Include="..\SweetCrush\src\Board.h" />
+    <ClInclude Include="..\SweetCrush\src\Boosters.h" />
     <ClInclude Include="..\SweetCrush\src\BoostInfoPanel.h" />
     <ClInclude Include="..\SweetCrush\src\Config.h" />
     <ClInclude Include="..\SweetCrush\src\Constants.h" />
