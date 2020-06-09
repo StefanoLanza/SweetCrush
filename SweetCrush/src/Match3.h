@@ -76,6 +76,7 @@ public:
 	void HorizontalRocket(int col, int row);
 	void VerticalRocket(int col, int row);
 	void Bomb(int col, int row, int radius);
+	void DeleteAllGems(int gemId);
 
 private:
 	// States
@@ -94,7 +95,6 @@ private:
 	void CollapseColumn(int col);
 	void KillMatches(const Cell& cell, int dcol, int drow);
 	void TriggerBooster(int cellIdx);
-	void DeleteAllTilesSameType(int tileId);
 
 private:
 	enum class State;

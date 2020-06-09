@@ -2,6 +2,5 @@
 
 constexpr int NumCols = 8;
 constexpr int NumRows = 8;
-constexpr int MinMatches = 3;
 constexpr int RefWindowWidth = 768;
 constexpr int RefWindowHeight = 1024;

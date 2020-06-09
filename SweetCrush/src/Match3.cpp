@@ -61,8 +61,8 @@ void GenRandomGem(Cell& cell, const Board& board, std::default_random_engine& ra
 	do {
 		cell.tileId = static_cast<TileId>(gemIds[u_distribution(randomEngine)]);
 		// Avoid three or more consecutive matches
-		valid = (1 + CountMatches(cell, board, Direction::left) < MinMatches) && (1 + CountMatches(cell, board, Direction::top) < MinMatches) &&
-		        (1 + CountMatches(cell, board, Direction::right) < MinMatches) && (1 + CountMatches(cell, board, Direction::bottom) < MinMatches);
+		valid = (1 + CountMatches(cell, board, Direction::left) < 3) && (1 + CountMatches(cell, board, Direction::top) < 3) &&
+		        (1 + CountMatches(cell, board, Direction::right) < 3) && (1 + CountMatches(cell, board, Direction::bottom) < 3);
 	} while (! valid);
 }
 
@@ -109,10 +109,10 @@ bool T5Combo(int l, int r, int t, int b) {
 //   O
 //   O
 bool LCombo(int l, int r, int t, int b) {
-	return (l >= 2 && t >= 2 && (r + b) == 0) || //
-	       (l >= 2 && b >= 2 && (r + t) == 0) || //
-	       (r >= 2 && b >= 2 && (l + t) == 0) || //
-	       (r >= 2 && t >= 2 && (l + b) == 0);
+	return (l == 2 && t == 2 && (r + b) == 0) || //
+	       (l == 2 && b == 2 && (r + t) == 0) || //
+	       (r == 2 && b == 2 && (l + t) == 0) || //
+	       (r == 2 && t == 2 && (l + b) == 0);
 }
 
 bool _5Combo(int l, int r, int t, int b) {
@@ -328,6 +328,16 @@ void Match3::Bomb(int col, int row, int radius) {
 	RemoveTile(mBoard.GetCellIndex(col, row)); // remove booster
 }
 
+void Match3::DeleteAllGems(int gemId) {
+	int cellIdx = 0;
+	for (const Cell& cell : mBoard.GetCells()) {
+		if (HasGem(cell) && cell.tileId == gemId) {
+			RemoveTile(cellIdx);
+		}
+		++cellIdx;
+	}
+}
+
 bool Match3::CheckCombos(int l, int r, int t, int b, TileId tileId, int cellIdx) {
 	bool        res = true;
 	Match3Event event;
@@ -376,12 +386,12 @@ bool Match3::CheckCellCombos(int cellIdx) {
 	const int   b = CountMatches(cell, mBoard, Direction::bottom);
 	const bool  res = CheckCombos(l, r, t, b, cell.tileId, cellIdx);
 
-	if (1 + t + b >= MinMatches) {
+	if (1 + t + b >= 3) {
 		assert(res);
 		KillMatches(cell, 0, -1);
 		KillMatches(cell, 0, +1);
 	}
-	if (1 + l + r >= MinMatches) {
+	if (1 + l + r >= 3) {
 		assert(res);
 		KillMatches(cell, -1, 0);
 		KillMatches(cell, +1, 0);
@@ -565,12 +575,3 @@ void Match3::TriggerBooster(int cellIdx) {
 	mState = State::collapseColumns;
 }
 
-void Match3::DeleteAllTilesSameType(int tileId) {
-	int cellIdx = 0;
-	for (const Cell& cell : mBoard.GetCells()) {
-		if (cell.tileId == tileId) {
-			RemoveTile(cellIdx);
-		}
-		++cellIdx;
-	}
-}

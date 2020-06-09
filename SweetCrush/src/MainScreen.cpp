@@ -81,8 +81,9 @@ void MainScreen::Draw(GameScreenId topScreen) const {
 	if (! mPanel.IsVisible()) {
 		return;
 	}
+	constexpr float dx = 66;
 	float           phase = mTime * 4.f;
-	float           x = (RefWindowWidth - (NumGemTypes - 1) * 70) * 0.5f;
+	float           x = (RefWindowWidth - (NumGemTypes - 1) * dx) * 0.5f;
 	BitmapExtParams prm;
 	prm.pivot = BitmapPivot::center;
 	prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::overBackground);
@@ -90,7 +91,7 @@ void MainScreen::Draw(GameScreenId topScreen) const {
 		const GemDef& gemDef = gemDefs[i];
 		prm.orientation = std::sin(phase * .25f + (float)i) * 0.5f;
 		mEngine.GetBitmapRenderer().DrawBitmapEx(*sprites[gemDef.sprite], { x, 320.f + std::cos(phase) * 4.f }, prm);
-		x += 70;
+		x += dx;
 		phase += 6.28f / static_cast<float>(NumGemTypes);
 	}
 }

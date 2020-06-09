@@ -26,7 +26,7 @@ using namespace Wind;
 namespace {
 
 const UIButtonDesc optionButtonDesc {
-	UIAbsolutePos(-90, 160),
+	UIAbsolutePos(-70, 160),
 	UIAutoSize,
 	UIHorizAlignment::right,
 	UIVertAlignment::top,
@@ -142,7 +142,7 @@ void PlayScreen::Enter(GameScreenId prevScreen) {
 	else {
 		NewGame();
 	}
-	if (prevScreen == ScreenId::pauseGame) {
+	if (prevScreen == ScreenId::pauseGame && ! mMatchStats.restartLevel) {
 		ResumeMusic();
 	}
 	else {
@@ -258,7 +258,7 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		mBoostInfoPanel.ShowHelp(event.booster.type);
 		Cell& cell = mBoard.GetCell(event.booster.cellIdx);
 		cell.tileAnim.spriteIdx = boosterDefs[typeIdx].sprite;
-		cell.tileAnim.rotation = 0.f; //boosterDefs[typeIdx].rotation;
+		cell.tileAnim.rotation = 0.f; // boosterDefs[typeIdx].rotation;
 		cell.tileAnim.scale = 1.f;
 		cell.tileAnim.scaleDev = boosterDefs[typeIdx].scaleDev;
 		break;
@@ -299,7 +299,7 @@ void PlayScreen::CheckLevelCompletion() {
 	const Level& level = levels[mMatchStats.level];
 	bool         res = true;
 	for (int i = 0; i < 3; ++i) {
-		res = (mMatchStats.targetGemCount[i] >= level.targetGemCount[i]) && res;
+		res = (mMatchStats.targetGemCount[i] >= level.objective.gemCount[i]) && res;
 	}
 	if (res) {
 		if (mMatchStats.level + 1 == numLevels) {
@@ -339,7 +339,7 @@ void PlayScreen::DrawUI() const {
 	for (int i = 0; i < 3; ++i) {
 		const auto& def = gemDefs[level.gemIds[i]];
 		bitmapRender.DrawBitmapEx(*sprites[def.sprite], pos, prm);
-		snprintf(tmp, sizeof(tmp), "%d/%d", mMatchStats.targetGemCount[i], level.targetGemCount[i]);
+		snprintf(tmp, sizeof(tmp), "%d/%d", mMatchStats.targetGemCount[i], level.objective.gemCount[i]);
 		textRenderer.Write(*mFonts[2], tmp, pos + Vec2 { 40.f, -20.f }, textStyle, DrawOrder::UI);
 		pos.x += 160.f;
 	}
