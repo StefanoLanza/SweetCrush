@@ -276,11 +276,9 @@ void PlayScreen::TriggerBooster(const Booster& booster) {
 	const Cell& cell = mBoard.GetCell(booster.cellIdx);
 	switch (booster.type) {
 	case BoosterType::hrocket: {
-		const auto& def = boosterDefs[(int)BoosterType::hrocket];
 		mMatch3.HorizontalRocket(cell.col, cell.row);
 	} break;
 	case BoosterType::vrocket: {
-		const auto& def = boosterDefs[(int)BoosterType::hrocket];
 		mMatch3.VerticalRocket(cell.col, cell.row);
 	} break;
 	case BoosterType::miniBomb:

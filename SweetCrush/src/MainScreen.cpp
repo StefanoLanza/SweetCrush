@@ -77,7 +77,7 @@ GameScreenId MainScreen::Tick(float dt) {
 	return ScreenId::mainMenu;
 }
 
-void MainScreen::Draw(GameScreenId topScreen) const {
+void MainScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
 	if (! mPanel.IsVisible()) {
 		return;
 	}
@@ -96,7 +96,7 @@ void MainScreen::Draw(GameScreenId topScreen) const {
 	}
 }
 
-void MainScreen::Enter(GameScreenId prevScreen) {
+void MainScreen::Enter([[maybe_unused]] GameScreenId prevScreen) {
 	mPanel.SetVisible(true);
 }
 

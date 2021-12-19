@@ -47,7 +47,7 @@ void SettingsScreen::BuildUI(UICanvas& canvas) {
 	RefreshAudioButton();
 }
 
-GameScreenId SettingsScreen::Tick(float dt) {
+GameScreenId SettingsScreen::Tick([[maybe_unused]] float dt) {
 	const Input& input = mEngine.GetInput();
 	if (mLanguageButton.IsPressed(input)) {
 		SetNextLanguage();
@@ -67,10 +67,10 @@ GameScreenId SettingsScreen::Tick(float dt) {
 	return ScreenId::settings;
 }
 
-void SettingsScreen::Draw(GameScreenId topScreen) const {
+void SettingsScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
 }
 
-void SettingsScreen::Enter(GameScreenId prevScreen) {
+void SettingsScreen::Enter([[maybe_unused]] GameScreenId prevScreen) {
 	mPanel.SetVisible(true);
 }
 

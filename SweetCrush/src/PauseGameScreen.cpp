@@ -110,10 +110,10 @@ Wind::GameScreenId PauseGameScreen::Tick(float /*dt*/) {
 	return ScreenId::pauseGame;
 }
 
-void PauseGameScreen::Draw(GameScreenId topScreen) const {
+void PauseGameScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
 }
 
-void PauseGameScreen::Enter(GameScreenId prevScreen) {
+void PauseGameScreen::Enter([[maybe_unused]] GameScreenId prevScreen) {
 	mPanel.SetVisible(true);
 }
 

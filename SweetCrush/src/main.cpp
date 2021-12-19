@@ -1,3 +1,10 @@
+// ! Include this before SDL_main
+#ifdef _WIN32
+#define NOMINMAX
+struct IUnknown;
+#include <Windows.h>
+#endif
+
 #include <SDL2/include/SDL_main.h>
 #include <engine/Engine.h>
 #include <inih-master/ini.h>
@@ -5,12 +12,6 @@
 #include "Config.h"
 #include "Game.h"
 #include <algorithm>
-
-#ifdef _WIN32
-#define NOMINMAX
-struct IUnknown;
-#include <Windows.h>
-#endif
 
 namespace {
 void LoadGameConfig(GameConfig& gameConfig, const char* iniFile);
@@ -54,7 +55,7 @@ namespace {
 	}
 
 int INIParser(void* user, const char* /*section*/, const char* name, const char* value) {
-	GameConfig& config = *(GameConfig*)user;
+	GameConfig& config = *static_cast<GameConfig*>(user);
 	PARSE_INT(windowWidth, 0, 1024);
 	PARSE_INT(windowHeight, 0, 768);
 	PARSE_FLOAT(cellHeight, 16.f, 64.f);

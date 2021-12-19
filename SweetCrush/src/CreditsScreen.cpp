@@ -53,10 +53,10 @@ GameScreenId CreditsScreen::Tick(float /*dt*/) {
 	return ScreenId::credits;
 }
 
-void CreditsScreen::Draw(GameScreenId topScreen) const {
+void CreditsScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
 }
 
-void CreditsScreen::Enter(GameScreenId prevScreen) {
+void CreditsScreen::Enter([[maybe_unused]] GameScreenId prevScreen) {
 	mPanel.SetVisible(true);
 }
 

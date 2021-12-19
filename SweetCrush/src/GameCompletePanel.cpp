@@ -92,7 +92,7 @@ void GameCompletePanel::Draw(GameScreenId topScreen) const {
 	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 460 }, TextAlignment::center, textStyle, (DrawOrder)GameDrawOrder::textOverUI);
 }
 
-void GameCompletePanel::Enter(GameScreenId prevScreen) {
+void GameCompletePanel::Enter([[maybe_unused]] GameScreenId prevScreen) {
 	mPanel.SetVisible(true);
 }
 
