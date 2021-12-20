@@ -19,10 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\external\inih-master\ini.c" />
+    <ClCompile Include="..\external\inih\ini.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\external\inih-master\ini.h" />
+    <ClInclude Include="..\external\inih\ini.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{61F9563B-B9D9-46A3-B515-E8C4474ECA88}</ProjectGuid>

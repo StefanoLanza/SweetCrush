@@ -135,8 +135,8 @@
       <ExceptionHandling>Enabled</ExceptionHandling>
     </ClCompile>
     <Link>
-      <LibraryDependencies>$(StlLibraryName);%(LibraryDependencies);m;dl;GLESv1_CM;GLESv2;log;android;SDL2;SDL2_image;SDL2_mixer;</LibraryDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath);$(SolutionDir)build\SDL2\$(Platform)\$(Configuration)\;$(SolutionDir)build\SDL2_image\$(Platform)\$(Configuration)\;$(SolutionDir)build\hidapi\$(Platform)\$(Configuration)\;$(SolutionDir)build\SDL2_mixer\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
+      <LibraryDependencies>$(StlLibraryName);%(LibraryDependencies);m;dl;GLESv1_CM;GLESv2;log;android;SDL2;SDL2_image;SDL_mixer;</LibraryDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath);$(SolutionDir)build\SDL2\$(Platform)\$(Configuration)\;$(SolutionDir)build\SDL2_image\$(Platform)\$(Configuration)\;$(SolutionDir)build\hidapi\$(Platform)\$(Configuration)\;$(SolutionDir)build\SDL_mixer\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
@@ -147,8 +147,8 @@
       <ExceptionHandling>Enabled</ExceptionHandling>
     </ClCompile>
     <Link>
-      <LibraryDependencies>$(StlLibraryName);%(LibraryDependencies);m;dl;GLESv1_CM;GLESv2;SDL2;SDL2_image;SDL2_mixer;</LibraryDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath);$(SolutionDir)build\SDL2\$(Platform)\$(Configuration)\;$(SolutionDir)build\SDL2_image\$(Platform)\$(Configuration)\;$(SolutionDir)build\hidapi\$(Platform)\$(Configuration)\;$(SolutionDir)build\SDL2_mixer\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
+      <LibraryDependencies>$(StlLibraryName);%(LibraryDependencies);m;dl;GLESv1_CM;GLESv2;SDL2;SDL2_image;SDL_mixer;</LibraryDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath);$(SolutionDir)build\SDL2\$(Platform)\$(Configuration)\;$(SolutionDir)build\SDL2_image\$(Platform)\$(Configuration)\;$(SolutionDir)build\hidapi\$(Platform)\$(Configuration)\;$(SolutionDir)build\SDL_mixer\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
@@ -160,8 +160,8 @@
       <ExceptionHandling>Enabled</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath);$(SolutionDir)build\SDL2\$(Platform)\$(Configuration)\;$(SolutionDir)build\SDL2_image\$(Platform)\$(Configuration)\;$(SolutionDir)build\hidapi\$(Platform)\$(Configuration)\;$(SolutionDir)build\SDL2_mixer\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
-      <LibraryDependencies>$(StlLibraryName);%(LibraryDependencies);m;dl;GLESv1_CM;GLESv2;log;android;SDL2;SDL2_image;SDL2_mixer;</LibraryDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath);$(SolutionDir)build\SDL2\$(Platform)\$(Configuration)\;$(SolutionDir)build\SDL2_image\$(Platform)\$(Configuration)\;$(SolutionDir)build\hidapi\$(Platform)\$(Configuration)\;$(SolutionDir)build\SDL_mixer\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
+      <LibraryDependencies>$(StlLibraryName);%(LibraryDependencies);m;dl;GLESv1_CM;GLESv2;log;android;SDL2;SDL2_image;SDL_mixer;</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
@@ -173,8 +173,8 @@
       <ExceptionHandling>Enabled</ExceptionHandling>
     </ClCompile>
     <Link>
-      <LibraryDependencies>$(StlLibraryName);%(LibraryDependencies);m;dl;GLESv1_CM;GLESv2;log;android;SDL2;SDL2_image;SDL2_mixer;</LibraryDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath);$(SolutionDir)build\SDL2\$(Platform)\$(Configuration)\;$(SolutionDir)build\SDL2_image\$(Platform)\$(Configuration)\;$(SolutionDir)build\hidapi\$(Platform)\$(Configuration)\;$(SolutionDir)build\SDL2_mixer\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
+      <LibraryDependencies>$(StlLibraryName);%(LibraryDependencies);m;dl;GLESv1_CM;GLESv2;log;android;SDL2;SDL2_image;SDL_mixer;</LibraryDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath);$(SolutionDir)build\SDL2\$(Platform)\$(Configuration)\;$(SolutionDir)build\SDL2_image\$(Platform)\$(Configuration)\;$(SolutionDir)build\hidapi\$(Platform)\$(Configuration)\;$(SolutionDir)build\SDL_mixer\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

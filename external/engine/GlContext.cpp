@@ -1,5 +1,7 @@
 #include "GlContext.h"
+#if _WIN32
 #include <glew/glew.h>
+#endif
 #include "Gl.h"
 #include "SdlWindow.h"
 #include <stdexcept>

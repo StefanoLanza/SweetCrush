@@ -1,6 +1,6 @@
 #include "Sdl.h"
 #include <SDL2/include/SDL.h>
-#include <SDL2_mixer/include/SDL_mixer.h>
+#include <SDL_mixer/include/SDL_mixer.h>
 #include <stdexcept>
 
 namespace Wind {
