@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <glew/glew.h>
 #else
 #include <SDL2/include/SDL_opengles2.h>
