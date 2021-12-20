@@ -3,6 +3,7 @@ win32/*.vcxproj.user
 bin/SweetCrush*.*
 bin/SDL2.dll
 bin/*.dll
+bin/*.txt
 bin/*.ilk
 bin/*.pdb
 build/

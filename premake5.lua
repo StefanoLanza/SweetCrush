@@ -2,7 +2,6 @@
 
 -- Global settings
 local workspacePath = path.join("build", _ACTION)  -- e.g. build/vs2022, build/gmake
-
 local rootBinDir = path.join(_MAIN_SCRIPT_DIR, "bin")
 local externalDir = path.join(_MAIN_SCRIPT_DIR, "external")
 
@@ -99,8 +98,7 @@ project("SweetCrush")
 		libdirs { "external/precompiled/windows/x86",  }
 	filter {}
 	links { "OpenGL32", "glew32", "SDL2", "SDL2_image", "SDL2main", "SDL2_mixer", "Engine", "inih", }
-	--local targetDir = "%{cfg.buildtarget.directory}"
-	debugdir "bin" --(path.join(workspacePath, targetDir))
+	debugdir "bin"
 	filter { filter_vs, filter_x64 }
 		local precompiledDir = path.join(externalDir, "precompiled/windows/x64")
 	filter { filter_vs, filter_x86 }
@@ -108,6 +106,7 @@ project("SweetCrush")
 	filter { filter_vs }
 		postbuildcommands {
 			"{ECHO}, Copying precompiled DLLS to target folder "..rootBinDir,
-			"{COPY} "..precompiledDir.."/*.dll "..rootBinDir,
+			"{COPYFILE} "..precompiledDir.."/*.dll "..rootBinDir,
+			"{COPYFILE} "..precompiledDir.."/*.txt "..rootBinDir, -- licenses
 		}
 	filter {}
