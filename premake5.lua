@@ -98,7 +98,7 @@ project("SweetCrush")
 	filter { filter_vs, filter_x86 }
 		libdirs { "external/precompiled/windows/x86",  }
 	filter {}
-	links { "OpenGL32", "glew32", "SDL2", "SDL2_image", "SDL2main", "SDL_mixer", "Engine", "inih", }
+	links { "OpenGL32", "glew32", "SDL2", "SDL2_image", "SDL2main", "SDL2_mixer", "Engine", "inih", }
 	--local targetDir = "%{cfg.buildtarget.directory}"
 	debugdir "bin" --(path.join(workspacePath, targetDir))
 	filter { filter_vs, filter_x64 }
