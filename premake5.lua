@@ -3,6 +3,9 @@
 -- Global settings
 local workspacePath = path.join("build", _ACTION)  -- e.g. build/vs2022, build/gmake
 
+local rootBinDir = path.join(_MAIN_SCRIPT_DIR, "bin")
+local externalDir = path.join(_MAIN_SCRIPT_DIR, "external")
+
 -- Filters
 local filter_vs = "action:vs*"
 local filter_make = "action:gmake"
@@ -13,8 +16,7 @@ local filter_release =  "configurations:Release*"
 
 workspace ("SweetCrush")
 	configurations { "Debug", "Release" }
-	-- TODO Support 64 bit
-	platforms { "x86", } -- "x86_64" }
+	platforms { "x86", "x86_64" }
 	language "C++"
 	location (workspacePath)
 	characterset "MBCS"
@@ -82,7 +84,7 @@ project("Engine")
 
 project("inih")
 	kind "StaticLib"
-	files { "external/inih-master/ini.c", }
+	files { "external/inih/ini.c", "external/inih/ini.h", }
 	includedirs { }
 
 project("SweetCrush")
@@ -90,10 +92,22 @@ project("SweetCrush")
 	kind "WindowedApp"
 	files { "SweetCrush/src/*.*", }
 	includedirs { ".", "external", "SweetCrush/src", "external/SDL2/include",}
+	-- Use precompiled libs
 	filter { filter_vs, filter_x64 }
-		libdirs { "external/libs/x64", "external/SDL2_image/lib/x64", "external/SDL2_mixer/lib/x64" } 
+		libdirs { "external/precompiled/windows/x64",  } 
 	filter { filter_vs, filter_x86 }
-		libdirs { "external/libs/x86", "external/glew/lib", "external/SDL2_image/lib/x86", "external/SDL2_mixer/lib/x86" } 
+		libdirs { "external/precompiled/windows/x86",  }
+	filter {}
 	links { "opengl32", "glew32", "SDL2", "SDL2_image", "SDL2main", "SDL2_mixer", "Engine", "inih", }
 	--local targetDir = "%{cfg.buildtarget.directory}"
 	debugdir "bin" --(path.join(workspacePath, targetDir))
+	filter { filter_vs, filter_x64 }
+		local precompiledDir = path.join(externalDir, "precompiled/windows/x64")
+	filter { filter_vs, filter_x86 }
+		local precompiledDir = path.join(externalDir, "precompiled/windows/x86")
+	filter { filter_vs }
+		postbuildcommands {
+			"{ECHO}, Copying precompiled DLLS to target folder "..rootBinDir,
+			"{COPY} "..precompiledDir.."/*.dll "..rootBinDir,
+		}
+	filter {}

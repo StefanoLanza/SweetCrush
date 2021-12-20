@@ -7,7 +7,7 @@ struct IUnknown;
 
 #include <SDL2/include/SDL_main.h>
 #include <engine/Engine.h>
-#include <inih-master/ini.h>
+#include <inih/ini.h>
 
 #include "Config.h"
 #include "Game.h"
