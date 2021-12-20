@@ -1,6 +1,7 @@
 #include "GlContext.h"
 #include "Gl.h"
 #include "SdlWindow.h"
+#include <glew/glew.h>
 #include <stdexcept>
 #include <string>
 
