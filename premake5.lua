@@ -15,7 +15,7 @@ local filter_release =  "configurations:Release*"
 
 workspace ("SweetCrush")
 	configurations { "Debug", "Release" }
-	platforms { "x86", "x86_64" }
+	platforms { "x86", "x64" }
 	language "C++"
 	location (workspacePath)
 	characterset "MBCS"
@@ -28,7 +28,7 @@ workspace ("SweetCrush")
 filter "platforms:x86"
 	architecture "x86"
 
-filter "platforms:x86_64"
+filter "platforms:x64"
 	architecture "x86_64"
 
 filter { filter_vs }
@@ -79,7 +79,7 @@ filter { "toolset:clang", "configurations:Debug*" }
 project("Engine")
 	kind "StaticLib"
 	files { "external/engine/*.*", }
-	includedirs { "external", "external/SDL2/include", }
+	includedirs { "external", "external/SDL/include", }
 
 project("inih")
 	kind "StaticLib"
@@ -90,19 +90,15 @@ project("SweetCrush")
 	targetdir "bin"
 	kind "WindowedApp"
 	files { "SweetCrush/src/*.*", }
-	includedirs { ".", "external", "SweetCrush/src", "external/SDL2/include",}
+	includedirs { ".", "external", "SweetCrush/src", "external/SDL/include",}
 	-- Use precompiled libs
-	filter { filter_vs, filter_x64 }
-		libdirs { "external/precompiled/windows/x64",  } 
-	filter { filter_vs, filter_x86 }
-		libdirs { "external/precompiled/windows/x86",  }
+	filter { filter_vs }
+		libdirs { "external/precompiled/windows/%{cfg.platform}" } 
 	filter {}
 	links { "OpenGL32", "glew32", "SDL2", "SDL2_image", "SDL2main", "SDL2_mixer", "Engine", "inih", }
 	debugdir "bin"
-	filter { filter_vs, filter_x64 }
-		local precompiledDir = path.join(externalDir, "precompiled/windows/x64")
-	filter { filter_vs, filter_x86 }
-		local precompiledDir = path.join(externalDir, "precompiled/windows/x86")
+	
+	local precompiledDir = path.join(externalDir, "precompiled/windows/%{cfg.platform}")
 	filter { filter_vs }
 		postbuildcommands {
 			"{ECHO}, Copying precompiled DLLS to target folder "..rootBinDir,

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL2/include/SDL.h>
+#include <SDL/include/SDL.h>
 #include <engine/Math.h>
 
 namespace Wind {

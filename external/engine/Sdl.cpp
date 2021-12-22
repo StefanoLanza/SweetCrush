@@ -1,5 +1,5 @@
 #include "Sdl.h"
-#include <SDL2/include/SDL.h>
+#include <SDL/include/SDL.h>
 #include <SDL_mixer/include/SDL_mixer.h>
 #include <stdexcept>
 

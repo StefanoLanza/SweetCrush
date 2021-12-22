@@ -172,49 +172,49 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories);$(SolutionDir)external\SDL_mixer\include;$(SolutionDir)external\SDL_mixer\src;$(SolutionDir)external\SDL_mixer\src\codecs;$(SolutionDir)external\SDL2\include;$(SolutionDir)external\SDL_mixer\external\libogg-1.3.2\include;$(SolutionDir)external\SDL_mixer\external\libogg-1.3.2\android;$(SolutionDir)external\SDL_mixer\external\libvorbis-1.3.6\include;$(SolutionDir)external\SDL_mixer\external\libvorbis-1.3.6\lib</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories);$(SolutionDir)external\SDL_mixer\include;$(SolutionDir)external\SDL_mixer\src;$(SolutionDir)external\SDL_mixer\src\codecs;$(SolutionDir)external\SDL\include;$(SolutionDir)external\SDL_mixer\external\libogg-1.3.2\include;$(SolutionDir)external\SDL_mixer\external\libogg-1.3.2\android;$(SolutionDir)external\SDL_mixer\external\libvorbis-1.3.6\include;$(SolutionDir)external\SDL_mixer\external\libvorbis-1.3.6\lib</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MUSIC_OGG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CppLanguageStandard>c++1z</CppLanguageStandard>
       <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
       <LibraryDependencies>$(StlLibraryName);%(LibraryDependencies);m;dl;log;android;SDL2;</LibraryDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath);$(SolutionDir)build\SDL2\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath);$(SolutionDir)build\SDL\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories);$(SolutionDir)external\SDL_mixer\include;$(SolutionDir)external\SDL_mixer\src;$(SolutionDir)external\SDL_mixer\src\codecs;$(SolutionDir)external\SDL2\include;$(SolutionDir)external\SDL_mixer\external\libogg-1.3.2\include;$(SolutionDir)external\SDL_mixer\external\libogg-1.3.2\android;$(SolutionDir)external\SDL_mixer\external\libvorbis-1.3.6\include;$(SolutionDir)external\SDL_mixer\external\libvorbis-1.3.6\lib</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories);$(SolutionDir)external\SDL_mixer\include;$(SolutionDir)external\SDL_mixer\src;$(SolutionDir)external\SDL_mixer\src\codecs;$(SolutionDir)external\SDL\include;$(SolutionDir)external\SDL_mixer\external\libogg-1.3.2\include;$(SolutionDir)external\SDL_mixer\external\libogg-1.3.2\android;$(SolutionDir)external\SDL_mixer\external\libvorbis-1.3.6\include;$(SolutionDir)external\SDL_mixer\external\libvorbis-1.3.6\lib</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MUSIC_OGG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CppLanguageStandard>c++1z</CppLanguageStandard>
     </ClCompile>
     <Link>
       <LibraryDependencies>$(StlLibraryName);%(LibraryDependencies);m;dl;log;android;SDL2;z</LibraryDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath);$(SolutionDir)build\SDL2\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath);$(SolutionDir)build\SDL\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories);$(SolutionDir)external\SDL_mixer\include;$(SolutionDir)external\SDL_mixer\src;$(SolutionDir)external\SDL_mixer\src\codecs;$(SolutionDir)external\SDL2\include;$(SolutionDir)external\SDL_mixer\external\libogg-1.3.2\include;$(SolutionDir)external\SDL_mixer\external\libogg-1.3.2\android;$(SolutionDir)external\SDL_mixer\external\libvorbis-1.3.6\include;$(SolutionDir)external\SDL_mixer\external\libvorbis-1.3.6\lib</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories);$(SolutionDir)external\SDL_mixer\include;$(SolutionDir)external\SDL_mixer\src;$(SolutionDir)external\SDL_mixer\src\codecs;$(SolutionDir)external\SDL\include;$(SolutionDir)external\SDL_mixer\external\libogg-1.3.2\include;$(SolutionDir)external\SDL_mixer\external\libogg-1.3.2\android;$(SolutionDir)external\SDL_mixer\external\libvorbis-1.3.6\include;$(SolutionDir)external\SDL_mixer\external\libvorbis-1.3.6\lib</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MUSIC_OGG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableNeonCodegen>true</EnableNeonCodegen>
       <CppLanguageStandard>c++1z</CppLanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath);$(SolutionDir)build\SDL2\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath);$(SolutionDir)build\SDL\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
       <LibraryDependencies>$(StlLibraryName);%(LibraryDependencies);m;dl;log;android;SDL2;z</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories);$(SolutionDir)external\SDL_mixer\include;$(SolutionDir)external\SDL_mixer\src;$(SolutionDir)external\SDL_mixer\src\codecs;$(SolutionDir)external\SDL2\include;$(SolutionDir)external\SDL_mixer\external\libogg-1.3.2\include;$(SolutionDir)external\SDL_mixer\external\libogg-1.3.2\android;$(SolutionDir)external\SDL_mixer\external\libvorbis-1.3.6\include;$(SolutionDir)external\SDL_mixer\external\libvorbis-1.3.6\lib</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories);$(SolutionDir)external\SDL_mixer\include;$(SolutionDir)external\SDL_mixer\src;$(SolutionDir)external\SDL_mixer\src\codecs;$(SolutionDir)external\SDL\include;$(SolutionDir)external\SDL_mixer\external\libogg-1.3.2\include;$(SolutionDir)external\SDL_mixer\external\libogg-1.3.2\android;$(SolutionDir)external\SDL_mixer\external\libvorbis-1.3.6\include;$(SolutionDir)external\SDL_mixer\external\libvorbis-1.3.6\lib</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MUSIC_OGG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableNeonCodegen>true</EnableNeonCodegen>
       <CppLanguageStandard>c++1z</CppLanguageStandard>
     </ClCompile>
     <Link>
       <LibraryDependencies>$(StlLibraryName);%(LibraryDependencies);m;dl;log;android;SDL2;z</LibraryDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath);$(SolutionDir)build\SDL2\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName)\$(PlatformShortName);$(StlLibraryPath);$(SolutionDir)build\SDL\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
