@@ -5,7 +5,7 @@ struct IUnknown;
 #include <Windows.h>
 #endif
 
-#include <SDL2/include/SDL_main.h>
+#include <SDL/include/SDL_main.h>
 #include <engine/Engine.h>
 #include <inih/ini.h>
 

@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28721.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hidapi", "android\hidapi.vcxproj", "{654D6F15-267A-423D-8606-351C153C4E3D}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2_image", "android\SDL2_image.vcxproj", "{03A9401D-CEFF-4F5E-A7B4-FC2A0D9F6C95}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B7BE417C-B6C5-4A69-A056-E0CB0C6A344C} = {B7BE417C-B6C5-4A69-A056-E0CB0C6A344C}
@@ -18,9 +16,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "engine", "android\engine.vc
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2", "android\SDL2.vcxproj", "{B7BE417C-B6C5-4A69-A056-E0CB0C6A344C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{654D6F15-267A-423D-8606-351C153C4E3D} = {654D6F15-267A-423D-8606-351C153C4E3D}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "main", "android\main.vcxproj", "{B7F3A6F1-0359-4427-925D-4A6D1C979B61}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -36,7 +31,7 @@ Project("{39E2626F-3545-4960-A6E8-258AD8476CE5}") = "SDL2_GradleApp", "android\S
 		{9E45BE8B-DBF6-4F35-B0EA-3D295D4BCE55} = {9E45BE8B-DBF6-4F35-B0EA-3D295D4BCE55}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2_mixer", "android\SDL2_mixer.vcxproj", "{9E45BE8B-DBF6-4F35-B0EA-3D295D4BCE55}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL_mixer", "android\SDL2_mixer.vcxproj", "{9E45BE8B-DBF6-4F35-B0EA-3D295D4BCE55}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B7BE417C-B6C5-4A69-A056-E0CB0C6A344C} = {B7BE417C-B6C5-4A69-A056-E0CB0C6A344C}
 	EndProjectSection
@@ -49,14 +44,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{654D6F15-267A-423D-8606-351C153C4E3D}.Debug|ARM.ActiveCfg = Debug|ARM
-		{654D6F15-267A-423D-8606-351C153C4E3D}.Debug|ARM.Build.0 = Debug|ARM
-		{654D6F15-267A-423D-8606-351C153C4E3D}.Debug|x86.ActiveCfg = Debug|x86
-		{654D6F15-267A-423D-8606-351C153C4E3D}.Debug|x86.Build.0 = Debug|x86
-		{654D6F15-267A-423D-8606-351C153C4E3D}.Release|ARM.ActiveCfg = Release|ARM
-		{654D6F15-267A-423D-8606-351C153C4E3D}.Release|ARM.Build.0 = Release|ARM
-		{654D6F15-267A-423D-8606-351C153C4E3D}.Release|x86.ActiveCfg = Release|x86
-		{654D6F15-267A-423D-8606-351C153C4E3D}.Release|x86.Build.0 = Release|x86
 		{03A9401D-CEFF-4F5E-A7B4-FC2A0D9F6C95}.Debug|ARM.ActiveCfg = Debug|ARM
 		{03A9401D-CEFF-4F5E-A7B4-FC2A0D9F6C95}.Debug|ARM.Build.0 = Debug|ARM
 		{03A9401D-CEFF-4F5E-A7B4-FC2A0D9F6C95}.Debug|x86.ActiveCfg = Debug|x86

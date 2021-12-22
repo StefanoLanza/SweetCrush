@@ -41,6 +41,13 @@ model {
         }
         create("all")
     }
+
+/*
+    android.sources = {
+        main {
+            assets.source.srcDirs += '../../../bin/assets'
+        }
+    }*/
 }
 
 repositories {
