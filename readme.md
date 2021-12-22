@@ -20,11 +20,14 @@ Sweet Crush is an open source, cross-platform Match-3 game.
 * OpenGL ES 3.0+ on mobile
 
 ## Installation
-* Clone the github repository to a folder (REPO in the following instructions) on your local machine
+* Clone the github repository to a folder (REPO in the following instructions) on your local machine<br>
+  `git clone https://github.com/StefanoLanza/SweetCrush.git`
+* Update submodules <br>
+  `git submodule update --init --recursive`
 * For a Windows build
   * Install the latest release of [premake5](https://premake.github.io/download)
   * For convenience, precompiled libraries of SDL2, SDL_mixer and SDL_image, for 32 and 64 bits, are part of the repository
-  * cd REPO
+  * cd SweetCrush
   * Run `premake5 vs2022`. You can target previous versions of Visual Studio (e.g. `vs2019`) if you do not have the 2022 one.
     This command generates a Visual Studio solution
   * Open build/vs2022/SweetCrush.sln in Visual Studio
@@ -39,12 +42,13 @@ Sweet Crush is an open source, cross-platform Match-3 game.
    `sudo apt-get install libsdl2-image-dev`
   * Install the SDL_mixer development package  <br>
   `sudo apt-get install libsdl2-mixer-dev`
-  * cd REPO
+  * cd SweetCrush
   * Run `premake5 gmake`. This generates makefile(s) under build/gmake
   * cd build/gmake
   * Run make with the desired configuration e.g. <br>`make config=release_x64`
   * The executable SweetCrush is built inside the bin folder
 * For an Android build
+  * cd SweetCrush
   * Open SweetCrush_android.sln in Visual Studio 2022
   * Select the build configuration (Release or Debug configuration, ARM or x86 depending on your target device)
   * Build the solution
