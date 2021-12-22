@@ -70,7 +70,6 @@
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\hidapi.vcxproj" />
     <ProjectReference Include="..\inih.vcxproj" />
     <ProjectReference Include="..\engine.vcxproj" />
     <ProjectReference Include="..\main.vcxproj" />
