@@ -19,47 +19,47 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\external\SDL2_image\src\IMG.c" />
-    <ClCompile Include="..\external\SDL2_image\src\IMG_bmp.c" />
-    <ClCompile Include="..\external\SDL2_image\src\IMG_gif.c" />
-    <ClCompile Include="..\external\SDL2_image\src\IMG_jpg.c" />
-    <ClCompile Include="..\external\SDL2_image\src\IMG_lbm.c" />
-    <ClCompile Include="..\external\SDL2_image\src\IMG_pcx.c" />
-    <ClCompile Include="..\external\SDL2_image\src\IMG_png.c" />
-    <ClCompile Include="..\external\SDL2_image\src\IMG_pnm.c" />
-    <ClCompile Include="..\external\SDL2_image\src\IMG_svg.c" />
-    <ClCompile Include="..\external\SDL2_image\src\IMG_tga.c" />
-    <ClCompile Include="..\external\SDL2_image\src\IMG_tif.c" />
-    <ClCompile Include="..\external\SDL2_image\src\IMG_webp.c" />
-    <ClCompile Include="..\external\SDL2_image\src\IMG_WIC.c" />
-    <ClCompile Include="..\external\SDL2_image\src\IMG_xcf.c" />
-    <ClCompile Include="..\external\SDL2_image\src\IMG_xpm.c" />
-    <ClCompile Include="..\external\SDL2_image\src\IMG_xv.c" />
-    <ClCompile Include="..\external\SDL2_image\src\IMG_xxx.c" />
-    <ClCompile Include="..\external\SDL2_image\src\png\arm\arm_init.c" />
-    <ClCompile Include="..\external\SDL2_image\src\png\arm\filter_neon_intrinsics.c" />
-    <ClCompile Include="..\external\SDL2_image\src\png\arm\palette_neon_intrinsics.c" />
-    <ClCompile Include="..\external\SDL2_image\src\png\png.c" />
-    <ClCompile Include="..\external\SDL2_image\src\png\pngerror.c" />
-    <ClCompile Include="..\external\SDL2_image\src\png\pngget.c" />
-    <ClCompile Include="..\external\SDL2_image\src\png\pngmem.c" />
-    <ClCompile Include="..\external\SDL2_image\src\png\pngpread.c" />
-    <ClCompile Include="..\external\SDL2_image\src\png\pngread.c" />
-    <ClCompile Include="..\external\SDL2_image\src\png\pngrio.c" />
-    <ClCompile Include="..\external\SDL2_image\src\png\pngrtran.c" />
-    <ClCompile Include="..\external\SDL2_image\src\png\pngrutil.c" />
-    <ClCompile Include="..\external\SDL2_image\src\png\pngset.c" />
-    <ClCompile Include="..\external\SDL2_image\src\png\pngtrans.c" />
-    <ClCompile Include="..\external\SDL2_image\src\png\pngwio.c" />
-    <ClCompile Include="..\external\SDL2_image\src\png\pngwrite.c" />
-    <ClCompile Include="..\external\SDL2_image\src\png\pngwtran.c" />
-    <ClCompile Include="..\external\SDL2_image\src\png\pngwutil.c" />
+    <ClCompile Include="..\external\SDL_image\IMG.c" />
+    <ClCompile Include="..\external\SDL_image\IMG_bmp.c" />
+    <ClCompile Include="..\external\SDL_image\IMG_gif.c" />
+    <ClCompile Include="..\external\SDL_image\IMG_jpg.c" />
+    <ClCompile Include="..\external\SDL_image\IMG_lbm.c" />
+    <ClCompile Include="..\external\SDL_image\IMG_pcx.c" />
+    <ClCompile Include="..\external\SDL_image\IMG_png.c" />
+    <ClCompile Include="..\external\SDL_image\IMG_pnm.c" />
+    <ClCompile Include="..\external\SDL_image\IMG_svg.c" />
+    <ClCompile Include="..\external\SDL_image\IMG_tga.c" />
+    <ClCompile Include="..\external\SDL_image\IMG_tif.c" />
+    <ClCompile Include="..\external\SDL_image\IMG_webp.c" />
+    <ClCompile Include="..\external\SDL_image\IMG_WIC.c" />
+    <ClCompile Include="..\external\SDL_image\IMG_xcf.c" />
+    <ClCompile Include="..\external\SDL_image\IMG_xpm.c" />
+    <ClCompile Include="..\external\SDL_image\IMG_xv.c" />
+    <ClCompile Include="..\external\SDL_image\IMG_xxx.c" />
+    <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\arm\arm_init.c" />
+    <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\arm\filter_neon_intrinsics.c" />
+    <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\arm\palette_neon_intrinsics.c" />
+    <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\png.c" />
+    <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\pngerror.c" />
+    <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\pngget.c" />
+    <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\pngmem.c" />
+    <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\pngpread.c" />
+    <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\pngread.c" />
+    <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\pngrio.c" />
+    <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\pngrtran.c" />
+    <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\pngrutil.c" />
+    <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\pngset.c" />
+    <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\pngtrans.c" />
+    <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\pngwio.c" />
+    <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\pngwrite.c" />
+    <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\pngwtran.c" />
+    <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\pngwutil.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\external\SDL2_image\include\SDL_image.h" />
+    <ClInclude Include="..\external\SDL_image\include\SDL_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\external\SDL2_image\src\png\arm\filter_neon.S" />
+    <None Include="..\external\SDL_image\external\libpng-1.6.37\arm\filter_neon.S" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{03a9401d-ceff-4f5e-a7b4-fc2a0d9f6c95}</ProjectGuid>
@@ -118,7 +118,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories);$(SolutionDir)external\SDL2\include;$(SolutionDir)external\SDL2_image\include;$(SolutionDir)external\SDL2_image\src\png</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories);$(SolutionDir)external\SDL2\include;$(SolutionDir)external\SDL_image\include;$(SolutionDir)external\SDL_image\\external\libpng-1.6.37</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__ANDROID_API__=19; AVOID_TABLES;LOAD_PNG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CppLanguageStandard>c++1z</CppLanguageStandard>
       <CompileAs>CompileAsC</CompileAs>
@@ -130,7 +130,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories);$(SolutionDir)external\SDL2_image\include;$(SolutionDir)external\SDL2_image\src\jpeg;$(SolutionDir)external\SDL2_image\src\png;$(SolutionDir)external\SDL2\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories);$(SolutionDir)external\SDL_image\include;$(SolutionDir)external\SDL_image\jpeg;$(SolutionDir)external\SDL_image\external\libpng-1.6.37;$(SolutionDir)external\SDL2\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__ANDROID_API__=19; AVOID_TABLES;LOAD_PNG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CppLanguageStandard>c++1z</CppLanguageStandard>
     </ClCompile>
@@ -141,7 +141,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories);$(SolutionDir)external\SDL2_image\include;$(SolutionDir)external\SDL2_image\src\jpeg;$(SolutionDir)external\SDL2_image\src\png;$(SolutionDir)external\SDL2\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories);$(SolutionDir)external\SDL_image\include;$(SolutionDir)external\SDL_image\jpeg;$(SolutionDir)external\SDL_image\\external\libpng-1.6.37;$(SolutionDir)external\SDL2\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__ANDROID_API__=19; AVOID_TABLES;LOAD_PNG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableNeonCodegen>true</EnableNeonCodegen>
       <CppLanguageStandard>c++1z</CppLanguageStandard>
@@ -153,7 +153,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories);$(SolutionDir)external\SDL2_image\include;$(SolutionDir)external\SDL2_image\src\jpeg;$(SolutionDir)external\SDL2_image\src\png;$(SolutionDir)external\SDL2\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories);$(SolutionDir)external\SDL_image\include;$(SolutionDir)external\SDL_image\jpeg;$(SolutionDir)external\SDL_image\external\libpng-1.6.37;$(SolutionDir)external\SDL2\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__ANDROID_API__=19; AVOID_TABLES;LOAD_PNG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableNeonCodegen>true</EnableNeonCodegen>
       <CppLanguageStandard>c++1z</CppLanguageStandard>
