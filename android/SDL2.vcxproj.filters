@@ -136,6 +136,12 @@
     <Filter Include="src\render\software">
       <UniqueIdentifier>{a6141251-6600-4e02-ad79-b11d17932080}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\locale">
+      <UniqueIdentifier>{7dd91a10-2edd-4095-988c-0279243c031a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\locale\android">
+      <UniqueIdentifier>{b4b191f3-d651-4754-bd96-0776f717f984}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\external\SDL\src\audio\android\SDL_androidaudio.c">
@@ -507,6 +513,12 @@
     <ClCompile Include="..\external\SDL\src\render\opengles\SDL_render_gles.c">
       <Filter>src\render\opengles</Filter>
     </ClCompile>
+    <ClCompile Include="..\external\SDL\src\locale\android\SDL_syslocale.c">
+      <Filter>src\locale\android</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\SDL\src\locale\SDL_locale.c">
+      <Filter>src\locale</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\external\SDL\src\audio\android\SDL_androidaudio.h">
@@ -805,6 +817,9 @@
     </ClInclude>
     <ClInclude Include="..\external\SDL\src\render\opengles\SDL_glesfuncs.h">
       <Filter>src\render\opengles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\SDL\src\locale\SDL_syslocale.h">
+      <Filter>src\locale</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

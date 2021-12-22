@@ -171,6 +171,8 @@
     <ClCompile Include="..\external\SDL\src\joystick\SDL_joystick.c" />
     <ClCompile Include="..\external\SDL\src\joystick\virtual\SDL_virtualjoystick.c" />
     <ClCompile Include="..\external\SDL\src\loadso\dlopen\SDL_sysloadso.c" />
+    <ClCompile Include="..\external\SDL\src\locale\android\SDL_syslocale.c" />
+    <ClCompile Include="..\external\SDL\src\locale\SDL_locale.c" />
     <ClCompile Include="..\external\SDL\src\misc\android\SDL_sysurl.c" />
     <ClCompile Include="..\external\SDL\src\misc\SDL_url.c" />
     <ClCompile Include="..\external\SDL\src\power\android\SDL_syspower.c" />
@@ -291,6 +293,7 @@
     <ClInclude Include="..\external\SDL\src\joystick\SDL_sysjoystick.h" />
     <ClInclude Include="..\external\SDL\src\joystick\usb_ids.h" />
     <ClInclude Include="..\external\SDL\src\joystick\virtual\SDL_virtualjoystick_c.h" />
+    <ClInclude Include="..\external\SDL\src\locale\SDL_syslocale.h" />
     <ClInclude Include="..\external\SDL\src\misc\SDL_sysurl.h" />
     <ClInclude Include="..\external\SDL\src\power\SDL_syspower.h" />
     <ClInclude Include="..\external\SDL\src\render\opengles2\SDL_gles2funcs.h" />

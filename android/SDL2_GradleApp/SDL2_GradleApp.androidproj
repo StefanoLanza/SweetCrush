@@ -78,6 +78,7 @@
     <ProjectReference Include="..\SDL2_mixer.vcxproj" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="app\build.gradle" />
     <Content Include="app\jni\Android.mk" />
     <Content Include="app\jni\Application.mk" />
     <Content Include="app\jni\CMakeLists.txt" />
@@ -92,7 +93,9 @@
     <Content Include="app\src\main\res\values\colors.xml" />
     <Content Include="app\src\main\res\values\strings.xml" />
     <Content Include="app\src\main\res\values\styles.xml" />
+    <Content Include="build.gradle" />
     <Content Include="gradle\wrapper\gradle-wrapper.jar" />
+    <Content Include="settings.gradle" />
   </ItemGroup>
   <ItemGroup>
     <JavaCompile Include="app\src\main\java\org\libsdl\app\HIDDevice.java" />
@@ -103,17 +106,10 @@
     <JavaCompile Include="app\src\main\java\org\libsdl\app\SDLActivity.java" />
     <JavaCompile Include="app\src\main\java\org\libsdl\app\SDLAudioManager.java" />
     <JavaCompile Include="app\src\main\java\org\libsdl\app\SDLControllerManager.java" />
-    <JavaCompile Include="app\src\main\java\com\SDL2_GradleApp\SDL2_GradleApp.java" />
   </ItemGroup>
   <ItemGroup>
     <AntProjectPropertiesFile Include="gradle.properties" />
-  </ItemGroup>
-  <ItemGroup>
-    <GradleTemplate Include="app\build.gradle.template" />
-    <GradleTemplate Include="app\src\main\AndroidManifest.xml.template" />
-    <GradleTemplate Include="build.gradle.template" />
-    <GradleTemplate Include="gradle\wrapper\gradle-wrapper.properties.template" />
-    <GradleTemplate Include="settings.gradle.template" />
+    <AntProjectPropertiesFile Include="gradle\wrapper\gradle-wrapper.properties" />
   </ItemGroup>
   <Import Project="$(AndroidTargetsPath)\Android.targets" />
   <ImportGroup Label="ExtensionTargets" />
