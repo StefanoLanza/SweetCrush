@@ -88,14 +88,20 @@ project("inih")
 
 project("SweetCrush")
 	targetdir "bin"
-	kind "WindowedApp"
+	filter { filter_vs }
+		kind "WindowedApp"
+	filter { "system:linux" }
+		kind "ConsoleApp"
+	filter {}
 	files { "SweetCrush/src/*.*", }
 	includedirs { ".", "external", "SweetCrush/src", "external/SDL/include",}
 	-- Use precompiled libs
 	filter { filter_vs }
 		libdirs { "external/precompiled/windows/%{cfg.platform}" } 
 	filter {}
-	links { "OpenGL32", "glew32", "SDL2", "SDL2_image", "SDL2main", "SDL2_mixer", "Engine", "inih", }
+	filter { "system:linux" }
+		links { "GL", "SDL2", "SDL2_image", "SDL2main", "SDL2_mixer", "Engine", "inih", }
+	filter {}
 	debugdir "bin"
 	
 	local precompiledDir = path.join(externalDir, "precompiled/windows/%{cfg.platform}")

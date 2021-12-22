@@ -1,5 +1,6 @@
 #include "ActionMgr.h"
 #include <algorithm>
+#include <limits>
 
 namespace Wind {
 

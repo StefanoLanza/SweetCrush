@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cassert>
 #include <stdexcept>
-#include <string>
+#include <cstring>
 
 namespace Wind {
 

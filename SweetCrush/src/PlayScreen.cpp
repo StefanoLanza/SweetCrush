@@ -86,7 +86,7 @@ GameScreenId PlayScreen::Tick(float dt) {
 	if (mPauseButton.IsPressed(input)) {
 		return ScreenId::pauseGame;
 	}
-#if _WIN32
+#if defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyPressed(SDLK_ESCAPE)) {
 #elif defined(__ANDROID__)
 	if (input.GetKeyPressed(SDLK_AC_BACK)) {

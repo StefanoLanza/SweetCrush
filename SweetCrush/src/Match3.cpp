@@ -6,6 +6,7 @@
 #include "TileSelector.h"
 #include <cassert>
 #include <engine/Input.h>
+#include <cstring>
 
 namespace {
 

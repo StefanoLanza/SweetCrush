@@ -7,6 +7,7 @@
 #include <engine/Engine.h>
 #include <engine/TextRender.h>
 #include <engine/UI.h>
+#include <cstdio>
 
 using namespace Wind;
 

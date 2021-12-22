@@ -8,6 +8,7 @@ bin/*.ilk
 bin/*.pdb
 build/
 .vs/
+.vscode
 android/*.user
 android/Android.mk
 android/ARM

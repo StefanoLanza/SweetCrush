@@ -1,5 +1,5 @@
 #include "GlContext.h"
-#if _WIN32
+#ifdef _WIN32
 #include <glew/glew.h>
 #endif
 #include "Gl.h"
@@ -15,7 +15,7 @@ GlContext::GlContext(SdlWindow& sdlWindow)
 		SDL_LogError(0, "%s", error);
 		throw std::runtime_error(std::string("Error initialising OpenGL context: ") + error);
 	}
-#if _WIN32
+#ifdef _WIN32
 	GLenum glewError = glewInit();
 	if (glewError != GLEW_OK) {
 		throw std::runtime_error("Error initialising glew");

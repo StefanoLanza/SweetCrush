@@ -12,6 +12,7 @@ struct IUnknown;
 #include "Config.h"
 #include "Game.h"
 #include <algorithm>
+#include <cstring>
 
 namespace {
 void LoadGameConfig(GameConfig& gameConfig, const char* iniFile);

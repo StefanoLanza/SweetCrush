@@ -36,7 +36,7 @@ void Game::Run() {
 	mGameSettings.audioOn = mGameConfig.audioOn;
 
 	mCanvas.SetBackground("gameartguppy/background.png", mEngine);
-#if _WIN32
+#if defined(_WIN32) || defined(__linux__)
 	mCanvas.SetMousePointer("cursor.png", mEngine);
 #endif
 

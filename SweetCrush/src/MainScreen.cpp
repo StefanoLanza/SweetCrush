@@ -51,7 +51,7 @@ void MainScreen::BuildUI(UICanvas& canvas) {
 	mPanel.AddButton(mStartButton);
 	mPanel.AddButton(mSettingsButton);
 	mPanel.AddButton(mCreditsButton);
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__linux__)
 	mPanel.AddButton(mQuitButton);
 #endif
 	canvas.GetPanel().AddPanel(mPanel);
@@ -69,7 +69,7 @@ GameScreenId MainScreen::Tick(float dt) {
 	else if (mCreditsButton.IsPressed(input)) {
 		return ScreenId::credits;
 	}
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__linux__)
 	else if (mQuitButton.IsPressed(input)) {
 		mEngine.Quit();
 	}
