@@ -1,7 +1,6 @@
 vs/*
 win32/*.vcxproj.user
-bin/SweetCrush*.*
-bin/SDL2.dll
+bin/SweetCrush*
 bin/*.dll
 bin/*.txt
 bin/*.ilk
