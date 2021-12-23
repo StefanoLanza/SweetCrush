@@ -15,5 +15,5 @@ android/SDL2_GradleApp/ARM
 android/SDL2_GradleApp/x86
 android/SDL2_GradleApp/.gradle/*
 android/SDL2_GradleApp/app/src/main/jniLibs/
-
+.workspace
 

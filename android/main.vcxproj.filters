@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\external\SDL2\src\main\android\SDL_android_main.c" />
     <ClCompile Include="..\SweetCrush\src\PlayScreen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -62,6 +61,7 @@
     <ClCompile Include="..\SweetCrush\src\PauseGameScreen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\external\SDL\src\main\android\SDL_android_main.c" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">

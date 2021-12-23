@@ -7,6 +7,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <DebuggerFlavor>AndroidDebugger</DebuggerFlavor>
-    <AndroidDeviceID>emulator-####;pixel_2_kit_kat_4_4_-_api_19</AndroidDeviceID>
+    <AndroidDeviceID>emulator-####;VisualStudio_android-25_x86_phone</AndroidDeviceID>
   </PropertyGroup>
 </Project>

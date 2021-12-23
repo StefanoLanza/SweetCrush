@@ -31,7 +31,7 @@
   <Import Project="$(AndroidTargetsPath)\Android.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <AndroidAPILevel>android-19</AndroidAPILevel>
+    <AndroidAPILevel>android-27</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -39,16 +39,17 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <AndroidAPILevel>android-19</AndroidAPILevel>
+    <AndroidAPILevel>android-27</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <AndroidAPILevel>android-19</AndroidAPILevel>
+    <AndroidAPILevel>android-31</AndroidAPILevel>
   </PropertyGroup>
   <Import Project="$(AndroidTargetsPath)\Android.props" />
   <ItemDefinitionGroup>
     <GradlePackage>
       <ProjectDirectory>$(ProjectDir)app</ProjectDirectory>
+      <GradleVersion>2.8</GradleVersion>
     </GradlePackage>
   </ItemDefinitionGroup>
   <ImportGroup Label="ExtensionSettings" />
@@ -79,12 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app\build.gradle" />
-    <Content Include="app\jni\Android.mk" />
-    <Content Include="app\jni\Application.mk" />
-    <Content Include="app\jni\CMakeLists.txt" />
-    <Content Include="app\jni\src\Android.mk" />
-    <Content Include="app\jni\src\CMakeLists.txt" />
-    <Content Include="app\proguard-rules.pro" />
+    <Content Include="app\src\main\AndroidManifest.xml" />
     <Content Include="app\src\main\res\mipmap-hdpi\ic_launcher.png" />
     <Content Include="app\src\main\res\mipmap-mdpi\ic_launcher.png" />
     <Content Include="app\src\main\res\mipmap-xhdpi\ic_launcher.png" />
@@ -98,6 +94,7 @@
     <Content Include="settings.gradle" />
   </ItemGroup>
   <ItemGroup>
+    <JavaCompile Include="app\src\main\java\com\SDL2_GradleApp\SDL2_GradleApp.java" />
     <JavaCompile Include="app\src\main\java\org\libsdl\app\HIDDevice.java" />
     <JavaCompile Include="app\src\main\java\org\libsdl\app\HIDDeviceBLESteamController.java" />
     <JavaCompile Include="app\src\main\java\org\libsdl\app\HIDDeviceManager.java" />
@@ -108,8 +105,14 @@
     <JavaCompile Include="app\src\main\java\org\libsdl\app\SDLControllerManager.java" />
   </ItemGroup>
   <ItemGroup>
-    <AntProjectPropertiesFile Include="gradle.properties" />
     <AntProjectPropertiesFile Include="gradle\wrapper\gradle-wrapper.properties" />
+  </ItemGroup>
+  <ItemGroup>
+    <GradleTemplate Include="app\build.gradle.template" />
+    <GradleTemplate Include="app\src\main\AndroidManifest.xml.template" />
+    <GradleTemplate Include="build.gradle.template" />
+    <GradleTemplate Include="settings.gradle.template" />
+    <GradleTemplate Include="gradle\wrapper\gradle-wrapper.properties.template" />
   </ItemGroup>
   <Import Project="$(AndroidTargetsPath)\Android.targets" />
   <ImportGroup Label="ExtensionTargets" />

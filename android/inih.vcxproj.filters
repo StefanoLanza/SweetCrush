@@ -9,13 +9,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\external\inih-master\ini.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClCompile Include="..\external\inih\ini.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\external\inih-master\ini.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClInclude Include="..\external\inih\ini.h" />
   </ItemGroup>
 </Project>
