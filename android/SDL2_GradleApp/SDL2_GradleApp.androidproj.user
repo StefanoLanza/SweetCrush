@@ -5,7 +5,16 @@
     <AndroidDeviceID>1420fca7;gts3lltexx</AndroidDeviceID>
     <DebuggerType>NativeOnly</DebuggerType>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <DebuggerFlavor>AndroidDebugger</DebuggerFlavor>
+    <AndroidDeviceID>61689996;platina</AndroidDeviceID>
+    <DebuggerType>NativeOnly</DebuggerType>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <DebuggerFlavor>AndroidDebugger</DebuggerFlavor>
+    <AndroidDeviceID>emulator-####;VisualStudio_android-25_x86_phone</AndroidDeviceID>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerFlavor>AndroidDebugger</DebuggerFlavor>
     <AndroidDeviceID>emulator-####;VisualStudio_android-25_x86_phone</AndroidDeviceID>
   </PropertyGroup>

@@ -1,6 +1,8 @@
 #pragma once
 
-#if defined(_WIN32) || defined(__linux__)
+#if defined(__ANDROID__)
+#define ASSETS_FOLDER ""
+#elif defined(_WIN32) || defined(__linux__)
 #define ASSETS_FOLDER "./assets/"
 #else
 #define ASSETS_FOLDER ""
