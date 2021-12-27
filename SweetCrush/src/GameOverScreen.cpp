@@ -78,8 +78,7 @@ void GameOverScreen::BuildUI(UICanvas& canvas) {
 	canvas.GetPanel().AddPanel(mPanel);
 }
 
-GameScreenId GameOverScreen::Tick(float /*dt*/) {
-	const Input& input = mEngine.GetInput();
+GameScreenId GameOverScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	if (mContinueButton.IsPressed(input)) {
 		return ScreenId::mainMenu;
 	}

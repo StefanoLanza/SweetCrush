@@ -57,8 +57,8 @@ namespace {
 
 int INIParser(void* user, const char* /*section*/, const char* name, const char* value) {
 	GameConfig& config = *static_cast<GameConfig*>(user);
-	PARSE_INT(windowWidth, 0, 1024);
-	PARSE_INT(windowHeight, 0, 768);
+	PARSE_INT(windowWidth, 0, 3456);
+	PARSE_INT(windowHeight, 0, 2234);
 	PARSE_FLOAT(cellHeight, 16.f, 64.f);
 	PARSE_FLOAT(cellWidth, 16.f, 64.f);
 	PARSE_FLOAT(cellSpacing, 0.f, 8.f);

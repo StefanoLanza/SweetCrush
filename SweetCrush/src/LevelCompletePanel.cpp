@@ -60,8 +60,7 @@ void LevelCompletePanel::BuildUI(UICanvas& canvas) {
 	canvas.GetPanel().AddPanel(mPanel);
 }
 
-Wind::GameScreenId LevelCompletePanel::Tick([[maybe_unused]] float dt) {
-	const Input& input = mEngine.GetInput();
+Wind::GameScreenId LevelCompletePanel::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
 	if (mNextLevelButton.IsPressed(input)) {
 		return ScreenId::play;
 	}

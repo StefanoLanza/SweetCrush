@@ -37,10 +37,9 @@ enum class TileSelector::State {
 	waitForSecond,
 };
 
-TileSelector::TileSelector(Board& board, const GameConfig& gameConfig, const Wind::Input& input)
+TileSelector::TileSelector(Board& board, const GameConfig& gameConfig)
     : mBoard { board }
     , mGameConfig { gameConfig }
-    , mInput(input)
     , mState { State::none }
     , mSelectedCellIdx { invalidIndex }
     , mDragDirection { DragDirection::none }
@@ -61,20 +60,19 @@ void TileSelector::Reset() {
 	mDragDirection = DragDirection::none;
 }
 
-std::tuple<bool, int, int> TileSelector::SelectTiles() {
-	const float mouseX = mInput.GetMouseX();
-	const float mouseY = mInput.GetMouseY();
-	const bool  mouseButtonDown = mInput.GetMouseButtonDown();
-	const bool  mouseButtonPressed = mInput.GetMouseButtonPressed();
+std::tuple<bool, int, int> TileSelector::SelectTiles(const Wind::Input& input) {
+	const Wind::Vec2 mouseCoord = input.GetMappedMouseCoord();
+	const bool  mouseButtonDown = input.GetMouseButtonDown();
+	const bool  mouseButtonPressed = input.GetMouseButtonPressed();
 	bool        res = false;
 	int         first = 0;
 	int         second = 0;
 	if (mState == State::none) {
 		// Wait for user to click on a cell
 		if (mouseButtonPressed) {
-			if (auto [hit, cellIdx] = GetCellAtCoordinates(mBoard, mGameConfig, mouseX, mouseY); hit) {
+			if (auto [hit, cellIdx] = GetCellAtCoordinates(mBoard, mGameConfig, mouseCoord.x, mouseCoord.y); hit) {
 				mFirstCellIdx = cellIdx;
-				StartDrag(mouseX, mouseY);
+				StartDrag(mouseCoord.x, mouseCoord.y);
 				mState = State::firstSelected;
 			}
 		}
@@ -86,8 +84,8 @@ std::tuple<bool, int, int> TileSelector::SelectTiles() {
 			// Drag selected tile
 			Cell& cell = mBoard.GetCell(mFirstCellIdx);
 
-			const float deltaX = mouseX - mDragMouseCoords.x;
-			const float deltaY = mouseY - mDragMouseCoords.y;
+			const float deltaX = mouseCoord.x - mDragMouseCoords.x;
+			const float deltaY = mouseCoord.y - mDragMouseCoords.y;
 			// Start dragging the selected tile either horizontally or vertically after the mouse has moved over a threshold
 			if (mDragDirection == DragDirection::none) {
 				const float absDeltaX = std::abs(deltaX);
@@ -97,10 +95,10 @@ std::tuple<bool, int, int> TileSelector::SelectTiles() {
 				}
 			}
 			else if (mDragDirection == DragDirection::horizontal) {
-				mDragMouseCoords.y = mouseY;
+				mDragMouseCoords.y = mouseCoord.y;
 			}
 			else if (mDragDirection == DragDirection::vertical) {
-				mDragMouseCoords.x = mouseX;
+				mDragMouseCoords.x = mouseCoord.x;
 			}
 
 			// Wait for the selected tile to be dragged close enough to an adjacent tile, before attempting a swap
@@ -136,7 +134,7 @@ std::tuple<bool, int, int> TileSelector::SelectTiles() {
 		// Wait for user to click on a second tile
 		assert(mSelectedCellIdx != invalidIndex);
 		if (mouseButtonPressed) {
-			if (auto [hit, cellIdx] = GetCellAtCoordinates(mBoard, mGameConfig, mouseX, mouseY); hit) {
+			if (auto [hit, cellIdx] = GetCellAtCoordinates(mBoard, mGameConfig, mouseCoord.x, mouseCoord.y); hit) {
 				if (cellIdx == mSelectedCellIdx) {
 					SelectFirstCell(invalidIndex);
 					mState = State::none;

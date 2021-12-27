@@ -69,8 +69,7 @@ void GameCompletePanel::BuildUI(UICanvas& canvas) {
 	canvas.GetPanel().AddPanel(mPanel);
 }
 
-GameScreenId GameCompletePanel::Tick(float /*dt*/) {
-	const Input& input = mEngine.GetInput();
+GameScreenId GameCompletePanel::Tick(float /*dt*/, const Wind::Input& input) {
 	if (mContinueButton.IsPressed(input)) {
 		return ScreenId::mainMenu;
 	}

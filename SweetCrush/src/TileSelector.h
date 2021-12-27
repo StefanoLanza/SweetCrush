@@ -11,12 +11,12 @@ struct Cell;
 
 class TileSelector : public ITileSelector {
 public:
-	TileSelector(Board& board, const GameConfig& gameConfig, const Wind::Input& input);
+	TileSelector(Board& board, const GameConfig& gameConfig);
 
 	void                       AddCallback(TileSelectionCallback&& cbk);
 	int                        GetSelectedCell() const override;
 	void                       Reset() override;
-	std::tuple<bool, int, int> SelectTiles() override;
+	std::tuple<bool, int, int> SelectTiles(const Wind::Input& input) override;
 
 private:
 	void SelectFirstCell(int idx);
@@ -31,7 +31,6 @@ private:
 
 	Board&                mBoard;
 	const GameConfig&     mGameConfig;
-	const Wind::Input&    mInput;
 	TileSelectionCallback mCbk;
 	State                 mState;
 	int                   mFirstCellIdx;

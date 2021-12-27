@@ -94,8 +94,7 @@ void PauseGameScreen::BuildUI(UICanvas& canvas) {
 	canvas.GetPanel().AddPanel(mPanel);
 }
 
-Wind::GameScreenId PauseGameScreen::Tick(float /*dt*/) {
-	const Input& input = mEngine.GetInput();
+Wind::GameScreenId PauseGameScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	if (mExitGameButton.IsPressed(input)) {
 		return ScreenId::mainMenu;
 	}

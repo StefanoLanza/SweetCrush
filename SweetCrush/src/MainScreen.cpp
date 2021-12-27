@@ -57,9 +57,8 @@ void MainScreen::BuildUI(UICanvas& canvas) {
 	canvas.GetPanel().AddPanel(mPanel);
 }
 
-GameScreenId MainScreen::Tick(float dt) {
+GameScreenId MainScreen::Tick(float dt, const Wind::Input& input) {
 	mTime += dt;
-	const Input& input = mEngine.GetInput();
 	if (mStartButton.IsPressed(input)) {
 		return ScreenId::play;
 	}

@@ -59,15 +59,13 @@ void Game::Run() {
 }
 
 void Game::Draw(float dt) {
-	Input& input = mEngine.GetInput();
-	input.SetCoordinatesScale(mFrameBuffer.GetWidth() / (float)mEngine.GetWindowWidth(), mFrameBuffer.GetHeight() / (float)mEngine.GetWindowHeight());
-
+	const Input& input = mEngine.GetInput();
 	const TextRenderer&   textRenderer = mEngine.GetTextRenderer();
 	const BitmapRenderer& bitmapRender = mEngine.GetBitmapRenderer();
 	Graphics&             graphics = mEngine.GetGraphics();
 
 	graphics.SetFrameBuffer(mFrameBuffer);
-	mCanvas.Draw(bitmapRender, textRenderer, input.GetMouseCoord());
+	mCanvas.Draw(bitmapRender, textRenderer, input.GetMappedMouseCoord());
 	for (const auto& screen : mScreens) {
 		screen->Draw(mScreenId);
 	}
@@ -78,10 +76,14 @@ void Game::Draw(float dt) {
 }
 
 void Game::Tick(float dt) {
+	Input& input = mEngine.GetInput();
+
+	const Vec2 fbMouseCoord = mEngine.GetBlitter().WindowToFrameBuffer(input.GetMouseCoord(), mFrameBuffer);  
+	input.SetMappedMouseCoord(fbMouseCoord);
 	mCanvas.UpdateWidgets(RefWindowWidth, RefWindowHeight);
 
 	GameScreen&        currScreen = *mScreens[(int)mScreenId];
-	const GameScreenId nextScreen = currScreen.Tick(dt);
+	const GameScreenId nextScreen = currScreen.Tick(dt, input);
 	if (nextScreen != mScreenId) {
 		currScreen.Exit();
 		mScreens[(int)nextScreen]->Enter(mScreenId);

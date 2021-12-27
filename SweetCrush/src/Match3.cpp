@@ -208,7 +208,7 @@ void Match3::Run() {
 	mCascadeCount = 0;
 }
 
-void Match3::Update() {
+void Match3::Update(const Wind::Input& input) {
 	for (const CellPair& s : mSwaps) {
 		SwapTiles(mBoard, s.first, s.second);
 	}
@@ -221,7 +221,7 @@ void Match3::Update() {
 
 	switch (mState) {
 	case State::selectTiles:
-		SelectTiles();
+		SelectTiles(input);
 		break;
 	case State::checkMatchesAfterSwap:
 		if (CheckMatchesAfterSwap()) {
@@ -271,7 +271,7 @@ int Match3::GetNumUserSwaps() const {
 	return mNumUserSwaps;
 }
 
-void Match3::SelectTiles() {
+void Match3::SelectTiles(const Wind::Input& input) {
 	if (int selected = mTileSelector.GetSelectedCell(); selected > 0) {
 		const Cell& cell = mBoard.GetCell(selected);
 		if (HasBooster(cell)) {
@@ -281,7 +281,7 @@ void Match3::SelectTiles() {
 		}
 	}
 
-	if (auto [swap, first, second] = mTileSelector.SelectTiles(); swap) {
+	if (auto [swap, first, second] = mTileSelector.SelectTiles(input); swap) {
 		TrySwap(first, second);
 		mTileSelector.Reset();
 	}

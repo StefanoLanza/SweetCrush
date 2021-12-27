@@ -48,7 +48,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameConfig& gameConfig, const GameS
     , mRenderActionMgr(renderActionMgr)
     , mMatchStats(matchStats)
     , mBoard { NumCols, NumRows }
-    , mTileSelector { std::make_unique<TileSelector>(mBoard, gameConfig, engine.GetInput()) }
+    , mTileSelector { std::make_unique<TileSelector>(mBoard, gameConfig) }
     , mBoostInfoPanel(engine)
     , mPanel(UIDefaultPanelDesc)
     , mPauseButton(MakeButton(optionButtonDesc, optionButtonBitmapDesc, engine))
@@ -81,8 +81,7 @@ void PlayScreen::BuildUI(UICanvas& canvas) {
 	canvas.GetPanel().AddPanel(mPanel);
 }
 
-GameScreenId PlayScreen::Tick(float dt) {
-	const Input& input = mEngine.GetInput();
+GameScreenId PlayScreen::Tick(float dt, const Input& input) {
 	if (mPauseButton.IsPressed(input)) {
 		return ScreenId::pauseGame;
 	}
@@ -107,7 +106,7 @@ GameScreenId PlayScreen::Tick(float dt) {
 	mTime = std::max(0.f, mTime - dt);
 	if (mTime > 0.f) {
 		if (mAnimCounter == 0) { // do not update match while animations are still running
-			mMatch3.Update();
+			mMatch3.Update(input);
 			// TODO speed up music when running out of time (missing in SDL_mixer)
 		}
 	}

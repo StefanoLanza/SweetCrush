@@ -60,6 +60,7 @@ class Board;
 class TileSelector;
 struct GameConfig;
 struct Cell;
+struct GameInput;
 
 class Match3 {
 public:
@@ -69,7 +70,7 @@ public:
 	void SetCallback(Match3Callback&& cbk);
 	void NewBoard(uint32_t seed, const int gemIds[], int gemIdCount);
 	void Run();
-	void Update();
+	void Update(const Wind::Input& input);
 	int  GetNumUserSwaps() const;
 	void AddBooster(BoosterType tileId, int cellIdx);
 	// Boosters
@@ -80,7 +81,7 @@ public:
 
 private:
 	// States
-	void SelectTiles();
+	void SelectTiles(const Wind::Input& input);
 	bool CheckCombos(int h, int v, int t, int b, TileId tileId, int cellIdx);
 	bool CheckCellCombos(int cellIdx);
 	bool CheckMatchesAfterSwap();

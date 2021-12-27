@@ -47,8 +47,7 @@ void SettingsScreen::BuildUI(UICanvas& canvas) {
 	RefreshAudioButton();
 }
 
-GameScreenId SettingsScreen::Tick([[maybe_unused]] float dt) {
-	const Input& input = mEngine.GetInput();
+GameScreenId SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
 	if (mLanguageButton.IsPressed(input)) {
 		SetNextLanguage();
 	}
