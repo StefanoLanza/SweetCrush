@@ -2,6 +2,18 @@
 
 #include <cassert>
 #include <dlfcn.h>
+#include <sys/stat.h>
+
+namespace {
+
+FileTime GetLastWriteTime(const char* path) {
+	FileTime                  time = {};
+	struct stat s;
+  if ( lstat(path, &s) == 0 ) {
+    time = s.tv_sec;
+	}
+	return time;
+}
 
 const char* GetErrorMessage(DLLError error)
 {
@@ -27,7 +39,7 @@ DLLError DLL::Load(const char* fileName)
 
 	mModule = nullptr;
 	mFileName = fileName;
-	//dll.writeTime = 0; //GetLastWriteTime(fileName);
+	mWriteTime = GetLastWriteTime(fileName);
 
 	// Copy DLL to a temporary file so that we can recompile it while the process is running
 	//const char* toLoad = fileName;
@@ -58,8 +70,22 @@ void DLL::FreeDLL()
 
 DLLError DLL::Reload()
 {
-	DLLError err = DLLError::unchanged;
-    return err;
+ 	const FileTime newTime = GetLastWriteTime(mFileName.c_str());
+	if (newTime.sec == 0) {
+		return DLLError::getFileTimeStampFailed;
+	}
+
+	if (newTime.sec != mWriteTime.sec) {
+		DLL      tmp_dll { *this };
+		DLLError err = tmp_dll.Load(mFileName.c_str());
+		if (err == DLLError::ok) {
+			// Replace DLL on success
+			Free();
+			*this = tmp_dll;
+		}
+		return err;
+	}
+   return err;
 }
 
 DLLProc DLL::GetProcedure(const char* procedureName) const {

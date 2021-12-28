@@ -20,10 +20,7 @@ FileTime GetLastWriteTime(const char* path) {
 
 const char* GetErrorMessage(DLLError error) {
 	static const char* str[] = {
-		"unchanged",
-		"getProcAddressFailed",
-		"loadLibraryFailed",
-		"ok",
+		"ok", "unchanged", "getProcAddressFailed", "loadLibraryFailed", "getFileTimeStampFailed",
 	};
 	return str[(int)error];
 }
@@ -39,14 +36,13 @@ DLLError DLL::Load(const char* fileName) {
 	mFileName = fileName;
 	mWriteTime = GetLastWriteTime(fileName);
 
-	// Copy DLL to a temporary file so that we can recompile it while the process is running
 	const char* toLoad = fileName;
 	char        tmpFileName[MAX_PATH];
 	if (mVersion % 2 == 0) {
+		// Copy DLL to a temporary file so that we can recompile it while the process is running
 		sprintf_s(tmpFileName, "%s_temp", fileName);
 		const BOOL copyRes = CopyFileA(fileName, tmpFileName, false); // false: overwrite
 		if (copyRes == FALSE) {
-			// FIXME Make the copy a policy? only needed for runtime recompilation
 			return DLLError::copyFailed;
 		}
 		toLoad = tmpFileName;
@@ -54,7 +50,6 @@ DLLError DLL::Load(const char* fileName) {
 
 	const HMODULE module = LoadLibraryA(toLoad);
 	if (! module) {
-		// DWORD err = GetLastError();
 		return DLLError::loadLibraryFailed;
 	}
 	Free();
@@ -72,23 +67,22 @@ void DLL::Free() {
 }
 
 DLLError DLL::Reload() {
-	DLLError err = DLLError::unchanged;
-	// WIN32_FILE_ATTRIBUTE_DATA unused;
-	// if ( !GetFileAttributesExA( "lock.tmp", GetFileExInfoStandard, &unused ) )
-	{
-		const FileTime newTime = GetLastWriteTime(mFileName.c_str());
-		if (newTime.lowDateTime != mWriteTime.lowDateTime || newTime.highDateTime != mWriteTime.highDateTime) {
-			//			std::cout << "Reloading dll " << dll.fileName << std::endl;
-			DLL tmp_dll { *this };
-			err = tmp_dll.Load(mFileName.c_str());
-			if (err == DLLError::ok) {
-				// Replace DLL on success
-				Free();
-				*this = tmp_dll;
-			}
-		}
+	const FileTime newTime = GetLastWriteTime(mFileName.c_str());
+	if (newTime.highDateTime == 0 && newTime.lowDateTime == 0) {
+		return DLLError::getFileTimeStampFailed;
 	}
-	return err;
+
+	if (newTime.lowDateTime != mWriteTime.lowDateTime || newTime.highDateTime != mWriteTime.highDateTime) {
+		DLL      tmp_dll { *this };
+		DLLError err = tmp_dll.Load(mFileName.c_str());
+		if (err == DLLError::ok) {
+			// Replace DLL on success
+			Free();
+			*this = tmp_dll;
+		}
+		return err;
+	}
+	return DLLError::unchanged;
 }
 
 DLLProc DLL::GetProcedure(const char* procedureName) const {

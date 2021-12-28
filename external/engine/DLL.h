@@ -4,23 +4,31 @@
 #include <cstdint>
 #include <string>
 
+enum class DLLError
+{
+	ok = 0,
+	copyFailed = 1,
+	unchanged = 2,
+	getProcAddressFailed = 3,
+	loadLibraryFailed = 4,
+	getFileTimeStampFailed = 5,
+};
+
+#if defined(_WIN32)
+
 struct FileTime {
 	uint32_t lowDateTime;
 	uint32_t highDateTime;
 };
-
-enum class DLLError
-{
-	copyFailed = 0,
-	unchanged = 1,
-	getProcAddressFailed = 2,
-	loadLibraryFailed = 3,
-	ok = 4
-};
-
-#if defined(_WIN32)
 using DLLProc = void(__cdecl*)(void);
+
 #elif defined(__linux__)
+
+#include <ctime>
+
+struct FileTime {
+	time_t sec;
+};
 using DLLProc = void*;
 #endif
 
