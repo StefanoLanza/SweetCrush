@@ -1,6 +1,7 @@
 #include "ActionMgr.h"
 #include <algorithm>
 #include <limits>
+#include <cassert>
 
 namespace Wind {
 
@@ -16,12 +17,14 @@ ActionMgr::ActionMgr() = default;
 
 ActionMgr::~ActionMgr() = default;
 
-void ActionMgr::AddAction(int* counter, float delay, float duration, ActionFunc&& func) {
+void ActionMgr::AddAction(int* counter, float delay, ActionFunc&& func) {
+	AddTimedAction(counter, delay, std::numeric_limits<float>::max(), std::move(func));
+}
+
+void ActionMgr::AddTimedAction(int* counter, float delay, float duration, ActionFunc&& func) {
+	assert(duration >= 0.f);
 	if (counter) {
 		++*counter;
-	}
-	if (duration <= 0.f) {
-		duration = std::numeric_limits<float>::max();
 	}
 	mActions.push_back({ counter, delay, duration, 0.f, std::move(func) });
 }

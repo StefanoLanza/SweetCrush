@@ -196,7 +196,7 @@ void PlayScreen::OnCellSelectionEvent(const TileSelectionEvent& event) {
 	Cell& cell = mBoard.GetCell(event.cellIdx);
 	if (event.id == TileSelectionEvent::Id::undoDrag) {
 		ActionMgr& actionMgr = mEngine.GetTickActionMgr();
-		actionMgr.AddAction(&mAnimCounter, 0.f, actionUndefDuration, ReturnTile(cell, mGameConfig.tileMoveBackSpeed));
+		actionMgr.AddAction(&mAnimCounter, 0.f, ReturnTile(cell, mGameConfig.tileMoveBackSpeed));
 	}
 }
 
@@ -221,13 +221,13 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 	case Match3Event::Id::match: {
 		int         inc = IncreaseScore(event.match);
 		const Cell& cell = mBoard.GetCell(event.match.cellIdx);
-		mRenderActionMgr.AddAction(nullptr, 0.f, mGameConfig.scoreTextDuration, DrawMatchScore(inc, cell, mEngine, mGameConfig, *mFonts[1]));
+		mRenderActionMgr.AddTimedAction(nullptr, 0.f, mGameConfig.scoreTextDuration, DrawMatchScore(inc, cell, mEngine, mGameConfig, *mFonts[1]));
 		PlaySound(0);
 		break;
 	}
 	case Match3Event::Id::removeTile: {
 		Cell& cell = mBoard.GetCell(event.cellIdx);
-		actionMgr.AddAction(&mAnimCounter, 0.f, mGameConfig.tileScaleDuration, ScaleTile(cell, 1.f, 0.f));
+		actionMgr.AddTimedAction(&mAnimCounter, 0.f, mGameConfig.tileScaleDuration, ScaleTile(cell, 1.f, 0.f));
 		OnTileRemoved(cell);
 		break;
 	}
@@ -239,20 +239,20 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		cell.tileAnim.scaleDev = 0.f;
 		cell.tileAnim.rotation = 0.f;
 		// Drop new tiles from the top
-		actionMgr.AddAction(&mAnimCounter, 0.f, actionUndefDuration, ReturnTile(cell, mGameConfig.tileFallSpeed));
+		actionMgr.AddAction(&mAnimCounter, 0.f, ReturnTile(cell, mGameConfig.tileFallSpeed));
 		break;
 	}
 	case Match3Event::Id::swap: {
 		Cell& firstTile = mBoard.GetCell(event.pair.first);
 		Cell& secondTile = mBoard.GetCell(event.pair.second);
-		actionMgr.AddAction(&mAnimCounter, 0.f, actionUndefDuration, MoveTile(firstTile, secondTile.coords, mGameConfig.tileSwapSpeed));
-		actionMgr.AddAction(&mAnimCounter, 0.f, actionUndefDuration, MoveTile(secondTile, firstTile.coords, mGameConfig.tileSwapSpeed));
+		actionMgr.AddAction(&mAnimCounter, 0.f, MoveTile(firstTile, secondTile.coords, mGameConfig.tileSwapSpeed));
+		actionMgr.AddAction(&mAnimCounter, 0.f, MoveTile(secondTile, firstTile.coords, mGameConfig.tileSwapSpeed));
 		break;
 	}
 	case Match3Event::Id::dropTile: {
 		Cell&       firstTile = mBoard.GetCell(event.pair.first);
 		const Cell& secondTile = mBoard.GetCell(event.pair.second);
-		actionMgr.AddAction(&mAnimCounter, 0.f, actionUndefDuration, MoveTile(firstTile, secondTile.coords, mGameConfig.tileFallSpeed));
+		actionMgr.AddAction(&mAnimCounter, 0.f, MoveTile(firstTile, secondTile.coords, mGameConfig.tileFallSpeed));
 		break;
 	}
 	case Match3Event::Id::newBooster: {
@@ -292,7 +292,7 @@ void PlayScreen::TriggerBooster(const Booster& booster) {
 	default:
 		break;
 	}
-	mRenderActionMgr.AddAction(&mAnimCounter, 0.f, mGameConfig.bombExplosionTime, DrawExplosion(cell, mEngine, mGameConfig));
+	mRenderActionMgr.AddTimedAction(&mAnimCounter, 0.f, mGameConfig.bombExplosionTime, DrawExplosion(cell, mEngine, mGameConfig));
 }
 
 void PlayScreen::CheckLevelCompletion() {
@@ -411,7 +411,7 @@ void PlayScreen::SetupNewBoardAnimation() {
 		cell.tileAnim.rotation = 0.f;
 		// tile.currCoords = { tile.idleCoords.x, mGameConfig.tileFallYCoord };
 		float delay = 0.f; //(mBoard.GetRows() - 1 - cell.row + cell.col) * 0.05f;
-		actionMgr.AddAction(&mBoardFillCounter, delay, mGameConfig.tileScaleDuration, ScaleTile(cell, 0.f, 1.f));
+		actionMgr.AddTimedAction(&mBoardFillCounter, delay, mGameConfig.tileScaleDuration, ScaleTile(cell, 0.f, 1.f));
 	}
 }
 
