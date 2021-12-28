@@ -12,61 +12,64 @@ const char* GetErrorMessage(DLLError error)
 		"loadLibraryFailed",
 		"ok"
 	};
-	return str[(uint)error];
+	return str[(int)error];
 }
 
+DLL::DLL()
+    : mModule { nullptr }
+    , mWriteTime {}
+    , mVersion { 0 } {
+}
 
-DLLError LoadDLL(DLL& dll, const char* fileName)
+DLLError DLL::Load(const char* fileName)
 {
-	dll.module = nullptr;
-	dll.fileName = fileName;
+	assert(fileName);
+
+	mModule = nullptr;
+	mFileName = fileName;
 	//dll.writeTime = 0; //GetLastWriteTime(fileName);
 
 	// Copy DLL to a temporary file so that we can recompile it while the process is running
 	//const char* toLoad = fileName;
 	//char tmpFileName[MAX_PATH];
 
-	void* const module = dlopen(fileName, RTLD_LOCAL | RTLD_LAZY); //RTLD_NOW);
+	void* const module = dlopen(fileName, RTLD_LOCAL | RTLD_LAZY);
 	if (! module)
 	{
 		return DLLError::loadLibraryFailed;
 	}
-	dll.module = module;
-	dll.version++;
+	Free();
+	mModule = module;
+	mVersion++;
 	return DLLError::ok;
 }
 
 
-void FreeDLL(DLL& dll)
+void DLL::FreeDLL()
 {
-	if (dll.module)
+	if (mModule)
 	{
-		dlclose(dll.module);
-		dll.module = nullptr;
-		dll.writeTime = {};
+		dlclose(mModule);
+		mModule = nullptr;
+		mWriteTime = {};
 	}
 }
 
 
-DLLError ReloadDLL(DLL& dll)
+DLLError DLL::Reload()
 {
 	DLLError err = DLLError::unchanged;
     return err;
 }
 
-
-DLLProc GetDLLProcedure(const DLL& dll, const char* procName)
-{
-	assert(procName);
-	if (! dll.module) {
-        return nullptr; 
-    }
-	DLLProc procAddr = static_cast<DLLProc>(dlsym(dll.module, procName));
-	return procAddr;
+DLLProc DLL::GetProcedure(const char* procedureName) const {
+	assert(procedureName);
+	if (! mModule) {
+		return nullptr;
+	}
+	return reinterpret_cast<DLLProc>(dlsym(mModule, procedureName));
 }
 
-
-bool IsValid(const DLL& dll)
-{
-	return dll.module != nullptr;
+bool DLL::IsValid() const {
+	return mModule != nullptr;
 }

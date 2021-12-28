@@ -15,7 +15,7 @@ struct GameConfig;
 
 class Game {
 public:
-	Game(Wind::Engine& engine, const GameConfig& gameConfig, const GameDataModule& gameDataModule);
+	Game(Wind::Engine& engine, const GameConfig& gameConfig, GameDataModule& gameDataModule);
 	~Game();
 	void Run();
 
@@ -26,7 +26,7 @@ private:
 private:
 	Wind::Engine&                     mEngine;
 	const GameConfig&                 mGameConfig;
-	const GameDataModule&             mGameDataModule;
+	GameDataModule&                   mGameDataModule;
 	GameSettings                      mGameSettings;
 	Wind::GlFrameBuffer               mFrameBuffer;
 	Wind::UICanvas                    mCanvas;

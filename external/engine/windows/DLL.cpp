@@ -52,11 +52,12 @@ DLLError DLL::Load(const char* fileName) {
 		toLoad = tmpFileName;
 	}
 
-	HMODULE module = LoadLibraryA(toLoad);
+	const HMODULE module = LoadLibraryA(toLoad);
 	if (! module) {
 		// DWORD err = GetLastError();
 		return DLLError::loadLibraryFailed;
 	}
+	Free();
 	mModule = module;
 	mVersion++;
 	return DLLError::ok;

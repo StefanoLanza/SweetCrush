@@ -20,10 +20,10 @@
 
 using namespace Wind;
 
-Game::Game(Engine& engine, const GameConfig& gameConfig, const GameDataModule& gameDataModule)
+Game::Game(Engine& engine, const GameConfig& gameConfig, GameDataModule& gameDataModule)
     : mEngine { engine }
     , mGameConfig { gameConfig }
-	, mGameDataModule { gameDataModule }
+    , mGameDataModule { gameDataModule }
     , mGameSettings {}
     , mFrameBuffer { RefWindowWidth, RefWindowHeight }
     , mScreenId { ScreenId::mainMenu } {
@@ -60,7 +60,7 @@ void Game::Run() {
 }
 
 void Game::Draw(float dt) {
-	const Input& input = mEngine.GetInput();
+	const Input&          input = mEngine.GetInput();
 	const TextRenderer&   textRenderer = mEngine.GetTextRenderer();
 	const BitmapRenderer& bitmapRender = mEngine.GetBitmapRenderer();
 	Graphics&             graphics = mEngine.GetGraphics();
@@ -77,9 +77,9 @@ void Game::Draw(float dt) {
 }
 
 void Game::Tick(float dt) {
-	Input& input = mEngine.GetInput();
-
-	const Vec2 fbMouseCoord = mEngine.GetBlitter().WindowToFrameBuffer(input.GetMouseCoord(), mFrameBuffer);  
+	mGameDataModule.Reload();
+	Input&     input = mEngine.GetInput();
+	const Vec2 fbMouseCoord = mEngine.GetBlitter().WindowToFrameBuffer(input.GetMouseCoord(), mFrameBuffer);
 	input.SetMappedMouseCoord(fbMouseCoord);
 	mCanvas.UpdateWidgets(RefWindowWidth, RefWindowHeight);
 
