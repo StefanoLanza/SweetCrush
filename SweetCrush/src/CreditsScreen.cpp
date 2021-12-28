@@ -36,8 +36,7 @@ const UITextDesc textDescs[5] {
 } // namespace
 
 CreditsScreen::CreditsScreen(Engine& engine)
-    : mEngine(engine)
-    , mTitle(textDescs[0], engine)
+    : mTitle(textDescs[0], engine)
     , mCodeBy(textDescs[1], engine)
     , mGraphicsBy(textDescs[2], engine)
     , mMusicBy(textDescs[3], engine)

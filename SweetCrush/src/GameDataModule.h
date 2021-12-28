@@ -7,9 +7,12 @@ struct Level;
 class GameDataModule {
 public:
 	using GetNumLevelsPtr = int (*)();
-	using GetLevelPtr = const Level& (*)(int levelIndex);
+	using GetLevelPtr = const Level* (*)(int levelIndex);
 
 	GameDataModule();
+
+	bool Init(const char* dllFileName);
+	bool Reload();
 
 	GetNumLevelsPtr GetNumLevels;
 	GetLevelPtr     GetLevel;

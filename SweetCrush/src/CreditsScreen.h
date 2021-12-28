@@ -16,7 +16,6 @@ public:
 	void               Exit() override;
 
 private:
-	Wind::Engine&  mEngine;
 	Wind::UIText   mTitle;
 	Wind::UIText   mCodeBy;
 	Wind::UIText   mGraphicsBy;

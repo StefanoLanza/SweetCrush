@@ -179,7 +179,7 @@ void PlayScreen::ReplayLevel() {
 }
 
 void PlayScreen::StartLevel() {
-	const Level& level = mGameDataModule.GetLevel(mMatchStats.level);
+	const Level& level = *mGameDataModule.GetLevel(mMatchStats.level);
 	mMatch3.NewBoard(level.seed, level.gemIds, level.numGemIds);
 	mTime = level.time;
 	for (int& c : mMatchStats.targetGemCount) {
@@ -203,7 +203,7 @@ void PlayScreen::OnTileRemoved(const Cell& cell) {
 	if (cell.category != TileCategory::gem) {
 		return;
 	}
-	const Level& level = mGameDataModule.GetLevel(mMatchStats.level);
+	const Level& level = *mGameDataModule.GetLevel(mMatchStats.level);
 	for (int i = 0; i < 3; ++i) {
 		if (level.gemIds[i] == cell.tileId) {
 			++mMatchStats.targetGemCount[i];
@@ -295,7 +295,7 @@ void PlayScreen::TriggerBooster(const Booster& booster) {
 }
 
 void PlayScreen::CheckLevelCompletion() {
-	const Level& level = mGameDataModule.GetLevel(mMatchStats.level);
+	const Level& level = *mGameDataModule.GetLevel(mMatchStats.level);
 	bool         res = true;
 	for (int i = 0; i < 3; ++i) {
 		res = (mMatchStats.targetGemCount[i] >= level.objective.gemCount[i]) && res;
@@ -315,7 +315,7 @@ void PlayScreen::DrawUI() const {
 	const BitmapRenderer& bitmapRender = mEngine.GetBitmapRenderer();
 	const TextStyle       textStyle { whiteColor, blackColor };
 	const TextStyle       textStyle1 { redColor, blackColor };
-	const Level&          level = mGameDataModule.GetLevel(mMatchStats.level);
+	const Level&          level = *mGameDataModule.GetLevel(mMatchStats.level);
 	char                  tmp[256];
 	const float           y = 60.f;
 

@@ -2,11 +2,19 @@
 
 #if defined (__ANDROID__)
 
-#include <gameData/Levels.h>
+#include "../gameData/Levels.h"
 
 GameDataModule::GameDataModule()
     : GetNumLevels(::GetNumLevels)
     , GetLevel(::GetLevel) {
+}
+
+bool GameDataModule::Init([[maybe_unused]] const char* dllFileName) {
+	return true;
+}
+
+bool GameDataModule::Reload() {
+	return true;
 }
 
 #else

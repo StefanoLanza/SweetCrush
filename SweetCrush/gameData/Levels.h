@@ -18,6 +18,6 @@ struct Level;
 extern "C" {
 
 DLL_EXPORT int GetNumLevels();
-DLL_EXPORT const Level& GetLevel(int levelIndex);
+DLL_EXPORT const Level* GetLevel(int levelIndex);
 
 }

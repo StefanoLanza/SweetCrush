@@ -22,7 +22,6 @@ private:
 	void RefreshAudioButton();
 
 private:
-	Wind::Engine&  mEngine;
 	GameSettings&  mGameConfig;
 	Wind::UIText   mTitle;
 	Wind::UIButton mLanguageButton;

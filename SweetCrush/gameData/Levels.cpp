@@ -1,5 +1,5 @@
 #include "Levels.h"
-#include <src/Level.h>
+#include "../src/Level.h"
 
 #define TEST_SHORT_GAME 0
 
@@ -36,8 +36,8 @@ int GetNumLevels() {
 	return numLevels;
 }
 
-const Level& GetLevel(int levelIndex) {
-	return levels[levelIndex];
+const Level* GetLevel(int levelIndex) {
+	return &levels[levelIndex];
 }
 
 }
