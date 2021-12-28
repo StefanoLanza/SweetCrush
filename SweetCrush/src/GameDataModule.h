@@ -25,7 +25,7 @@ public:
 class GameDataModule {
 public:
 	using GetNumLevelsPtr = int (*)();
-	using GetLevelPtr = const Level& (*)(int levelIndex);
+	using GetLevelPtr = const Level* (*)(int levelIndex);
 
 	GameDataModule();
 

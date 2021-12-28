@@ -49,4 +49,8 @@ void ActionMgr::Clear() {
 	mActions.clear();
 }
 
+bool ActionMgr::AnyRunning() const {
+	return mActions.empty() == false;
+}
+
 } // namespace Wind

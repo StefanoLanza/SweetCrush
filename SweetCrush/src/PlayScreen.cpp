@@ -98,6 +98,7 @@ GameScreenId PlayScreen::Tick(float dt, const Input& input) {
 		return ScreenId::gameComplete;
 	}
 	else if (mMatchStats.levelComplete) {
+		mRenderActionMgr.Clear();  // stop showing score and other effects
 		return ScreenId::levelComplete;
 	}
 
