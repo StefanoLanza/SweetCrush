@@ -88,7 +88,7 @@ project("inih")
 
 project("SweetCrush")
 	targetdir "bin"
-	filter { filter_vs }
+	filter { "system:Windows" }
 		kind "WindowedApp"
 	filter { "system:linux" }
 		kind "ConsoleApp"
@@ -101,6 +101,8 @@ project("SweetCrush")
 	filter {}
 	filter { "system:linux" }
 		links { "GL", "SDL2", "SDL2_image", "SDL2main", "SDL2_mixer", "Engine", "inih", }
+	filter { "system:Windows" }
+	links { "opengl32", "glew32", "SDL2", "SDL2_image", "SDL2main", "SDL2_mixer", "Engine", "inih", }
 	filter {}
 	debugdir "bin"
 	

@@ -5,10 +5,8 @@
 namespace Wind {
 
 Input::Input()
-    : mScaleX(1.f)
-    , mScaleY(1.f)
-    , mMouseX(0)
-    , mMouseY(0)
+    : mMouseCoord { 0.f, 0.f }
+    , mMappedMouseCoord { 0.f, 0.f }
     , mMouseButtonDown(false)
     , mMouseButtonPressed(false)
     , mFingerDown(false)
@@ -16,11 +14,6 @@ Input::Input()
     , mKeyDown { false }
     , mKeyPressed {}
     , mNumKeyPressed { 0 } {
-}
-
-void Input::SetCoordinatesScale(float x, float y) {
-	mScaleX = x;
-	mScaleY = y;
 }
 
 bool Input::GetKeyPressed(KeyCode key) const {
@@ -37,16 +30,16 @@ bool Input::GetKeyDown(KeyCode key) const {
 	return mKeyDown[key];
 }
 
-float Input::GetMouseX() const {
-	return mMouseX * mScaleX;
-}
-
-float Input::GetMouseY() const {
-	return mMouseY * mScaleY;
-}
-
 Vec2 Input::GetMouseCoord() const {
-	return { GetMouseX(), GetMouseY() };
+	return mMouseCoord;
+}
+
+void Input::SetMappedMouseCoord(Vec2 mouseCoord) {
+	mMappedMouseCoord = mouseCoord;
+}
+
+Vec2 Input::GetMappedMouseCoord() const {
+	return mMappedMouseCoord;
 }
 
 bool Input::GetMouseButtonDown() const {
@@ -93,13 +86,17 @@ void Input::ParseEvent(const SDL_Event& event, const SdlWindow& window) {
 		break;
 	case SDL_FINGERDOWN:
 		mFingerDown = true;
+		mMouseCoord.x = event.tfinger.x * static_cast<float>(window.GetWidth());
+		mMouseCoord.y = event.tfinger.y * static_cast<float>(window.GetHeight());
+		mMappedMouseCoord = mMouseCoord;
 		break;
 	case SDL_FINGERUP:
 		mFingerDown = false;
 		break;
 	case SDL_FINGERMOTION:
-		mMouseX = event.tfinger.x * static_cast<float>(window.GetWidth());
-		mMouseY = event.tfinger.y * static_cast<float>(window.GetHeight());
+		mMouseCoord.x = event.tfinger.x * static_cast<float>(window.GetWidth());
+		mMouseCoord.y = event.tfinger.y * static_cast<float>(window.GetHeight());
+		mMappedMouseCoord = mMouseCoord;
 		break;
 	case SDL_MOUSEBUTTONDOWN:
 		mMouseButtonPressed = true;
@@ -110,13 +107,13 @@ void Input::ParseEvent(const SDL_Event& event, const SdlWindow& window) {
 		mMouseButtonPressed = false;
 		break;
 	case SDL_MOUSEMOTION:
-		mMouseX = static_cast<float>(event.motion.x);
-		mMouseY = static_cast<float>(event.motion.y);
+		mMouseCoord.x = static_cast<float>(event.motion.x);
+		mMouseCoord.y = static_cast<float>(event.motion.y);
+		mMappedMouseCoord = mMouseCoord;
 		break;
 	case SDL_WINDOWEVENT:
 		if (event.window.event == SDL_WINDOWEVENT_LEAVE) {
-			mMouseX = -1000.f;
-			mMouseY = -1000.f;
+			mMouseCoord = { - 1000.f, -1000.f };
 		}
 		break;
 	default:

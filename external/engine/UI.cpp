@@ -51,7 +51,7 @@ bool UIButton::IsPressed(const Input& input) {
 		r.right = r.left + mAlignedRect.width;
 		r.top = mAlignedRect.pos.y;
 		r.bottom = r.top + mAlignedRect.height;
-		res = RectContainsPoint(r, input.GetMouseCoord());
+		res = RectContainsPoint(r, input.GetMappedMouseCoord());
 	}
 	return res;
 }

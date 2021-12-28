@@ -5,6 +5,9 @@
 
 namespace Wind {
 
+
+struct Vec2;
+
 enum class Effect { bloom };
 
 class Blitter {
@@ -13,6 +16,7 @@ public:
 	~Blitter();
 
 	void Blit(const GlFrameBuffer& frameBuffer) const;
+	Vec2 WindowToFrameBuffer(Vec2 winCoord, const GlFrameBuffer& frameBuffer) const;
 
 private:
 	class Impl;

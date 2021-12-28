@@ -128,7 +128,6 @@ Graphics::Impl::Impl(const SdlWindow& window)
 }
 
 void Graphics::Impl::InitGL() {
-	glClearColor(0.0, 0.0, 0.0, 1.0);
 	mMeshes.push_back(BuildQuad());
 	mMeshes.push_back(BuildTriangle());
 }
@@ -144,8 +143,6 @@ void Graphics::Impl::Draw(const DrawCall& drawCall) {
 	assert(drawCall.program != nullProgram);
 	assert(drawCall.mesh != nullMesh);
 	const unsigned meshIdx = static_cast<unsigned>(drawCall.mesh) - 1;
-
-	DisableClipRect(); // FIXME
 
 	Batch batch;
 	batch.scissorRect = mClipRectEnabled ? mClipRect : RectI { 0, 0, 0, 0 };
@@ -171,6 +168,7 @@ void Graphics::Impl::Flush() {
 		return;
 	}
 
+	glClearColor(0.f, 0.f, 0.f, 1.f);
 	glActiveTexture(GL_TEXTURE0);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_BLEND);
@@ -196,6 +194,9 @@ void Graphics::Impl::Flush() {
 			yScale = 2.f / target.height;
 			glBindFramebuffer(GL_FRAMEBUFFER, target.fbo);
 			glViewport(0, 0, target.width, target.height);
+			if (target.fbo == 0) {
+				glClear(GL_COLOR_BUFFER_BIT);
+			}
 		}
 
 		if (currProgramIdx != batch.programIdx) {

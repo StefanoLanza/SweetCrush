@@ -10,6 +10,10 @@ class Blitter::Impl {
 public:
 	Impl(Graphics& graphics);
 	void Blit(const GlFrameBuffer& frameBuffer) const;
+	Vec2 WindowToFrameBuffer(Vec2 winCoord, const GlFrameBuffer& frameBuffer) const;
+
+private:
+	RectI ComputeTargetRect(const GlFrameBuffer& frameBuffer) const;
 
 private:
 	Graphics&     mGraphics;
@@ -37,42 +41,58 @@ Blitter::Impl::Impl(Graphics& graphics)
 	}
 }
 
+RectI Blitter::Impl::ComputeTargetRect(const GlFrameBuffer& frameBuffer) const {
+	int   cx, cy, cw, ch;
+	const int targetHeight = mGraphics.GetTargetWidth() * frameBuffer.GetHeight() / frameBuffer.GetWidth();
+	const int targetWidth = mGraphics.GetTargetHeight() * frameBuffer.GetWidth() / frameBuffer.GetHeight();
+	if (targetHeight < mGraphics.GetTargetHeight()) {
+		// Center vertically
+		cx = 0;
+		cw = mGraphics.GetTargetWidth();
+		cy = (mGraphics.GetTargetHeight() - targetHeight) / 2;
+		ch = targetHeight;
+	}
+	else if (targetWidth < mGraphics.GetTargetWidth()) {
+		// Center horizontally
+		cx = (mGraphics.GetTargetWidth() - targetWidth) / 2;
+		cw = targetWidth;
+		cy = 0;
+		ch = mGraphics.GetTargetHeight();
+	}
+	else {
+		// Fill entire window
+		cx = 0;
+		cy = 0;
+		cw = mGraphics.GetTargetWidth();
+		ch = mGraphics.GetTargetHeight();
+	}
+	RectI r;
+	r.left = cx;
+	r.right = cx + cw;
+	r.bottom = cy + ch;
+	r.top = cy;
+	return r;
+}
+
 void Blitter::Impl::Blit(const GlFrameBuffer& frameBuffer) const {
 	if (! mValidProgram) {
 		return;
 	}
 
-	float u0, u1;
-	float v0, v1;
-	const int targetHeight = mGraphics.GetTargetWidth() * frameBuffer.GetHeight() / frameBuffer.GetWidth();
-	const int targetWidth = mGraphics.GetTargetHeight() * frameBuffer.GetWidth() / frameBuffer.GetHeight();
-	if (targetHeight < mGraphics.GetTargetHeight()) {
-		float y0 = (mGraphics.GetTargetHeight() - targetHeight) * 0.5f;
-		float y1 = y0 + targetHeight;
-		v0 = -y0 / (y1 - y0);
-		v1 = v0 + mGraphics.GetTargetHeight() / (y1 - y0);
-		u0 = 0.f;
-		u1 = 1.f;
+	const RectI targetRect = ComputeTargetRect(frameBuffer);
 
-	}
-	else if (targetWidth < mGraphics.GetTargetWidth()) {
-		float x0 = (mGraphics.GetTargetWidth() - targetWidth) * 0.5f;
-		float x1 = x0 + targetWidth;
-		u0 = -x0 / (x1 - x0);
-		u1 = u0 + mGraphics.GetTargetWidth() / (x1 - x0);
-		v0 = 0.f;
-		v1 = 1.f;
-	}
-	else {
-		u0 = 0.f;
-		u1 = 1.f;
-		v0 = 0.f;
-		v1 = 1.f;
-	}
-
+	float u0 = (float)targetRect.left / (float)mGraphics.GetTargetWidth();
+	float u1 = (float)targetRect.right / (float)mGraphics.GetTargetWidth();
+	float v0 = (float)targetRect.top / (float)mGraphics.GetTargetHeight();
+	float v1 = (float)targetRect.bottom / (float)mGraphics.GetTargetHeight();
+	// To clip space
+	u0 = -1 + 2 * u0;
+	u1 = -1 + 2 * u1;
+	v0 = -1 + 2 * v0;
+	v1 = -1 + 2 * v1;
 
 	const int   uniforms[] = { mPosRect, mUVRect };
-	const float uniformData[] = { -1.f, -1.f, 1.f, 1.f, u0, v0, u1, v1 };
+	const float uniformData[] = { u0, v0, u1, v1, 0.f, 0.f, 1.f, 1.f };
 
 	DrawCall drawCall;
 	drawCall.program = mProgramHandle;
@@ -83,8 +103,19 @@ void Blitter::Impl::Blit(const GlFrameBuffer& frameBuffer) const {
 	drawCall.uniforms = uniforms;
 	drawCall.uniformData = uniformData;
 	drawCall.numUniforms = 2;
+	mGraphics.EnableClipRect(targetRect.left, targetRect.top, targetRect.right - targetRect.left, targetRect.bottom - targetRect.top);
 	mGraphics.Draw(drawCall);
+	mGraphics.DisableClipRect();
 }
+
+Vec2 Blitter::Impl::WindowToFrameBuffer(Vec2 winCoord, const GlFrameBuffer& frameBuffer) const {
+	const RectI targetRect = ComputeTargetRect(frameBuffer);
+	Vec2 fbCoord;
+	fbCoord.x = (winCoord.x - targetRect.left) * frameBuffer.GetWidth() / (float)(targetRect.right - targetRect.left);
+	fbCoord.y = (winCoord.y - targetRect.top) * frameBuffer.GetHeight() / (float)(targetRect.bottom - targetRect.top);
+	return fbCoord;
+}
+
 
 Blitter::Blitter(Graphics& graphics)
     : mPimpl { std::make_unique<Impl>(graphics) } {
@@ -94,6 +125,10 @@ Blitter::~Blitter() = default;
 
 void Blitter::Blit(const GlFrameBuffer& frameBuffer) const {
 	mPimpl->Blit(frameBuffer);
+}
+
+Vec2 Blitter::WindowToFrameBuffer(Vec2 winCoord, const GlFrameBuffer& frameBuffer) const {
+	return mPimpl->WindowToFrameBuffer(winCoord, frameBuffer);
 }
 
 } // namespace Wind

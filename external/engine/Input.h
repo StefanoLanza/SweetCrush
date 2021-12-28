@@ -12,12 +12,11 @@ class Input {
 public:
 	Input();
 
-	void  SetCoordinatesScale(float x, float y);
 	bool  GetKeyPressed(KeyCode key) const;
 	bool  GetKeyDown(KeyCode key) const;
-	float GetMouseX() const;
-	float GetMouseY() const;
 	Vec2  GetMouseCoord() const;
+	void  SetMappedMouseCoord(Vec2 mouseCoord);
+	Vec2  GetMappedMouseCoord() const;
 	bool  GetMouseButtonDown() const;
 	bool  GetMouseButtonPressed() const;
 	bool  GetFingerDown() const;
@@ -26,10 +25,8 @@ public:
 	void  ParseEvent(const SDL_Event& event, const SdlWindow& window);
 
 private:
-	float   mScaleX;
-	float   mScaleY;
-	float   mMouseX;
-	float   mMouseY;
+	Vec2    mMouseCoord;
+	Vec2    mMappedMouseCoord;
 	bool    mMouseButtonDown;
 	bool    mMouseButtonPressed;
 	bool    mFingerDown;
