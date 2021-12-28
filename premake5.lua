@@ -79,12 +79,23 @@ filter { "toolset:clang", "configurations:Debug*" }
 project("Engine")
 	kind "StaticLib"
 	files { "external/engine/*.*", }
+	filter "system:Windows"
+		files {"external/engine/windows/**.*"}
+	filter "system:linux"
+		files {"external/engine/linux/**.*"}
+	filter {}
 	includedirs { "external", "external/SDL/include", }
 
 project("inih")
 	kind "StaticLib"
 	files { "external/inih/ini.c", "external/inih/ini.h", }
 	includedirs { }
+
+project("gameData")
+	kind "SharedLib"
+	targetdir "bin"
+	files { "SweetCrush/gameData/**.*", }
+	includedirs { "SweetCrush", }
 
 project("SweetCrush")
 	targetdir "bin"

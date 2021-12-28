@@ -20,9 +20,10 @@
 
 using namespace Wind;
 
-Game::Game(Engine& engine, const GameConfig& gameConfig)
+Game::Game(Engine& engine, const GameConfig& gameConfig, const GameDataModule& gameDataModule)
     : mEngine { engine }
     , mGameConfig { gameConfig }
+	, mGameDataModule { gameDataModule }
     , mGameSettings {}
     , mFrameBuffer { RefWindowWidth, RefWindowHeight }
     , mScreenId { ScreenId::mainMenu } {
@@ -43,7 +44,7 @@ void Game::Run() {
 	mScreens[0] = std::make_unique<MainScreen>(mEngine);
 	mScreens[1] = std::make_unique<CreditsScreen>(mEngine);
 	mScreens[2] = std::make_unique<SettingsScreen>(mEngine, mGameSettings);
-	mScreens[3] = std::make_unique<PlayScreen>(mEngine, mGameConfig, mGameSettings, mRenderActionMgr, mMatchStats);
+	mScreens[3] = std::make_unique<PlayScreen>(mEngine, mGameConfig, mGameSettings, mRenderActionMgr, mMatchStats, mGameDataModule);
 	mScreens[4] = std::make_unique<GameOverScreen>(mEngine, mMatchStats);
 	mScreens[5] = std::make_unique<GameCompletePanel>(mEngine, mMatchStats);
 	mScreens[6] = std::make_unique<PauseGameScreen>(mEngine, mMatchStats);

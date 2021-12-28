@@ -6,17 +6,16 @@
 #include <engine/GlFrameBuffer.h>
 #include <engine/UI.h>
 
+#include "GameDataModule.h"
 #include "GameSettings.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
-
-using namespace Wind;
 
 struct GameConfig;
 
 class Game {
 public:
-	Game(Engine& engine, const GameConfig& gameConfig);
+	Game(Wind::Engine& engine, const GameConfig& gameConfig, const GameDataModule& gameDataModule);
 	~Game();
 	void Run();
 
@@ -25,13 +24,14 @@ private:
 	void Tick(float dt);
 
 private:
-	Engine&                     mEngine;
-	const GameConfig&           mGameConfig;
-	GameSettings                mGameSettings;
-	GlFrameBuffer               mFrameBuffer;
-	UICanvas                    mCanvas;
-	MatchStats                  mMatchStats;
-	Wind::ActionMgr             mRenderActionMgr;
-	GameScreenId                mScreenId;
-	std::unique_ptr<GameScreen> mScreens[8];
+	Wind::Engine&                     mEngine;
+	const GameConfig&                 mGameConfig;
+	const GameDataModule&             mGameDataModule;
+	GameSettings                      mGameSettings;
+	Wind::GlFrameBuffer               mFrameBuffer;
+	Wind::UICanvas                    mCanvas;
+	MatchStats                        mMatchStats;
+	Wind::ActionMgr                   mRenderActionMgr;
+	Wind::GameScreenId                mScreenId;
+	std::unique_ptr<Wind::GameScreen> mScreens[8];
 };
