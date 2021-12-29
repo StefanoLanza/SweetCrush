@@ -41,6 +41,7 @@ public:
 	DLLError Reload();
 	bool     IsValid() const;
 	DLLProc  GetProcedure(const char* procedureName) const;
+	const char* GetFileName() const;
 
 	template <typename Proc>
 	DLLError GetProcedure(Proc* outProc, const char* procName) const;

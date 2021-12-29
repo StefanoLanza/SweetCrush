@@ -32,28 +32,24 @@ DLL::DLL()
 }
 
 DLLError DLL::Load(const char* fileName) {
-	mModule = nullptr;
-	mFileName = fileName;
-	mWriteTime = GetLastWriteTime(fileName);
+	Free();
 
-	const char* toLoad = fileName;
-	char        tmpFileName[MAX_PATH];
-	if (mVersion % 2 == 0) {
-		// Copy DLL to a temporary file so that we can recompile it while the process is running
-		sprintf_s(tmpFileName, "%s_temp", fileName);
-		const BOOL copyRes = CopyFileA(fileName, tmpFileName, false); // false: overwrite
-		if (copyRes == FALSE) {
-			return DLLError::copyFailed;
-		}
-		toLoad = tmpFileName;
+	char tmpFileName[MAX_PATH];
+	// Copy DLL to a temporary file so that we can recompile it while the process is running
+	sprintf_s(tmpFileName, "%s_temp", fileName);
+	const BOOL copyRes = CopyFileA(fileName, tmpFileName, false); // false: overwrite
+	if (copyRes == FALSE) {
+		return DLLError::copyFailed;
 	}
 
-	const HMODULE module = LoadLibraryA(toLoad);
-	if (! module) {
+	const HMODULE module = LoadLibraryA(tmpFileName);
+	if (module == NULL) {
 		return DLLError::loadLibraryFailed;
 	}
-	Free();
+
 	mModule = module;
+	mFileName = fileName;
+	mWriteTime = GetLastWriteTime(fileName);
 	mVersion++;
 	return DLLError::ok;
 }
@@ -71,16 +67,8 @@ DLLError DLL::Reload() {
 	if (newTime.highDateTime == 0 && newTime.lowDateTime == 0) {
 		return DLLError::getFileTimeStampFailed;
 	}
-
 	if (newTime.lowDateTime != mWriteTime.lowDateTime || newTime.highDateTime != mWriteTime.highDateTime) {
-		DLL      tmp_dll { *this };
-		DLLError err = tmp_dll.Load(mFileName.c_str());
-		if (err == DLLError::ok) {
-			// Replace DLL on success
-			Free();
-			*this = tmp_dll;
-		}
-		return err;
+		return Load(mFileName.c_str());
 	}
 	return DLLError::unchanged;
 }
@@ -95,4 +83,8 @@ DLLProc DLL::GetProcedure(const char* procedureName) const {
 
 bool DLL::IsValid() const {
 	return mModule != nullptr;
+}
+
+const char* DLL::GetFileName() const {
+	return mFileName.c_str();
 }

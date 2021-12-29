@@ -13,6 +13,7 @@ public:
 
 	bool Init(const char* dllFileName);
 	bool Reload();
+	bool IsValid() const;
 
 	GetNumLevelsPtr GetNumLevels;
 	GetLevelPtr     GetLevel;
@@ -31,6 +32,7 @@ public:
 
 	bool Init(const char* dllFileName);
 	bool Reload();
+	bool IsValid() const;
 
 	GetNumLevelsPtr GetNumLevels;
 	GetLevelPtr     GetLevel;
@@ -39,7 +41,8 @@ private:
 	bool GetProcedures();
 
 private:
-	DLL dll;
+	DLL mDLL;
+	bool mValid;
 };
 
 #endif

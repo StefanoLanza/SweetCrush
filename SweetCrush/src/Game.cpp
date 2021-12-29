@@ -77,11 +77,16 @@ void Game::Draw(float dt) {
 }
 
 void Game::Tick(float dt) {
-	mGameDataModule.Reload();
 	Input&     input = mEngine.GetInput();
 	const Vec2 fbMouseCoord = mEngine.GetBlitter().WindowToFrameBuffer(input.GetMouseCoord(), mFrameBuffer);
 	input.SetMappedMouseCoord(fbMouseCoord);
 	mCanvas.UpdateWidgets(RefWindowWidth, RefWindowHeight);
+
+	mGameDataModule.Reload();
+	if (!mGameDataModule.IsValid()) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Gamedata module is in an invalid state");
+		return;
+	}
 
 	GameScreen&        currScreen = *mScreens[(int)mScreenId];
 	const GameScreenId nextScreen = currScreen.Tick(dt, input);
