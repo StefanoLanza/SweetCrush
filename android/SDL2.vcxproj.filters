@@ -142,6 +142,9 @@
     <Filter Include="src\locale\android">
       <UniqueIdentifier>{b4b191f3-d651-4754-bd96-0776f717f984}</UniqueIdentifier>
     </Filter>
+    <Filter Include="AndroidNDK">
+      <UniqueIdentifier>{d4f061f3-2eeb-4292-8e67-eb08821740f6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\external\SDL\src\audio\android\SDL_androidaudio.c">
@@ -519,6 +522,9 @@
     <ClCompile Include="..\external\SDL\src\locale\SDL_locale.c">
       <Filter>src\locale</Filter>
     </ClCompile>
+    <ClCompile Include="..\external\AndroidNDK\cpufeatures\cpu-features.c">
+      <Filter>AndroidNDK</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\external\SDL\src\audio\android\SDL_androidaudio.h">
@@ -820,6 +826,9 @@
     </ClInclude>
     <ClInclude Include="..\external\SDL\src\locale\SDL_syslocale.h">
       <Filter>src\locale</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\AndroidNDK\cpufeatures\cpu-features.h">
+      <Filter>AndroidNDK</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

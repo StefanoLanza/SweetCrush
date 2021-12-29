@@ -227,6 +227,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\external\AndroidNDK\cpufeatures\cpu-features.c" />
     <ClCompile Include="..\external\SDL\src\atomic\SDL_atomic.c" />
     <ClCompile Include="..\external\SDL\src\atomic\SDL_spinlock.c" />
     <ClCompile Include="..\external\SDL\src\audio\aaudio\SDL_aaudio.c" />
@@ -354,6 +355,7 @@
     <ClCompile Include="..\external\SDL\src\video\yuv2rgb\yuv_rgb.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\external\AndroidNDK\cpufeatures\cpu-features.h" />
     <ClInclude Include="..\external\SDL\src\audio\aaudio\SDL_aaudio.h" />
     <ClInclude Include="..\external\SDL\src\audio\aaudio\SDL_aaudiofuncs.h" />
     <ClInclude Include="..\external\SDL\src\audio\android\SDL_androidaudio.h" />
