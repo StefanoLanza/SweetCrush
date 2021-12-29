@@ -1,0 +1,1 @@
+cpufeatures.c is needed by SDL2 when built with ARM platform. For convenience, I copied it from AndroidNDK\android-ndk-r21e and added to the repo.

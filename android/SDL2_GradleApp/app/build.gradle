@@ -18,11 +18,17 @@ model {
     }
 
     android.buildTypes {
-        release {
+        debug {
             minifyEnabled = false
             proguardFiles.add(file('proguard-rules.txt'))
             ndk.debuggable = true
             debuggable = true
+        }
+        release {
+            minifyEnabled = false
+            proguardFiles.add(file('proguard-rules.txt'))
+            ndk.debuggable = false
+            debuggable = false
         }
     }
 

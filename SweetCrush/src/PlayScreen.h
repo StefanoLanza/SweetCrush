@@ -10,11 +10,12 @@ class TileSelector;
 struct TileSelectionEvent;
 struct GameSettings;
 struct MatchStats;
+class GameDataModule;
 
 class PlayScreen final : public Wind::GameScreen {
 public:
 	PlayScreen(Wind::Engine& engine, const GameConfig& gameConfig, const GameSettings& gameSettings, Wind::ActionMgr& renderActionMgr,
-	           MatchStats& matchStats);
+	           MatchStats& matchStats, const GameDataModule& gameDataModule);
 	~PlayScreen();
 
 	void               LoadAssets() override;
@@ -50,6 +51,7 @@ private:
 	const GameSettings&           mGameSettings;
 	Wind::ActionMgr&              mRenderActionMgr;
 	MatchStats&                   mMatchStats;
+	const GameDataModule&         mGameDataModule;
 	Board                         mBoard;
 	std::unique_ptr<TileSelector> mTileSelector;
 	BoostInfoPanel                mBoostInfoPanel;

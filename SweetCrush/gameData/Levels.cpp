@@ -1,5 +1,15 @@
 #include "Levels.h"
-#include "Level.h"
+#include "../src/Level.h"
+
+#define TEST_SHORT_GAME 0
+
+namespace {
+
+#if TEST_SHORT_GAME
+constexpr int numLevels = 1;
+#else
+constexpr int numLevels = 4;
+#endif
 
 #if TEST_SHORT_GAME
 
@@ -17,3 +27,17 @@ const Level levels[numLevels] {
 };
 
 #endif
+
+} // namespace
+
+extern "C" {
+
+int GetNumLevels() {
+	return numLevels;
+}
+
+const Level* GetLevel(int levelIndex) {
+	return &levels[levelIndex];
+}
+
+}

@@ -20,9 +20,10 @@
 
 using namespace Wind;
 
-Game::Game(Engine& engine, const GameConfig& gameConfig)
+Game::Game(Engine& engine, const GameConfig& gameConfig, GameDataModule& gameDataModule)
     : mEngine { engine }
     , mGameConfig { gameConfig }
+    , mGameDataModule { gameDataModule }
     , mGameSettings {}
     , mFrameBuffer { RefWindowWidth, RefWindowHeight }
     , mScreenId { ScreenId::mainMenu } {
@@ -43,7 +44,7 @@ void Game::Run() {
 	mScreens[0] = std::make_unique<MainScreen>(mEngine);
 	mScreens[1] = std::make_unique<CreditsScreen>(mEngine);
 	mScreens[2] = std::make_unique<SettingsScreen>(mEngine, mGameSettings);
-	mScreens[3] = std::make_unique<PlayScreen>(mEngine, mGameConfig, mGameSettings, mRenderActionMgr, mMatchStats);
+	mScreens[3] = std::make_unique<PlayScreen>(mEngine, mGameConfig, mGameSettings, mRenderActionMgr, mMatchStats, mGameDataModule);
 	mScreens[4] = std::make_unique<GameOverScreen>(mEngine, mMatchStats);
 	mScreens[5] = std::make_unique<GameCompletePanel>(mEngine, mMatchStats);
 	mScreens[6] = std::make_unique<PauseGameScreen>(mEngine, mMatchStats);
@@ -59,7 +60,7 @@ void Game::Run() {
 }
 
 void Game::Draw(float dt) {
-	const Input& input = mEngine.GetInput();
+	const Input&          input = mEngine.GetInput();
 	const TextRenderer&   textRenderer = mEngine.GetTextRenderer();
 	const BitmapRenderer& bitmapRender = mEngine.GetBitmapRenderer();
 	Graphics&             graphics = mEngine.GetGraphics();
@@ -76,11 +77,15 @@ void Game::Draw(float dt) {
 }
 
 void Game::Tick(float dt) {
-	Input& input = mEngine.GetInput();
-
-	const Vec2 fbMouseCoord = mEngine.GetBlitter().WindowToFrameBuffer(input.GetMouseCoord(), mFrameBuffer);  
+	Input&     input = mEngine.GetInput();
+	const Vec2 fbMouseCoord = mEngine.GetBlitter().WindowToFrameBuffer(input.GetMouseCoord(), mFrameBuffer);
 	input.SetMappedMouseCoord(fbMouseCoord);
 	mCanvas.UpdateWidgets(RefWindowWidth, RefWindowHeight);
+
+	mGameDataModule.Reload();
+	if (!mGameDataModule.IsValid()) {
+		return;
+	}
 
 	GameScreen&        currScreen = *mScreens[(int)mScreenId];
 	const GameScreenId nextScreen = currScreen.Tick(dt, input);

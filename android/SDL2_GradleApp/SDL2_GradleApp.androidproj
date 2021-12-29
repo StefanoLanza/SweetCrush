@@ -55,11 +55,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <AndroidAPILevel>android-19</AndroidAPILevel>
+    <AndroidAPILevel>android-27</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <AndroidAPILevel>android-19</AndroidAPILevel>
+    <AndroidAPILevel>android-27</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -71,11 +71,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <AndroidAPILevel>android-31</AndroidAPILevel>
+    <AndroidAPILevel>android-27</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <AndroidAPILevel>android-31</AndroidAPILevel>
+    <AndroidAPILevel>android-27</AndroidAPILevel>
   </PropertyGroup>
   <Import Project="$(AndroidTargetsPath)\Android.props" />
   <ItemDefinitionGroup>
@@ -129,29 +129,29 @@
   <ItemGroup>
     <Content Include="app\build.gradle" />
     <Content Include="app\src\main\AndroidManifest.xml" />
-    <Content Include="app\src\main\assets\button.png"/>
-    <Content Include="app\src\main\assets\cursor.png"/>
-    <Content Include="app\src\main\assets\game.ini"/>
-    <Content Include="app\src\main\assets\menuButton.png"/>
-    <Content Include="app\src\main\assets\null.png"/>
-    <Content Include="app\src\main\assets\outline.png"/>
-    <Content Include="app\src\main\assets\sparkle.png"/>
-    <Content Include="app\src\main\assets\audio\match.wav"/>
-    <Content Include="app\src\main\assets\audio\music.ogg"/>
-    <Content Include="app\src\main\assets\shaders\blit.vs"/>
-    <Content Include="app\src\main\assets\shaders\blit.fs"/>
-    <Content Include="app\src\main\assets\shaders\font.fs"/>
-    <Content Include="app\src\main\assets\shaders\quad.fs"/>
-    <Content Include="app\src\main\assets\shaders\quad.vs"/>
-    <Content Include="app\src\main\assets\boosters\bomb_blue.png"/>
-    <Content Include="app\src\main\assets\fonts\bigFont.fnt"/>
-    <Content Include="app\src\main\assets\fonts\bigFont_0.png"/>
-    <Content Include="app\src\main\assets\fonts\mediumFont.fnt"/>
-    <Content Include="app\src\main\assets\fonts\mediumFont_0.png"/>
-    <Content Include="app\src\main\assets\fonts\smallFont.fnt"/>
-    <Content Include="app\src\main\assets\fonts\smallFont_0.png"/>
-    <Content Include="app\src\main\assets\fonts\tiny.fnt"/>
-    <Content Include="app\src\main\assets\fonts\tiny_0.fnt"/>
+    <Content Include="app\src\main\assets\button.png" />
+    <Content Include="app\src\main\assets\cursor.png" />
+    <Content Include="app\src\main\assets\game.ini" />
+    <Content Include="app\src\main\assets\menuButton.png" />
+    <Content Include="app\src\main\assets\null.png" />
+    <Content Include="app\src\main\assets\outline.png" />
+    <Content Include="app\src\main\assets\sparkle.png" />
+    <Content Include="app\src\main\assets\audio\match.wav" />
+    <Content Include="app\src\main\assets\audio\music.ogg" />
+    <Content Include="app\src\main\assets\shaders\blit.vs" />
+    <Content Include="app\src\main\assets\shaders\blit.fs" />
+    <Content Include="app\src\main\assets\shaders\font.fs" />
+    <Content Include="app\src\main\assets\shaders\quad.fs" />
+    <Content Include="app\src\main\assets\shaders\quad.vs" />
+    <Content Include="app\src\main\assets\boosters\bomb_blue.png" />
+    <Content Include="app\src\main\assets\fonts\bigFont.fnt" />
+    <Content Include="app\src\main\assets\fonts\bigFont_0.png" />
+    <Content Include="app\src\main\assets\fonts\mediumFont.fnt" />
+    <Content Include="app\src\main\assets\fonts\mediumFont_0.png" />
+    <Content Include="app\src\main\assets\fonts\smallFont.fnt" />
+    <Content Include="app\src\main\assets\fonts\smallFont_0.png" />
+    <Content Include="app\src\main\assets\fonts\tiny.fnt" />
+    <Content Include="app\src\main\assets\fonts\tiny_0.fnt" />
     <Content Include="app\src\main\res\mipmap-hdpi\ic_launcher.png" />
     <Content Include="app\src\main\res\mipmap-mdpi\ic_launcher.png" />
     <Content Include="app\src\main\res\mipmap-xhdpi\ic_launcher.png" />

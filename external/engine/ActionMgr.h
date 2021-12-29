@@ -7,16 +7,17 @@ namespace Wind {
 
 // Returns true if complete
 using ActionFunc = std::function<bool(float dt, float t)>;
-constexpr float actionUndefDuration = -1.f;
 
 class ActionMgr {
 public:
 	ActionMgr();
 	~ActionMgr();
 
-	void AddAction(int* counter, float delay, float duration, ActionFunc&& func);
+	void AddAction(int* counter, float delay, ActionFunc&& func);
+	void AddTimedAction(int* counter, float delay, float duration, ActionFunc&& func);
 	void RunActions(float dt);
 	void Clear();
+	bool AnyRunning() const;
 
 private:
 	struct Action;

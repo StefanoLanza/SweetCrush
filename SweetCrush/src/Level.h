@@ -17,5 +17,4 @@ struct Level {
 	LevelObjective objective;
 	uint32_t       seed;
 	float          time; // seconds
-	                     // const UserGrid* grid;
 };

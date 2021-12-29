@@ -56,7 +56,9 @@ int CountMatches(const Cell& cell, const Board& board, Direction dir) {
 
 void GenRandomGem(Cell& cell, const Board& board, std::default_random_engine& randomEngine, const int gemIds[], int numGemTypes) {
 	std::uniform_int_distribution<int> u_distribution { 0, numGemTypes - 1 };
-	bool                               valid;
+	bool                               valid = false;
+	constexpr int maxAttempts = 100;
+	int attempts = 0;
 	cell.category = TileCategory::gem;
 	cell.hits = 1;
 	do {
@@ -64,7 +66,7 @@ void GenRandomGem(Cell& cell, const Board& board, std::default_random_engine& ra
 		// Avoid three or more consecutive matches
 		valid = (1 + CountMatches(cell, board, Direction::left) < 3) && (1 + CountMatches(cell, board, Direction::top) < 3) &&
 		        (1 + CountMatches(cell, board, Direction::right) < 3) && (1 + CountMatches(cell, board, Direction::bottom) < 3);
-	} while (! valid);
+	} while (! valid && ++attempts < maxAttempts);
 }
 
 void SwapTiles(Board& board, int srcIdx, int dstIdx) {
@@ -387,17 +389,17 @@ bool Match3::CheckCellCombos(int cellIdx) {
 	const int   b = CountMatches(cell, mBoard, Direction::bottom);
 	const bool  res = CheckCombos(l, r, t, b, cell.tileId, cellIdx);
 
-	if (1 + t + b >= 3) {
-		assert(res);
-		KillMatches(cell, 0, -1);
-		KillMatches(cell, 0, +1);
-	}
-	if (1 + l + r >= 3) {
-		assert(res);
-		KillMatches(cell, -1, 0);
-		KillMatches(cell, +1, 0);
-	}
 	if (res) {
+		if (1 + t + b >= 3) {
+			// Kill vertical matches
+			KillMatches(cell, 0, -1);
+			KillMatches(cell, 0, +1);
+		}
+		if (1 + l + r >= 3) {
+			// Kill horizontal matches
+			KillMatches(cell, -1, 0);
+			KillMatches(cell, +1, 0);
+		}
 		RemoveTile(cellIdx);
 	}
 

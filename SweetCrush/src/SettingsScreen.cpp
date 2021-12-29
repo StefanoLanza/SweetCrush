@@ -25,8 +25,7 @@ const UITextDesc   textDescs[] {
 } // namespace
 
 SettingsScreen::SettingsScreen(Engine& engine, GameSettings& gameSettings)
-    : mEngine(engine)
-    , mGameConfig(gameSettings)
+    : mGameConfig(gameSettings)
     , mTitle(textDescs[0], engine)
     , mLanguageButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
     , mAudioButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2], engine))

@@ -11,6 +11,7 @@ struct IUnknown;
 
 #include "Config.h"
 #include "Game.h"
+#include "GameDataModule.h"
 #include <algorithm>
 #include <cstring>
 
@@ -28,9 +29,15 @@ int main(int argc, char* argv[]) {
 	GameConfig gameConfig = DefaultGameConfig();
 	LoadGameConfig(gameConfig, ASSETS_FOLDER "game.ini");
 
+	GameDataModule gameDataModule;
+#ifndef __ANDROID__
+	if (!gameDataModule.Init("gameData.dll")) {
+		return 0;
+	}
+#endif
 	Wind::Engine engine { "SweetCrush", gameConfig.windowWidth, gameConfig.windowHeight };
 
-	Game game { engine, gameConfig };
+	Game game { engine, gameConfig, gameDataModule };
 	game.Run();
 
 	return 0;
