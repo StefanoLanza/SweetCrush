@@ -84,7 +84,6 @@ void Game::Tick(float dt) {
 
 	mGameDataModule.Reload();
 	if (!mGameDataModule.IsValid()) {
-		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Gamedata module is in an invalid state");
 		return;
 	}
 
