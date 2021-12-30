@@ -37,9 +37,9 @@ Sweet Crush is an open source, cross-platform Match-3 game.
 * For a linux build
   * Install the latest release of [premake5](https://premake.github.io/download)
   * Install the SDL2 development package <br>
-  sudo apt-get install libsdl2-dev
+  `sudo apt-get install libsdl2-dev`
   * Install the SDL_image development package <br>
-   `sudo apt-get install libsdl2-image-dev`
+  `sudo apt-get install libsdl2-image-dev`
   * Install the SDL_mixer development package  <br>
   `sudo apt-get install libsdl2-mixer-dev`
   * cd SweetCrush

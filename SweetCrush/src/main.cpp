@@ -31,7 +31,12 @@ int main(int argc, char* argv[]) {
 
 	GameDataModule gameDataModule;
 #ifndef __ANDROID__
-	if (!gameDataModule.Init("gameData.dll")) {
+	#ifdef WINDOWS
+	const char* dllName = "gameData.dll";
+	#else
+	const char* dllName = "./libgameData.so";
+	#endif
+	if (!gameDataModule.Init(dllName)) {
 		return 0;
 	}
 #endif

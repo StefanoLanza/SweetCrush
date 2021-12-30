@@ -111,7 +111,7 @@ project("SweetCrush")
 		libdirs { "external/precompiled/windows/%{cfg.platform}" } 
 	filter {}
 	filter { "system:linux" }
-		links { "GL", "SDL2", "SDL2_image", "SDL2main", "SDL2_mixer", "Engine", "inih", }
+		links { "GL", "SDL2", "SDL2_image", "SDL2main", "SDL2_mixer", "Engine", "inih", "dl", }
 	filter { "system:Windows" }
 		links { "opengl32", "glew32", "SDL2", "SDL2_image", "SDL2main", "SDL2_mixer", "Engine", "inih", }
 	filter {}

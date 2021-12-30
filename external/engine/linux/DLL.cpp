@@ -7,18 +7,18 @@
 namespace {
 
 FileTime GetLastWriteTime(const char* path) {
-	FileTime                  time = {};
+	FileTime time = {};
 	struct stat s;
-  if ( lstat(path, &s) == 0 ) {
-    time = s.tv_sec;
+	if (lstat(path, &s) == 0) {
+		time.sec = s.st_mtim.tv_sec;
 	}
 	return time;
 }
 
-const char* GetErrorMessage(DLLError error)
-{
-	static const char* str[] =
-	{
+}
+
+const char* GetErrorMessage(DLLError error) {
+	static const char* str[] = {
 		"unchanged",
 		"getProcAddressFailed",
 		"loadLibraryFailed",
@@ -28,39 +28,28 @@ const char* GetErrorMessage(DLLError error)
 }
 
 DLL::DLL()
-    : mModule { nullptr }
-    , mWriteTime {}
-    , mVersion { 0 } {
+	: mModule { nullptr }
+	, mWriteTime {}
+	, mVersion { 0 } {
 }
 
-DLLError DLL::Load(const char* fileName)
-{
+DLLError DLL::Load(const char* fileName) {
 	assert(fileName);
-
-	mModule = nullptr;
-	mFileName = fileName;
-	mWriteTime = GetLastWriteTime(fileName);
-
-	// Copy DLL to a temporary file so that we can recompile it while the process is running
-	//const char* toLoad = fileName;
-	//char tmpFileName[MAX_PATH];
-
+	Free();
 	void* const module = dlopen(fileName, RTLD_LOCAL | RTLD_LAZY);
-	if (! module)
-	{
+	if (! module) {
 		return DLLError::loadLibraryFailed;
 	}
-	Free();
+	mFileName = fileName;
+	mWriteTime = GetLastWriteTime(fileName);
 	mModule = module;
 	mVersion++;
 	return DLLError::ok;
 }
 
 
-void DLL::FreeDLL()
-{
-	if (mModule)
-	{
+void DLL::Free() {
+	if (mModule) {
 		dlclose(mModule);
 		mModule = nullptr;
 		mWriteTime = {};
@@ -68,24 +57,15 @@ void DLL::FreeDLL()
 }
 
 
-DLLError DLL::Reload()
-{
- 	const FileTime newTime = GetLastWriteTime(mFileName.c_str());
+DLLError DLL::Reload() {
+	const FileTime newTime = GetLastWriteTime(mFileName.c_str());
 	if (newTime.sec == 0) {
 		return DLLError::getFileTimeStampFailed;
 	}
-
 	if (newTime.sec != mWriteTime.sec) {
-		DLL      tmp_dll { *this };
-		DLLError err = tmp_dll.Load(mFileName.c_str());
-		if (err == DLLError::ok) {
-			// Replace DLL on success
-			Free();
-			*this = tmp_dll;
-		}
-		return err;
+		return Load(mFileName.c_str());
 	}
-   return err;
+	return DLLError::unchanged;
 }
 
 DLLProc DLL::GetProcedure(const char* procedureName) const {
@@ -98,4 +78,8 @@ DLLProc DLL::GetProcedure(const char* procedureName) const {
 
 bool DLL::IsValid() const {
 	return mModule != nullptr;
+}
+
+const char* DLL::GetFileName() const {
+	return mFileName.c_str();
 }
