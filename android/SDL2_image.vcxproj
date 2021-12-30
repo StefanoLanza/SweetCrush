@@ -43,6 +43,7 @@
     <ClCompile Include="..\external\SDL_image\IMG_pcx.c" />
     <ClCompile Include="..\external\SDL_image\IMG_png.c" />
     <ClCompile Include="..\external\SDL_image\IMG_pnm.c" />
+    <ClCompile Include="..\external\SDL_image\IMG_qoi.c" />
     <ClCompile Include="..\external\SDL_image\IMG_svg.c" />
     <ClCompile Include="..\external\SDL_image\IMG_tga.c" />
     <ClCompile Include="..\external\SDL_image\IMG_tif.c" />

@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
 
 	GameDataModule gameDataModule;
 #ifndef __ANDROID__
-	#ifdef WINDOWS
+	#ifdef _WIN32
 	const char* dllName = "gameData.dll";
 	#else
 	const char* dllName = "./libgameData.so";

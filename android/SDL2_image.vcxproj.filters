@@ -36,6 +36,7 @@
     <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\pngwrite.c" />
     <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\pngwtran.c" />
     <ClCompile Include="..\external\SDL_image\external\libpng-1.6.37\pngwutil.c" />
+    <ClCompile Include="..\external\SDL_image\IMG_qoi.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\external\SDL_image\include\SDL_image.h" />
