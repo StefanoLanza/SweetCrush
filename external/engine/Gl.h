@@ -3,7 +3,7 @@
 #ifdef _WIN32
 #include <glew/glew.h>
 #else
-#include <SDL/include/SDL_opengles2.h>
+#include <SDL2/SDL_opengles2.h>
 #endif
 
 #include <memory>

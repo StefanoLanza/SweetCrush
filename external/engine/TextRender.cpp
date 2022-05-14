@@ -7,7 +7,7 @@
 #include "Graphics.h"
 #include "SdlSurface.h"
 #include "SdlWindow.h"
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <cassert>
 
 namespace Wind {

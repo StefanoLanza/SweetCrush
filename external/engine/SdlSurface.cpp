@@ -1,7 +1,7 @@
 #include "SdlSurface.h"
 #include "Gl.h"
-#include <SDL/include/SDL.h>
-#include <SDL_image/SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <stdexcept>
 #include <string>
 

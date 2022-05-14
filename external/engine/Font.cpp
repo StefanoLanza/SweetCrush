@@ -1,6 +1,6 @@
 #include "Font.h"
 #include "SdlSurface.h"
-#include <SDL/include/SDL.h>
+#include <SDL2/SDL.h>
 #include <algorithm>
 #include <cassert>
 #include <stdexcept>

@@ -2,7 +2,7 @@
 #include "Config.h"
 #include "SdlMusic.h"
 #include "SdlSound.h"
-#include <SDL/include/SDL.h>
+#include <SDL2/SDL.h>
 #include <cassert>
 #include <vector>
 
