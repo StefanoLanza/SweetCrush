@@ -10,6 +10,7 @@ SdlWindow::SdlWindow(const char* title, int width, int height)
                                   SDL_WINDOW_BORDERLESS | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL),
                  SDL_DestroyWindow) {
 	if (! mSDLWindow) {
+		SDL_LogError(0, "Failed to create SDL window");
 		throw std::runtime_error(std::string("Error creating window: ") + SDL_GetError());
 	}
 	SDL_GetWindowSize(mSDLWindow.get(), &mWidth, &mHeight);

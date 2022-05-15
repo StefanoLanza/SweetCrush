@@ -13,6 +13,7 @@ GlFrameBuffer::GlFrameBuffer(int width, int height)
 	GLuint FBO = 0;
 	glGenFramebuffers(1, &FBO);
 	if (0 == FBO) {
+		SDL_LogError(0, "Cannot create FBO");
 		throw std::runtime_error("Cannot create FBO");
 	}
 

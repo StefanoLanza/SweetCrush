@@ -6,12 +6,14 @@
 namespace Wind {
 
 Sdl::Sdl(int flags) {
+	SDL_LogInfo(0, "Initializing SDL");
 	if (SDL_Init(flags) != 0) {
 		const char* error = SDL_GetError();
 		SDL_LogError(0, "%s", error);
 		throw std::runtime_error("Failed to init SDL");
 	}
 	// Initialize SDL_mixer
+	SDL_LogInfo(0, "Initializing SDL mixer");
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) == -1) {
 		throw std::runtime_error("Failed to init SDL mixer");
 	}
@@ -25,6 +27,7 @@ Sdl::Sdl(int flags) {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 #endif
 }
+
 Sdl::~Sdl() {
 	SDL_Quit();
 }

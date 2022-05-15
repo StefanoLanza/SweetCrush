@@ -11,7 +11,8 @@ SdlSurface::SdlSurface(const char* fileName, const char* path)
     : mSurface(IMG_Load(path), SDL_FreeSurface)
     , mFileName(fileName) {
 	if (mSurface == nullptr) {
-		throw std::runtime_error(std::string("Unable to load texture ") + fileName);
+		SDL_LogError(0, "Unable to load image %s", fileName);
+		throw std::runtime_error(std::string("Unable to load image ") + fileName);
 	}
 
 	GLuint textureId = 0;
@@ -29,6 +30,7 @@ SdlSurface::SdlSurface(const char* fileName, const char* path)
 		mode = GL_LUMINANCE_ALPHA;
 		break;
 	default:
+		SDL_LogError(0, "mage with unknown channel profile (%s)", fileName);
 		throw std::runtime_error("Image with unknown channel profile");
 	}
 	glTexImage2D(GL_TEXTURE_2D, 0, mode, mSurface->w, mSurface->h, 0, mode, GL_UNSIGNED_BYTE, mSurface->pixels);

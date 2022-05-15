@@ -6,6 +6,7 @@ struct IUnknown;
 #endif
 
 #include <SDL2/SDL_main.h>
+#include <SDL2/SDL.h>
 #include <engine/Engine.h>
 #include <inih/ini.h>
 
@@ -26,6 +27,7 @@ int main(int argc, char* argv[]) {
 #ifdef _WIN32
 	ShowWindow(GetConsoleWindow(), SW_HIDE);
 #endif
+	SDL_LogInfo(0, "Loading game config");
 	GameConfig gameConfig = DefaultGameConfig();
 	LoadGameConfig(gameConfig, ASSETS_FOLDER "game.ini");
 
@@ -36,6 +38,7 @@ int main(int argc, char* argv[]) {
 	#else
 	const char* dllName = "./libgameData.so";
 	#endif
+	SDL_LogInfo(0, "Initializing game data module");
 	if (!gameDataModule.Init(dllName)) {
 		return 0;
 	}
