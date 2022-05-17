@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 namespace Wind {
 class SdlWindow;

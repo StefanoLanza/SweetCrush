@@ -1,6 +1,6 @@
 #include "SdlWindow.h"
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <stdexcept>
 #include <string>
 

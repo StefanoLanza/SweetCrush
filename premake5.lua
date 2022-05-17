@@ -80,8 +80,10 @@ project("Engine")
 	kind "StaticLib"
 	files { "external/engine/*.*", }
 	filter "system:Windows"
+		includedirs { "external/SDL/include","external/SDL_mixer/include", "external/SDL_image", }
 		files {"external/engine/windows/**.*"}
 	filter "system:linux"
+		includedirs { "SDL2",}
 		files {"external/engine/linux/**.*"}
 	filter {}
 	includedirs { "external", "external/SDL/include", }
@@ -105,14 +107,16 @@ project("SweetCrush")
 		kind "ConsoleApp"
 	filter {}
 	files { "SweetCrush/src/*.*", }
-	includedirs { ".", "external", "SweetCrush/src", "external/SDL/include",}
+	includedirs { ".", "external", "SweetCrush/src", }
 	-- Use precompiled libs
 	filter { filter_vs }
 		libdirs { "external/precompiled/windows/%{cfg.platform}" } 
 	filter {}
 	filter { "system:linux" }
+		includedirs { "SDL2",}
 		links { "GL", "SDL2", "SDL2_image", "SDL2main", "SDL2_mixer", "Engine", "inih", "dl", }
 	filter { "system:Windows" }
+		includedirs { "external/SDL/include",}
 		links { "opengl32", "glew32", "SDL2", "SDL2_image", "SDL2main", "SDL2_mixer", "Engine", "inih", }
 	filter {}
 	debugdir "bin"
