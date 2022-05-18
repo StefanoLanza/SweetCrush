@@ -8,14 +8,13 @@ local externalDir = path.join(_MAIN_SCRIPT_DIR, "external")
 -- Filters
 local filter_vs = "action:vs*"
 local filter_make = "action:gmake"
-local filter_x86 = "platforms:x86"
 local filter_x64 = "platforms:x86_64"
 local filter_debug =  "configurations:Debug*"
 local filter_release =  "configurations:Release*"
 
 workspace ("SweetCrush")
 	configurations { "Debug", "Release" }
-	platforms { "x86", "x64" }
+	platforms { "x64" }
 	language "C++"
 	location (workspacePath)
 	characterset "MBCS"
@@ -24,9 +23,6 @@ workspace ("SweetCrush")
 	exceptionhandling "On"
 	rtti "Off"
 	startproject "SweetCrush"
-
-filter "platforms:x86"
-	architecture "x86"
 
 filter "platforms:x64"
 	architecture "x86_64"
@@ -38,9 +34,6 @@ filter { filter_vs }
 	}
 	disablewarnings { "4100" } -- unreferenced formal parameter
 	system "Windows"
-
-filter { filter_vs, filter_x86, }
-	defines { "WIN32", "_WIN32", }
 
 filter { filter_vs, filter_x64, }
 	defines { "WIN64", "_WIN64", }
@@ -83,10 +76,10 @@ project("Engine")
 		includedirs { "external/SDL/include","external/SDL_mixer/include", "external/SDL_image", }
 		files {"external/engine/windows/**.*"}
 	filter "system:linux"
-		includedirs { "SDL2",}
+		includedirs { "/usr/include/SDL2",}
 		files {"external/engine/linux/**.*"}
 	filter {}
-	includedirs { "external", "external/SDL/include", }
+	includedirs { "external", }
 
 project("inih")
 	kind "StaticLib"
@@ -113,7 +106,7 @@ project("SweetCrush")
 		libdirs { "external/precompiled/windows/%{cfg.platform}" } 
 	filter {}
 	filter { "system:linux" }
-		includedirs { "SDL2",}
+		includedirs { "/usr/include/SDL2",}
 		links { "GL", "SDL2", "SDL2_image", "SDL2main", "SDL2_mixer", "Engine", "inih", "dl", }
 	filter { "system:Windows" }
 		includedirs { "external/SDL/include",}
