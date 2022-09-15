@@ -5,6 +5,7 @@
 #include "Constants.h"
 #include "GameDrawOrder.h"
 #include <cmath>
+#include <cstdio>
 #include <engine/BitmapRender.h>
 #include <engine/Engine.h>
 #include <engine/TextRender.h>
