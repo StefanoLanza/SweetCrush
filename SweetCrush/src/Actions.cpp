@@ -7,7 +7,6 @@
 #include <cmath>
 #include <engine/BitmapRender.h>
 #include <engine/Engine.h>
-#include <engine/Font.h>
 #include <engine/TextRender.h>
 
 using namespace Wind;

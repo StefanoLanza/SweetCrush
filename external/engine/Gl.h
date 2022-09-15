@@ -3,7 +3,8 @@
 #if defined(_WIN32)
 #include <glew/glew.h>
 #elif defined(__ANDROID__) || defined(ANDROID)
-#include <SDL2/SDL_opengles2.h>
+#include <GLES3/gl3.h>
+//#include <SDL_opengles2.h>
 #elif defined(__linux__) 
 /* Ensure we are using opengl's core profile only */
 #define GL3_PROTOTYPES 1

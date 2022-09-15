@@ -3,7 +3,6 @@
 #include "Color.h"
 #include "DrawOrder.h"
 #include "FwdDecl.h"
-#include "Gl.h"
 #include "Math.h"
 #include <memory>
 
