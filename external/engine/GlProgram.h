@@ -12,7 +12,7 @@ public:
 	GLuint GetProgramId() const;
 	int    GetAttribLocation(const char* attrib) const;
 	int    GetUniformLocation(const char* uniform) const;
-	GLuint GetOrthoMatrixUniform() const;
+	GLint  GetOrthoMatrixUniform() const;
 	       operator bool() const;
 
 private:
@@ -21,7 +21,7 @@ private:
 	GLManagedProgram mProgram;
 
 	// Fixed uniforms
-	GLuint mOrthoMatrixUniform;
+	GLint mOrthoMatrixUniform;
 };
 
 } // namespace Wind

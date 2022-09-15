@@ -1,9 +1,17 @@
 #pragma once
 
-#ifdef _WIN32
+#if defined(_WIN32)
 #include <glew/glew.h>
-#else
+#elif defined(__ANDROID__) || defined(ANDROID)
 #include <SDL2/SDL_opengles2.h>
+#elif defined(__linux__) 
+/* Ensure we are using opengl's core profile only */
+#define GL3_PROTOTYPES 1
+#define GL_GLEXT_PROTOTYPES
+#include <SDL2/SDL_opengl.h>
+//#include <GL/gl3.h>
+#else
+#  error platform not supported.
 #endif
 
 #include <memory>

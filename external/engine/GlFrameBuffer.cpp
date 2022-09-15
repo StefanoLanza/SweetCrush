@@ -35,6 +35,10 @@ GlFrameBuffer::GlFrameBuffer(int width, int height)
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	if (auto err = glGetError(); err != GL_NO_ERROR) {
+		SDL_LogError(0, "GL Error. Code: %d", err);
+	}
+
 	mFBO.reset(FBO);
 	mTexture.reset(texture);
 }

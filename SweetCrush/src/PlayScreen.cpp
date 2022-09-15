@@ -154,6 +154,7 @@ void PlayScreen::Enter(GameScreenId prevScreen) {
 }
 
 void PlayScreen::Exit() {
+	mRenderActionMgr.Clear();  // stop showing score and other effects
 	mBoostInfoPanel.Hide();
 	mPanel.SetVisible(false);
 	PauseMusic();

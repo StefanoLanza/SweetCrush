@@ -8,6 +8,7 @@
 #include <string>
 
 namespace Wind {
+
 GlContext::GlContext(SdlWindow& sdlWindow)
     : mContext(SDL_GL_CreateContext(sdlWindow), SDL_GL_DeleteContext) {
 	if (! mContext) {
@@ -28,4 +29,5 @@ GlContext::GlContext(SdlWindow& sdlWindow)
 GlContext::operator SDL_GLContext() const {
 	return mContext.get();
 }
+
 } // namespace Wind

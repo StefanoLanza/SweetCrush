@@ -30,7 +30,7 @@ SdlSurface::SdlSurface(const char* fileName, const char* path)
 		mode = GL_LUMINANCE_ALPHA;
 		break;
 	default:
-		SDL_LogError(0, "mage with unknown channel profile (%s)", fileName);
+		SDL_LogError(0, "Image with unknown channel profile (%s)", fileName);
 		throw std::runtime_error("Image with unknown channel profile");
 	}
 	glTexImage2D(GL_TEXTURE_2D, 0, mode, mSurface->w, mSurface->h, 0, mode, GL_UNSIGNED_BYTE, mSurface->pixels);
@@ -38,6 +38,11 @@ SdlSurface::SdlSurface(const char* fileName, const char* path)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	if (auto err = glGetError(); err != GL_NO_ERROR) {
+		SDL_LogError(0, "GL Error. Code: %d", err);
+	}	
+	SDL_LogInfo(0, "Loaded image %s", path);
 
 	mTextureId.reset(textureId);
 }

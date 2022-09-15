@@ -54,9 +54,11 @@ GLuint CompileShaderFromFile(const char* source, GLenum type) {
 	return program;
 }
 
-void Validate(GLuint program) {
+bool Validate(GLuint program) {
 	GLint logLength;
 	glValidateProgram(program);
+	GLint status;
+	glGetProgramiv(program, GL_LINK_STATUS, &status);
 	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
 	if (logLength > 0) {
 		GLchar* log = (GLchar*)malloc(logLength);
@@ -64,12 +66,15 @@ void Validate(GLuint program) {
 		SDL_LogError(0, "%s", log);
 		free(log);
 	}
+	return status == GL_TRUE;
 }
+
 } // namespace
 
 GlProgram::GlProgram(const char* vertexShaderSource, const char* fragmentShaderSource)
     : mVertexShaderSource { vertexShaderSource }
-    , mFragmentShaderSource { fragmentShaderSource } {
+    , mFragmentShaderSource { fragmentShaderSource }
+	, mOrthoMatrixUniform { -1 } {
 }
 
 bool GlProgram::Compile() {
@@ -86,19 +91,29 @@ bool GlProgram::Compile() {
 		GLint status;
 		glGetProgramiv(program.get(), GL_LINK_STATUS, &status);
 		if (status == GL_TRUE) {
-			valid = true;
+			valid = Validate(program.get());
 		}
 		else {
-			SDL_LogError(0, "Error linking program");
+			SDL_LogError(0, "Error linking program (vs: %s fs: %s)", mVertexShaderSource, mFragmentShaderSource);
 		}
-		Validate(program.get());
 	}
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 	if (valid) {
 		mProgram = std::move(program);
+		// Get default uniforms
 		mOrthoMatrixUniform = GetUniformLocation("orthoMatrix");
 	}
+
+	if (auto err = glGetError(); err != GL_NO_ERROR) {
+		SDL_LogError(0, "GL Error. Code: %d", err);
+		valid = false;
+	}	
+
+	if (valid){
+		SDL_LogInfo(0, "Compiled GL Program (vs: %s fs: %s)", mVertexShaderSource, mFragmentShaderSource);
+	}	
+
 	// else keep current program
 	return valid;
 }
@@ -113,7 +128,11 @@ int GlProgram::GetAttribLocation(const char* attrib) const {
 		SDL_LogError(0, "%s is not a valid glsl program attribute", attrib);
 		return -1;
 	}
-	return glGetAttribLocation(mProgram.get(), attrib);
+	int location = glGetAttribLocation(mProgram.get(), attrib);
+	if (location == -1){
+		SDL_LogError(0, "%s is not a valid glsl program attribute", attrib);
+	}
+	return location;
 }
 
 int GlProgram::GetUniformLocation(const char* uniform) const {
@@ -122,10 +141,14 @@ int GlProgram::GetUniformLocation(const char* uniform) const {
 		SDL_LogError(0, "%s is not a valid glsl program uniform variable", uniform);
 		return -1;
 	}
-	return glGetUniformLocation(mProgram.get(), uniform);
+	int location = glGetUniformLocation(mProgram.get(), uniform);
+	if (location == -1){
+		SDL_LogError(0, "%s is not a valid glsl program uniform", uniform);
+	}
+	return location;
 }
 
-GLuint GlProgram::GetOrthoMatrixUniform() const {
+GLint GlProgram::GetOrthoMatrixUniform() const {
 	return mOrthoMatrixUniform;
 }
 

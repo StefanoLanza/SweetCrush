@@ -5,6 +5,7 @@
 #include "GlProgram.h"
 #include "SdlSurface.h"
 #include "SdlWindow.h"
+#include <SDL.h>
 #include <algorithm>
 #include <cassert>
 #include <vector>
@@ -29,9 +30,10 @@ struct Target {
 };
 
 struct Mesh {
+	GLuint  VAO;
 	GLuint  VBO;
 	GLuint  IBO;
-	GLint   numComponents;
+	GLuint  numVertices;
 	GLsizei numIndices;
 };
 
@@ -51,40 +53,48 @@ struct ShaderUniform {
 	};
 };
 
+Mesh BuildMesh(GLuint numVertices, GLsizei numIndices, const GLfloat vertexData[], const GLuint  indexData[]) {
+	constexpr GLuint numComponents = 2; // x,y for position
+	Mesh mesh {};
+	mesh.numIndices = numIndices;
+	mesh.numVertices = numVertices;
+
+ 	glGenVertexArrays(1, &mesh.VAO);
+	glBindVertexArray(mesh.VAO);
+
+	// Generate VBO and store it in the VAO
+	glGenBuffers(1, &mesh.VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, numComponents, GL_FLOAT, GL_FALSE, numComponents * sizeof(GLfloat), NULL);
+	glBufferData(GL_ARRAY_BUFFER, numVertices * numComponents * sizeof(GLfloat), vertexData, GL_STATIC_DRAW);
+	if (auto err = glGetError(); err != GL_NO_ERROR) {
+		SDL_LogError(0, "GL Error. Code: %d", err);
+	}		
+
+	// Generate IBO and store it in the VAO
+	glGenBuffers(1, &mesh.IBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(GLuint), indexData, GL_STATIC_DRAW);
+
+	if (auto err = glGetError(); err != GL_NO_ERROR) {
+		SDL_LogError(0, "GL Error. Code: %d", err);
+	}		
+
+	glBindVertexArray(0);	
+	return mesh;
+}
+
 Mesh BuildQuad() {
-	Mesh          quad {};
-	const GLfloat vertexData[] = { 0.f, 0.f, 1.f, 0.f, 1.f, 1.f, 0.f, 1.f };
-	const GLuint  indexData[] = { 0, 1, 2, 3 };
-
-	glGenBuffers(1, &quad.VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, quad.VBO);
-	glBufferData(GL_ARRAY_BUFFER, 2 * 4 * sizeof(GLfloat), vertexData, GL_STATIC_DRAW);
-
-	glGenBuffers(1, &quad.IBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad.IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), indexData, GL_STATIC_DRAW);
-
-	quad.numIndices = 4;
-	quad.numComponents = 2;
-	return quad;
+	constexpr GLfloat vertexData[] = { 0.f, 0.f, 1.f, 0.f, 1.f, 1.f, 0.f, 1.f };
+	constexpr GLuint  indexData[] = { 0, 1, 2, 3 };
+	return BuildMesh(4, 4, vertexData, indexData);
 }
 
 Mesh BuildTriangle() {
-	Mesh          mesh {};
-	const GLfloat vertexData[] = { 0.f, 0.f, 2.f, 0.f, 0.f, 2.f };
-	const GLuint  indexData[] = { 0, 1, 2 };
-
-	glGenBuffers(1, &mesh.VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
-	glBufferData(GL_ARRAY_BUFFER, 2 * 3 * sizeof(GLfloat), vertexData, GL_STATIC_DRAW);
-
-	glGenBuffers(1, &mesh.IBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * sizeof(GLuint), indexData, GL_STATIC_DRAW);
-
-	mesh.numIndices = 3;
-	mesh.numComponents = 2;
-	return mesh;
+	constexpr GLfloat vertexData[] = { 0.f, 0.f, 2.f, 0.f, 0.f, 2.f };
+	constexpr GLuint  indexData[] = { 0, 1, 2 };
+	return BuildMesh(3, 3, vertexData, indexData);
 }
 
 } // namespace
@@ -172,7 +182,6 @@ void Graphics::Impl::Flush() {
 	glActiveTexture(GL_TEXTURE0);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_BLEND);
-	glEnableVertexAttribArray(0);
 	bool blending = false;
 
 	GLuint   currTexture = 0;
@@ -203,14 +212,19 @@ void Graphics::Impl::Flush() {
 			currProgramIdx = batch.programIdx;
 			glUseProgram(mPrograms[currProgramIdx].GetProgramId());
 			// Ortho matrix
-			glUniform4f(mPrograms[currProgramIdx].GetOrthoMatrixUniform(), xScale, yScale, 0.f, 0.f);
+			if (auto uniform = mPrograms[currProgramIdx].GetOrthoMatrixUniform(); uniform != -1) {
+				glUniform4f(uniform, xScale, yScale, 0.f, 0.f);
+			}		
 		}
+
+		if (auto err = glGetError(); err != GL_NO_ERROR) {
+			SDL_LogError(0, "GL Error. Code: %d", err);
+			continue;
+		}		
 
 		if (unsigned meshIdx = (batch.sortKey >> 8) & 0xFF; currMeshIdx != meshIdx) {
 			const Mesh& mesh = mMeshes[meshIdx];
-			glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IBO);
-			glVertexAttribPointer(0, mesh.numComponents, GL_FLOAT, GL_FALSE, mesh.numComponents * sizeof(GLfloat), NULL);
+			glBindVertexArray(mesh.VAO);
 			numIndices = mesh.numIndices;
 			currMeshIdx = meshIdx;
 		}
@@ -261,6 +275,7 @@ void Graphics::Impl::Flush() {
 
 	// Unbind
 	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
 	glUseProgram(0);
 
 	ResetState();
