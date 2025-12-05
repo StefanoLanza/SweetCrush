@@ -109,7 +109,7 @@ project("SweetCrush")
 		includedirs { "/usr/include/SDL2",}
 		links { "GL", "SDL2", "SDL2_image", "SDL2main", "SDL2_mixer", "Engine", "inih", "dl", }
 	filter { "system:Windows" }
-		includedirs { "external/SDL/include",}
+		includedirs { "external/SDL/include", "external/SDL_Mixer/include", }
 		links { "opengl32", "glew32", "SDL3", "SDL3_image", "SDL2main", "SDL3_mixer", "Engine", "inih", }
 	filter {}
 	debugdir "bin"

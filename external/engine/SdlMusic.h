@@ -2,23 +2,25 @@
 
 #include <memory>
 
-struct _Mix_Music;
-typedef struct _Mix_Music Mix_Music;
+#include <SDL3_mixer/SDL_mixer.h>
 
 namespace Wind {
 
 class SdlMusic final {
 public:
-	explicit SdlMusic(const char* filename);
-	
-	operator Mix_Music*() const;
+	explicit SdlMusic(MIX_Mixer* mixer, const char* filename);
+	~SdlMusic();
+
+	operator MIX_Audio*() const;
 	void Play() const;
 	void Stop() const;
 	void Pause() const;
 	void Resume() const;
 
 private:
-	std::unique_ptr<Mix_Music, void (*)(Mix_Music*)> mMusic;
+	MIX_Mixer* mMixer;
+	MIX_Track *mTrack;
+	std::unique_ptr<MIX_Audio, void (*)(MIX_Audio*)> mMusic;
 };
 
 } // namespace Wind

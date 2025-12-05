@@ -5,6 +5,7 @@
 #include <string>
 
 namespace Wind {
+
 SdlWindow::SdlWindow(const char* title, int width, int height)
     : mSDLWindow(SDL_CreateWindow(title, width, height, SDL_WINDOW_OPENGL), SDL_DestroyWindow) {
 	if (! mSDLWindow) {

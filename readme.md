@@ -23,7 +23,7 @@ Sweet Crush is an open source, cross-platform Match-3 game.
 * Clone the github repository to a folder (REPO in the following instructions) on your local machine<br>
   `git clone https://github.com/StefanoLanza/SweetCrush.git`
 * Update submodules <br>
-  `git submodule update --init --recursive`
+  `git submodule update --init --recursive --remote`
 * For a Windows build
   * Install the latest release of [premake5](https://premake.github.io/download)
   * For convenience, precompiled libraries of SDL2, SDL_mixer and SDL_image, for 32 and 64 bits, are part of the repository

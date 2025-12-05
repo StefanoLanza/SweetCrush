@@ -38,19 +38,6 @@ Sdl::Sdl(unsigned int flags) {
 	// Debug OpenGL context
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 #endif
-
-	// Initialize SDL_mixer
-	SDL_LogInfo(0, "Initializing SDL mixer");
-	if (!MIX_Init()) { // initialize SDL3_mixer
-		SDL_LogError(0, "%s", SDL_GetError());
-		throw std::runtime_error("Failed to init SDL mixer");
-	}
-	// Create a mixer that outputs to the default playback device.
-    MIX_Mixer *mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
-    if (!mixer) {
-        SDL_LogError(0, "MIX_CreateMixerDevice failed: %s\n", SDL_GetError());
-        MIX_Quit();
-    }
 }
 
 Sdl::~Sdl() {
