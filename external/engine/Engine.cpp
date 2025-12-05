@@ -47,7 +47,7 @@ struct Engine::Implementation {
 	bool                   mBackground;
 
 	Implementation(const char* title, int windowWidth, int windowHeight)
-	    : mSdl { SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS }
+		: mSdl { SDL_INIT_VIDEO | SDL_INIT_EVENTS } // SDL_INIT_AUDIO | SDL_INIT_EVENTS }
 	    , mWindow { title, windowWidth, windowHeight }
 	    , mGlContext(mWindow)
 	    , mGraphics(mWindow)

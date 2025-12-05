@@ -7,7 +7,7 @@ namespace Wind {
 
 Sdl::Sdl(unsigned int flags) {
 	SDL_LogInfo(0, "Initializing SDL");
-	if (SDL_Init(flags) != 0) {
+	if (!SDL_Init(flags)) {
 		SDL_LogError(0, "%s", SDL_GetError());
 		throw std::runtime_error("Failed to init SDL");
 	}
