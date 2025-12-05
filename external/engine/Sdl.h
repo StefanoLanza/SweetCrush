@@ -1,11 +1,13 @@
 #pragma once
 
 namespace Wind {
-class Sdl {
+
+class Sdl final {
 public:
-	Sdl(int flags);
+	explicit Sdl(unsigned int flags);
 	~Sdl();
 	Sdl(const Sdl&) = delete;
 	// TODO uncopyable
 };
+
 } // namespace Wind

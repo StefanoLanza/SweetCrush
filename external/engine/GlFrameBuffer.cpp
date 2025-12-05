@@ -1,5 +1,5 @@
 #include "GlFrameBuffer.h"
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <cassert>
 #include <stdexcept>
 

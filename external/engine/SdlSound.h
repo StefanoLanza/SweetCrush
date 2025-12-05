@@ -6,8 +6,10 @@
 struct Mix_Chunk;
 
 namespace Wind {
+
 class SdlSound {
 public:
+	
 	SdlSound(const char* filename, const char* path);
 	const std::string& GetFileName() const;
 	                   operator Mix_Chunk*() const;

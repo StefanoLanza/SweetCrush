@@ -11,7 +11,7 @@ namespace Wind {
 using RenderCallback = std::function<void(float dt)>;
 using UpdateCallback = std::function<void(float dt)>;
 
-class Engine {
+class Engine final {
 public:
 	Engine(const char* windowTitle, int windowWidth, int windowHeight);
 	~Engine();

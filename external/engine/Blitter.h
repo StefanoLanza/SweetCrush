@@ -5,14 +5,13 @@
 
 namespace Wind {
 
-
 struct Vec2;
 
 enum class Effect { bloom };
 
-class Blitter {
+class Blitter final {
 public:
-	Blitter(Graphics& graphics);
+	explicit Blitter(Graphics& graphics);
 	~Blitter();
 
 	void Blit(const GlFrameBuffer& frameBuffer) const;

@@ -67,8 +67,8 @@ void Input::BeginFrame() {
 void Input::ParseEvent(const SDL_Event& event, const SdlWindow& window) {
 	SDL_Keycode sym = 0;
 	switch (event.type) {
-	case SDL_KEYDOWN:
-		sym = event.key.keysym.sym;
+	case SDL_EVENT_KEY_DOWN:
+		sym = event.key.key;
 		assert(sym >= 0);
 		if (sym >= 0 && sym < 256) {
 			mKeyDown[sym] = true;
@@ -77,44 +77,42 @@ void Input::ParseEvent(const SDL_Event& event, const SdlWindow& window) {
 			mKeyPressed[mNumKeyPressed++] = sym;
 		}
 		break;
-	case SDL_KEYUP:
-		sym = event.key.keysym.sym;
+	case SDL_EVENT_KEY_UP:
+		sym = event.key.key;
 		assert(sym >= 0);
 		if (sym >= 0 && sym < 256) {
 			mKeyDown[sym] = false;
 		}
 		break;
-	case SDL_FINGERDOWN:
+	case SDL_EVENT_FINGER_DOWN:
 		mFingerDown = true;
 		mMouseCoord.x = event.tfinger.x * static_cast<float>(window.GetWidth());
 		mMouseCoord.y = event.tfinger.y * static_cast<float>(window.GetHeight());
 		mMappedMouseCoord = mMouseCoord;
 		break;
-	case SDL_FINGERUP:
+	case SDL_EVENT_FINGER_UP:
 		mFingerDown = false;
 		break;
-	case SDL_FINGERMOTION:
+	case SDL_EVENT_FINGER_MOTION:
 		mMouseCoord.x = event.tfinger.x * static_cast<float>(window.GetWidth());
 		mMouseCoord.y = event.tfinger.y * static_cast<float>(window.GetHeight());
 		mMappedMouseCoord = mMouseCoord;
 		break;
-	case SDL_MOUSEBUTTONDOWN:
+	case SDL_EVENT_MOUSE_BUTTON_DOWN:
 		mMouseButtonPressed = true;
 		mMouseButtonDown = true;
 		break;
-	case SDL_MOUSEBUTTONUP:
+	case SDL_EVENT_MOUSE_BUTTON_UP:
 		mMouseButtonDown = false;
 		mMouseButtonPressed = false;
 		break;
-	case SDL_MOUSEMOTION:
+	case SDL_EVENT_MOUSE_MOTION:
 		mMouseCoord.x = static_cast<float>(event.motion.x);
 		mMouseCoord.y = static_cast<float>(event.motion.y);
 		mMappedMouseCoord = mMouseCoord;
 		break;
-	case SDL_WINDOWEVENT:
-		if (event.window.event == SDL_WINDOWEVENT_LEAVE) {
-			mMouseCoord = { - 1000.f, -1000.f };
-		}
+	case SDL_EVENT_WINDOW_MOUSE_LEAVE:
+		mMouseCoord = { - 1000.f, -1000.f };
 		break;
 	default:
 		break;

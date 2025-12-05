@@ -1,5 +1,5 @@
 #include "GameDataModule.h"
-#include <SDL_log.h>
+#include <SDL3/SDL_log.h>
 
 #if defined(__ANDROID__)
 

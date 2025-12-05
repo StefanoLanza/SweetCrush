@@ -5,8 +5,8 @@ struct IUnknown;
 #include <Windows.h>
 #endif
 
-#include <SDL_main.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 #include <engine/Engine.h>
 #include <inih/ini.h>
 
@@ -42,7 +42,6 @@ int main(int argc, char* argv[]) {
 	}
 #endif
 	Wind::Engine engine { "SweetCrush", gameConfig.windowWidth, gameConfig.windowHeight };
-
 	Game game { engine, gameConfig, gameDataModule };
 	game.Run();
 

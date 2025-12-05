@@ -7,7 +7,8 @@
 struct SDL_Surface;
 
 namespace Wind {
-class SdlSurface {
+
+class SdlSurface final {
 public:
 	SdlSurface(const char* filename, const char* path);
 	const std::string& GetFileName() const;

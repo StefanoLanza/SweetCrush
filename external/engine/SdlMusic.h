@@ -7,10 +7,11 @@ typedef struct _Mix_Music Mix_Music;
 
 namespace Wind {
 
-class SdlMusic {
+class SdlMusic final {
 public:
-	SdlMusic(const char* filename);
-	     operator Mix_Music*() const;
+	explicit SdlMusic(const char* filename);
+	
+	operator Mix_Music*() const;
 	void Play() const;
 	void Stop() const;
 	void Pause() const;

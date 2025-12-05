@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <engine/Math.h>
 
 namespace Wind {
@@ -8,7 +8,7 @@ namespace Wind {
 class SdlWindow;
 using KeyCode = unsigned int;
 
-class Input {
+class Input final {
 public:
 	Input();
 

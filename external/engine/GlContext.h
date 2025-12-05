@@ -2,17 +2,17 @@
 
 #include <memory>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 namespace Wind {
 class SdlWindow;
 
-class GlContext {
+class GlContext final {
 public:
-	GlContext(SdlWindow& sdlWindow);
+	explicit GlContext(SdlWindow& sdlWindow);
 	operator SDL_GLContext() const;
 
 private:
-	std::unique_ptr<void, void (*)(SDL_GLContext)> mContext;
+	std::unique_ptr<SDL_GLContextState, bool (*)(SDL_GLContext)> mContext;
 };
 } // namespace Wind

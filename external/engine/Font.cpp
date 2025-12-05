@@ -1,6 +1,6 @@
 #include "Font.h"
 #include "SdlSurface.h"
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <algorithm>
 #include <cassert>
 #include <stdexcept>
@@ -63,7 +63,7 @@ const Glyph* Font::TryFindGlyph(char c) const {
 }
 
 std::vector<Glyph> LoadGlyphs(const char* fileName) {
-	SDL_RWops* f = SDL_RWFromFile(fileName, "rb");
+	SDL_IOStream* f = SDL_IOFromFile(fileName, "rb");
 	if (! f) {
 		throw std::runtime_error("Cannot open file" + std::string(fileName));
 	}
@@ -71,7 +71,7 @@ std::vector<Glyph> LoadGlyphs(const char* fileName) {
 	// Read and validate the tag. It should be 66, 77, 70, 2,
 	// or 'BMF' and 2 where the number is the file version.
 	char magicString[4];
-	SDL_RWread(f, magicString, 4, 1);
+	SDL_ReadIO(f, magicString, 4);
 	if (strncmp(magicString, "BMF\003", 4) != 0) {
 		throw std::runtime_error("Unrecognized file format");
 	}
@@ -79,23 +79,23 @@ std::vector<Glyph> LoadGlyphs(const char* fileName) {
 	std::vector<Glyph> glyphs;
 
 	char blockType;
-	while (SDL_RWread(f, &blockType, 1, 1)) {
+	while (SDL_ReadIO(f, &blockType, 1)) {
 		int blockSize;
-		SDL_RWread(f, &blockSize, 4, 1);
+		SDL_ReadIO(f, &blockSize, 4);
 
 		switch (blockType) {
 		case 1: // info
 		case 2: // common
 		case 3: // pages
 		case 5: // kerning pairs
-			SDL_RWseek(f, blockSize, RW_SEEK_CUR);
+			SDL_SeekIO(f, blockSize, SDL_IO_SEEK_CUR);
 			break;
 		case 4: // chars
 			if (blockSize % sizeof(Glyph)) {
 				throw std::runtime_error("Invalid block sie");
 			}
 			glyphs.resize(blockSize / sizeof(Glyph));
-			SDL_RWread(f, glyphs.data(), blockSize, 1);
+			SDL_ReadIO(f, glyphs.data(), blockSize);
 			break;
 		default:
 			throw std::runtime_error("Unexpected block type");
@@ -110,7 +110,7 @@ std::vector<Glyph> LoadGlyphs(const char* fileName) {
 	}
 	std::sort(std::begin(glyphs), std::end(glyphs));
 
-	SDL_RWclose(f);
+	SDL_CloseIO(f);
 	return glyphs;
 }
 

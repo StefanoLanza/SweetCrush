@@ -1,12 +1,12 @@
 #include "SdlWindow.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <stdexcept>
 #include <string>
 
 namespace Wind {
 SdlWindow::SdlWindow(const char* title, int width, int height)
-    : mSDLWindow(SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height,
+    : mSDLWindow(SDL_CreateWindow(title, width, height, SDL_WINDOWPOS_UNDEFINED |
                                   SDL_WINDOW_BORDERLESS | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL),
                  SDL_DestroyWindow) {
 	if (! mSDLWindow) {

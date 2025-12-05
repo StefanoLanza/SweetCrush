@@ -1,14 +1,14 @@
 #include "SdlSurface.h"
 #include "Gl.h"
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 #include <stdexcept>
 #include <string>
 
 namespace Wind {
 
 SdlSurface::SdlSurface(const char* fileName, const char* path)
-    : mSurface(IMG_Load(path), SDL_FreeSurface)
+    : mSurface(IMG_Load(path), SDL_DestroySurface)
     , mFileName(fileName) {
 	if (mSurface == nullptr) {
 		SDL_LogError(0, "Unable to load image %s", fileName);
@@ -18,8 +18,12 @@ SdlSurface::SdlSurface(const char* fileName, const char* path)
 	GLuint textureId = 0;
 	glGenTextures(1, &textureId);
 	glBindTexture(GL_TEXTURE_2D, textureId);
+
 	int mode;
-	switch (mSurface->format->BytesPerPixel) {
+	mode = GL_RGBA;
+#if 0
+	FIXME
+	switch (mSurface->format.BytesPerPixel) {
 	case 4:
 		mode = GL_RGBA;
 		break;
@@ -33,6 +37,7 @@ SdlSurface::SdlSurface(const char* fileName, const char* path)
 		SDL_LogError(0, "Image with unknown channel profile (%s)", fileName);
 		throw std::runtime_error("Image with unknown channel profile");
 	}
+#endif
 	glTexImage2D(GL_TEXTURE_2D, 0, mode, mSurface->w, mSurface->h, 0, mode, GL_UNSIGNED_BYTE, mSurface->pixels);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

@@ -1,5 +1,5 @@
 #include "GlProgram.h"
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <cassert>
 #include <malloc.h>
 #include <vector>
@@ -33,20 +33,20 @@ GLuint CompileShaderFromFile(const char* source, GLenum type) {
 	assert(source);
 
 	GLuint           program = 0;
-	SDL_RWops* const f = SDL_RWFromFile(source, "rb");
+	SDL_IOStream * const f = SDL_IOFromFile(source, "rb");
 	if (f) {
-		const Sint64 length = SDL_RWseek(f, 0, RW_SEEK_END);
+		const Sint64 length = SDL_SeekIO(f, 0, SDL_IO_SEEK_END);
 		if (length > 0) {
-			SDL_RWseek(f, 0, RW_SEEK_SET);
+			SDL_SeekIO(f, 0, SDL_IO_SEEK_SET);
 			std::vector<char> data(static_cast<size_t>(length) + 1);
-			SDL_RWread(f, data.data(), data.size(), 1);
+			SDL_ReadIO(f, data.data(), data.size());
 			data.back() = 0; // null terminate
 			program = CompileShader(data.data(), type);
 		}
 		else {
 			SDL_LogError(0, "Zero length file %s", source);
 		}
-		SDL_RWclose(f);
+		SDL_CloseIO(f);
 	}
 	else {
 		SDL_LogError(0, "Cannot open file %s", source);

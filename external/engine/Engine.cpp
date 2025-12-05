@@ -25,7 +25,7 @@ namespace Wind {
 
 namespace {
 
-constexpr uint32_t MaxFrameTicks = 300;
+constexpr uint64_t MaxFrameTicks = 300;
 
 } // namespace
 
@@ -41,13 +41,13 @@ struct Engine::Implementation {
 	TextRenderer           mTextRenderer;
 	ActionMgr              mActionMgr;
 	std::vector<BitmapPtr> mBitmaps;
-	uint32_t               mElapsedTicks;
+	uint64_t               mElapsedTicks;
 	float                  mAccumTime;
 	bool                   mQuit;
 	bool                   mBackground;
 
 	Implementation(const char* title, int windowWidth, int windowHeight)
-	    : mSdl { SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE }
+	    : mSdl { SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS }
 	    , mWindow { title, windowWidth, windowHeight }
 	    , mGlContext(mWindow)
 	    , mGraphics(mWindow)
@@ -74,8 +74,8 @@ void Engine::Implementation::Start(const RenderCallback& renderCbk, const Update
 	updateCbk(fixedTimeStep); // first update
 	mElapsedTicks = SDL_GetTicks();
 	while (! mQuit) {
-		const uint32_t currentTicks = SDL_GetTicks();
-		uint32_t       lastFrameTicks = currentTicks - mElapsedTicks;
+		const uint64_t currentTicks = SDL_GetTicks();
+		uint64_t       lastFrameTicks = currentTicks - mElapsedTicks;
 		mElapsedTicks = currentTicks;
 		lastFrameTicks = std::min(lastFrameTicks, MaxFrameTicks);
 		const float lastFrameSeconds = static_cast<float>(lastFrameTicks) * 0.001f;
@@ -92,7 +92,7 @@ void Engine::Implementation::Start(const RenderCallback& renderCbk, const Update
 
 		if (! mBackground) {
 			SDL_GL_SwapWindow(mWindow);
-			SDL_ShowCursor(SDL_DISABLE);
+			SDL_HideCursor();
 			renderCbk(lastFrameSeconds);
 			mGraphics.Flush();
 		}
@@ -125,13 +125,13 @@ void Engine::Implementation::ParseEvent() {
 	while (SDL_PollEvent(&event)) {
 		mInput.ParseEvent(event, mWindow);
 		switch (event.type) {
-		case SDL_APP_WILLENTERBACKGROUND:
+		case SDL_EVENT_WILL_ENTER_BACKGROUND:
 			mBackground = true;
 			break;
-		case SDL_APP_WILLENTERFOREGROUND:
+		case SDL_EVENT_WILL_ENTER_FOREGROUND:
 			mBackground = false;
 			break;
-		case SDL_QUIT:
+		case SDL_EVENT_QUIT:
 			mQuit = true;
 			break;
 		default:

@@ -10,7 +10,7 @@
 namespace Wind {
 
 GlContext::GlContext(SdlWindow& sdlWindow)
-    : mContext(SDL_GL_CreateContext(sdlWindow), SDL_GL_DeleteContext) {
+    : mContext(SDL_GL_CreateContext(sdlWindow), SDL_GL_DestroyContext) {
 	if (! mContext) {
 		const char* error = SDL_GetError();
 		SDL_LogError(0, "%s", error);
