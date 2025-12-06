@@ -18,7 +18,6 @@ public:
 	void Resume() const;
 
 private:
-	MIX_Mixer* mMixer;
 	MIX_Track *mTrack;
 	std::unique_ptr<MIX_Audio, void (*)(MIX_Audio*)> mMusic;
 };

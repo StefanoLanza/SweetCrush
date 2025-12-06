@@ -58,7 +58,6 @@
     <ClCompile Include="..\SweetCrush\src\PauseGameScreen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\external\SDL\src\main\android\SDL_android_main.c" />
     <ClCompile Include="..\SweetCrush\src\GameDataModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -6,8 +6,7 @@
 namespace Wind {
 
 SdlMusic::SdlMusic(MIX_Mixer* mixer, const char* filename)
-    : mMixer(mixer)
-	, mMusic(MIX_LoadAudio(mixer, filename, false), MIX_DestroyAudio) {
+    : mMusic(MIX_LoadAudio(mixer, filename, false), MIX_DestroyAudio) {
 	if (! mMusic) {
 		throw std::runtime_error(std::string("Unable to load music ") + filename);
 	}
