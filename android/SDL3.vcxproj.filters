@@ -147,9 +147,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\external\SDL\src\audio\android\SDL_androidaudio.c">
-      <Filter>src\audio\android</Filter>
-    </ClCompile>
     <ClCompile Include="..\external\SDL\src\audio\aaudio\SDL_aaudio.c">
       <Filter>src\audio\aaudio</Filter>
     </ClCompile>
@@ -161,9 +158,6 @@
     </ClCompile>
     <ClCompile Include="..\external\SDL\src\dynapi\SDL_dynapi.c">
       <Filter>src\dynapi</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\SDL\src\file\SDL_rwops.c">
-      <Filter>src\file</Filter>
     </ClCompile>
     <ClCompile Include="..\external\SDL\src\filesystem\android\SDL_sysfilesystem.c">
       <Filter>src\filesystem\android</Filter>
@@ -181,9 +175,6 @@
       <Filter>src\hidapi\android</Filter>
     </ClCompile>
     <ClCompile Include="..\external\SDL\src\joystick\SDL_joystick.c">
-      <Filter>src\joystick</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\SDL\src\joystick\SDL_gamecontroller.c">
       <Filter>src\joystick</Filter>
     </ClCompile>
     <ClCompile Include="..\external\SDL\src\joystick\android\SDL_sysjoystick.c">
@@ -217,9 +208,6 @@
       <Filter>src\render</Filter>
     </ClCompile>
     <ClCompile Include="..\external\SDL\src\render\SDL_yuv_sw.c">
-      <Filter>src\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\SDL\src\render\SDL_d3dmath.c">
       <Filter>src\render</Filter>
     </ClCompile>
     <ClCompile Include="..\external\SDL\src\render\opengles2\SDL_shaders_gles2.c">
@@ -312,9 +300,6 @@
     <ClCompile Include="..\external\SDL\src\video\SDL_RLEaccel.c">
       <Filter>src\video</Filter>
     </ClCompile>
-    <ClCompile Include="..\external\SDL\src\video\SDL_shape.c">
-      <Filter>src\video</Filter>
-    </ClCompile>
     <ClCompile Include="..\external\SDL\src\video\SDL_stretch.c">
       <Filter>src\video</Filter>
     </ClCompile>
@@ -372,9 +357,6 @@
     <ClCompile Include="..\external\SDL\src\video\SDL_rect.c">
       <Filter>src\video</Filter>
     </ClCompile>
-    <ClCompile Include="..\external\SDL\src\SDL_dataqueue.c">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\external\SDL\src\SDL_error.c">
       <Filter>src</Filter>
     </ClCompile>
@@ -420,14 +402,8 @@
     <ClCompile Include="..\external\SDL\src\events\SDL_events.c">
       <Filter>src\events</Filter>
     </ClCompile>
-    <ClCompile Include="..\external\SDL\src\events\SDL_gesture.c">
-      <Filter>src\events</Filter>
-    </ClCompile>
     <ClCompile Include="..\external\SDL\src\timer\unix\SDL_systimer.c">
       <Filter>src\timer\unix</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\SDL\src\video\yuv2rgb\yuv_rgb.c">
-      <Filter>src\video\yuv2rgb</Filter>
     </ClCompile>
     <ClCompile Include="..\external\SDL\src\atomic\SDL_atomic.c">
       <Filter>src\atomic</Filter>
@@ -498,9 +474,6 @@
     <ClCompile Include="..\external\SDL\src\render\software\SDL_render_sw.c">
       <Filter>src\render\software</Filter>
     </ClCompile>
-    <ClCompile Include="..\external\SDL\src\render\software\SDL_rotate.c">
-      <Filter>src\render\software</Filter>
-    </ClCompile>
     <ClCompile Include="..\external\SDL\src\render\software\SDL_triangle.c">
       <Filter>src\render\software</Filter>
     </ClCompile>
@@ -513,9 +486,6 @@
     <ClCompile Include="..\external\SDL\src\render\software\SDL_blendpoint.c">
       <Filter>src\render\software</Filter>
     </ClCompile>
-    <ClCompile Include="..\external\SDL\src\render\opengles\SDL_render_gles.c">
-      <Filter>src\render\opengles</Filter>
-    </ClCompile>
     <ClCompile Include="..\external\SDL\src\locale\android\SDL_syslocale.c">
       <Filter>src\locale\android</Filter>
     </ClCompile>
@@ -525,6 +495,85 @@
     <ClCompile Include="..\external\AndroidNDK\cpufeatures\cpu-features.c">
       <Filter>AndroidNDK</Filter>
     </ClCompile>
+    <ClCompile Include="..\external\SDL\src\audio\SDL_audioqueue.c" />
+    <ClCompile Include="..\external\SDL\src\audio\SDL_audioresample.c" />
+    <ClCompile Include="..\external\SDL\src\camera\android\SDL_camera_android.c" />
+    <ClCompile Include="..\external\SDL\src\camera\dummy\SDL_camera_dummy.c" />
+    <ClCompile Include="..\external\SDL\src\camera\SDL_camera.c" />
+    <ClCompile Include="..\external\SDL\src\dialog\android\SDL_androiddialog.c" />
+    <ClCompile Include="..\external\SDL\src\dialog\SDL_dialog.c" />
+    <ClCompile Include="..\external\SDL\src\dialog\SDL_dialog_utils.c" />
+    <ClCompile Include="..\external\SDL\src\events\SDL_categories.c" />
+    <ClCompile Include="..\external\SDL\src\events\SDL_eventwatch.c" />
+    <ClCompile Include="..\external\SDL\src\events\SDL_keymap.c" />
+    <ClCompile Include="..\external\SDL\src\events\SDL_keysym_to_keycode.c" />
+    <ClCompile Include="..\external\SDL\src\events\SDL_keysym_to_scancode.c" />
+    <ClCompile Include="..\external\SDL\src\events\SDL_pen.c" />
+    <ClCompile Include="..\external\SDL\src\events\SDL_scancode_tables.c" />
+    <ClCompile Include="..\external\SDL\src\filesystem\android\SDL_sysfsops.c" />
+    <ClCompile Include="..\external\SDL\src\filesystem\SDL_filesystem.c" />
+    <ClCompile Include="..\external\SDL\src\gpu\SDL_gpu.c" />
+    <ClCompile Include="..\external\SDL\src\gpu\vulkan\SDL_gpu_vulkan.c" />
+    <ClCompile Include="..\external\SDL\src\haptic\hidapi\SDL_hidapihaptic.c" />
+    <ClCompile Include="..\external\SDL\src\haptic\hidapi\SDL_hidapihaptic_lg4ff.c" />
+    <ClCompile Include="..\external\SDL\src\io\generic\SDL_asyncio_generic.c" />
+    <ClCompile Include="..\external\SDL\src\io\SDL_asyncio.c" />
+    <ClCompile Include="..\external\SDL\src\io\SDL_iostream.c" />
+    <ClCompile Include="..\external\SDL\src\joystick\controller_type.c" />
+    <ClCompile Include="..\external\SDL\src\joystick\hidapi\SDL_hidapi_8bitdo.c" />
+    <ClCompile Include="..\external\SDL\src\joystick\hidapi\SDL_hidapi_combined.c" />
+    <ClCompile Include="..\external\SDL\src\joystick\hidapi\SDL_hidapi_flydigi.c" />
+    <ClCompile Include="..\external\SDL\src\joystick\hidapi\SDL_hidapi_gip.c" />
+    <ClCompile Include="..\external\SDL\src\joystick\hidapi\SDL_hidapi_lg4ff.c" />
+    <ClCompile Include="..\external\SDL\src\joystick\hidapi\SDL_hidapi_ps3.c" />
+    <ClCompile Include="..\external\SDL\src\joystick\hidapi\SDL_hidapi_shield.c" />
+    <ClCompile Include="..\external\SDL\src\joystick\hidapi\SDL_hidapi_sinput.c" />
+    <ClCompile Include="..\external\SDL\src\joystick\hidapi\SDL_hidapi_steamdeck.c" />
+    <ClCompile Include="..\external\SDL\src\joystick\hidapi\SDL_hidapi_steam_hori.c" />
+    <ClCompile Include="..\external\SDL\src\joystick\hidapi\SDL_hidapi_steam_triton.c" />
+    <ClCompile Include="..\external\SDL\src\joystick\hidapi\SDL_hidapi_switch2.c" />
+    <ClCompile Include="..\external\SDL\src\joystick\hidapi\SDL_hidapi_wii.c" />
+    <ClCompile Include="..\external\SDL\src\joystick\hidapi\SDL_hidapi_zuiki.c" />
+    <ClCompile Include="..\external\SDL\src\joystick\SDL_gamepad.c" />
+    <ClCompile Include="..\external\SDL\src\joystick\SDL_steam_virtual_gamepad.c" />
+    <ClCompile Include="..\external\SDL\src\main\generic\SDL_sysmain_callbacks.c" />
+    <ClCompile Include="..\external\SDL\src\main\SDL_main_callbacks.c" />
+    <ClCompile Include="..\external\SDL\src\main\SDL_runapp.c" />
+    <ClCompile Include="..\external\SDL\src\misc\SDL_libusb.c" />
+    <ClCompile Include="..\external\SDL\src\process\dummy\SDL_dummyprocess.c" />
+    <ClCompile Include="..\external\SDL\src\process\SDL_process.c" />
+    <ClCompile Include="..\external\SDL\src\render\gpu\SDL_pipeline_gpu.c" />
+    <ClCompile Include="..\external\SDL\src\render\gpu\SDL_render_gpu.c" />
+    <ClCompile Include="..\external\SDL\src\render\gpu\SDL_shaders_gpu.c" />
+    <ClCompile Include="..\external\SDL\src\render\opengl\SDL_render_gl.c" />
+    <ClCompile Include="..\external\SDL\src\render\opengl\SDL_shaders_gl.c" />
+    <ClCompile Include="..\external\SDL\src\render\SDL_render_unsupported.c" />
+    <ClCompile Include="..\external\SDL\src\render\vulkan\SDL_render_vulkan.c" />
+    <ClCompile Include="..\external\SDL\src\render\vulkan\SDL_shaders_vulkan.c" />
+    <ClCompile Include="..\external\SDL\src\SDL_guid.c" />
+    <ClCompile Include="..\external\SDL\src\SDL_hashtable.c" />
+    <ClCompile Include="..\external\SDL\src\SDL_list.c" />
+    <ClCompile Include="..\external\SDL\src\SDL_properties.c" />
+    <ClCompile Include="..\external\SDL\src\SDL_utils.c" />
+    <ClCompile Include="..\external\SDL\src\stdlib\SDL_crc16.c" />
+    <ClCompile Include="..\external\SDL\src\stdlib\SDL_memcpy.c" />
+    <ClCompile Include="..\external\SDL\src\stdlib\SDL_memmove.c" />
+    <ClCompile Include="..\external\SDL\src\stdlib\SDL_memset.c" />
+    <ClCompile Include="..\external\SDL\src\stdlib\SDL_mslibc.c" />
+    <ClCompile Include="..\external\SDL\src\stdlib\SDL_murmur3.c" />
+    <ClCompile Include="..\external\SDL\src\stdlib\SDL_random.c" />
+    <ClCompile Include="..\external\SDL\src\storage\generic\SDL_genericstorage.c" />
+    <ClCompile Include="..\external\SDL\src\storage\SDL_storage.c" />
+    <ClCompile Include="..\external\SDL\src\thread\pthread\SDL_sysrwlock.c" />
+    <ClCompile Include="..\external\SDL\src\tray\dummy\SDL_tray.c" />
+    <ClCompile Include="..\external\SDL\src\tray\SDL_tray_utils.c" />
+    <ClCompile Include="..\external\SDL\src\video\android\SDL_androidpen.c" />
+    <ClCompile Include="..\external\SDL\src\video\SDL_rotate.c" />
+    <ClCompile Include="..\external\SDL\src\video\SDL_stb.c" />
+    <ClCompile Include="..\external\SDL\src\video\SDL_video_unsupported.c" />
+    <ClCompile Include="..\external\SDL\src\video\yuv2rgb\yuv_rgb_lsx.c" />
+    <ClCompile Include="..\external\SDL\src\video\yuv2rgb\yuv_rgb_sse.c" />
+    <ClCompile Include="..\external\SDL\src\video\yuv2rgb\yuv_rgb_std.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\external\SDL\src\audio\android\SDL_androidaudio.h">
@@ -562,9 +611,6 @@
     </ClInclude>
     <ClInclude Include="..\external\SDL\src\hidapi\SDL_hidapi_c.h">
       <Filter>src\hidapi</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\SDL\src\joystick\SDL_gamecontrollerdb.h">
-      <Filter>src\joystick</Filter>
     </ClInclude>
     <ClInclude Include="..\external\SDL\src\joystick\SDL_joystick_c.h">
       <Filter>src\joystick</Filter>
@@ -668,9 +714,6 @@
     <ClInclude Include="..\external\SDL\src\video\SDL_RLEaccel_c.h">
       <Filter>src\video</Filter>
     </ClInclude>
-    <ClInclude Include="..\external\SDL\src\video\SDL_shape_internals.h">
-      <Filter>src\video</Filter>
-    </ClInclude>
     <ClInclude Include="..\external\SDL\src\video\SDL_sysvideo.h">
       <Filter>src\video</Filter>
     </ClInclude>
@@ -701,9 +744,6 @@
     <ClInclude Include="..\external\SDL\src\video\SDL_rect_c.h">
       <Filter>src\video</Filter>
     </ClInclude>
-    <ClInclude Include="..\external\SDL\src\SDL_dataqueue.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="..\external\SDL\src\SDL_error_c.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -720,9 +760,6 @@
       <Filter>src\events</Filter>
     </ClInclude>
     <ClInclude Include="..\external\SDL\src\events\SDL_mouse_c.h">
-      <Filter>src\events</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\SDL\src\events\SDL_sysevents.h">
       <Filter>src\events</Filter>
     </ClInclude>
     <ClInclude Include="..\external\SDL\src\events\SDL_touch_c.h">
@@ -764,9 +801,6 @@
     <ClInclude Include="..\external\SDL\src\events\SDL_events_c.h">
       <Filter>src\events</Filter>
     </ClInclude>
-    <ClInclude Include="..\external\SDL\src\events\SDL_gesture_c.h">
-      <Filter>src\events</Filter>
-    </ClInclude>
     <ClInclude Include="..\external\SDL\src\video\yuv2rgb\yuv_rgb_sse_func.h">
       <Filter>src\video\yuv2rgb</Filter>
     </ClInclude>
@@ -803,9 +837,6 @@
     <ClInclude Include="..\external\SDL\src\render\software\SDL_render_sw_c.h">
       <Filter>src\render\software</Filter>
     </ClInclude>
-    <ClInclude Include="..\external\SDL\src\render\software\SDL_rotate.h">
-      <Filter>src\render\software</Filter>
-    </ClInclude>
     <ClInclude Include="..\external\SDL\src\render\software\SDL_triangle.h">
       <Filter>src\render\software</Filter>
     </ClInclude>
@@ -830,10 +861,85 @@
     <ClInclude Include="..\external\AndroidNDK\cpufeatures\cpu-features.h">
       <Filter>AndroidNDK</Filter>
     </ClInclude>
+    <ClInclude Include="..\external\SDL\src\audio\SDL_audioqueue.h" />
+    <ClInclude Include="..\external\SDL\src\audio\SDL_audioresample.h" />
+    <ClInclude Include="..\external\SDL\src\audio\SDL_audio_channel_converters.h" />
+    <ClInclude Include="..\external\SDL\src\camera\SDL_camera_c.h" />
+    <ClInclude Include="..\external\SDL\src\camera\SDL_syscamera.h" />
+    <ClInclude Include="..\external\SDL\src\dialog\SDL_dialog.h" />
+    <ClInclude Include="..\external\SDL\src\dialog\SDL_dialog_utils.h" />
+    <ClInclude Include="..\external\SDL\src\dynapi\SDL_dynapi_unsupported.h" />
+    <ClInclude Include="..\external\SDL\src\events\SDL_categories_c.h" />
+    <ClInclude Include="..\external\SDL\src\events\SDL_eventwatch_c.h" />
+    <ClInclude Include="..\external\SDL\src\events\SDL_keymap_c.h" />
+    <ClInclude Include="..\external\SDL\src\events\SDL_keysym_to_keycode_c.h" />
+    <ClInclude Include="..\external\SDL\src\events\SDL_keysym_to_scancode_c.h" />
+    <ClInclude Include="..\external\SDL\src\events\SDL_pen_c.h" />
+    <ClInclude Include="..\external\SDL\src\events\SDL_scancode_tables_c.h" />
+    <ClInclude Include="..\external\SDL\src\filesystem\SDL_filesystem_c.h" />
+    <ClInclude Include="..\external\SDL\src\filesystem\SDL_sysfilesystem.h" />
+    <ClInclude Include="..\external\SDL\src\gpu\SDL_sysgpu.h" />
+    <ClInclude Include="..\external\SDL\src\gpu\vulkan\SDL_gpu_vulkan_vkfuncs.h" />
+    <ClInclude Include="..\external\SDL\src\haptic\hidapi\SDL_hidapihaptic.h" />
+    <ClInclude Include="..\external\SDL\src\haptic\hidapi\SDL_hidapihaptic_c.h" />
+    <ClInclude Include="..\external\SDL\src\hidapi\android\hid.h" />
+    <ClInclude Include="..\external\SDL\src\hidapi\SDL_hidapi_android.h" />
+    <ClInclude Include="..\external\SDL\src\io\SDL_asyncio_c.h" />
+    <ClInclude Include="..\external\SDL\src\io\SDL_iostream_c.h" />
+    <ClInclude Include="..\external\SDL\src\io\SDL_sysasyncio.h" />
+    <ClInclude Include="..\external\SDL\src\joystick\controller_list.h" />
+    <ClInclude Include="..\external\SDL\src\joystick\hidapi\SDL_hidapi_flydigi.h" />
+    <ClInclude Include="..\external\SDL\src\joystick\hidapi\SDL_hidapi_nintendo.h" />
+    <ClInclude Include="..\external\SDL\src\joystick\hidapi\SDL_hidapi_sinput.h" />
+    <ClInclude Include="..\external\SDL\src\joystick\SDL_gamepad_c.h" />
+    <ClInclude Include="..\external\SDL\src\joystick\SDL_gamepad_db.h" />
+    <ClInclude Include="..\external\SDL\src\joystick\SDL_steam_virtual_gamepad.h" />
+    <ClInclude Include="..\external\SDL\src\main\SDL_main_callbacks.h" />
+    <ClInclude Include="..\external\SDL\src\misc\SDL_libusb.h" />
+    <ClInclude Include="..\external\SDL\src\process\SDL_sysprocess.h" />
+    <ClInclude Include="..\external\SDL\src\render\gpu\SDL_gpu_util.h" />
+    <ClInclude Include="..\external\SDL\src\render\gpu\SDL_pipeline_gpu.h" />
+    <ClInclude Include="..\external\SDL\src\render\gpu\SDL_shaders_gpu.h" />
+    <ClInclude Include="..\external\SDL\src\render\opengl\SDL_shaders_gl.h" />
+    <ClInclude Include="..\external\SDL\src\render\SDL_render_debug_font.h" />
+    <ClInclude Include="..\external\SDL\src\render\vulkan\SDL_shaders_vulkan.h" />
+    <ClInclude Include="..\external\SDL\src\render\vulkan\VULKAN_PixelShader_Advanced.h" />
+    <ClInclude Include="..\external\SDL\src\render\vulkan\VULKAN_PixelShader_Colors.h" />
+    <ClInclude Include="..\external\SDL\src\render\vulkan\VULKAN_PixelShader_Textures.h" />
+    <ClInclude Include="..\external\SDL\src\render\vulkan\VULKAN_VertexShader.h" />
+    <ClInclude Include="..\external\SDL\src\SDL_hashtable.h" />
+    <ClInclude Include="..\external\SDL\src\SDL_list.h" />
+    <ClInclude Include="..\external\SDL\src\SDL_log_c.h" />
+    <ClInclude Include="..\external\SDL\src\SDL_properties_c.h" />
+    <ClInclude Include="..\external\SDL\src\SDL_utils_c.h" />
+    <ClInclude Include="..\external\SDL\src\stdlib\SDL_casefolding.h" />
+    <ClInclude Include="..\external\SDL\src\stdlib\SDL_getenv_c.h" />
+    <ClInclude Include="..\external\SDL\src\stdlib\SDL_sysstdlib.h" />
+    <ClInclude Include="..\external\SDL\src\stdlib\SDL_vacopy.h" />
+    <ClInclude Include="..\external\SDL\src\storage\SDL_sysstorage.h" />
+    <ClInclude Include="..\external\SDL\src\tray\SDL_tray_utils.h" />
+    <ClInclude Include="..\external\SDL\src\video\android\SDL_androidpen.h" />
+    <ClInclude Include="..\external\SDL\src\video\miniz.h" />
+    <ClInclude Include="..\external\SDL\src\video\SDL_clipboard_c.h" />
+    <ClInclude Include="..\external\SDL\src\video\SDL_rect_impl.h" />
+    <ClInclude Include="..\external\SDL\src\video\SDL_rotate.h" />
+    <ClInclude Include="..\external\SDL\src\video\SDL_stb_c.h" />
+    <ClInclude Include="..\external\SDL\src\video\SDL_surface_c.h" />
+    <ClInclude Include="..\external\SDL\src\video\SDL_video_c.h" />
+    <ClInclude Include="..\external\SDL\src\video\SDL_video_unsupported.h" />
+    <ClInclude Include="..\external\SDL\src\video\stb_image.h" />
+    <ClInclude Include="..\external\SDL\src\video\yuv2rgb\yuv_rgb_common.h" />
+    <ClInclude Include="..\external\SDL\src\video\yuv2rgb\yuv_rgb_internal.h" />
+    <ClInclude Include="..\external\SDL\src\video\yuv2rgb\yuv_rgb_lsx.h" />
+    <ClInclude Include="..\external\SDL\src\video\yuv2rgb\yuv_rgb_lsx_func.h" />
+    <ClInclude Include="..\external\SDL\src\video\yuv2rgb\yuv_rgb_sse.h" />
+    <ClInclude Include="..\external\SDL\src\video\yuv2rgb\yuv_rgb_std.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\external\SDL\src\dynapi\gendynapi.pl">
-      <Filter>src\dynapi</Filter>
-    </None>
+    <None Include="..\external\SDL\src\stdlib\SDL_mslibc_arm64.masm" />
+    <None Include="..\external\SDL\src\stdlib\SDL_mslibc_x64.masm" />
+    <None Include="..\external\SDL\src\video\sdlgenblit.pl" />
+    <None Include="..\external\SDL\src\video\yuv2rgb\LICENSE" />
+    <None Include="..\external\SDL\src\video\yuv2rgb\README.md" />
   </ItemGroup>
 </Project>

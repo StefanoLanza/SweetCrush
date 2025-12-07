@@ -37,7 +37,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
-    <AndroidAPILevel>android-27</AndroidAPILevel>
+    <AndroidAPILevel>android-29</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -168,6 +168,17 @@
     <ClInclude Include="..\SweetCrush\src\SettingsScreen.h" />
     <ClInclude Include="..\SweetCrush\src\TileSelector.h" />
     <ClInclude Include="..\SweetCrush\src\UIDefs.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="SDL3.vcxproj">
+      <Project>{b7be417c-b6c5-4a69-a056-e0cb0c6a344c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="SDL3_image.vcxproj">
+      <Project>{03a9401d-ceff-4f5e-a7b4-fc2a0d9f6c95}</Project>
+    </ProjectReference>
+    <ProjectReference Include="SDL3_mixer.vcxproj">
+      <Project>{9e45be8b-dbf6-4f35-b0ea-3d295d4bce55}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
