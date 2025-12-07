@@ -17,5 +17,9 @@ android/SDL2_GradleApp/ARM
 android/SDL2_GradleApp/x86
 android/SDL2_GradleApp/.gradle/*
 android/SDL2_GradleApp/app/src/main/jniLibs/
+android/SDL2_GradleApp/build.gradle
+android/SDL2_GradleApp/build
+android/SDL2_GradleApp/.idea
+android/SDL2_GradleApp/local.properties
 .workspace
 
