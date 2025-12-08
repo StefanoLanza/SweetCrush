@@ -335,14 +335,15 @@ void PlayScreen::DrawUI() const {
 	prm.pivot = BitmapPivot::center;
 	prm.blending = true;
 	prm.orientation = 0.f;
+    prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::overBackground);
 
-	Vec2 pos = mGameConfig.targetGemCoord;
+    Vec2 pos = mGameConfig.targetGemCoord;
 	for (int i = 0; i < 3; ++i) {
 		const auto& def = gemDefs[level.gemIds[i]];
 		bitmapRender.DrawBitmapEx(*sprites[def.sprite], pos, prm);
 		snprintf(tmp, sizeof(tmp), "%d/%d", mMatchStats.targetGemCount[i], level.objective.gemCount[i]);
 		textRenderer.Write(*mFonts[2], tmp, pos + Vec2 { 40.f, -20.f }, textStyle, DrawOrder::UI);
-		pos.x += 160.f;
+		pos.x += 180.f;
 	}
 }
 
