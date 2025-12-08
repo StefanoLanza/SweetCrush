@@ -24,8 +24,8 @@ android {
             ndkBuild {
                 // for SDL and game
                 def modulePaths = [
-                        "${rootProject.projectDir}/../../external",
-                        "${rootProject.projectDir}/../.."
+                        "${rootProject.projectDir}/../external",
+                        "${rootProject.projectDir}/.."
                 ]
                 // Join the list into a single string using the OS-specific path separator.
                 def ndkModulePath = modulePaths.join(File.pathSeparator)
@@ -98,7 +98,7 @@ android {
     sourceSets {
         main {
             // Get the root project's directory object.
-            def gameRoot = rootProject.projectDir.parentFile.parentFile
+            def gameRoot = rootProject.projectDir.parentFile
             // Construct the full path to the assets directory.
             def assetPath = new File(gameRoot, 'bin/assets')
             // This line tells Gradle to look for assets in the specified
