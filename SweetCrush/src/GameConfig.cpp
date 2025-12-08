@@ -1,4 +1,4 @@
-#include "Config.h"
+#include "GameConfig.h"
 #include "Constants.h"
 
 GameConfig DefaultGameConfig() {

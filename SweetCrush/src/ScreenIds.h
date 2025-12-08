@@ -3,7 +3,7 @@
 #include <engine/GameScreen.h>
 
 enum ScreenId : Wind::GameScreenId {
-	none = 255,
+	empty = 255,
 	mainMenu = 0,
 	credits,
 	settings,

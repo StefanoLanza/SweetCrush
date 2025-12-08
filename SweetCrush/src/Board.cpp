@@ -1,5 +1,5 @@
 #include "Board.h"
-#include "Config.h"
+#include "GameConfig.h"
 #include <cassert>
 
 Board::Board(int cols, int rows)
@@ -24,6 +24,10 @@ Wind::Span<Cell> Board::GetCells() {
 
 Wind::Span<const Cell> Board::GetCells() const {
 	return { mCells.data(), mCells.size() };
+}
+
+int Board::GetCellCount() const {
+	return (int)mCells.size();
 }
 
 int Board::GetCellIndex(int col, int row) const {
@@ -51,23 +55,27 @@ const Cell& Board::GetCell(int col, int row) const {
 }
 
 bool IsEmpty(const Cell& cell) {
-	return cell.category == TileCategory::none;
+	return cell.category == CellCategory::empty;
 }
 
-bool HasGem(const Cell& cell) {
-	return cell.category == TileCategory::gem;
+bool IsHole(const Cell& cell) {
+	return cell.category == CellCategory::hole;
+}
+
+bool HasPiece(const Cell& cell) {
+	return cell.category == CellCategory::piece;
 }
 
 bool HasBooster(const Cell& cell) {
-	return cell.category == TileCategory::booster;
+	return cell.category == CellCategory::booster;
 }
 
 bool HasObstacle(const Cell& cell) {
-	return cell.category == TileCategory::obstacle;
+	return cell.category == CellCategory::obstacle;
 }
 
 bool IsSelectable(const Cell& cell) {
-	return (cell.category == TileCategory::gem) || (cell.category == TileCategory::booster);
+	return (cell.category == CellCategory::piece) || (cell.category == CellCategory::booster);
 }
 
 bool Board::IsInside(int col, int row) const {

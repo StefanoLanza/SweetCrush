@@ -1,17 +1,17 @@
 #include "Match3.h"
 #include "Board.h"
 #include "Boosters.h"
-#include "Config.h"
 #include "Constants.h"
+#include "GameConfig.h"
 #include "TileSelector.h"
 #include <cassert>
-#include <engine/Input.h>
 #include <cstring>
+#include <engine/Input.h>
 
 namespace {
 
 bool CheckMatch(const Cell& a, const Cell& b) {
-	return (a.category == b.category) && (a.category != TileCategory::none) && (a.tileId == b.tileId);
+	return (a.category == b.category) && (a.category != CellCategory::empty) && (a.pieceId == b.pieceId);
 }
 
 int CountMatches(const Cell& cell, const Board& board, Direction dir) {
@@ -54,15 +54,14 @@ int CountMatches(const Cell& cell, const Board& board, Direction dir) {
 	return matches;
 }
 
-void GenRandomGem(Cell& cell, const Board& board, std::default_random_engine& randomEngine, const int gemIds[], int numGemTypes) {
-	std::uniform_int_distribution<int> u_distribution { 0, numGemTypes - 1 };
-	bool                               valid = false;
+void GenRandomPiece(Cell& cell, const Board& board, Wind::Random& random, const int gemIds[], int numGemTypes) {
+	assert(cell.category == CellCategory::piece);
+	bool          valid = false;
 	constexpr int maxAttempts = 100;
-	int attempts = 0;
-	cell.category = TileCategory::gem;
+	int           attempts = 0;
 	cell.hits = 1;
 	do {
-		cell.tileId = static_cast<TileId>(gemIds[u_distribution(randomEngine)]);
+		cell.pieceId = static_cast<PieceId>(gemIds[random.Next(0, numGemTypes - 1)]);
 		// Avoid three or more consecutive matches
 		valid = (1 + CountMatches(cell, board, Direction::left) < 3) && (1 + CountMatches(cell, board, Direction::top) < 3) &&
 		        (1 + CountMatches(cell, board, Direction::right) < 3) && (1 + CountMatches(cell, board, Direction::bottom) < 3);
@@ -72,10 +71,10 @@ void GenRandomGem(Cell& cell, const Board& board, std::default_random_engine& ra
 void SwapTiles(Board& board, int srcIdx, int dstIdx) {
 	Cell& src = board.GetCell(srcIdx);
 	Cell& dst = board.GetCell(dstIdx);
-	std::swap(src.tileId, dst.tileId);
+	std::swap(src.pieceId, dst.pieceId);
 	std::swap(src.hits, dst.hits);
 	std::swap(src.category, dst.category);
-	std::swap(dst.tileAnim, src.tileAnim);
+	std::swap(dst.pieceAnim, src.pieceAnim);
 }
 
 //  OOO
@@ -139,13 +138,19 @@ bool _3Combo(int l, int r, int t, int b) {
 	       ((v == 3) && (h < 3));
 }
 
+bool _AnyCombo(int l, int r, int t, int b) {
+	int h = l + r + 1;
+	int v = t + b + 1;
+	return (h >= 3) || (v >= 3);
+}
+
 } // namespace
 
 enum class Match3::State {
 	selectTiles,
 	checkMatchesAfterSwap,
 	collapseColumns,
-	generateNewGems,
+	generateNewPieces,
 	checkMatches,
 	insertBoosters,
 };
@@ -154,6 +159,7 @@ Match3::Match3(Board& board, const GameConfig& gameConfig, TileSelector& tileSel
     : mTileSelector { tileSelector }
     , mBoard { board }
     , mGameConfig { gameConfig }
+    , mGemIds {}
     , mNumGemIds { 0 }
     , mState { State::selectTiles }
     , mUserSwap { 0, 0 }
@@ -167,10 +173,10 @@ void Match3::SetCallback(Match3Callback&& cbk) {
 	mCbk = std::move(cbk);
 }
 
-void Match3::NewBoard(uint32_t seed, const int gemIds[], int numGemIds) {
+void Match3::NewBoard(uint32_t seed, const char* boardDef, const int gemIds[], int numGemIds) {
 	assert(numGemIds > 0);
 
-	mRandomEngine.seed(seed);
+	mRandomEngine.Seed(seed);
 
 	// Reset board first
 	for (int row = 0; row < mBoard.GetRows(); ++row) {
@@ -181,15 +187,40 @@ void Match3::NewBoard(uint32_t seed, const int gemIds[], int numGemIds) {
 			cell.coords = { x, y };
 			cell.col = col;
 			cell.row = row;
-			cell.category = TileCategory::none;
-			cell.tileId = 0;
+			cell.category = CellCategory::piece;
+			cell.pieceId = 0;
 			cell.backgroundTileIdx = 1;
 			cell.hits = 1;
 		}
 	}
-	// Generate random gems
-	for (Cell& cell : mBoard.GetCells()) {
-		GenRandomGem(cell, mBoard, mRandomEngine, gemIds, numGemIds);
+
+	if (boardDef) {
+		for (int i = 0; i < mBoard.GetCellCount(); ++i) {
+			Cell& cell = mBoard.GetCell(i);
+			switch (boardDef[i]) {
+			case holeCell:
+				cell.category = CellCategory::hole;
+				cell.backgroundTileIdx = 0; // no background
+				break;
+			case obstacleCell:
+				cell.category = CellCategory::obstacle;
+				break;
+			case emptyCell:
+				cell.category = CellCategory::empty;
+				break;
+			default:
+				cell.category = CellCategory::piece;
+				cell.pieceId = boardDef[i] - '0';
+				assert(cell.pieceId < MaxPieceTypes);
+				break;
+			}
+		}
+	}
+	else {
+		// Generate random pieces
+		for (Cell& cell : mBoard.GetCells()) {
+			GenRandomPiece(cell, mBoard, mRandomEngine, gemIds, numGemIds);
+		}
 	}
 
 	assert((int)std::size(mGemIds) >= numGemIds);
@@ -200,9 +231,9 @@ void Match3::NewBoard(uint32_t seed, const int gemIds[], int numGemIds) {
 void Match3::Run() {
 	// Clear lists from previous match
 	mSwaps.clear();
-	mNewGems.clear();
+	mNewPieces.clear();
 	mCollapseList.clear();
-	mBoosters.clear();
+	mNewBoosters.clear();
 
 	mTileSelector.Reset();
 	mState = State::selectTiles;
@@ -241,10 +272,10 @@ void Match3::Update(const Wind::Input& input) {
 		break;
 	case State::collapseColumns:
 		CollapseColumns();
-		mState = State::generateNewGems;
+		mState = State::generateNewPieces;
 		break;
-	case State::generateNewGems:
-		GenerateNewGems();
+	case State::generateNewPieces:
+		GenerateNewPieces();
 		mState = State::checkMatches;
 		break;
 	case State::checkMatches:
@@ -290,13 +321,13 @@ void Match3::SelectTiles(const Wind::Input& input) {
 }
 
 void Match3::AddBooster(BoosterType boosterType, int cellIdx) {
-	mBoosters.push_back({ boosterType, cellIdx });
+	mNewBoosters.push_back({ boosterType, cellIdx });
 }
 
 void Match3::HorizontalRocket(int col, int row) {
 	for (int ncol = 0; ncol < mBoard.GetCols(); ++ncol) {
 		int cellIdx = mBoard.GetCellIndex(ncol, row);
-		if (HasGem(mBoard.GetCell(cellIdx))) {
+		if (HasPiece(mBoard.GetCell(cellIdx))) {
 			RemoveTile(cellIdx);
 		}
 	}
@@ -306,7 +337,7 @@ void Match3::HorizontalRocket(int col, int row) {
 void Match3::VerticalRocket(int col, int row) {
 	for (int nrow = 0; nrow < mBoard.GetRows(); ++nrow) {
 		int cellIdx = mBoard.GetCellIndex(col, nrow);
-		if (HasGem(mBoard.GetCell(cellIdx))) {
+		if (HasPiece(mBoard.GetCell(cellIdx))) {
 			RemoveTile(cellIdx);
 		}
 	}
@@ -321,7 +352,7 @@ void Match3::Bomb(int col, int row, int radius) {
 				int ocol = col + x;
 				if (mBoard.IsInside(ocol, orow)) {
 					int cellIdx = mBoard.GetCellIndex(ocol, orow);
-					if (HasGem(mBoard.GetCell(cellIdx))) {
+					if (HasPiece(mBoard.GetCell(cellIdx))) {
 						RemoveTile(cellIdx);
 					}
 				}
@@ -331,17 +362,17 @@ void Match3::Bomb(int col, int row, int radius) {
 	RemoveTile(mBoard.GetCellIndex(col, row)); // remove booster
 }
 
-void Match3::DeleteAllGems(int gemId) {
+void Match3::DeleteAllPieces(int pieceId) {
 	int cellIdx = 0;
 	for (const Cell& cell : mBoard.GetCells()) {
-		if (HasGem(cell) && cell.tileId == gemId) {
+		if (HasPiece(cell) && cell.pieceId == pieceId) {
 			RemoveTile(cellIdx);
 		}
 		++cellIdx;
 	}
 }
 
-bool Match3::CheckCombos(int l, int r, int t, int b, TileId tileId, int cellIdx) {
+bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int cellIdx) {
 	bool        res = true;
 	Match3Event event;
 
@@ -366,6 +397,9 @@ bool Match3::CheckCombos(int l, int r, int t, int b, TileId tileId, int cellIdx)
 	else if (_3Combo(l, r, t, b)) {
 		event.match.comboType = ComboType::C3;
 	}
+	else if (_AnyCombo(l, r, t, b)) {
+		event.match.comboType = ComboType::Unknown;
+	}
 	else {
 		res = false;
 	}
@@ -373,7 +407,7 @@ bool Match3::CheckCombos(int l, int r, int t, int b, TileId tileId, int cellIdx)
 	if (res) {
 		// Inform client
 		event.id = Match3Event::Id::match;
-		event.match.tileId = tileId;
+		event.match.pieceId = pieceId;
 		event.match.cascadeCount = mCascadeCount;
 		event.match.cellIdx = cellIdx;
 		mCbk(event);
@@ -387,7 +421,7 @@ bool Match3::CheckCellCombos(int cellIdx) {
 	const int   r = CountMatches(cell, mBoard, Direction::right);
 	const int   t = CountMatches(cell, mBoard, Direction::top);
 	const int   b = CountMatches(cell, mBoard, Direction::bottom);
-	const bool  res = CheckCombos(l, r, t, b, cell.tileId, cellIdx);
+	const bool  res = CheckCombos(l, r, t, b, cell.pieceId, cellIdx);
 
 	if (res) {
 		if (1 + t + b >= 3) {
@@ -420,22 +454,24 @@ void Match3::RemoveTile(int idx) const {
 	mCbk(event);
 
 	Cell& cell = mBoard.GetCell(idx);
-	cell.category = TileCategory::none;
+	cell.category = CellCategory::empty;
+	cell.pieceId = 255;
+	cell.pieceAnim.spriteIdx = -1;
 }
 
 void Match3::InsertBoosters() {
-	for (const Booster& booster : mBoosters) {
+	for (const Booster& booster : mNewBoosters) {
 		// Replace tile
 		Cell& cell = mBoard.GetCell(booster.cellIdx);
-		cell.category = TileCategory::booster;
-		cell.tileId = static_cast<TileId>(booster.type);
+		cell.category = CellCategory::booster;
+		cell.pieceId = static_cast<PieceId>(booster.type);
 		// Inform client
 		Match3Event event;
 		event.id = Match3Event::Id::newBooster;
 		event.booster = booster;
 		mCbk(event);
 	}
-	mBoosters.clear();
+	mNewBoosters.clear();
 }
 
 void Match3::CollapseColumns() {
@@ -452,24 +488,24 @@ void Match3::CollapseColumns() {
 		mCbk(event);
 	}
 
-	mCheckList.insert(std::end(mCheckList), std::begin(mNewGems), std::end(mNewGems));
+	mCheckList.insert(std::end(mCheckList), std::begin(mNewPieces), std::end(mNewPieces));
 	// mCheckList.insert(std::end(mCheckList), std::begin(mCollapseList), std::end(mCollapseList));
 }
 
-void Match3::GenerateNewGems() {
-	Match3Event event;
-	event.id = Match3Event::Id::newGem;
-
-	for (int cellIdx : mNewGems) {
+void Match3::GenerateNewPieces() {
+	for (int cellIdx : mNewPieces) {
 		Cell& cell = mBoard.GetCell(cellIdx);
 		assert(IsEmpty(cell));
-		GenRandomGem(cell, mBoard, mRandomEngine, mGemIds, mNumGemIds);
+		cell.category = CellCategory::piece;
+		GenRandomPiece(cell, mBoard, mRandomEngine, mGemIds, mNumGemIds);
 		// Inform client
-		event.newGem.cellIdx = cellIdx;
-		event.newGem.targetGemId = cell.tileId;
+		Match3Event event;
+		event.id = Match3Event::Id::newPiece;
+		event.newPiece.cellIdx = cellIdx;
+		event.newPiece.targetPieceId = cell.pieceId;
 		mCbk(event);
 	}
-	mNewGems.clear();
+	mNewPieces.clear();
 }
 
 bool Match3::CheckMatches() {
@@ -522,10 +558,10 @@ void Match3::CollapseColumn(int col) {
 			emptyRows[numEmptyRows++] = row;
 		}
 		else if (HasObstacle(cell)) {
-			numEmptyRows = 0; // block gems and boosts above
+			numEmptyRows = 0; // block pieces and boosts above
 			currEmptyRow = 0;
 		}
-		else { // booster or gem
+		else { // booster or piece
 			if (currEmptyRow < numEmptyRows) {
 				// Fall to an empty cell
 				const int dst = mBoard.GetCellIndex(col, emptyRows[currEmptyRow]);
@@ -540,7 +576,7 @@ void Match3::CollapseColumn(int col) {
 	}
 
 	for (int e = currEmptyRow; e < numEmptyRows; ++e) {
-		mNewGems.push_back(mBoard.GetCellIndex(col, emptyRows[e]));
+		mNewPieces.push_back(mBoard.GetCellIndex(col, emptyRows[e]));
 	}
 }
 
@@ -565,8 +601,8 @@ void Match3::KillMatches(const Cell& cell, int dcol, int drow) {
 
 void Match3::TriggerBooster(int cellIdx) {
 	const Cell& cell = mBoard.GetCell(cellIdx);
-	assert(cell.category == TileCategory::booster);
-	const BoosterType boosterType = static_cast<BoosterType>(cell.tileId);
+	assert(cell.category == CellCategory::booster);
+	const BoosterType boosterType = static_cast<BoosterType>(cell.pieceId);
 
 	// Inform client
 	Match3Event event;
@@ -577,4 +613,3 @@ void Match3::TriggerBooster(int cellIdx) {
 
 	mState = State::collapseColumns;
 }
-

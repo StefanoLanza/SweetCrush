@@ -23,7 +23,7 @@ public:
 
 #include <engine/DLL.h>
 
-class GameDataModule {
+class GameDataModule final {
 public:
 	using GetNumLevelsPtr = int (*)();
 	using GetLevelPtr = const Level* (*)(int levelIndex);

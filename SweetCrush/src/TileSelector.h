@@ -11,7 +11,7 @@ struct Cell;
 
 class TileSelector final : public ITileSelector {
 public:
-	TileSelector(Board& board, const GameConfig& gameConfig);
+	TileSelector(Board& boardDef, const GameConfig& gameConfig);
 
 	void                       AddCallback(TileSelectionCallback&& cbk);
 	int                        GetSelectedCell() const override;

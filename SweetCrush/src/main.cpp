@@ -10,7 +10,7 @@ struct IUnknown;
 #include <engine/Engine.h>
 #include <inih/ini.h>
 
-#include "Config.h"
+#include "GameConfig.h"
 #include "Game.h"
 #include "GameDataModule.h"
 #include <algorithm>

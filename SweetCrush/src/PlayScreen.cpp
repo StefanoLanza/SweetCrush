@@ -1,7 +1,7 @@
 #include "PlayScreen.h"
 #include "Actions.h"
 #include "AssetDefs.h"
-#include "Config.h"
+#include "GameConfig.h"
 #include "Constants.h"
 #include "GameDrawOrder.h"
 #include "GameSettings.h"
@@ -65,7 +65,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameConfig& gameConfig, const GameS
 PlayScreen::~PlayScreen() = default;
 
 void PlayScreen::LoadAssets() {
-	mSelection = mEngine.LoadBitmap("outline.png");
+	mSelectionBitmap = mEngine.LoadBitmap("outline.png");
 	Audio& audio = mEngine.GetAudio();
 	mMusic = audio.LoadMusic("audio/music.ogg");
 	mSounds[0] = audio.LoadSound("audio/match.wav");
@@ -182,7 +182,7 @@ void PlayScreen::ReplayLevel() {
 
 void PlayScreen::StartLevel() {
 	const Level& level = *mGameDataModule.GetLevel(mMatchStats.level);
-	mMatch3.NewBoard(level.seed, level.gemIds, level.numGemIds);
+	mMatch3.NewBoard(level.seed, *level.boardDef, level.gemIds, 5);
 	mTime = level.time;
 	for (int& c : mMatchStats.targetGemCount) {
 		c = 0;
@@ -202,12 +202,12 @@ void PlayScreen::OnCellSelectionEvent(const TileSelectionEvent& event) {
 }
 
 void PlayScreen::OnTileRemoved(const Cell& cell) {
-	if (cell.category != TileCategory::gem) {
+	if (cell.category != CellCategory::piece) {
 		return;
 	}
 	const Level& level = *mGameDataModule.GetLevel(mMatchStats.level);
 	for (int i = 0; i < 3; ++i) {
-		if (level.gemIds[i] == cell.tileId) {
+		if (level.gemIds[i] == cell.pieceId) {
 			++mMatchStats.targetGemCount[i];
 			CheckLevelCompletion();
 			break;
@@ -232,13 +232,14 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		OnTileRemoved(cell);
 		break;
 	}
-	case Match3Event::Id::newGem: {
-		Cell& cell = mBoard.GetCell(event.newGem.cellIdx);
-		cell.tileAnim.spriteIdx = gemDefs[event.newGem.targetGemId].sprite;
-		cell.tileAnim.coords = { cell.coords.x, mGameConfig.tileFallYCoord };
-		cell.tileAnim.scale = 1.f;
-		cell.tileAnim.scaleDev = 0.f;
-		cell.tileAnim.rotation = 0.f;
+	case Match3Event::Id::newPiece: {
+		Cell& cell = mBoard.GetCell(event.newPiece.cellIdx);
+		assert(cell.category == CellCategory::piece);
+		cell.pieceAnim.spriteIdx = gemDefs[event.newPiece.targetPieceId].sprite;
+		cell.pieceAnim.coords = { cell.coords.x, mGameConfig.tileFallYCoord };
+		cell.pieceAnim.scale = 1.f;
+		cell.pieceAnim.scaleDev = 0.f;
+		cell.pieceAnim.rotation = 0.f;
 		// Drop new tiles from the top
 		actionMgr.AddAction(&mAnimCounter, 0.f, ReturnTile(cell, mGameConfig.tileFallSpeed));
 		break;
@@ -260,10 +261,11 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		const int typeIdx = static_cast<int>(event.booster.type);
 		mBoostInfoPanel.ShowHelp(event.booster.type);
 		Cell& cell = mBoard.GetCell(event.booster.cellIdx);
-		cell.tileAnim.spriteIdx = boosterDefs[typeIdx].sprite;
-		cell.tileAnim.rotation = 0.f; // boosterDefs[typeIdx].rotation;
-		cell.tileAnim.scale = 1.f;
-		cell.tileAnim.scaleDev = boosterDefs[typeIdx].scaleDev;
+		assert(cell.category == CellCategory::booster);
+		cell.pieceAnim.spriteIdx = boosterDefs[typeIdx].sprite;
+		cell.pieceAnim.rotation = 0.f; // boosterDefs[typeIdx].rotation;
+		cell.pieceAnim.scale = 1.f;
+		cell.pieceAnim.scaleDev = boosterDefs[typeIdx].scaleDev;
 		break;
 	}
 	case Match3Event::Id::boosterTriggered: {
@@ -353,7 +355,7 @@ void PlayScreen::DrawBoard(const BitmapRenderer& bitmapRender) const {
 	const float cellSpacing = mGameConfig.cellSpacing;
 	const float scaleFactor = std::cos(mTime * 4.f);
 	{
-		// Draw board tiles
+		// Draw board background tiles
 		BitmapExtParams prm;
 		prm.width = cellWidth + 2.f * cellSpacing;
 		prm.height = cellHeight + 2.f * cellSpacing;
@@ -367,20 +369,23 @@ void PlayScreen::DrawBoard(const BitmapRenderer& bitmapRender) const {
 			}
 		}
 	}
+	// Draw pieces, obstacles and boosters
 	for (const Cell& cell : mBoard.GetCells()) {
-		if (cell.tileAnim.spriteIdx >= 0) {
+		if (cell.pieceAnim.spriteIdx >= 0) {
 			BitmapExtParams prm;
 			prm.width = cellWidth;
 			prm.height = cellHeight;
 			prm.pivot = BitmapPivot::center;
-			prm.orientation = mTime * cell.tileAnim.rotation;
-			prm.scale = cell.tileAnim.scale + cell.tileAnim.scaleDev * scaleFactor;
+			prm.orientation = mTime * cell.pieceAnim.rotation;
+			prm.scale = cell.pieceAnim.scale + cell.pieceAnim.scaleDev * scaleFactor;
 			prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::boardTile);
 			prm.blending = true;
-			Vec2 pos = cell.tileAnim.coords + Vec2 { cellWidth, cellHeight } * 0.5f;
-			bitmapRender.DrawBitmapEx(*sprites[cell.tileAnim.spriteIdx], pos, prm);
+			assert(cell.category == CellCategory::piece || cell.category == CellCategory::booster);
+			Vec2 pos = cell.pieceAnim.coords + Vec2 { cellWidth, cellHeight } * 0.5f;
+			bitmapRender.DrawBitmapEx(*sprites[cell.pieceAnim.spriteIdx], pos, prm);
 		}
 	}
+	// Highlight selected cell
 	const int selected = mTileSelector->GetSelectedCell();
 	if (selected >= 0) {
 		const Cell&     cell = mBoard.GetCell(selected);
@@ -390,7 +395,7 @@ void PlayScreen::DrawBoard(const BitmapRenderer& bitmapRender) const {
 		prm.pivot = BitmapPivot::topLeft;
 		prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::boardTile);
 		prm.blending = true;
-		bitmapRender.DrawBitmapEx(*mSelection, cell.tileAnim.coords - Vec2 { cellSpacing, cellSpacing }, prm);
+		bitmapRender.DrawBitmapEx(*mSelectionBitmap, cell.pieceAnim.coords - Vec2 { cellSpacing, cellSpacing }, prm);
 	}
 }
 
@@ -398,22 +403,24 @@ void PlayScreen::SetupNewBoardAnimation() {
 	ActionMgr& actionMgr = mEngine.GetTickActionMgr();
 	mBoardFillCounter = 0;
 	for (Cell& cell : mBoard.GetCells()) {
-		cell.tileAnim.coords = cell.coords;
-		if (cell.category == TileCategory::gem) {
-			cell.tileAnim.spriteIdx = gemDefs[cell.tileId].sprite;
+		cell.pieceAnim.coords = cell.coords;
+		if (cell.category == CellCategory::piece) {
+			cell.pieceAnim.spriteIdx = gemDefs[cell.pieceId].sprite;
 		}
-		else if (cell.category == TileCategory::obstacle) {
-			cell.tileAnim.spriteIdx = obstacleDefs[cell.tileId].sprite;
+		else if (cell.category == CellCategory::obstacle) {
+			cell.pieceAnim.spriteIdx = obstacleDefs[cell.pieceId].sprite;
 		}
 		else {
-			cell.tileAnim.spriteIdx = -1;
+			cell.pieceAnim.spriteIdx = -1; // empty cell or hole
 		}
-		cell.tileAnim.scale = 0.f;
-		cell.tileAnim.scaleDev = 0.f;
-		cell.tileAnim.rotation = 0.f;
-		// tile.currCoords = { tile.idleCoords.x, mGameConfig.tileFallYCoord };
-		float delay = 0.f; //(mBoard.GetRows() - 1 - cell.row + cell.col) * 0.05f;
-		actionMgr.AddTimedAction(&mBoardFillCounter, delay, mGameConfig.tileScaleDuration, ScaleTile(cell, 0.f, 1.f));
+		if (cell.pieceAnim.spriteIdx != -1) {
+			cell.pieceAnim.scale = 0.f;
+			cell.pieceAnim.scaleDev = 0.f;
+			cell.pieceAnim.rotation = 0.f;
+			// tile.currCoords = { tile.idleCoords.x, mGameConfig.tileFallYCoord };
+			float delay = 0.f; //(mBoard.GetRows() - 1 - cell.row + cell.col) * 0.05f;
+			actionMgr.AddTimedAction(&mBoardFillCounter, delay, mGameConfig.tileScaleDuration, ScaleTile(cell, 0.f, 1.f));
+		}
 	}
 }
 

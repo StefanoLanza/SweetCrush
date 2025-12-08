@@ -1,7 +1,7 @@
 #include "Actions.h"
 #include "AssetDefs.h"
 #include "Board.h"
-#include "Config.h"
+#include "GameConfig.h"
 #include "Constants.h"
 #include "GameDrawOrder.h"
 #include <cmath>
@@ -13,11 +13,11 @@
 using namespace Wind;
 
 ActionFunc MoveTile(Cell& cell, const Vec2& targetCoords, float speed) {
-	const Vec2 velocity = Normalize(targetCoords - cell.tileAnim.coords) * speed;
+	const Vec2 velocity = Normalize(targetCoords - cell.pieceAnim.coords) * speed;
 	return [&cell, targetCoords, velocity](float dt, float /*t*/) {
-		const Vec2 newCoords = cell.tileAnim.coords + velocity * dt;
-		cell.tileAnim.coords = Clamp(newCoords, cell.tileAnim.coords, targetCoords);
-		return cell.tileAnim.coords == targetCoords;
+		const Vec2 newCoords = cell.pieceAnim.coords + velocity * dt;
+		cell.pieceAnim.coords = Clamp(newCoords, cell.pieceAnim.coords, targetCoords);
+		return cell.pieceAnim.coords == targetCoords;
 	};
 }
 
@@ -27,7 +27,7 @@ ActionFunc ReturnTile(Cell& cell, float speed) {
 
 ActionFunc ScaleTile(Cell& cell, float startScale, float endScale) {
 	return [&cell, startScale, endScale](float /*dt*/, float t) {
-		cell.tileAnim.scale = Lerp(endScale, startScale, 1.f - std::pow(t, 2.f));
+		cell.pieceAnim.scale = Lerp(endScale, startScale, 1.f - std::pow(t, 2.f));
 		return false;
 	};
 }

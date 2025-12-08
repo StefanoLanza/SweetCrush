@@ -2,8 +2,8 @@
 
 #include "Board.h"
 #include <engine/FwdDecl.h>
+#include <engine/Random.h>
 #include <functional>
-#include <random>
 #include <vector>
 
 enum class BoosterType;
@@ -13,13 +13,27 @@ struct CellPair {
 	int second;
 };
 
-enum class ComboType { C3, C4, C5, T3, T4, T5, L };
+enum class ComboType {
+	C3,
+	C4,
+	C5,
+	T3,
+	T4,
+	T5,
+	L,
+	Unknown
+};
 
-enum class Direction { left, right, top, bottom };
+enum class Direction {
+	left,
+	right,
+	top,
+	bottom
+};
 
 struct Match {
 	ComboType comboType;
-	TileId    tileId;
+	PieceId   pieceId;
 	int       cellIdx;
 	int       cascadeCount;
 };
@@ -29,9 +43,9 @@ struct Booster {
 	int         cellIdx;
 };
 
-struct NewGem {
-	int    cellIdx;
-	TileId targetGemId;
+struct NewPiece {
+	int     cellIdx;
+	PieceId targetPieceId;
 };
 
 struct Match3Event {
@@ -39,7 +53,7 @@ struct Match3Event {
 		swap,
 		match,
 		removeTile,
-		newGem,
+		newPiece,
 		dropTile,
 		newBooster,
 		boosterTriggered,
@@ -48,7 +62,7 @@ struct Match3Event {
 	union {
 		Match    match;
 		CellPair pair;
-		NewGem   newGem;
+		NewPiece newPiece;
 		Booster  booster;
 		int      cellIdx;
 	};
@@ -62,33 +76,33 @@ struct GameConfig;
 struct Cell;
 struct GameInput;
 
-class Match3 {
+class Match3 final {
 public:
 	Match3(Board& board, const GameConfig& gameConfig, TileSelector& tileSelector);
 	~Match3();
 
 	void SetCallback(Match3Callback&& cbk);
-	void NewBoard(uint32_t seed, const int gemIds[], int gemIdCount);
+	void NewBoard(uint32_t seed, const char* boardDef, const int gemIds[], int gemIdCount);
 	void Run();
 	void Update(const Wind::Input& input);
 	int  GetNumUserSwaps() const;
-	void AddBooster(BoosterType tileId, int cellIdx);
+	void AddBooster(BoosterType pieceId, int cellIdx);
 	// Boosters
 	void HorizontalRocket(int col, int row);
 	void VerticalRocket(int col, int row);
 	void Bomb(int col, int row, int radius);
-	void DeleteAllGems(int gemId);
+	void DeleteAllPieces(int pieceId);
 
 private:
 	// States
 	void SelectTiles(const Wind::Input& input);
-	bool CheckCombos(int h, int v, int t, int b, TileId tileId, int cellIdx);
+	bool CheckCombos(int h, int v, int t, int b, PieceId pieceId, int cellIdx);
 	bool CheckCellCombos(int cellIdx);
 	bool CheckMatchesAfterSwap();
 	void RemoveTile(int idx) const;
 	void InsertBoosters();
 	void CollapseColumns();
-	void GenerateNewGems();
+	void GenerateNewPieces();
 	bool CheckMatches();
 
 	void TrySwap(int first, int second);
@@ -99,7 +113,6 @@ private:
 
 private:
 	enum class State;
-	using RandomEngine = std::default_random_engine;
 
 	TileSelector&         mTileSelector;
 	Board&                mBoard;
@@ -107,14 +120,14 @@ private:
 	Match3Callback        mCbk;
 	int                   mGemIds[8];
 	int                   mNumGemIds;
-	RandomEngine          mRandomEngine;
+	Wind::Random          mRandomEngine;
 	State                 mState;
 	CellPair              mUserSwap;
 	std::vector<CellPair> mSwaps;
-	std::vector<int>      mNewGems;
+	std::vector<int>      mNewPieces;
 	std::vector<int>      mCheckList;
 	std::vector<CellPair> mCollapseList;
-	std::vector<Booster>  mBoosters;
+	std::vector<Booster>  mNewBoosters;
 	int                   mNumUserSwaps;
 	int                   mCascadeCount;
 };
