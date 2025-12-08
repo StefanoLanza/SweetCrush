@@ -3,7 +3,7 @@
 #include "Color.h"
 #include "DrawOrder.h"
 #include "FwdDecl.h"
-#include "Math.h"
+#include "Maths.h"
 #include <memory>
 
 namespace Wind {

@@ -2,14 +2,14 @@
 
 #include "ITileSelector.h"
 #include <engine/FwdDecl.h>
-#include <engine/Math.h>
+#include <engine/Maths.h>
 
 class Board;
 struct GameConfig;
 struct CellPair;
 struct Cell;
 
-class TileSelector : public ITileSelector {
+class TileSelector final : public ITileSelector {
 public:
 	TileSelector(Board& board, const GameConfig& gameConfig);
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <engine/Math.h>
+#include <engine/Maths.h>
 #include <engine/Span.h>
 #include <vector>
 

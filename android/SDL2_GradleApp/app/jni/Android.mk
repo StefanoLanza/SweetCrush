@@ -12,7 +12,7 @@ LOCAL_SRC_FILES := $(wildcard $(LOCAL_PATH)/src/*.c) $(wildcard $(LOCAL_PATH)/sr
 
 # List the shared libraries your 'main' module depends on.
 # These names MUST match the LOCAL_MODULE names from the libraries' Android.mk files.
-LOCAL_SHARED_LIBRARIES := SDL3 SDL3_mixer SDL3_image
+LOCAL_SHARED_LIBRARIES := SDL3 SDL3_mixer SDL3_image engine game
 
 LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -lOpenSLES -llog -landroid
  # SDL
@@ -23,3 +23,6 @@ include $(BUILD_SHARED_LIBRARY)
 $(call import-module, SDL)
 $(call import-module, SDL_mixer)
 $(call import-module, SDL_image)
+$(call import-module, inih)
+$(call import-module, engine)
+$(call import-module, SweetCrush)

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <engine/DrawOrder.h>
-#include <engine/FwdDecl.h>
-#include <engine/Math.h>
-#include <engine/StringTable.h>
-#include <engine/TextRender.h>
+#include "DrawOrder.h"
+#include "FwdDecl.h"
+#include "Maths.h"
+#include "StringTable.h"
+#include "TextRender.h"
 #include <memory>
 #include <vector>
 

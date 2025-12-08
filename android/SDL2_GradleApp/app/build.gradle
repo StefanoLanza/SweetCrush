@@ -16,13 +16,23 @@ android {
 
         externalNativeBuild {
             ndkBuild {
-                arguments "APP_PLATFORM=android-29", "ANDROID_STL=c++_static"
-                arguments "NDK_MODULE_PATH=${rootProject.projectDir}/../../external"
+                // for SDL and game
+                def modulePaths = [
+                        "${rootProject.projectDir}/../../external",
+                        "${rootProject.projectDir}/../.."
+                ]
+                // Join the list into a single string using the OS-specific path separator.
+                def ndkModulePath = modulePaths.join(File.pathSeparator)
+
+                arguments "APP_PLATFORM=android-29", "ANDROID_STL=c++_shared"
+                arguments "NDK_MODULE_PATH=${ndkModulePath}"
                 // abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
                 abiFilters 'arm64-v8a', 'x86_64'
+                cppFlags "-std=c++17"
+                cppFlags "-fexceptions"
             }
             cmake {
-                arguments "-DANDROID_PLATFORM=android-29", "-DANDROID_STL=c++_static"
+                arguments "-DANDROID_PLATFORM=android-29", "-DANDROID_STL=c++_shared"
                 // abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
                 abiFilters 'arm64-v8a', 'x86_64'
             }
@@ -34,14 +44,18 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    //applicationVariants.all { variant ->
-      //  tasks["merge${variant.name.capitalize()}Assets"]
-        //    .dependsOn("externalNativeBuild${variant.name.capitalize()}")
-    //}
-    if (!project.hasProperty('EXCLUDE_NATIVE_LIBS')) {
-        sourceSets.main {
-            jniLibs.srcDir 'libs'
+    applicationVariants.all { variant ->
+        def mergeAssetsTask = tasks.findByName("merge${variant.name.capitalize()}Assets")
+        def nativeBuildTask = tasks.findByName("externalNativeBuild${variant.name.capitalize()}")
+        if (mergeAssetsTask != null && nativeBuildTask != null) {
+            mergeAssetsTask.dependsOn(nativeBuildTask)
         }
+    }
+
+    if (!project.hasProperty('EXCLUDE_NATIVE_LIBS')) {
+   //     sourceSets.main {
+     //       jniLibs.srcDir 'libs'
+      //  }
         externalNativeBuild {
             if (buildWithCMake) {
                 cmake {
@@ -61,9 +75,13 @@ android {
     }
     sourceSets {
         main {
+            // Get the root project's directory object.
+            def gameRoot = rootProject.projectDir.parentFile.parentFile
+            // Construct the full path to the assets directory.
+            def assetPath = new File(gameRoot, 'bin/assets')
             // This line tells Gradle to look for assets in the specified
             // external directory in addition to the default one.
-            assets.srcDirs += ['../../bin/assets'] // Adjust the path as needed
+            assets.srcDirs += [assetPath]
         }
     }
 }
@@ -71,4 +89,18 @@ android {
 // Prebuilt dependencies
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+}
+
+tasks.register('printAssetPath') {
+    doLast {
+        println ">>> [DEBUG] Checking asset source directories..."
+        android.sourceSets.main.assets.srcDirs.each { dir ->
+            println ">>> Gradle sees asset path: ${dir.absolutePath}"
+            if (dir.exists()) {
+                println ">>> Path exists: YES"
+            } else {
+                println ">>> Path exists: NO - THIS IS THE PROBLEM"
+            }
+        }
+    }
 }

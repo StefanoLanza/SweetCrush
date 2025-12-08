@@ -21,14 +21,16 @@ SdlSurface::SdlSurface(const char* fileName, const char* path)
 
 	int mode;
 	mode = GL_RGBA;
-#if 0
-	FIXME
-	switch (mSurface->format.BytesPerPixel) {
+	auto formatDetails = SDL_GetPixelFormatDetails(mSurface->format);
+	switch (formatDetails->bytes_per_pixel) {
 	case 4:
 		mode = GL_RGBA;
 		break;
 	case 3:
 		mode = GL_RGB;
+		break;
+	case 2:
+		mode = GL_RG;
 		break;
 	case 1:
 		mode = GL_LUMINANCE_ALPHA;
@@ -37,7 +39,6 @@ SdlSurface::SdlSurface(const char* fileName, const char* path)
 		SDL_LogError(0, "Image with unknown channel profile (%s)", fileName);
 		throw std::runtime_error("Image with unknown channel profile");
 	}
-#endif
 	glTexImage2D(GL_TEXTURE_2D, 0, mode, mSurface->w, mSurface->h, 0, mode, GL_UNSIGNED_BYTE, mSurface->pixels);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

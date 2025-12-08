@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Color.h"
-#include "Math.h"
+#include "Maths.h"
 #include <memory>
 
 namespace Wind {

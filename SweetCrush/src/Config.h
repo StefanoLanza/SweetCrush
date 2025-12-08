@@ -1,6 +1,6 @@
 #pragma once
 
-#include <engine/Math.h>
+#include <engine/Maths.h>
 
 // Configurable settings
 struct GameConfig {

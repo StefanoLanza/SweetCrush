@@ -1,13 +1,13 @@
 #include "UI.h"
 #include <cassert>
-#include <engine/BitmapRender.h>
-#include <engine/Engine.h>
-#include <engine/Font.h>
-#include <engine/Graphics.h>
-#include <engine/Input.h>
-#include <engine/SdlSurface.h>
-#include <engine/StringTable.h>
-#include <engine/TextRender.h>
+#include "BitmapRender.h"
+#include "Engine.h"
+#include"Font.h"
+#include "Graphics.h"
+#include "Input.h"
+#include "SdlSurface.h"
+#include "StringTable.h"
+#include "TextRender.h"
 
 namespace Wind {
 

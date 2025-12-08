@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SDL3/SDL.h>
-#include <engine/Math.h>
+#include "Maths.h"
 
 namespace Wind {
 
