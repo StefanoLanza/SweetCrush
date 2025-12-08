@@ -10,8 +10,9 @@ public:
 
 	bool   Compile();
 	GLuint GetProgramId() const;
-	int    GetAttribLocation(const char* attrib) const;
-	int    GetUniformLocation(const char* uniform) const;
+	GLint  GetAttribLocation(const char* attrib) const;
+	GLint  GetUniformLocation(const char* uniform) const;
+	GLint  TryGetUniformLocation(const char* uniform) const;
 	GLint  GetOrthoMatrixUniform() const;
 	       operator bool() const;
 

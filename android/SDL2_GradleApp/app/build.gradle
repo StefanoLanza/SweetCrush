@@ -4,6 +4,12 @@ plugins {
 
 def buildWithCMake = project.hasProperty('BUILD_WITH_CMAKE')
 
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace = "org.libsdl.app"
     compileSdkVersion 36
@@ -38,10 +44,26 @@ android {
             }
         }
     }
+
+    signingConfigs {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                storeFile file(keystoreProperties.storeFile)
+                storePassword keystoreProperties.storePassword
+                keyAlias keystoreProperties.keyAlias
+                keyPassword keystoreProperties.keyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            // debug builds will continue to use the auto-generated debug key
         }
     }
     applicationVariants.all { variant ->
@@ -91,7 +113,7 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 }
 
-tasks.register('printAssetPath') {
+tasks.register('checkAssetPaths') {
     doLast {
         println ">>> [DEBUG] Checking asset source directories..."
         android.sourceSets.main.assets.srcDirs.each { dir ->

@@ -21,5 +21,6 @@ android/SDL2_GradleApp/build.gradle
 android/SDL2_GradleApp/build
 android/SDL2_GradleApp/.idea
 android/SDL2_GradleApp/local.properties
-.workspace
+keystore.properties
+*.jks
 
