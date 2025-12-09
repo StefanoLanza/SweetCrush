@@ -21,6 +21,7 @@
 #include <engine/SdlMusic.h>
 #include <engine/SdlSound.h>
 #include <engine/TextRender.h>
+#include <cmath>
 
 using namespace Wind;
 
@@ -483,6 +484,8 @@ int PlayScreen::IncreaseScore(const Match& match) {
 	case ComboType::T5:
 		mMatch3.AddBooster(BoosterType::bomb, match.cellIdx);
 		inc = 640;
+		break;
+	case ComboType::Unknown:
 		break;
 	}
 	const int mul = (match.cascadeCount + 1);

@@ -69,8 +69,7 @@ void Input::ParseEvent(const SDL_Event& event, const SdlWindow& window) {
 	switch (event.type) {
 	case SDL_EVENT_KEY_DOWN:
 		sym = event.key.key;
-		assert(sym >= 0);
-		if (sym >= 0 && sym < 256) {
+		if (sym < 256) {
 			mKeyDown[sym] = true;
 		}
 		if (mNumKeyPressed < (int)std::size(mKeyPressed)) {
@@ -79,8 +78,7 @@ void Input::ParseEvent(const SDL_Event& event, const SdlWindow& window) {
 		break;
 	case SDL_EVENT_KEY_UP:
 		sym = event.key.key;
-		assert(sym >= 0);
-		if (sym >= 0 && sym < 256) {
+		if (sym < 256) {
 			mKeyDown[sym] = false;
 		}
 		break;
