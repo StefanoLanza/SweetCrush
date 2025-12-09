@@ -21,6 +21,8 @@
 #include <engine/SdlMusic.h>
 #include <engine/SdlSound.h>
 #include <engine/TextRender.h>
+
+#include <cassert>
 #include <cmath>
 
 using namespace Wind;

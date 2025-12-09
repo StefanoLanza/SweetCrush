@@ -42,27 +42,24 @@ Sweet Crush is an open source, cross-platform Match-3 game.
   `sudo apt-get install libsdl3-image-dev`
   * Install the SDL_mixer development package  <br>
   `sudo apt-get install libsdl3-mixer-dev`
+  * If SDL3, SDL_image and SDL_mixer packages are not available yet in your distro, build and install them from source
   * cd SweetCrush
   * Run `premake5 gmake`. This generates makefile(s) under build/gmake
   * cd build/gmake
   * Run make with the desired configuration e.g. <br>`make config=release_x64`
   * The executable SweetCrush is built inside the bin folder
 ### Android
-  * cd SweetCrush
-  * Open SweetCrush_android.sln in Visual Studio 2022
-  * Select the build configuration (Release or Debug configuration, ARM or x86 depending on your target device)
-  * Build the solution
-  * In Visual Studio, select Tools/Android/Android Adb Command Prompt
-  * In the command prompt, go to the REPO/android folder
-  * Run signAPKs.bat to sign the ARM and x86 APKs built with the Release configuration
-  * Copy the signed APK (either the x86 or ARM one) to your device, install it and play
+  * Install Android Studio (latest tested was v. 2025.2.2)
+  * Open the android folder as project in Android Studio
+  * Select the build variant (release or debug)
+  * Build the app
 
 ## Technical Info
-* Tested on Linux Mint 20.2 Cinnamon, Windows 10, Windows 11 and various Android devices and emulators.
+* Tested on Linux Mint 20.2 Cinnamon, Zorin OS 16.4, Windows 10, Windows 11 and various Android devices and emulators.
 * Third party libraries
-  * SDL 3.0.18
-  * SDL Mixer 3-0.5
-  * SDL Image 3.0.6
+  * SDL 3.3.4 (prerelease)
+  * SDL Image 3.3.0 (release)
+  * SDL Mixer 3.1.0 (latest)
   * inih - simple .INI file parser
 
 ## Future Work
