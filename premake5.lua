@@ -107,10 +107,10 @@ project("SweetCrush")
 	filter {}
 	filter { "system:linux" }
 		includedirs { "/usr/include/SDL3",}
-		links { "GL", "SDL3", "SDL3_image", "SDL2main", "SDL3_mixer", "Engine", "inih", "dl", }
+		links { "GL", "SDL3", "SDL3_image", "SDL3_mixer", "Engine", "inih", "dl", }
 	filter { "system:Windows" }
 		includedirs { "external/SDL/include", "external/SDL_Mixer/include", }
-		links { "opengl32", "glew32", "SDL3", "SDL3_image", "SDL2main", "SDL3_mixer", "Engine", "inih", }
+		links { "opengl32", "glew32", "SDL3", "SDL3_image", "SDL3_mixer", "Engine", "inih", }
 	filter {}
 	debugdir "bin"
 	
