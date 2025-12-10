@@ -128,12 +128,13 @@ private:
 	UIRect                    mAlignedRect;
 };
 
-class UIPanel {
+class UIPanel final {
 public:
-	UIPanel(const UIPanelDesc& desc);
+	explicit UIPanel(const UIPanelDesc& desc);
 
 	void SetVisible(bool visible);
 	bool IsVisible() const;
+	const UIRect& Rect() const;
 	void AddPanel(UIPanel& panel);
 	void AddButton(UIButton& button);
 	void AddText(UIText& text);
@@ -148,6 +149,7 @@ private:
 	std::vector<UIBitmap*> mBitmaps;
 	std::vector<UIButton*> mButtons;
 	std::vector<UIText*>   mTexts;
+	UIRect                 mRect;
 	bool                   mVisible;
 };
 
@@ -163,8 +165,6 @@ public:
 	void     Draw(const BitmapRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords);
 
 private:
-	float     mCanvasWidth;
-	float     mCanvasHeight;
 	UIPanel   mPanel;
 	BitmapPtr mBackground;
 	BitmapPtr mMousePointer;
@@ -186,4 +186,4 @@ constexpr inline UISize UIAbsoluteSize(float x, float y) {
 	return { x, y, 0.f, 0.f };
 }
 
-} // namespace Wind
+} // namespace Huawei

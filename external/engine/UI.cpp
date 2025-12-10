@@ -1,13 +1,13 @@
 #include "UI.h"
-#include <cassert>
 #include "BitmapRender.h"
 #include "Engine.h"
-#include"Font.h"
+#include "Font.h"
 #include "Graphics.h"
 #include "Input.h"
 #include "SdlSurface.h"
 #include "StringTable.h"
 #include "TextRender.h"
+#include <cassert>
 
 namespace Wind {
 
@@ -171,7 +171,8 @@ const SdlSurface& UIBitmap::GetBitmap() const {
 
 UIPanel::UIPanel(const UIPanelDesc& desc)
     : mDesc(desc)
-    , mVisible(false) {
+    , mVisible(false)
+    , mRect {} {
 }
 
 void UIPanel::SetVisible(bool visible) {
@@ -180,6 +181,10 @@ void UIPanel::SetVisible(bool visible) {
 
 bool UIPanel::IsVisible() const {
 	return mVisible;
+}
+
+const UIRect& UIPanel::Rect() const {
+	return mRect;
 }
 
 void UIPanel::AddPanel(UIPanel& panel) {
@@ -224,7 +229,8 @@ void UIPanel::Draw(const BitmapRenderer& bitmapRenderer, const TextRenderer& tex
 
 void UIPanel::UpdateRect(const UIRect& parentRect) {
 	const UIRect rect = AlignRect(mDesc.pos, mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
-
+	mRect = rect;
+	// Update children
 	for (auto& panel : mPanels) {
 		panel->UpdateRect(rect);
 	}
@@ -240,9 +246,7 @@ void UIPanel::UpdateRect(const UIRect& parentRect) {
 }
 
 UICanvas::UICanvas()
-    : mCanvasWidth(0.f)
-    , mCanvasHeight(0.f)
-    , mPanel(UIDefaultPanelDesc) {
+    : mPanel(UIDefaultPanelDesc) {
 	mPanel.SetVisible(true);
 }
 
@@ -270,8 +274,8 @@ void UICanvas::UpdateWidgets(float canvasWidth, float canvasHeight) {
 void UICanvas::Draw(const BitmapRenderer& bitmapRender, const TextRenderer& textRender, const Vec2& mouseCoords) {
 	if (mBackground) {
 		BitmapExtParams prm;
-		prm.width = mCanvasWidth;
-		prm.height = mCanvasHeight;
+		prm.width = mPanel.Rect().width;
+		prm.height =  mPanel.Rect().height;
 		prm.blending = false;
 		prm.drawOrder = DrawOrder::background;
 		bitmapRender.DrawBitmapEx(*mBackground, Vec2 { 0.f, 0.f }, prm);
@@ -297,4 +301,4 @@ UIButton MakeButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, En
 	return UIButton(desc, std::move(bitmap), nullptr);
 }
 
-} // namespace Wind
+} // namespace Huawei
