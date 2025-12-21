@@ -49,6 +49,9 @@ Sweet Crush is an open source, cross-platform Match-3 game.
   * Run make with the desired configuration e.g. <br>`make config=release_x64`
   * The executable SweetCrush is built inside the bin folder
 ### Android
+  * Patch SDL3 so that it builds correctly on Android. From the root folder
+    * `cd external/SDL3`
+	* `git apply '../../SDL3-android-build-fixes.patch`
   * Install Android Studio (latest tested was v. 2025.2.2)
   * Open the android folder as project in Android Studio
   * Select the build variant (release or debug)
