@@ -4,7 +4,7 @@
 
 namespace Wind {
 
-class GlFrameBuffer {
+class GlFrameBuffer final {
 public:
 	GlFrameBuffer(int width, int height);
 	GLuint GetFBO() const;

@@ -29,9 +29,9 @@ constexpr TextStyle defaultTextStyle = {
 	blackColor,
 };
 
-class TextRenderer {
+class TextRenderer final {
 public:
-	TextRenderer(Graphics& graphics);
+	explicit TextRenderer(Graphics& graphics);
 	~TextRenderer();
 
 	FontPtr AddFont(const char* fontName);

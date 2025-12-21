@@ -1,20 +1,21 @@
 #pragma once
 
 #include <cstdint>
-#include <engine/Math.h>
+#include <engine/Maths.h>
 #include <engine/Span.h>
 #include <vector>
 
-using TileId = uint8_t;
+using PieceId = uint8_t;
 
-enum class TileCategory {
-	none,
-	gem,
+enum class CellCategory {
+	empty,
+	hole,
+	piece,
 	booster,
 	obstacle,
 };
 
-struct TileAnim {
+struct PieceAnim {
 	Wind::Vec2 coords;
 	int        spriteIdx;
 	float      scale;
@@ -27,20 +28,21 @@ struct Cell {
 	int          col;
 	int          row;
 	int          hits;
-	TileId       tileId;
-	TileAnim     tileAnim;
-	TileCategory category;
+	PieceId      pieceId;
+	PieceAnim    pieceAnim;
+	CellCategory category;
 	uint8_t      backgroundTileIdx;
 };
 
 bool IsEmpty(const Cell& cell);
-bool HasGem(const Cell& cell);
+bool IsHole(const Cell& cell);
+bool HasPiece(const Cell& cell);
 bool HasBooster(const Cell& cell);
 bool HasObstacle(const Cell& cell);
 bool IsSelectable(const Cell& cell);
 
 // Container of cells
-class Board {
+class Board final {
 public:
 	Board(int cols, int rows);
 
@@ -48,6 +50,7 @@ public:
 	int                    GetRows() const;
 	Wind::Span<Cell>       GetCells();
 	Wind::Span<const Cell> GetCells() const;
+	int                    GetCellCount() const;
 	int                    GetCellIndex(int col, int row) const;
 	Cell&                  GetCell(int index);
 	const Cell&            GetCell(int index) const;

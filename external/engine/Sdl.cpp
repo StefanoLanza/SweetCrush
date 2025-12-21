@@ -1,13 +1,13 @@
 #include "Sdl.h"
-#include <SDL.h>
-#include <SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
 #include <stdexcept>
 
 namespace Wind {
 
-Sdl::Sdl(int flags) {
+Sdl::Sdl(unsigned int flags) {
 	SDL_LogInfo(0, "Initializing SDL");
-	if (SDL_Init(flags) != 0) {
+	if (!SDL_Init(flags)) {
 		SDL_LogError(0, "%s", SDL_GetError());
 		throw std::runtime_error("Failed to init SDL");
 	}
@@ -38,12 +38,6 @@ Sdl::Sdl(int flags) {
 	// Debug OpenGL context
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 #endif
-
-	// Initialize SDL_mixer
-	SDL_LogInfo(0, "Initializing SDL mixer");
-	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) == -1) {
-		throw std::runtime_error("Failed to init SDL mixer");
-	}
 }
 
 Sdl::~Sdl() {

@@ -1,5 +1,5 @@
 #include "GlProgram.h"
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <cassert>
 #include <malloc.h>
 #include <vector>
@@ -33,20 +33,20 @@ GLuint CompileShaderFromFile(const char* source, GLenum type) {
 	assert(source);
 
 	GLuint           program = 0;
-	SDL_RWops* const f = SDL_RWFromFile(source, "rb");
+	SDL_IOStream * const f = SDL_IOFromFile(source, "rb");
 	if (f) {
-		const Sint64 length = SDL_RWseek(f, 0, RW_SEEK_END);
+		const Sint64 length = SDL_SeekIO(f, 0, SDL_IO_SEEK_END);
 		if (length > 0) {
-			SDL_RWseek(f, 0, RW_SEEK_SET);
+			SDL_SeekIO(f, 0, SDL_IO_SEEK_SET);
 			std::vector<char> data(static_cast<size_t>(length) + 1);
-			SDL_RWread(f, data.data(), data.size(), 1);
+			SDL_ReadIO(f, data.data(), data.size());
 			data.back() = 0; // null terminate
 			program = CompileShader(data.data(), type);
 		}
 		else {
 			SDL_LogError(0, "Zero length file %s", source);
 		}
-		SDL_RWclose(f);
+		SDL_CloseIO(f);
 	}
 	else {
 		SDL_LogError(0, "Cannot open file %s", source);
@@ -102,7 +102,7 @@ bool GlProgram::Compile() {
 	if (valid) {
 		mProgram = std::move(program);
 		// Get default uniforms
-		mOrthoMatrixUniform = GetUniformLocation("orthoMatrix");
+		mOrthoMatrixUniform = TryGetUniformLocation("orthoMatrix");
 	}
 
 	if (auto err = glGetError(); err != GL_NO_ERROR) {
@@ -122,7 +122,7 @@ GLuint GlProgram::GetProgramId() const {
 	return mProgram.get();
 }
 
-int GlProgram::GetAttribLocation(const char* attrib) const {
+GLint  GlProgram::GetAttribLocation(const char* attrib) const {
 	assert(attrib);
 	if (mProgram == 0) {
 		SDL_LogError(0, "%s is not a valid glsl program attribute", attrib);
@@ -135,15 +135,26 @@ int GlProgram::GetAttribLocation(const char* attrib) const {
 	return location;
 }
 
-int GlProgram::GetUniformLocation(const char* uniform) const {
+GLint  GlProgram::GetUniformLocation(const char* uniform) const {
 	assert(uniform);
 	if (mProgram == 0) {
-		SDL_LogError(0, "%s is not a valid glsl program uniform variable", uniform);
+		SDL_LogError(0, "%s is not a valid glsl program uniform", uniform);
 		return -1;
 	}
 	int location = glGetUniformLocation(mProgram.get(), uniform);
 	if (location == -1){
 		SDL_LogError(0, "%s is not a valid glsl program uniform", uniform);
+	}
+	return location;
+}
+
+GLint  GlProgram::TryGetUniformLocation(const char* uniform) const {
+	assert(uniform);
+	if (mProgram == 0) {
+		return -1;
+	}
+	int location = glGetUniformLocation(mProgram.get(), uniform);
+	if (location == -1){
 	}
 	return location;
 }

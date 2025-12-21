@@ -2,7 +2,7 @@
 
 #include <engine/ActionMgr.h>
 #include <engine/FwdDecl.h>
-#include <engine/Math.h>
+#include <engine/Maths.h>
 
 struct Cell;
 struct GameConfig;

@@ -1,14 +1,14 @@
 #include "SdlSurface.h"
 #include "Gl.h"
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 #include <stdexcept>
 #include <string>
 
 namespace Wind {
 
 SdlSurface::SdlSurface(const char* fileName, const char* path)
-    : mSurface(IMG_Load(path), SDL_FreeSurface)
+    : mSurface(IMG_Load(path), SDL_DestroySurface)
     , mFileName(fileName) {
 	if (mSurface == nullptr) {
 		SDL_LogError(0, "Unable to load image %s", fileName);
@@ -18,13 +18,19 @@ SdlSurface::SdlSurface(const char* fileName, const char* path)
 	GLuint textureId = 0;
 	glGenTextures(1, &textureId);
 	glBindTexture(GL_TEXTURE_2D, textureId);
+
 	int mode;
-	switch (mSurface->format->BytesPerPixel) {
+	mode = GL_RGBA;
+	auto formatDetails = SDL_GetPixelFormatDetails(mSurface->format);
+	switch (formatDetails->bytes_per_pixel) {
 	case 4:
 		mode = GL_RGBA;
 		break;
 	case 3:
 		mode = GL_RGB;
+		break;
+	case 2:
+		mode = GL_RG;
 		break;
 	case 1:
 		mode = GL_LUMINANCE_ALPHA;

@@ -11,11 +11,12 @@ build/
 .vs/
 .vscode
 android/*.user
-android/Android.mk
-android/ARM
-android/SDL2_GradleApp/ARM
-android/SDL2_GradleApp/x86
-android/SDL2_GradleApp/.gradle/*
-android/SDL2_GradleApp/app/src/main/jniLibs/
-.workspace
+android/.gradle/*
+android/.idea
+android/app/src/main/jniLibs/
+android/build.gradle
+android/build
+android/local.properties
+android/keystore.properties
+android/*.jks
 

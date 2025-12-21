@@ -3,20 +3,22 @@
 #include <memory>
 #include <string>
 
-struct Mix_Chunk;
+#include <SDL3_mixer/SDL_mixer.h>
 
 namespace Wind {
-class SdlSound {
+
+class SdlSound final {
 public:
-	SdlSound(const char* filename, const char* path);
+	
+	SdlSound(MIX_Mixer* mixer, const char* filename, const char* path);
 	const std::string& GetFileName() const;
-	                   operator Mix_Chunk*() const;
+	                   operator MIX_Audio*() const;
 	void               Play();
 	void               Stop();
 
 private:
-	std::unique_ptr<Mix_Chunk, void (*)(Mix_Chunk*)> mSound;
+	MIX_Mixer* mMixer;
+	std::unique_ptr<MIX_Audio, void (*)(MIX_Audio*)> mSound;
 	std::string                                      mFileName;
-	int                                              mChannel;
 };
 } // namespace Wind

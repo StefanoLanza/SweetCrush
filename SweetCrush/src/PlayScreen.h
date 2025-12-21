@@ -61,7 +61,7 @@ private:
 	int                           mBoardFillCounter;
 	int                           mAnimCounter;
 	float                         mTime;
-	Wind::BitmapPtr               mSelection;
+	Wind::BitmapPtr               mSelectionBitmap;
 	Wind::FontPtr                 mFonts[3];
 	Wind::MusicPtr                mMusic;
 	Wind::SoundPtr                mSounds[2];

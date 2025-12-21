@@ -6,7 +6,7 @@
 
 class MainScreen final : public Wind::GameScreen {
 public:
-	MainScreen(Wind::Engine& engine);
+	explicit MainScreen(Wind::Engine& engine);
 
 	void               LoadAssets() override;
 	void               BuildUI(Wind::UICanvas& canvas) override;

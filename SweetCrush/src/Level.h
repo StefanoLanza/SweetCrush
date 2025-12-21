@@ -3,18 +3,16 @@
 #include "Constants.h"
 #include <cstdint>
 
-struct UserGrid {
-	unsigned char tiles[NumRows][NumCols];
-};
+using BoardDef = const char[NumRows * NumCols + 1];
 
 struct LevelObjective {
 	int gemCount[3];
 };
 
 struct Level {
-	int            gemIds[5];
-	int            numGemIds;
-	LevelObjective objective;
-	uint32_t       seed;
-	float          time; // seconds
+	int             gemIds[MaxPieceTypes];
+	LevelObjective  objective;
+	uint32_t        seed;
+	float           time; // seconds
+	const BoardDef* boardDef;
 };

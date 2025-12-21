@@ -3,7 +3,7 @@
 #include "Color.h"
 #include "DrawOrder.h"
 #include "FwdDecl.h"
-#include "Math.h"
+#include "Maths.h"
 #include <memory>
 
 namespace Wind {
@@ -27,9 +27,9 @@ struct BitmapExtParams {
 	bool          blending = true;
 };
 
-class BitmapRenderer {
+class BitmapRenderer final {
 public:
-	BitmapRenderer(Graphics& graphics);
+	explicit BitmapRenderer(Graphics& graphics);
 	~BitmapRenderer();
 
 	void DrawBitmap(const SdlSurface& surface, Vec2 pos) const;

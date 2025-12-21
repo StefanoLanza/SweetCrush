@@ -8,7 +8,7 @@ namespace Wind {
 // Returns true if complete
 using ActionFunc = std::function<bool(float dt, float t)>;
 
-class ActionMgr {
+class ActionMgr final {
 public:
 	ActionMgr();
 	~ActionMgr();

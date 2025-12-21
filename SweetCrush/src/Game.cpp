@@ -1,6 +1,6 @@
 #include "Game.h"
 #include "Actions.h"
-#include "Config.h"
+#include "GameConfig.h"
 #include "Constants.h"
 #include "CreditsScreen.h"
 #include "GameCompletePanel.h"
@@ -55,7 +55,7 @@ void Game::Run() {
 		gs->BuildUI(mCanvas);
 	}
 	mCanvas.LoadAssets(mEngine);
-	mScreens[0]->Enter(ScreenId::none);
+	mScreens[0]->Enter(ScreenId::empty);
 	mEngine.Start([this](float dt) { Draw(dt); }, [this](float dt) { Tick(dt); });
 }
 

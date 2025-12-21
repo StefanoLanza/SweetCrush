@@ -23,10 +23,10 @@ Sweet Crush is an open source, cross-platform Match-3 game.
 * Clone the github repository to a folder (REPO in the following instructions) on your local machine<br>
   `git clone https://github.com/StefanoLanza/SweetCrush.git`
 * Update submodules <br>
-  `git submodule update --init --recursive`
-* For a Windows build
+  `git submodule update --init --recursive --remote`
+### Windows
   * Install the latest release of [premake5](https://premake.github.io/download)
-  * For convenience, precompiled libraries of SDL2, SDL_mixer and SDL_image, for 32 and 64 bits, are part of the repository
+  * For convenience, precompiled libraries of SDL3, SDL_mixer and SDL_image for the x64 architecture are part of the repository
   * cd SweetCrush
   * Run `premake5 vs2022`. You can target previous versions of Visual Studio (e.g. `vs2019`) if you do not have the 2022 one.
     This command generates a Visual Studio solution
@@ -34,35 +34,35 @@ Sweet Crush is an open source, cross-platform Match-3 game.
   * Choose the build configuration (Release or Debug, 32 bits or 64 bits)
   * Build the solution
   * The executable SweetCrush.exe is built inside the bin folder
-* For a linux build
+### Linux
   * Install the latest release of [premake5](https://premake.github.io/download)
-  * Install the SDL2 development package <br>
-  `sudo apt-get install libsdl2-dev`
+  * Install the SDL3 development package <br>
+  `sudo apt-get install libsdl3-dev`
   * Install the SDL_image development package <br>
-  `sudo apt-get install libsdl2-image-dev`
+  `sudo apt-get install libsdl3-image-dev`
   * Install the SDL_mixer development package  <br>
-  `sudo apt-get install libsdl2-mixer-dev`
+  `sudo apt-get install libsdl3-mixer-dev`
+  * If SDL3, SDL_image and SDL_mixer packages are not available yet in your distro, build and install them from source
   * cd SweetCrush
   * Run `premake5 gmake`. This generates makefile(s) under build/gmake
   * cd build/gmake
   * Run make with the desired configuration e.g. <br>`make config=release_x64`
   * The executable SweetCrush is built inside the bin folder
-* For an Android build
-  * cd SweetCrush
-  * Open SweetCrush_android.sln in Visual Studio 2022
-  * Select the build configuration (Release or Debug configuration, ARM or x86 depending on your target device)
-  * Build the solution
-  * In Visual Studio, select Tools/Android/Android Adb Command Prompt
-  * In the command prompt, go to the REPO/android folder
-  * Run signAPKs.bat to sign the ARM and x86 APKs built with the Release configuration
-  * Copy the signed APK (either the x86 or ARM one) to your device, install it and play
+### Android
+  * Patch SDL3 so that it builds correctly on Android. From the root folder
+    * `cd external/SDL3`
+	* `git apply '../../SDL3-android-build-fixes.patch`
+  * Install Android Studio (latest tested was v. 2025.2.2)
+  * Open the android folder as project in Android Studio
+  * Select the build variant (release or debug)
+  * Build the app
 
 ## Technical Info
-* Tested on Linux Mint 20.2 Cinnamon, Windows 10, Windows 11 and various Android devices and emulators.
+* Tested on Linux Mint 20.2 Cinnamon, Zorin OS 16.4, Windows 10, Windows 11 and various Android devices and emulators.
 * Third party libraries
-  * SDL 2.0.18
-  * SDL Mixer 2.0.5
-  * SDL Image 2.0.6
+  * SDL 3.3.4 (prerelease)
+  * SDL Image 3.3.0 (release)
+  * SDL Mixer 3.1.0 (latest)
   * inih - simple .INI file parser
 
 ## Future Work

@@ -73,10 +73,10 @@ project("Engine")
 	kind "StaticLib"
 	files { "external/engine/*.*", }
 	filter "system:Windows"
-		includedirs { "external/SDL/include","external/SDL_mixer/include", "external/SDL_image", }
+		includedirs { "external/SDL/include","external/SDL_mixer/include", "external/SDL_image/include", }
 		files {"external/engine/windows/**.*"}
 	filter "system:linux"
-		includedirs { "/usr/include/SDL2",}
+		includedirs { "/usr/include/SDL3",}
 		files {"external/engine/linux/**.*"}
 	filter {}
 	includedirs { "external", }
@@ -106,11 +106,11 @@ project("SweetCrush")
 		libdirs { "external/precompiled/windows/%{cfg.platform}" } 
 	filter {}
 	filter { "system:linux" }
-		includedirs { "/usr/include/SDL2",}
-		links { "GL", "SDL2", "SDL2_image", "SDL2main", "SDL2_mixer", "Engine", "inih", "dl", }
+		includedirs { "/usr/include/SDL3",}
+		links { "GL", "SDL3", "SDL3_image", "SDL3_mixer", "Engine", "inih", "dl", }
 	filter { "system:Windows" }
-		includedirs { "external/SDL/include",}
-		links { "opengl32", "glew32", "SDL2", "SDL2_image", "SDL2main", "SDL2_mixer", "Engine", "inih", }
+		includedirs { "external/SDL/include", "external/SDL_Mixer/include", }
+		links { "opengl32", "glew32", "SDL3", "SDL3_image", "SDL3_mixer", "Engine", "inih", }
 	filter {}
 	debugdir "bin"
 	

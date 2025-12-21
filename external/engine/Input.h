@@ -1,14 +1,14 @@
 #pragma once
 
-#include <SDL.h>
-#include <engine/Math.h>
+#include <SDL3/SDL.h>
+#include "Maths.h"
 
 namespace Wind {
 
 class SdlWindow;
 using KeyCode = unsigned int;
 
-class Input {
+class Input final {
 public:
 	Input();
 

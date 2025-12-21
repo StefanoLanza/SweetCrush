@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Color.h"
-#include "Math.h"
+#include "Maths.h"
 #include <memory>
 
 namespace Wind {
@@ -31,9 +31,9 @@ struct DrawCall {
 	int           numUniforms = 0;
 };
 
-class Graphics {
+class Graphics final {
 public:
-	Graphics(const SdlWindow& window);
+	explicit Graphics(const SdlWindow& window);
 	~Graphics();
 
 	int              GetTargetWidth() const;
