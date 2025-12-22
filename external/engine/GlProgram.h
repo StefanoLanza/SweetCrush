@@ -2,11 +2,13 @@
 
 #include "Gl.h"
 
+#include <string>
+
 namespace Wind {
 
-class GlProgram {
+class GlProgram final {
 public:
-	GlProgram(const char* vertexShaderSource = nullptr, const char* fragmentShaderSource = nullptr);
+	GlProgram(const char* vertexShaderSource, const char* fragmentShaderSource, const char* defines = "");
 
 	bool   Compile();
 	GLuint GetProgramId() const;
@@ -14,11 +16,14 @@ public:
 	GLint  GetUniformLocation(const char* uniform) const;
 	GLint  TryGetUniformLocation(const char* uniform) const;
 	GLint  GetOrthoMatrixUniform() const;
-	       operator bool() const;
+	bool   IsEqual(const char* vertexShaderSource, const char* fragmentShaderSource, std::string_view defines) const;
+	operator bool() const;
 
 private:
-	const char*      mVertexShaderSource;
-	const char*      mFragmentShaderSource;
+	std::string      mVertexShaderSource;
+	std::string      mFragmentShaderSource;
+	std::string      mDefines;
+	uint32_t         mHash;
 	GLManagedProgram mProgram;
 
 	// Fixed uniforms

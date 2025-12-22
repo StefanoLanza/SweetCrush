@@ -24,7 +24,7 @@ struct BitmapExtParams {
 	Rect          texRect = defaultTexCoord;
 	Color         color = whiteColor;
 	DrawOrderType drawOrder = 0;
-	bool          blending = true;
+	bool          blending = false;
 };
 
 class BitmapRenderer final {

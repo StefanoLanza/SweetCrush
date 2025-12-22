@@ -86,6 +86,7 @@ void MainScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
 	BitmapExtParams prm;
 	prm.pivot = BitmapPivot::center;
 	prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::overBackground);
+	prm.blending = true;
 	for (int i = 0; i < NumGemTypes; ++i) {
 		const GemDef& gemDef = gemDefs[i];
 		prm.orientation = std::sin(phase * .25f + (float)i) * 0.5f;

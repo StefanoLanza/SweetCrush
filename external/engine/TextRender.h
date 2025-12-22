@@ -4,14 +4,11 @@
 #include "DrawOrder.h"
 #include "FwdDecl.h"
 #include "Gl.h"
-#include <memory>
+
+#include <string_view>
 #include <vector>
 
 namespace Wind {
-
-class SdlSurface;
-class SdlWindow;
-class Graphics;
 
 enum class TextAlignment {
 	left,
@@ -35,21 +32,22 @@ public:
 	~TextRenderer();
 
 	FontPtr AddFont(const char* fontName);
-	void    Write(const Font& font, const char* text, Vec2 pos, const TextStyle& style, DrawOrderType drawOrder) const;
-	void    WriteAligned(const Font& font, const char* text, Vec2 pos, TextAlignment horizontalAlignment, const TextStyle& style,
+	void    Write(const Font& font, std::string_view text, Vec2 pos, const TextStyle& style, DrawOrderType drawOrder) const;
+	void    WriteAligned(const Font& font, std::string_view text, Vec2 pos, TextAlignment horizontalAlignment, const TextStyle& style,
 	                     DrawOrderType drawOrder) const;
 
 private:
+	static constexpr int maxCharsPerDraw = 256;
+
 	Graphics&            mGraphics;
+	PipelineHandle       mPipeline;
 	ProgramHandle        mProgramHandle;
 	std::vector<FontPtr> mFonts;
+	bool                 mValidProgram;
 	// Uniforms
-	GLint mColor;
-	GLint mOutlineColor;
-	GLint mPosRect;
-	GLint mRotation;
-	GLint mUVRect;
-	GLint mTexture;
+	GLint mColor = -1;
+	GLint mOutlineColor = -1;
+	GLint mTexture = -1;
 };
 
 } // namespace Wind

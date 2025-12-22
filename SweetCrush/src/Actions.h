@@ -1,6 +1,6 @@
 #pragma once
 
-#include <engine/ActionMgr.h>
+#include "ActionMgr.h"
 #include <engine/FwdDecl.h>
 #include <engine/Maths.h>
 
@@ -8,9 +8,9 @@ struct Cell;
 struct GameConfig;
 
 // Predefined actions
-Wind::ActionFunc MoveTile(Cell& cell, const Wind::Vec2& targetCoords, float speed);
-Wind::ActionFunc ReturnTile(Cell& cell, float speed);
-Wind::ActionFunc ScaleTile(Cell& cell, float startScale, float endScale);
-Wind::ActionFunc DrawMovingSprite(const Cell& cell, const Wind::Engine& engine, Wind::Vec2 targetPos, int sprite);
-Wind::ActionFunc DrawExplosion(const Cell& cell, const Wind::Engine& engine, const GameConfig& gameConfig);
-Wind::ActionFunc DrawMatchScore(int score, const Cell& cell, const Wind::Engine& engine, const GameConfig& gameConfig, const Wind::Font& font);
+ActionFunc MoveTile(Cell& cell, const Wind::Vec2& targetCoords, float speed);
+ActionFunc ReturnTile(Cell& cell, float speed);
+ActionFunc ScaleTile(Cell& cell, float startScale, float endScale);
+ActionFunc DrawMovingSprite(const Cell& cell, const Wind::Engine& engine, Wind::Vec2 targetPos, int sprite);
+ActionFunc DrawExplosion(const Cell& cell, const Wind::Engine& engine, const GameConfig& gameConfig);
+ActionFunc DrawMatchScore(int score, const Cell& cell, const Wind::Engine& engine, const GameConfig& gameConfig, const Wind::Font& font);

@@ -3,8 +3,6 @@
 #include <functional>
 #include <vector>
 
-namespace Wind {
-
 // Returns true if complete
 using ActionFunc = std::function<bool(float dt, float t)>;
 
@@ -23,5 +21,3 @@ private:
 	struct Action;
 	std::vector<Action> mActions;
 };
-
-} // namespace Wind

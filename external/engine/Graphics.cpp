@@ -1,5 +1,6 @@
 #include "Graphics.h"
 #include "Config.h"
+#include "GPUTimer.h"
 #include "Gl.h"
 #include "GlFrameBuffer.h"
 #include "GlProgram.h"
@@ -15,12 +16,12 @@ namespace Wind {
 namespace {
 
 struct Batch {
-	RectI    scissorRect;
-	unsigned programIdx;
-	unsigned firstUniform;
-	unsigned numUniforms;
-	uint32_t sortKey;
-	bool     blending;
+	InstanceData instances; // TODO compress
+	uint32_t     sortKey;
+	uint16_t     programIdx;
+	uint16_t     pipelineIdx;
+	uint16_t     firstUniform;
+	uint8_t      numUniforms;
 };
 
 struct Target {
@@ -53,13 +54,13 @@ struct ShaderUniform {
 	};
 };
 
-Mesh BuildMesh(GLuint numVertices, GLsizei numIndices, const GLfloat vertexData[], const GLuint  indexData[]) {
+Mesh BuildMesh(GLuint numVertices, GLsizei numIndices, const GLfloat vertexData[], const GLushort indexData[]) {
 	constexpr GLuint numComponents = 2; // x,y for position
-	Mesh mesh {};
+	Mesh             mesh {};
 	mesh.numIndices = numIndices;
 	mesh.numVertices = numVertices;
 
- 	glGenVertexArrays(1, &mesh.VAO);
+	glGenVertexArrays(1, &mesh.VAO);
 	glBindVertexArray(mesh.VAO);
 
 	// Generate VBO and store it in the VAO
@@ -70,64 +71,70 @@ Mesh BuildMesh(GLuint numVertices, GLsizei numIndices, const GLfloat vertexData[
 	glBufferData(GL_ARRAY_BUFFER, numVertices * numComponents * sizeof(GLfloat), vertexData, GL_STATIC_DRAW);
 	if (auto err = glGetError(); err != GL_NO_ERROR) {
 		SDL_LogError(0, "GL Error. Code: %d", err);
-	}		
+	}
 
 	// Generate IBO and store it in the VAO
 	glGenBuffers(1, &mesh.IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(GLuint), indexData, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(GLushort), indexData, GL_STATIC_DRAW);
 
 	if (auto err = glGetError(); err != GL_NO_ERROR) {
 		SDL_LogError(0, "GL Error. Code: %d", err);
-	}		
+	}
 
-	glBindVertexArray(0);	
+	glBindVertexArray(0);
 	return mesh;
 }
 
 Mesh BuildQuad() {
-	constexpr GLfloat vertexData[] = { 0.f, 0.f, 1.f, 0.f, 1.f, 1.f, 0.f, 1.f };
-	constexpr GLuint  indexData[] = { 0, 1, 2, 3 };
+	constexpr GLfloat  vertexData[] = { 0.f, 0.f, 1.f, 0.f, 1.f, 1.f, 0.f, 1.f };
+	constexpr GLushort indexData[] = { 0, 1, 2, 3 };
 	return BuildMesh(4, 4, vertexData, indexData);
 }
 
 Mesh BuildTriangle() {
-	constexpr GLfloat vertexData[] = { 0.f, 0.f, 2.f, 0.f, 0.f, 2.f };
-	constexpr GLuint  indexData[] = { 0, 1, 2 };
+	constexpr GLfloat  vertexData[] = { 0.f, 0.f, 1.f, 0.f, 0.f, 1.f };
+	constexpr GLushort indexData[] = { 0, 1, 2 };
 	return BuildMesh(3, 3, vertexData, indexData);
 }
 
 } // namespace
 
 struct Graphics::Impl {
-	Impl(const SdlWindow& mWindow);
+	explicit Impl(const SdlWindow& mWindow);
 
-	void          Flush();
-	void          EnableClipRect(int x, int y, int width, int height);
-	void          DisableClipRect();
-	ProgramHandle NewProgram(const char* vs, const char* fs);
-	void          Draw(const DrawCall& drawCall);
-	void          SetFloat4(int uniform, float x, float y, float z, float w);
-	void          SetTexture(int uniform, unsigned texture);
-	void          RecompileShaders();
-	void          InitGL();
-
-private:
-	void ResetState();
+	void           Flush();
+	void           SetPipeline(PipelineHandle pipeline);
+	ProgramHandle  NewProgram(const char* vs, const char* fs, const char* defines);
+	PipelineHandle NewPipeline(const PipelineState& pipelineState);
+	void           Draw(const DrawCall& drawCall);
+	void           SetFloat4(int uniform, float x, float y, float z, float w);
+	void           SetTexture(int uniform, unsigned texture);
+	void           RecompileShaders();
+	void           InitGL();
+	InstanceData   AllocInstances(unsigned count, unsigned sizePerInstance);
+	void           ResetState();
 
 public:
-	const SdlWindow& mWindow;
-	int              mFBWidth = 0;
-	int              mFBHeight = 0;
-	RectI            mClipRect;
-	bool             mClipRectEnabled = false;
-	unsigned         mFirstUniform;
-
+	const SdlWindow&           mWindow;
+	int                        mFBWidth = 0;
+	int                        mFBHeight = 0;
+	unsigned                   mFirstUniform;
+	PipelineHandle             mDefaultPipeline;
+	PipelineHandle             mCurrPipeline;
 	std::vector<Mesh>          mMeshes;
 	std::vector<Target>        mTargets;
 	std::vector<Batch>         mBatches;
 	std::vector<GlProgram>     mPrograms;
 	std::vector<ShaderUniform> mShaderUniforms;
+	std::vector<PipelineState> mPipelineStates;
+	std::vector<char>          mInstanceBuffer;
+	unsigned                   mInstanceBufferOffs;
+	GLuint                     mInstanceVBO;
+	GPUTimer                   mGPUTimer;
+	Stats                      mFrameTime;
+	unsigned                   mFrameCount;
+	bool                       mFrameBegun;
 };
 
 Graphics::Impl::Impl(const SdlWindow& window)
@@ -135,6 +142,18 @@ Graphics::Impl::Impl(const SdlWindow& window)
 	mFBWidth = window.GetWidth();
 	mFBHeight = window.GetHeight();
 	mFirstUniform = 0;
+	mFrameCount = 0;
+	mFrameBegun = false;
+
+	PipelineState defaultPipeline;
+	mDefaultPipeline = NewPipeline(defaultPipeline);
+	mCurrPipeline = mDefaultPipeline;
+
+	glGenBuffers(1, &mInstanceVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, mInstanceVBO);
+	glBufferData(GL_ARRAY_BUFFER, instanceDataBufferSize, nullptr, GL_DYNAMIC_DRAW);
+	mInstanceBuffer.resize(instanceDataBufferSize);
+	mInstanceBufferOffs = 0;
 }
 
 void Graphics::Impl::InitGL() {
@@ -142,34 +161,56 @@ void Graphics::Impl::InitGL() {
 	mMeshes.push_back(BuildTriangle());
 }
 
+InstanceData Graphics::Impl::AllocInstances(unsigned count, unsigned stride) {
+	unsigned size = count * stride;
+	if (mInstanceBufferOffs + size > mInstanceBuffer.size()) {
+		SDL_LogError(0, "Cannot allocate instance data (count: %d stride: %d)", count, stride);
+		return { nullptr, 0, 0 };
+	}
+	unsigned offs = mInstanceBufferOffs;
+	mInstanceBufferOffs += size;
+	return { mInstanceBuffer.data() + offs, stride, count };
+}
+
 void Graphics::Impl::ResetState() {
 	mTargets.clear();
 	mBatches.clear();
 	mShaderUniforms.clear();
 	mFirstUniform = 0;
+	mCurrPipeline = mDefaultPipeline;
+	mInstanceBufferOffs = 0;
 }
 
 void Graphics::Impl::Draw(const DrawCall& drawCall) {
 	assert(drawCall.program != nullProgram);
 	assert(drawCall.mesh != nullMesh);
-	const unsigned meshIdx = static_cast<unsigned>(drawCall.mesh) - 1;
+	assert(mCurrPipeline != nullPipeline);
+	assert(drawCall.drawOrder < (1u << 12));
+	assert(drawCall.numUniforms + drawCall.numTextures < 256);
+	const uint32_t meshIdx = static_cast<unsigned>(drawCall.mesh) - 1;
+	const uint32_t targetIdx = static_cast<uint32_t>(mTargets.size() - 1);
+	assert(targetIdx < 16);
+	// const uint32_t programIdx = static_cast<uint32_t>(drawCall.program) - 1;
 
 	Batch batch;
-	batch.scissorRect = mClipRectEnabled ? mClipRect : RectI { 0, 0, 0, 0 };
-	batch.blending = drawCall.blending;
-	batch.programIdx = static_cast<unsigned>(drawCall.program) - 1;
-	batch.firstUniform = mFirstUniform;
-	batch.numUniforms = drawCall.numUniforms + 1;
-	batch.sortKey = (static_cast<uint32_t>(mTargets.size() - 1) << 24) | (drawCall.drawOrder << 16) | (meshIdx << 8);
+	batch.instances = drawCall.instances;
+	batch.sortKey = (targetIdx << 28) | (drawCall.drawOrder << 16) | (drawCall.sortKey << 8) | (meshIdx << 0);
+	batch.pipelineIdx = static_cast<uint16_t>(mCurrPipeline) - 1;
+	batch.programIdx = static_cast<uint16_t>(drawCall.program) - 1;
+	batch.firstUniform = static_cast<uint16_t>(mFirstUniform);
+	batch.numUniforms = static_cast<uint8_t>(drawCall.numUniforms + drawCall.numTextures);
 	mBatches.push_back(batch);
 
-	SetTexture(0, drawCall.texture);
-	const float* u = drawCall.uniformData;
+	mShaderUniforms.reserve(mShaderUniforms.size() + batch.numUniforms);
+	for (int i = 0; i < drawCall.numTextures; ++i) {
+		SetTexture(i, drawCall.textures[i]);
+	}
+	const float* u = static_cast<const float*>(drawCall.uniformData);
 	for (int i = 0; i < drawCall.numUniforms; ++i) {
 		SetFloat4(drawCall.uniforms[i], u[0], u[1], u[2], u[3]);
 		u += 4;
 	}
-	mFirstUniform += (drawCall.numUniforms + 1);
+	mFirstUniform += batch.numUniforms;
 }
 
 void Graphics::Impl::Flush() {
@@ -178,11 +219,15 @@ void Graphics::Impl::Flush() {
 		return;
 	}
 
-	glClearColor(0.f, 0.f, 0.f, 1.f);
 	glActiveTexture(GL_TEXTURE0);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_BLEND);
-	bool blending = false;
+
+	if (auto err = glGetError(); err != GL_NO_ERROR) {
+		SDL_LogError(0, "GL Error. Code: %d", err);
+		ResetState();
+		return;
+	}
 
 	GLuint   currTexture = 0;
 	unsigned currProgramIdx = static_cast<unsigned>(-1);
@@ -192,10 +237,18 @@ void Graphics::Impl::Flush() {
 	float    xScale = 0.f;
 	float    yScale = 0.f;
 
-	std::sort(std::begin(mBatches), std::end(mBatches), [](const Batch& lhs, const Batch& rhs) { return lhs.sortKey < rhs.sortKey; });
+	// State filters
+	int blendEnabled = -1;
+	int depthEnabled = -1;
+	int depthWriteEnabled = -1;
+	int scissorTest = -1;
+	int pipelineIdx = -1;
+
+	std::stable_sort(std::begin(mBatches), std::end(mBatches), [](const Batch& lhs, const Batch& rhs) { return lhs.sortKey < rhs.sortKey; });
 
 	for (const Batch& batch : mBatches) {
-		if (unsigned targetIdx = (batch.sortKey >> 24) & 0xFF; currTargetIdx != targetIdx) {
+		if (unsigned targetIdx = (batch.sortKey >> 28) & 0xF; currTargetIdx != targetIdx) {
+			// Change target
 			currTargetIdx = targetIdx;
 			const Target& target = mTargets[targetIdx];
 			// To clip space
@@ -203,9 +256,6 @@ void Graphics::Impl::Flush() {
 			yScale = 2.f / target.height;
 			glBindFramebuffer(GL_FRAMEBUFFER, target.fbo);
 			glViewport(0, 0, target.width, target.height);
-			if (target.fbo == 0) {
-				glClear(GL_COLOR_BUFFER_BIT);
-			}
 		}
 
 		if (currProgramIdx != batch.programIdx) {
@@ -214,41 +264,77 @@ void Graphics::Impl::Flush() {
 			// Ortho matrix
 			if (auto uniform = mPrograms[currProgramIdx].GetOrthoMatrixUniform(); uniform != -1) {
 				glUniform4f(uniform, xScale, yScale, 0.f, 0.f);
-			}		
+			}
 		}
 
-		if (auto err = glGetError(); err != GL_NO_ERROR) {
-			SDL_LogError(0, "GL Error. Code: %d", err);
-			continue;
-		}		
-
-		if (unsigned meshIdx = (batch.sortKey >> 8) & 0xFF; currMeshIdx != meshIdx) {
+		if (unsigned meshIdx = (batch.sortKey >> 0) & 0xFF; currMeshIdx != meshIdx) {
 			const Mesh& mesh = mMeshes[meshIdx];
 			glBindVertexArray(mesh.VAO);
 			numIndices = mesh.numIndices;
 			currMeshIdx = meshIdx;
 		}
 
-		if (batch.blending) {
-			if (! blending) {
-				glEnable(GL_BLEND);
-				blending = true;
+		if (batch.pipelineIdx != pipelineIdx) {
+			pipelineIdx = batch.pipelineIdx;
+			const PipelineState& ps = mPipelineStates[batch.pipelineIdx];
+			if (ps.mDepthEnabled) {
+				if (depthEnabled != 1) {
+					glEnable(GL_DEPTH_TEST);
+					glDepthFunc(GL_LEQUAL);
+					depthEnabled = 1;
+				}
 			}
-		}
-		else {
-			if (blending) {
-				glDisable(GL_BLEND);
-				blending = false;
+			else {
+				if (depthEnabled != 0) {
+					glDisable(GL_DEPTH_TEST);
+					depthEnabled = 0;
+				}
+			}
+			if (ps.mDepthWriteEnabled) {
+				if (depthWriteEnabled != 1) {
+					glDepthMask(GL_TRUE);
+					depthWriteEnabled = 1;
+				}
+			}
+			else {
+				if (depthWriteEnabled != 0) {
+					glDepthMask(GL_FALSE);
+					depthWriteEnabled = 0;
+				}
+			}
+
+			if (ps.mBlending) {
+				if (blendEnabled != 1) {
+					glEnable(GL_BLEND);
+					blendEnabled = 1;
+				}
+			}
+			else {
+				if (blendEnabled != 0) {
+					glDisable(GL_BLEND);
+					blendEnabled = 0;
+				}
+			}
+
+			if (ps.mScissorTestEnabled) {
+				if (scissorTest != 1) {
+					glEnable(GL_SCISSOR_TEST);
+					scissorTest = 1;
+				}
+				glScissor(ps.mScissorRect.left, mFBHeight - (ps.mScissorRect.bottom), ps.mScissorRect.right - ps.mScissorRect.left,
+				          ps.mScissorRect.bottom - ps.mScissorRect.top);
+			}
+			else {
+				if (scissorTest != 0) {
+					glDisable(GL_SCISSOR_TEST);
+					scissorTest = 0;
+				}
 			}
 		}
 
-		if (batch.scissorRect.left < batch.scissorRect.right) {
-			glEnable(GL_SCISSOR_TEST);
-			glScissor(batch.scissorRect.left, mFBHeight - (batch.scissorRect.bottom), batch.scissorRect.right - batch.scissorRect.left,
-			          batch.scissorRect.bottom - batch.scissorRect.top);
-		}
-		else {
-			glDisable(GL_SCISSOR_TEST);
+		if (auto err = glGetError(); err != GL_NO_ERROR) {
+			SDL_LogError(0, "GL Error. Code: %d", err);
+			continue;
 		}
 
 		// TODO filtering
@@ -262,7 +348,6 @@ void Graphics::Impl::Flush() {
 			}
 			else if (su.type == ShaderUniformType::texture) {
 				// TODO uniform slot
-				// glActiveTexture
 				if (su.texture != currTexture) {
 					glBindTexture(GL_TEXTURE_2D, su.texture);
 					currTexture = su.texture;
@@ -270,7 +355,25 @@ void Graphics::Impl::Flush() {
 			}
 		}
 
-		glDrawElements(GL_TRIANGLE_FAN, numIndices, GL_UNSIGNED_INT, NULL);
+		if (batch.instances.data) {
+			// Orphan the previous storage
+			glBindBuffer(GL_ARRAY_BUFFER, mInstanceVBO);
+			glBufferData(GL_ARRAY_BUFFER, batch.instances.stride * batch.instances.count, nullptr, GL_DYNAMIC_DRAW);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, batch.instances.stride * batch.instances.count, batch.instances.data);
+
+			size_t offset = 0;
+			for (unsigned i = 0; i < batch.instances.stride / 16; ++i) {
+				// TODO Always use 3 ?
+				glEnableVertexAttribArray(3 + i);
+				glVertexAttribPointer(3 + i, 4, GL_FLOAT, GL_FALSE, batch.instances.stride, reinterpret_cast<void*>(offset + i * 16));
+				glVertexAttribDivisor(3 + i, 1);
+			}
+
+			glDrawElementsInstanced(GL_TRIANGLE_FAN, numIndices, GL_UNSIGNED_SHORT, nullptr, batch.instances.count);
+		}
+		else {
+			glDrawElements(GL_TRIANGLE_FAN, numIndices, GL_UNSIGNED_SHORT, nullptr);
+		}
 	}
 
 	// Unbind
@@ -281,20 +384,22 @@ void Graphics::Impl::Flush() {
 	ResetState();
 }
 
-void Graphics::Impl::EnableClipRect(int x, int y, int width, int height) {
-	mClipRect = { x, y, x + width, y + height };
-	mClipRectEnabled = true;
-}
-
-void Graphics::Impl::DisableClipRect() {
-	mClipRectEnabled = false;
+void Graphics::Impl::SetPipeline(PipelineHandle pipelineHandle) {
+	mCurrPipeline = pipelineHandle;
 }
 
 void Graphics::Impl::RecompileShaders() {
 }
 
-ProgramHandle Graphics::Impl::NewProgram(const char* vs, const char* fs) {
-	GlProgram program { vs, fs };
+ProgramHandle Graphics::Impl::NewProgram(const char* vs, const char* fs, const char* defines) {
+	unsigned int idx = 1;
+	for (const auto& p : mPrograms) {
+		if (p.IsEqual(vs, fs, defines)) {
+			return static_cast<ProgramHandle>(idx);
+		}
+		++idx;
+	}
+	GlProgram program { vs, fs, defines };
 	if (program.Compile()) {
 		mPrograms.push_back(std::move(program));
 		return static_cast<ProgramHandle>(mPrograms.size());
@@ -304,23 +409,52 @@ ProgramHandle Graphics::Impl::NewProgram(const char* vs, const char* fs) {
 	}
 }
 
+PipelineHandle Graphics::Impl::NewPipeline(const PipelineState& pipelineState) {
+	unsigned int idx = 1;
+	for (const auto& ps : mPipelineStates) {
+		if (! std::memcmp(&pipelineState, &ps, sizeof pipelineState)) {
+			return static_cast<PipelineHandle>(idx);
+		}
+		++idx;
+	}
+	mPipelineStates.push_back(pipelineState);
+	return static_cast<PipelineHandle>(mPipelineStates.size());
+}
+
 void Graphics::Impl::SetFloat4(int uniform, float x, float y, float z, float w) {
-	mShaderUniforms.resize(mShaderUniforms.size() + 1);
-	ShaderUniform& su = mShaderUniforms.back();
+	ShaderUniform su;
 	su.type = ShaderUniformType::float4;
 	su.uniform = uniform;
 	su.fvalue[0] = x;
 	su.fvalue[1] = y;
 	su.fvalue[2] = z;
 	su.fvalue[3] = w;
+	mShaderUniforms.push_back(su);
 }
 
 void Graphics::Impl::SetTexture(int uniform, unsigned texture) {
-	mShaderUniforms.resize(mShaderUniforms.size() + 1);
-	ShaderUniform& su = mShaderUniforms.back();
+	ShaderUniform su;
 	su.type = ShaderUniformType::texture;
 	su.uniform = uniform;
 	su.texture = texture;
+	mShaderUniforms.push_back(su);
+}
+
+void PipelineState::EnableDepth() {
+	mDepthEnabled = true;
+}
+
+void PipelineState::DisableDepth() {
+	mDepthEnabled = false;
+}
+
+void PipelineState::EnableScissorTest(int x, int y, int width, int height) {
+	mScissorRect = { x, y, x + width, y + height };
+	mScissorTestEnabled = true;
+}
+
+void PipelineState::DisableScissorTest() {
+	mScissorTestEnabled = false;
 }
 
 Graphics::Graphics(const SdlWindow& window)
@@ -341,6 +475,12 @@ void Graphics::SetDefaultFrameBuffer() {
 	mPimpl->mFBHeight = mPimpl->mWindow.GetHeight();
 }
 
+void Graphics::ClearDefaultFrameBuffer(float r, float g, float b, float a) {
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glClearColor(r, g, b, a);
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
 void Graphics::Flush() {
 	mPimpl->Flush();
 }
@@ -353,20 +493,41 @@ int Graphics::GetTargetHeight() const {
 	return mPimpl->mFBHeight;
 }
 
-ProgramHandle Graphics::NewProgram(const char* vs, const char* fs) {
-	return mPimpl->NewProgram(vs, fs);
+ProgramHandle Graphics::NewProgram(const char* vs, const char* fs, const char* defines) {
+	return mPimpl->NewProgram(vs, fs, defines);
+}
+
+PipelineHandle Graphics::NewPipeline(const PipelineState& pipelineState) {
+	return mPimpl->NewPipeline(pipelineState);
 }
 
 void Graphics::InitGL() {
 	mPimpl->InitGL();
 }
 
-void Graphics::EnableClipRect(int x, int y, int width, int height) const {
-	mPimpl->EnableClipRect(x, y, width, height);
+void Graphics::BeginFrame() {
+	assert(! mPimpl->mFrameBegun);
+	mPimpl->mGPUTimer.Start();
+	mPimpl->mFrameBegun = true;
 }
 
-void Graphics::DisableClipRect() const {
-	mPimpl->DisableClipRect();
+void Graphics::EndFrame() {
+	assert(mPimpl->mFrameBegun);
+	auto duration = mPimpl->mGPUTimer.End();
+	if (duration.has_value()) {
+		mPimpl->mFrameTime.AddSample(duration.value());
+	}
+	++mPimpl->mFrameCount;
+	mPimpl->ResetState();
+	mPimpl->mFrameBegun = false;
+}
+
+void Graphics::SetPipeline(PipelineHandle pipeline) {
+	mPimpl->SetPipeline(pipeline);
+}
+
+void Graphics::SetDefaultPipeline() {
+	mPimpl->mCurrPipeline = mPimpl->mDefaultPipeline;
 }
 
 const GlProgram& Graphics::GetProgram(ProgramHandle program) const {
@@ -381,4 +542,13 @@ void Graphics::Draw(const DrawCall& drawCall) {
 void Graphics::RecompileShaders() {
 	mPimpl->RecompileShaders();
 }
+
+const Stats& Graphics::GetFrameTime() const {
+	return mPimpl->mFrameTime;
+}
+
+InstanceData Graphics::AllocInstances(unsigned count, unsigned stride) {
+	return mPimpl->AllocInstances(count, stride);
+}
+
 } // namespace Wind

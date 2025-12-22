@@ -42,6 +42,6 @@ const BoosterDef boosterDefs[NumBoosters] {
 	{ 15, 0.1f },
 };
 
-Wind::BitmapPtr sprites[NumSprites];
+Wind::TexturePtr sprites[NumSprites];
 
 const int sparkleSprite = 17;

@@ -3,8 +3,6 @@
 #include <limits>
 #include <cassert>
 
-namespace Wind {
-
 struct ActionMgr::Action {
 	int*       counter;
 	float      delay;
@@ -55,5 +53,3 @@ void ActionMgr::Clear() {
 bool ActionMgr::AnyRunning() const {
 	return mActions.empty() == false;
 }
-
-} // namespace Wind

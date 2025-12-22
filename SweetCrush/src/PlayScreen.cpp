@@ -1,18 +1,17 @@
 #include "PlayScreen.h"
 #include "Actions.h"
 #include "AssetDefs.h"
-#include "GameConfig.h"
 #include "Constants.h"
+#include "GameConfig.h"
+#include "GameDataModule.h"
 #include "GameDrawOrder.h"
 #include "GameSettings.h"
-#include "GameDataModule.h"
+#include "Level.h"
 #include "Localization.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
 #include "TileSelector.h"
 #include "UIDefs.h"
-#include "Level.h"
-#include <engine/ActionMgr.h>
 #include <engine/Audio.h>
 #include <engine/BitmapRender.h>
 #include <engine/Engine.h>
@@ -51,7 +50,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameConfig& gameConfig, const GameS
     , mGameSettings(gameSettings)
     , mRenderActionMgr(renderActionMgr)
     , mMatchStats(matchStats)
-	, mGameDataModule(gameDataModule)
+    , mGameDataModule(gameDataModule)
     , mBoard { NumCols, NumRows }
     , mTileSelector { std::make_unique<TileSelector>(mBoard, gameConfig) }
     , mBoostInfoPanel(engine)
@@ -68,12 +67,12 @@ PlayScreen::PlayScreen(Engine& engine, const GameConfig& gameConfig, const GameS
 PlayScreen::~PlayScreen() = default;
 
 void PlayScreen::LoadAssets() {
-	mSelectionBitmap = mEngine.LoadBitmap("outline.png");
+	mSelectionBitmap = mEngine.LoadTexture("outline.png");
 	Audio& audio = mEngine.GetAudio();
 	mMusic = audio.LoadMusic("audio/music.ogg");
 	mSounds[0] = audio.LoadSound("audio/match.wav");
 	for (int i = 0; i < NumSprites; ++i) {
-		sprites[i] = mEngine.LoadBitmap(spriteDefs[i].bitmap);
+		sprites[i] = mEngine.LoadTexture(spriteDefs[i].bitmap);
 	}
 }
 
@@ -101,7 +100,7 @@ GameScreenId PlayScreen::Tick(float dt, const Input& input) {
 		return ScreenId::gameComplete;
 	}
 	else if (mMatchStats.levelComplete) {
-		mRenderActionMgr.Clear();  // stop showing score and other effects
+		mRenderActionMgr.Clear(); // stop showing score and other effects
 		return ScreenId::levelComplete;
 	}
 
@@ -119,6 +118,8 @@ GameScreenId PlayScreen::Tick(float dt, const Input& input) {
 	else {
 		return ScreenId::gameOver;
 	}
+	mActionMgr.RunActions(dt);
+
 	return ScreenId::play;
 }
 
@@ -157,7 +158,7 @@ void PlayScreen::Enter(GameScreenId prevScreen) {
 }
 
 void PlayScreen::Exit() {
-	mRenderActionMgr.Clear();  // stop showing score and other effects
+	mRenderActionMgr.Clear(); // stop showing score and other effects
 	mBoostInfoPanel.Hide();
 	mPanel.SetVisible(false);
 	PauseMusic();
@@ -199,8 +200,7 @@ void PlayScreen::StartLevel() {
 void PlayScreen::OnCellSelectionEvent(const TileSelectionEvent& event) {
 	Cell& cell = mBoard.GetCell(event.cellIdx);
 	if (event.id == TileSelectionEvent::Id::undoDrag) {
-		ActionMgr& actionMgr = mEngine.GetTickActionMgr();
-		actionMgr.AddAction(&mAnimCounter, 0.f, ReturnTile(cell, mGameConfig.tileMoveBackSpeed));
+		mActionMgr.AddAction(&mAnimCounter, 0.f, ReturnTile(cell, mGameConfig.tileMoveBackSpeed));
 	}
 }
 
@@ -219,8 +219,6 @@ void PlayScreen::OnTileRemoved(const Cell& cell) {
 }
 
 void PlayScreen::OnMatch3Event(const Match3Event& event) {
-	ActionMgr& actionMgr = mEngine.GetTickActionMgr();
-
 	switch (event.id) {
 	case Match3Event::Id::match: {
 		int         inc = IncreaseScore(event.match);
@@ -231,7 +229,7 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 	}
 	case Match3Event::Id::removeTile: {
 		Cell& cell = mBoard.GetCell(event.cellIdx);
-		actionMgr.AddTimedAction(&mAnimCounter, 0.f, mGameConfig.tileScaleDuration, ScaleTile(cell, 1.f, 0.f));
+		mActionMgr.AddTimedAction(&mAnimCounter, 0.f, mGameConfig.tileScaleDuration, ScaleTile(cell, 1.f, 0.f));
 		OnTileRemoved(cell);
 		break;
 	}
@@ -244,20 +242,20 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		cell.pieceAnim.scaleDev = 0.f;
 		cell.pieceAnim.rotation = 0.f;
 		// Drop new tiles from the top
-		actionMgr.AddAction(&mAnimCounter, 0.f, ReturnTile(cell, mGameConfig.tileFallSpeed));
+		mActionMgr.AddAction(&mAnimCounter, 0.f, ReturnTile(cell, mGameConfig.tileFallSpeed));
 		break;
 	}
 	case Match3Event::Id::swap: {
 		Cell& firstTile = mBoard.GetCell(event.pair.first);
 		Cell& secondTile = mBoard.GetCell(event.pair.second);
-		actionMgr.AddAction(&mAnimCounter, 0.f, MoveTile(firstTile, secondTile.coords, mGameConfig.tileSwapSpeed));
-		actionMgr.AddAction(&mAnimCounter, 0.f, MoveTile(secondTile, firstTile.coords, mGameConfig.tileSwapSpeed));
+		mActionMgr.AddAction(&mAnimCounter, 0.f, MoveTile(firstTile, secondTile.coords, mGameConfig.tileSwapSpeed));
+		mActionMgr.AddAction(&mAnimCounter, 0.f, MoveTile(secondTile, firstTile.coords, mGameConfig.tileSwapSpeed));
 		break;
 	}
 	case Match3Event::Id::dropTile: {
 		Cell&       firstTile = mBoard.GetCell(event.pair.first);
 		const Cell& secondTile = mBoard.GetCell(event.pair.second);
-		actionMgr.AddAction(&mAnimCounter, 0.f, MoveTile(firstTile, secondTile.coords, mGameConfig.tileFallSpeed));
+		mActionMgr.AddAction(&mAnimCounter, 0.f, MoveTile(firstTile, secondTile.coords, mGameConfig.tileFallSpeed));
 		break;
 	}
 	case Match3Event::Id::newBooster: {
@@ -340,9 +338,10 @@ void PlayScreen::DrawUI() const {
 	prm.pivot = BitmapPivot::center;
 	prm.blending = true;
 	prm.orientation = 0.f;
-    prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::overBackground);
+	prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::overBackground);
+	prm.blending = true;
 
-    Vec2 pos = mGameConfig.targetGemCoord;
+	Vec2 pos = mGameConfig.targetGemCoord;
 	for (int i = 0; i < 3; ++i) {
 		const auto& def = gemDefs[level.gemIds[i]];
 		bitmapRender.DrawBitmapEx(*sprites[def.sprite], pos, prm);
@@ -403,7 +402,6 @@ void PlayScreen::DrawBoard(const BitmapRenderer& bitmapRender) const {
 }
 
 void PlayScreen::SetupNewBoardAnimation() {
-	ActionMgr& actionMgr = mEngine.GetTickActionMgr();
 	mBoardFillCounter = 0;
 	for (Cell& cell : mBoard.GetCells()) {
 		cell.pieceAnim.coords = cell.coords;
@@ -422,7 +420,7 @@ void PlayScreen::SetupNewBoardAnimation() {
 			cell.pieceAnim.rotation = 0.f;
 			// tile.currCoords = { tile.idleCoords.x, mGameConfig.tileFallYCoord };
 			float delay = 0.f; //(mBoard.GetRows() - 1 - cell.row + cell.col) * 0.05f;
-			actionMgr.AddTimedAction(&mBoardFillCounter, delay, mGameConfig.tileScaleDuration, ScaleTile(cell, 0.f, 1.f));
+			mActionMgr.AddTimedAction(&mBoardFillCounter, delay, mGameConfig.tileScaleDuration, ScaleTile(cell, 0.f, 1.f));
 		}
 	}
 }

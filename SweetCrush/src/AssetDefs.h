@@ -37,6 +37,6 @@ extern const BoardTileDef boardTileDefs[NumBoardTiles];
 extern const GemDef       gemDefs[NumGemTypes];
 extern const ObstacleDef  obstacleDefs[NumObstacleTypes];
 extern const BoosterDef   boosterDefs[NumBoosters];
-extern Wind::BitmapPtr    sprites[NumSprites];
+extern Wind::TexturePtr    sprites[NumSprites];
 
 extern const int sparkleSprite;

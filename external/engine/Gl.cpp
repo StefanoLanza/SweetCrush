@@ -22,4 +22,10 @@ void DeleteShader(GLuint shader) {
 	glDeleteShader(shader);
 }
 
+void DeleteRenderBuffer(GLuint renderBuffer) {
+	if (renderBuffer) {
+		glDeleteRenderbuffers(1, &renderBuffer);
+	}
+}
+
 } // namespace Wind

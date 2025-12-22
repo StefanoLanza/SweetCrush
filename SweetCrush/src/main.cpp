@@ -1,8 +1,10 @@
 #include <SDL3/SDL_main.h>
 #include <engine/Engine.h>
+#include <engine/Sdl.h>
+#include <engine/SdlWindow.h>
 
-#include "GameConfig.h"
 #include "Game.h"
+#include "GameConfig.h"
 #include "GameDataModule.h"
 #include "IniParser.h"
 
@@ -11,29 +13,28 @@
 
 namespace {
 
-	void LoadGameConfig(GameConfig& gameConfig, const char* iniFile);
+void LoadGameConfig(GameConfig& gameConfig, const char* iniFile);
 }
 
 int main(int argc, char* argv[]) {
-	(void)argc;
-	(void)argv;
-
 	GameConfig gameConfig = DefaultGameConfig();
 	LoadGameConfig(gameConfig, ASSETS_FOLDER "game.ini");
 
 	GameDataModule gameDataModule;
 #ifndef __ANDROID__
-	#ifdef _WIN32
+#ifdef _WIN32
 	const char* dllName = "gameData.dll";
-	#else
+#else
 	const char* dllName = "./libgameData.so";
-	#endif
-	if (!gameDataModule.Init(dllName)) {
+#endif
+	if (! gameDataModule.Init(dllName)) {
 		return 0;
 	}
 #endif
-	Wind::Engine engine { "SweetCrush", gameConfig.windowWidth, gameConfig.windowHeight };
-	Game game { engine, gameConfig, gameDataModule };
+	Wind::Sdl       sdl { SDL_INIT_VIDEO | SDL_INIT_EVENTS };
+	Wind::SdlWindow window { "SweetCrush", gameConfig.windowWidth, gameConfig.windowHeight, "", false }; // TODO icon
+	Wind::Engine    engine { window };
+	Game            game { engine, gameConfig, gameDataModule };
 	game.Run();
 
 	return 0;

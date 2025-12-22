@@ -8,9 +8,18 @@ namespace Wind {
 template <class T>
 class Span {
 public:
+	Span()
+	    : mData(nullptr)
+	    , mSize(0) {
+	}
 	Span(T* data, size_t size)
 	    : mData(data)
 	    , mSize(size) {
+	}
+	template <size_t N>
+	Span(T (&data)[N])
+	    : mData { data }
+	    , mSize { N } {
 	}
 	T* Data() const {
 		return mData;

@@ -133,7 +133,7 @@ void UIText::SetText(StringId stringId) {
 
 UIBitmap::UIBitmap(const UIBitmapDesc& desc, Engine& engine)
     : mDesc(desc)
-    , mBitmap(engine.LoadBitmap(desc.fileName))
+    , mBitmap(engine.LoadTexture(desc.fileName))
     , mAlignedRect {} {
 	UISize size = mDesc.size;
 	if (size.rWidth <= -1.f) {
@@ -152,7 +152,7 @@ void UIBitmap::Draw(const BitmapRenderer& renderer, DrawOrderType drawOrder) con
 	prm.width = mAlignedRect.width;
 	prm.height = mAlignedRect.height;
 	prm.color = mDesc.color;
-	prm.blending = mDesc.blending == UIBlending::on ? true : false;
+	prm.blending = mDesc.blending == UIBlending::on;
 	prm.drawOrder = drawOrder + mDesc.relDrawOrder;
 	renderer.DrawBitmapEx(*mBitmap, mAlignedRect.pos, prm);
 }
@@ -161,7 +161,7 @@ void UIBitmap::UpdateRect(const UIRect& parentRect) {
 	mAlignedRect = AlignRect(mDesc.pos, mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 }
 
-void UIBitmap::SetBitmap(const BitmapPtr& bitmap) {
+void UIBitmap::SetBitmap(const TexturePtr& bitmap) {
 	mBitmap = bitmap;
 }
 
@@ -171,8 +171,8 @@ const SdlSurface& UIBitmap::GetBitmap() const {
 
 UIPanel::UIPanel(const UIPanelDesc& desc)
     : mDesc(desc)
-    , mVisible(false)
-    , mRect {} {
+    , mRect {}
+    , mVisible(false) {
 }
 
 void UIPanel::SetVisible(bool visible) {
@@ -197,12 +197,6 @@ void UIPanel::AddButton(UIButton& button) {
 
 void UIPanel::AddBitmap(UIBitmap& bitmap) {
 	mBitmaps.push_back(&bitmap);
-}
-
-void UIPanel::LoadAssets(Engine& engine) {
-	for (const auto& panel : mPanels) {
-		panel->LoadAssets(engine);
-	}
 }
 
 void UIPanel::AddText(UIText& text) {
@@ -251,23 +245,23 @@ UICanvas::UICanvas()
 }
 
 void UICanvas::SetBackground(const char* fileName, Engine& engine) {
-	mBackground = engine.LoadBitmap(fileName);
+	mBackground = engine.LoadTexture(fileName);
+}
+
+void UICanvas::SetBackground(TexturePtr background) {
+	mBackground = background;
 }
 
 void UICanvas::SetMousePointer(const char* fileName, Engine& engine) {
-	mMousePointer = engine.LoadBitmap(fileName);
+	mMousePointer = engine.LoadTexture(fileName);
 }
 
 UIPanel& UICanvas::GetPanel() {
 	return mPanel;
 }
 
-void UICanvas::LoadAssets(Engine& engine) {
-	mPanel.LoadAssets(engine);
-}
-
-void UICanvas::UpdateWidgets(float canvasWidth, float canvasHeight) {
-	const UIRect parentRect { { 0.f, 0.f }, canvasWidth, canvasHeight };
+void UICanvas::UpdateWidgets(int canvasWidth, int canvasHeight) {
+	const UIRect parentRect { { 0.f, 0.f }, (float)canvasWidth, (float)canvasHeight };
 	mPanel.UpdateRect(parentRect);
 }
 
@@ -275,7 +269,7 @@ void UICanvas::Draw(const BitmapRenderer& bitmapRender, const TextRenderer& text
 	if (mBackground) {
 		BitmapExtParams prm;
 		prm.width = mPanel.Rect().width;
-		prm.height =  mPanel.Rect().height;
+		prm.height = mPanel.Rect().height;
 		prm.blending = false;
 		prm.drawOrder = DrawOrder::background;
 		bitmapRender.DrawBitmapEx(*mBackground, Vec2 { 0.f, 0.f }, prm);
@@ -301,4 +295,4 @@ UIButton MakeButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, En
 	return UIButton(desc, std::move(bitmap), nullptr);
 }
 
-} // namespace Huawei
+} // namespace Wind

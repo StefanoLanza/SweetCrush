@@ -25,7 +25,8 @@ Game::Game(Engine& engine, const GameConfig& gameConfig, GameDataModule& gameDat
     , mGameConfig { gameConfig }
     , mGameDataModule { gameDataModule }
     , mGameSettings {}
-    , mFrameBuffer { RefWindowWidth, RefWindowHeight }
+    , mFrameBuffer { RefWindowWidth, RefWindowHeight, FBOFlags::color }
+	, mMatchStats {}
     , mScreenId { ScreenId::mainMenu } {
 }
 
@@ -54,7 +55,6 @@ void Game::Run() {
 		gs->LoadAssets();
 		gs->BuildUI(mCanvas);
 	}
-	mCanvas.LoadAssets(mEngine);
 	mScreens[0]->Enter(ScreenId::empty);
 	mEngine.Start([this](float dt) { Draw(dt); }, [this](float dt) { Tick(dt); });
 }
@@ -74,6 +74,7 @@ void Game::Draw(float dt) {
 
 	graphics.SetDefaultFrameBuffer();
 	mEngine.GetBlitter().Blit(mFrameBuffer);
+	graphics.Flush();
 }
 
 void Game::Tick(float dt) {
