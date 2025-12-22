@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
 	}
 #endif
 	Wind::Sdl       sdl { SDL_INIT_VIDEO | SDL_INIT_EVENTS };
-	Wind::SdlWindow window { "SweetCrush", gameConfig.windowWidth, gameConfig.windowHeight, "", false }; // TODO icon
+	Wind::SdlWindow window { "SweetCrush", gameConfig.windowWidth, gameConfig.windowHeight, ASSETS_FOLDER "icon.png", gameConfig.fullscreen };
 	Wind::Engine    engine { window };
 	Game            game { engine, gameConfig, gameDataModule };
 	game.Run();
@@ -46,6 +46,7 @@ int INIParser(void* user, const char* /*section*/, const char* name, const char*
 	auto config = static_cast<GameConfig*>(user);
 	PARSE_INT(config->windowWidth, "windowWidth", 0, 3456);
 	PARSE_INT(config->windowHeight, "windowHeight", 0, 2234);
+	PARSE_BOOL(config->fullscreen, "fullscreen");
 	PARSE_FLOAT(config->cellHeight, "cellHeight", 16.f, 64.f);
 	PARSE_FLOAT(config->cellWidth, "cellWidth", 16.f, 64.f);
 	PARSE_FLOAT(config->cellSpacing, "cellSpacing", 0.f, 8.f);

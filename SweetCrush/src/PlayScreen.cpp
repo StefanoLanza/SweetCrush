@@ -193,6 +193,7 @@ void PlayScreen::StartLevel() {
 	}
 	mMatchStats.levelComplete = false;
 	mAnimCounter = 0;
+	mActionMgr.Clear();
 	SetupNewBoardAnimation();
 	mMatch3.Run();
 }

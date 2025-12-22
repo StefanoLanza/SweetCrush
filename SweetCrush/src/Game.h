@@ -13,7 +13,7 @@
 
 struct GameConfig;
 
-class Game {
+class Game final {
 public:
 	Game(Wind::Engine& engine, const GameConfig& gameConfig, GameDataModule& gameDataModule);
 	~Game();

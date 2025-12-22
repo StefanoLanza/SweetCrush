@@ -7,6 +7,7 @@ struct GameConfig {
 	// Graphics
 	int   windowWidth;
 	int   windowHeight;
+	bool  fullscreen;
 	float cellWidth;
 	float cellHeight;
 	float cellSpacing;

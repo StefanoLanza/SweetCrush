@@ -3,8 +3,9 @@
 
 GameConfig DefaultGameConfig() {
 	GameConfig config;
-	config.windowWidth = 576;
-	config.windowHeight = 1100; //768;
+	config.windowWidth = 768;
+	config.windowHeight = 1024;
+	config.fullscreen = false;
 	config.cellWidth = 64.f;
 	config.cellHeight = 72.f;
 	config.cellSpacing = 2.f;
