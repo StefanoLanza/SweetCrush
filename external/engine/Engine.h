@@ -34,7 +34,7 @@ public:
 	BitmapRenderer& GetBitmapRenderer() const;
 	TextRenderer&   GetTextRenderer() const;
 	Audio&          GetAudio() const;
-	TexturePtr LoadTexture(std::string_view fileName);
+	TexturePtr      LoadTexture(std::string_view fileName);
 
 private:
 	struct Implementation;

@@ -22,7 +22,6 @@ private:
 	GLint mVertexPos = -1;
 	// Uniforms
 	GLint mPosRect = -1;
-	GLint mUVRect = -1;
 	GLint mTexture = -1;
 	bool  mValidProgram;
 };
@@ -35,9 +34,8 @@ Blitter::Impl::Impl(Graphics& graphics)
 		const GlProgram& program = graphics.GetProgram(mProgramHandle);
 		mVertexPos = program.GetAttribLocation("inputPosition");
 		mPosRect = program.GetUniformLocation("posRect");
-		mUVRect = program.GetUniformLocation("uvRect");
 		mTexture = program.GetUniformLocation("inputTexture");
-		mValidProgram = (mVertexPos != -1 && mPosRect != -1 && mUVRect != -1 && mTexture != -1);
+		mValidProgram = (mVertexPos != -1 && mPosRect != -1 && mTexture != -1);
 	}
 }
 
@@ -84,23 +82,17 @@ void Blitter::Impl::Blit(const GlFrameBuffer& frameBuffer) const {
 	PipelineState pipelineState;
 	pipelineState.mDepthEnabled = false;
 	pipelineState.mBlending = false;
-	pipelineState.mScissorTestEnabled = true;
 	pipelineState.EnableScissorTest(targetRect.left, targetRect.top, targetRect.right - targetRect.left, targetRect.bottom - targetRect.top);
 	PipelineHandle pipelineHandle = mGraphics.NewPipeline(pipelineState);
 	mGraphics.SetPipeline(pipelineHandle);
 
-	float u0 = (float)targetRect.left / (float)mGraphics.GetTargetWidth();
-	float u1 = (float)targetRect.right / (float)mGraphics.GetTargetWidth();
-	float v0 = (float)targetRect.top / (float)mGraphics.GetTargetHeight();
-	float v1 = (float)targetRect.bottom / (float)mGraphics.GetTargetHeight();
-	// To clip space
-	u0 = -1 + 2 * u0;
-	u1 = -1 + 2 * u1;
-	v0 = -1 + 2 * v0;
-	v1 = -1 + 2 * v1;
+	float x0 = (float)targetRect.left / (float)mGraphics.GetTargetWidth();
+	float x1 = (float)targetRect.right / (float)mGraphics.GetTargetWidth();
+	float y0 = (float)targetRect.top / (float)mGraphics.GetTargetHeight();
+	float y1 = (float)targetRect.bottom / (float)mGraphics.GetTargetHeight();
 
-	const int   uniforms[] = { mPosRect, mUVRect };
-	const float uniformData[] = { u0, v0, u1, v1, 0.f, 0.f, 1.f, 1.f };
+	const int   uniforms[] = { mPosRect };
+	const float uniformData[] = { x0, y0, x1, y1 };
 	const unsigned textureIds[] = { frameBuffer.GetColorAttachment() };
 
 	DrawCall drawCall;

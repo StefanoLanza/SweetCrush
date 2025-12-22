@@ -477,6 +477,7 @@ void Graphics::SetDefaultFrameBuffer() {
 
 void Graphics::ClearDefaultFrameBuffer(float r, float g, float b, float a) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, mPimpl->mWindow.GetWidth(), mPimpl->mWindow.GetHeight());
 	glClearColor(r, g, b, a);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
@@ -509,6 +510,9 @@ void Graphics::BeginFrame() {
 	assert(! mPimpl->mFrameBegun);
 	mPimpl->mGPUTimer.Start();
 	mPimpl->mFrameBegun = true;
+	// Set defaults
+	glDisable(GL_BLEND);
+	glDisable(GL_SCISSOR_TEST);
 }
 
 void Graphics::EndFrame() {

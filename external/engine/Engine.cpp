@@ -1,10 +1,5 @@
 #include "Engine.h"
 
-#include <algorithm>
-#include <cassert>
-#include <cmath>
-#include <stdexcept>
-#include <vector>
 #include "Audio.h"
 #include "BitmapRender.h"
 #include "Blitter.h"
@@ -18,6 +13,11 @@
 #include "SdlSurface.h"
 #include "SdlWindow.h"
 #include "TextRender.h"
+#include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <stdexcept>
+#include <vector>
 
 namespace Wind {
 
@@ -43,7 +43,7 @@ struct Engine::Implementation {
 	bool                    mAppInBackground;
 	DisplayOrientation      mDisplayOrientation;
 
-	Implementation(SdlWindow& window)
+	explicit Implementation(SdlWindow& window)
 	    : mWindow { window }
 	    , mGlContext(mWindow)
 	    , mGraphics(mWindow)
@@ -87,13 +87,14 @@ void Engine::Implementation::Start(const RenderCallback& renderCbk, const Update
 		}
 
 		if (! mAppInBackground) {
+			mGraphics.BeginFrame();
+			mGraphics.ClearDefaultFrameBuffer(0.f, 0.f, 0.f, 0.f);
+			if (! mQuit) {
+				renderCbk(lastFrameSeconds);
+			}
+			mGraphics.EndFrame();
 			SDL_GL_SwapWindow(mWindow);
 			SDL_HideCursor();
-			if (! mQuit) {
-				mGraphics.BeginFrame();
-				renderCbk(lastFrameSeconds);
-				mGraphics.EndFrame();
-			}
 		}
 	}
 }
