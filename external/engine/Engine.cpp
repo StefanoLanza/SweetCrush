@@ -88,7 +88,6 @@ void Engine::Implementation::Start(const RenderCallback& renderCbk, const Update
 
 		if (! mAppInBackground) {
 			mGraphics.BeginFrame();
-			mGraphics.ClearDefaultFrameBuffer(0.f, 0.f, 0.f, 0.f);
 			if (! mQuit) {
 				renderCbk(lastFrameSeconds);
 			}

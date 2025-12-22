@@ -82,7 +82,6 @@ public:
 	const GlProgram& GetProgram(ProgramHandle program) const;
 	void             Draw(const DrawCall& drawCall);
 	void             RecompileShaders();
-	const Stats&     GetFrameTime() const;
 	InstanceData     AllocInstances(unsigned count, unsigned stride);
 
 private:

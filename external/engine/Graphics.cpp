@@ -1,6 +1,5 @@
 #include "Graphics.h"
 #include "Config.h"
-#include "GPUTimer.h"
 #include "Gl.h"
 #include "GlFrameBuffer.h"
 #include "GlProgram.h"
@@ -131,8 +130,6 @@ public:
 	std::vector<char>          mInstanceBuffer;
 	unsigned                   mInstanceBufferOffs;
 	GLuint                     mInstanceVBO;
-	GPUTimer                   mGPUTimer;
-	Stats                      mFrameTime;
 	unsigned                   mFrameCount;
 	bool                       mFrameBegun;
 };
@@ -508,7 +505,6 @@ void Graphics::InitGL() {
 
 void Graphics::BeginFrame() {
 	assert(! mPimpl->mFrameBegun);
-	mPimpl->mGPUTimer.Start();
 	mPimpl->mFrameBegun = true;
 	// Set defaults
 	glDisable(GL_BLEND);
@@ -517,10 +513,6 @@ void Graphics::BeginFrame() {
 
 void Graphics::EndFrame() {
 	assert(mPimpl->mFrameBegun);
-	auto duration = mPimpl->mGPUTimer.End();
-	if (duration.has_value()) {
-		mPimpl->mFrameTime.AddSample(duration.value());
-	}
 	++mPimpl->mFrameCount;
 	mPimpl->ResetState();
 	mPimpl->mFrameBegun = false;
@@ -545,10 +537,6 @@ void Graphics::Draw(const DrawCall& drawCall) {
 
 void Graphics::RecompileShaders() {
 	mPimpl->RecompileShaders();
-}
-
-const Stats& Graphics::GetFrameTime() const {
-	return mPimpl->mFrameTime;
 }
 
 InstanceData Graphics::AllocInstances(unsigned count, unsigned stride) {
