@@ -16,7 +16,7 @@ Sweet Crush is an open source, cross-platform Match-3 game.
 
 ## Requirements
 * C++ 17 compiler
-* OpenGL 3.1+ on desktop
+* OpenGL 3.3+ on desktop
 * OpenGL ES 3.0+ on mobile
 
 ## Installation

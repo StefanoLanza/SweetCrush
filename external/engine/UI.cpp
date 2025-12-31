@@ -133,7 +133,7 @@ void UIText::SetText(StringId stringId) {
 
 UIBitmap::UIBitmap(const UIBitmapDesc& desc, Engine& engine)
     : mDesc(desc)
-    , mBitmap(engine.LoadTexture(desc.fileName, false))
+    , mBitmap(engine.LoadTexture(desc.fileName))
     , mAlignedRect {} {
 	UISize size = mDesc.size;
 	if (size.rWidth <= -1.f) {
@@ -245,7 +245,7 @@ UICanvas::UICanvas()
 }
 
 void UICanvas::SetBackground(const char* fileName, Engine& engine) {
-	mBackground = engine.LoadTexture(fileName, false);
+	mBackground = engine.LoadTexture(fileName);
 }
 
 void UICanvas::SetBackground(TexturePtr background) {
@@ -253,7 +253,7 @@ void UICanvas::SetBackground(TexturePtr background) {
 }
 
 void UICanvas::SetMousePointer(const char* fileName, Engine& engine) {
-	mMousePointer = engine.LoadTexture(fileName, false);
+	mMousePointer = engine.LoadTexture(fileName);
 }
 
 UIPanel& UICanvas::GetPanel() {

@@ -71,7 +71,7 @@ void PlayScreen::LoadAssets() {
 	mMusic = audio.LoadMusic("audio/music.ogg");
 	mSounds[0] = audio.LoadSound("audio/match.wav");
 	for (int i = 0; i < NumSprites; ++i) {
-		sprites[i] = mEngine.LoadTexture(spriteDefs[i].bitmap, false);
+		sprites[i] = mEngine.LoadTexture(spriteDefs[i].bitmap);
 	}
 }
 
@@ -272,7 +272,7 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		TriggerBooster(event.booster);
 		break;
 	}
-	case Match3Event::Id::iceLayerBroken: {
+	case Match3Event::Id::layerBroken: {
 		const Cell& cell = mBoard.GetCell(event.cellIdx);
 		mRenderActionMgr.AddTimedAction(nullptr, 0.f, mGameConfig.brokenIceDuration, DrawBrokenIce(cell, mEngine, mGameConfig));
 		//TODO PlaySound(0);
@@ -370,7 +370,7 @@ void PlayScreen::DrawBoard(const BitmapRenderer& bitmapRender) const {
 		prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::backgroundTile);
 		prm.blending = true;
 		for (const Cell& cell : mBoard.GetCells()) {
-			if (cell.backgroundTileIdx) {
+			if (cell.category != CellCategory::hole) {
 				const BoardTileDef& def = boardTileDefs[cell.backgroundTileIdx - 1];
 				bitmapRender.DrawBitmapEx(*sprites[def.sprite], cell.coords - Vec2 { cellSpacing, cellSpacing }, prm);
 			}

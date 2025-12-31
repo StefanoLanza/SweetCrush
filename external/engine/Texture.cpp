@@ -9,7 +9,7 @@
 
 namespace Wind {
 
-Texture::Texture(std::string_view fileName, std::string_view path, bool generateMipmaps)
+Texture::Texture(std::string_view fileName, std::string_view path, TextureInfo info)
     : mFileName(fileName)
     , mHasAlpha { false } {
 	SDL_Surface* surface = IMG_Load(path.data());
@@ -52,24 +52,27 @@ Texture::Texture(std::string_view fileName, std::string_view path, bool generate
 #endif
 	{
 		int levels = 1;
-		if (generateMipmaps) {
+		if (info.mipmaps) {
 			levels = (int)std::floor(std::log2(std::max(surface->w, surface->h))) + 1;
 		}
 		glTexStorage2D(GL_TEXTURE_2D, levels, internalFormat, surface->w, surface->h);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, surface->w, surface->h, mode, GL_UNSIGNED_BYTE, surface->pixels);
+    }
 #if ! defined(__ANDROID__)
-	}
 	else {
 		glTexImage2D(GL_TEXTURE_2D, 0, mode, surface->w, surface->h, 0, mode, GL_UNSIGNED_BYTE, surface->pixels);
 	}
 #endif
-	if (generateMipmaps) {
+	if (info.mipmaps) {
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, static_cast<GLint>(info.wrapMode));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, static_cast<GLint>(info.wrapMode));
+	if (info.wrapMode == TextureWrapMode::border) {
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, info.borderColor);
+	}
 
 	if (auto err = glGetError(); err != GL_NO_ERROR) {
 		SDL_LogError(0, "GL Error. Code: %d", err);

@@ -16,12 +16,12 @@ constexpr int numLevels = 4;
 const BoardDef testLevelGrid =
 	"cccccccc"
 	"cCccccCc"
-	"ccccaccc"
-	"cccacacc"
+	"ccccHccc"
+	"EEcacacc"
 	"ccccaccc"
 	"bbbccccc"
 	"cccccccc"
-	"cccccccc";
+	"cccHHccc";
 
 const Level levels[numLevels] {
 	{ { 1, 2, 3, 4, 5 }, { 1, 0, 0 }, 24234, 60.f, &testLevelGrid },

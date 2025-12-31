@@ -201,7 +201,6 @@ void Match3::NewBoard(uint32_t seed, const char* boardDef, const int gemIds[], i
 			switch (boardDef[i]) {
 			case holeCell:
 				cell.category = CellCategory::hole;
-				cell.backgroundTileIdx = 0; // no background
 				break;
 			case obstacleCell:
 				cell.category = CellCategory::obstacle;
@@ -336,20 +335,20 @@ void Match3::HorizontalRocket(int col, int row) {
 	for (int ncol = 0; ncol < mBoard.GetCols(); ++ncol) {
 		int cellIdx = mBoard.GetCellIndex(ncol, row);
 		if (HasPiece(mBoard.GetCell(cellIdx))) {
-			RemoveTile(cellIdx);
+			HitCell(cellIdx);
 		}
 	}
-	RemoveTile(mBoard.GetCellIndex(col, row)); // remove booster
+	HitCell(mBoard.GetCellIndex(col, row)); // remove booster
 }
 
 void Match3::VerticalRocket(int col, int row) {
 	for (int nrow = 0; nrow < mBoard.GetRows(); ++nrow) {
 		int cellIdx = mBoard.GetCellIndex(col, nrow);
 		if (HasPiece(mBoard.GetCell(cellIdx))) {
-			RemoveTile(cellIdx);
+			HitCell(cellIdx);
 		}
 	}
-	RemoveTile(mBoard.GetCellIndex(col, row)); // remove booster
+	HitCell(mBoard.GetCellIndex(col, row)); // remove booster
 }
 
 void Match3::Bomb(int col, int row, int radius) {
@@ -361,20 +360,20 @@ void Match3::Bomb(int col, int row, int radius) {
 				if (mBoard.IsInside(ocol, orow)) {
 					int cellIdx = mBoard.GetCellIndex(ocol, orow);
 					if (HasPiece(mBoard.GetCell(cellIdx))) {
-						RemoveTile(cellIdx);
+						HitCell(cellIdx);
 					}
 				}
 			}
 		}
 	}
-	RemoveTile(mBoard.GetCellIndex(col, row)); // remove booster
+	HitCell(mBoard.GetCellIndex(col, row)); // remove booster
 }
 
 void Match3::DeleteAllPieces(int pieceId) {
 	int cellIdx = 0;
 	for (const Cell& cell : mBoard.GetCells()) {
 		if (HasPiece(cell) && cell.pieceId == pieceId) {
-			RemoveTile(cellIdx);
+			HitCell(cellIdx);
 		}
 		++cellIdx;
 	}
@@ -442,7 +441,7 @@ bool Match3::CheckCellCombos(int cellIdx) {
 			KillMatches(cell, -1, 0);
 			KillMatches(cell, +1, 0);
 		}
-		RemoveTile(cellIdx);
+		HitCell(cellIdx);
 	}
 
 	return res;
@@ -454,25 +453,37 @@ bool Match3::CheckMatchesAfterSwap() {
 	return res;
 }
 
-void Match3::RemoveTile(int idx) const {
-	// Inform client
-	Match3Event event;
-	event.id = Match3Event::Id::removeTile;
-	event.cellIdx = idx;
-	mCbk(event);
-
+void Match3::HitCell(int idx) const {
 	Cell& cell = mBoard.GetCell(idx);
-	cell.category = CellCategory::empty;
-	cell.pieceId = 255;
-	cell.pieceAnim.spriteIdx = -1;
+	assert(cell.hits > 0);
+	--cell.hits;
+	if (cell.hits == 0) {
+		// Inform client
+		Match3Event event;
+		event.id = Match3Event::Id::removeTile;
+		event.cellIdx = idx;
+		mCbk(event);
+
+		cell.category = CellCategory::empty;
+		cell.pieceId = 255;
+		cell.pieceAnim.spriteIdx = -1;
+	}
+	else {
+		// Broken one layer. Inform client
+		Match3Event event;
+		event.id = Match3Event::Id::layerBroken;
+		event.cellIdx = idx;
+		mCbk(event);
+	}
 }
 
 void Match3::InsertBoosters() {
 	for (const Booster& booster : mNewBoosters) {
-		// Replace tile
+		// Replace cell
 		Cell& cell = mBoard.GetCell(booster.cellIdx);
 		cell.category = CellCategory::booster;
 		cell.pieceId = static_cast<PieceId>(booster.type);
+		cell.hits = 1;
 		// Inform client
 		Match3Event event;
 		event.id = Match3Event::Id::newBooster;
@@ -517,7 +528,7 @@ void Match3::GenerateNewPieces() {
 }
 
 bool Match3::CheckMatches() {
-	// TODO This could be optimized for huge boards by marking invalid columns and rows when generating new tiles
+	// TODO This could be optimized for huge boards by marking invalid columns and rows when generating new cells
 	++mCascadeCount;
 	bool res = false;
 	for (int c : mCheckList) {
@@ -532,20 +543,20 @@ void Match3::TrySwap(int first, int second) {
 	const Cell& secondTile = mBoard.GetCell(second);
 	// Check whether the first and second tiles are adjacent and inside the board
 	if (firstTile.col >= 0 && firstTile.col == secondTile.col - 1 && firstTile.row == secondTile.row) {
-		SwapSelectedTiles(first, second);
+		SwapSelectedCells(first, second);
 	}
 	else if (firstTile.col < mBoard.GetCols() && firstTile.col == secondTile.col + 1 && firstTile.row == secondTile.row) {
-		SwapSelectedTiles(second, first);
+		SwapSelectedCells(second, first);
 	}
 	else if (firstTile.row >= 0 && firstTile.row == secondTile.row - 1 && firstTile.col == secondTile.col) {
-		SwapSelectedTiles(first, second);
+		SwapSelectedCells(first, second);
 	}
 	else if (firstTile.row < mBoard.GetRows() && firstTile.row == secondTile.row + 1 && firstTile.col == secondTile.col) {
-		SwapSelectedTiles(second, first);
+		SwapSelectedCells(second, first);
 	}
 }
 
-void Match3::SwapSelectedTiles(int firstTile, int secondTile) {
+void Match3::SwapSelectedCells(int firstTile, int secondTile) {
 	mUserSwap.first = firstTile;
 	mUserSwap.second = secondTile;
 	mSwaps.push_back(mUserSwap);
@@ -595,17 +606,7 @@ void Match3::KillMatches(const Cell& cell, int dcol, int drow) {
 		const int cellIdx = mBoard.GetCellIndex(col, row);
 		Cell&     otherCell = mBoard.GetCell(cellIdx);
 		if (CheckMatch(otherCell, cell)) {
-			--otherCell.hits;
-			if (otherCell.hits == 0) {
-				RemoveTile(cellIdx);
-			}
-			else {
-				// Broken one layer of ice. Inform client
-				Match3Event event;
-				event.id = Match3Event::Id::iceLayerBroken;
-				event.cellIdx = cellIdx;
-				mCbk(event);
-			}
+			HitCell(cellIdx);
 		}
 		else {
 			break;

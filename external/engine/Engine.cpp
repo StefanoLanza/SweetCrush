@@ -55,11 +55,11 @@ struct Engine::Implementation {
 	    , mQuit(false)
 	    , mAppInBackground(false)
 	    , mDisplayOrientation { DisplayOrientation::portrait } {
-		LoadTexture("images/null.png", true); // placeholder
+		LoadTexture("images/null.png", {}); // placeholder
 	}
 
 	void       Start(const RenderCallback& renderCkb, const UpdateCallback& updateCbk);
-	TexturePtr LoadTexture(std::string_view fileName, bool generateMips);
+	TexturePtr LoadTexture(std::string_view fileName, TextureInfo texInfo);
 	void       ParseEvent();
 };
 
@@ -98,7 +98,7 @@ void Engine::Implementation::Start(const RenderCallback& renderCbk, const Update
 	}
 }
 
-TexturePtr Engine::Implementation::LoadTexture(std::string_view fileName, bool generateMips) {
+TexturePtr Engine::Implementation::LoadTexture(std::string_view fileName, TextureInfo texInfo) {
 	try {
 		for (auto& b : mTextures) {
 			if (b->GetFileName() == fileName) {
@@ -107,7 +107,7 @@ TexturePtr Engine::Implementation::LoadTexture(std::string_view fileName, bool g
 		}
 		char path[260];
 		snprintf(path, sizeof(path), "%s%s", ASSETS_FOLDER, fileName.data());
-		mTextures.emplace_back(std::make_unique<Texture>(fileName, path, generateMips));
+		mTextures.emplace_back(std::make_unique<Texture>(fileName, path, texInfo));
 		return mTextures.back();
 	}
 	catch (const std::exception& e) {
@@ -209,8 +209,8 @@ void Engine::Start(const RenderCallback& renderCbk, const UpdateCallback& update
 	mPimpl->Start(renderCbk, updateCbk);
 }
 
-TexturePtr Engine::LoadTexture(std::string_view fileName, bool generateMips) {
-	return mPimpl->LoadTexture(fileName, generateMips);
+TexturePtr Engine::LoadTexture(std::string_view fileName, TextureInfo texInfo) {
+	return mPimpl->LoadTexture(fileName, texInfo);
 }
 
 } // namespace Wind
