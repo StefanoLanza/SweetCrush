@@ -71,7 +71,7 @@ void PlayScreen::LoadAssets() {
 	mMusic = audio.LoadMusic("audio/music.ogg");
 	mSounds[0] = audio.LoadSound("audio/match.wav");
 	for (int i = 0; i < NumSprites; ++i) {
-		sprites[i] = mEngine.LoadTexture(spriteDefs[i].bitmap);
+		sprites[i] = mEngine.LoadTexture(spriteDefs[i].bitmap, false);
 	}
 }
 

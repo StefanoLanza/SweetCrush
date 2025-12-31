@@ -7,7 +7,7 @@ namespace Wind {
 
 class Texture final {
 public:
-	Texture(std::string_view filename, std::string_view path);
+	Texture(std::string_view filename, std::string_view path, bool generateMipmaps = true);
 	const std::string& GetFileName() const;
 	int                Width() const;
 	int                Height() const;

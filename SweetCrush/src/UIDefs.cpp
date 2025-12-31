@@ -21,4 +21,4 @@ constexpr TextStyle titleTextStyle {
 	blackColor,
 };
 
-const float titleY = 160.f;
+constexpr float titleY = 160.f;

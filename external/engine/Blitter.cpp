@@ -16,8 +16,8 @@ private:
 	RectI ComputeTargetRect(const GlFrameBuffer& frameBuffer) const;
 
 private:
-	Graphics&      mGraphics;
-	ProgramHandle  mProgramHandle;
+	Graphics&     mGraphics;
+	ProgramHandle mProgramHandle;
 	// Attributes
 	GLint mVertexPos = -1;
 	// Uniforms
@@ -64,12 +64,7 @@ RectI Blitter::Impl::ComputeTargetRect(const GlFrameBuffer& frameBuffer) const {
 		cw = mGraphics.GetTargetWidth();
 		ch = mGraphics.GetTargetHeight();
 	}
-	RectI r;
-	r.left = cx;
-	r.right = cx + cw;
-	r.bottom = cy + ch;
-	r.top = cy;
-	return r;
+	return { cx, cy, cx + cw, cy + ch };
 }
 
 void Blitter::Impl::Blit(const GlFrameBuffer& frameBuffer) const {
@@ -91,8 +86,8 @@ void Blitter::Impl::Blit(const GlFrameBuffer& frameBuffer) const {
 	float y0 = (float)targetRect.top / (float)mGraphics.GetTargetHeight();
 	float y1 = (float)targetRect.bottom / (float)mGraphics.GetTargetHeight();
 
-	const int   uniforms[] = { mPosRect };
-	const float uniformData[] = { x0, y0, x1, y1 };
+	const int      uniforms[] = { mPosRect };
+	const float    uniformData[] = { x0, y0, x1, y1 };
 	const unsigned textureIds[] = { frameBuffer.GetColorAttachment() };
 
 	DrawCall drawCall;

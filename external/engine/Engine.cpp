@@ -10,9 +10,9 @@
 #include "GlProgram.h"
 #include "Graphics.h"
 #include "Input.h"
-#include "Texture.h"
 #include "SdlWindow.h"
 #include "TextRender.h"
+#include "Texture.h"
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -55,11 +55,11 @@ struct Engine::Implementation {
 	    , mQuit(false)
 	    , mAppInBackground(false)
 	    , mDisplayOrientation { DisplayOrientation::portrait } {
-		RegisterTexture("images/null.png"); // placeholder
+		LoadTexture("images/null.png", true); // placeholder
 	}
 
 	void       Start(const RenderCallback& renderCkb, const UpdateCallback& updateCbk);
-	TexturePtr RegisterTexture(std::string_view fileName);
+	TexturePtr LoadTexture(std::string_view fileName, bool generateMips);
 	void       ParseEvent();
 };
 
@@ -98,7 +98,7 @@ void Engine::Implementation::Start(const RenderCallback& renderCbk, const Update
 	}
 }
 
-TexturePtr Engine::Implementation::RegisterTexture(std::string_view fileName) {
+TexturePtr Engine::Implementation::LoadTexture(std::string_view fileName, bool generateMips) {
 	try {
 		for (auto& b : mTextures) {
 			if (b->GetFileName() == fileName) {
@@ -107,8 +107,7 @@ TexturePtr Engine::Implementation::RegisterTexture(std::string_view fileName) {
 		}
 		char path[260];
 		snprintf(path, sizeof(path), "%s%s", ASSETS_FOLDER, fileName.data());
-		auto texture = std::make_unique<Texture>(fileName, path);
-		mTextures.push_back(std::move(texture));
+		mTextures.emplace_back(std::make_unique<Texture>(fileName, path, generateMips));
 		return mTextures.back();
 	}
 	catch (const std::exception& e) {
@@ -210,8 +209,8 @@ void Engine::Start(const RenderCallback& renderCbk, const UpdateCallback& update
 	mPimpl->Start(renderCbk, updateCbk);
 }
 
-TexturePtr Engine::LoadTexture(std::string_view fileName) {
-	return mPimpl->RegisterTexture(fileName);
+TexturePtr Engine::LoadTexture(std::string_view fileName, bool generateMips) {
+	return mPimpl->LoadTexture(fileName, generateMips);
 }
 
 } // namespace Wind
