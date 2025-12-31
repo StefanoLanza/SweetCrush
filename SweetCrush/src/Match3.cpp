@@ -59,7 +59,7 @@ void GenRandomPiece(Cell& cell, const Board& board, Wind::Random& random, const 
 	bool          valid = false;
 	constexpr int maxAttempts = 100;
 	int           attempts = 0;
-	cell.hits = 1;
+	cell.hits = 1; // TODO gen ice
 	do {
 		cell.pieceId = static_cast<PieceId>(gemIds[random.Next(0, numGemTypes - 1)]);
 		// Avoid three or more consecutive matches
@@ -190,13 +190,14 @@ void Match3::NewBoard(uint32_t seed, const char* boardDef, const int gemIds[], i
 			cell.category = CellCategory::piece;
 			cell.pieceId = 0;
 			cell.backgroundTileIdx = 1;
-			cell.hits = 1;
+			cell.hits = 0;
 		}
 	}
 
 	if (boardDef) {
 		for (int i = 0; i < mBoard.GetCellCount(); ++i) {
 			Cell& cell = mBoard.GetCell(i);
+			char  ch = boardDef[i];
 			switch (boardDef[i]) {
 			case holeCell:
 				cell.category = CellCategory::hole;
@@ -210,7 +211,14 @@ void Match3::NewBoard(uint32_t seed, const char* boardDef, const int gemIds[], i
 				break;
 			default:
 				cell.category = CellCategory::piece;
-				cell.pieceId = boardDef[i] - '0';
+				if (ch >= 'A' && ch <= 'Z') {
+					cell.pieceId = ch - 'A';
+					cell.hits = 2;
+				}
+				else {
+					cell.pieceId = ch - 'a';
+					cell.hits = 1;
+				}
 				assert(cell.pieceId < MaxPieceTypes);
 				break;
 			}
@@ -587,8 +595,16 @@ void Match3::KillMatches(const Cell& cell, int dcol, int drow) {
 		const int cellIdx = mBoard.GetCellIndex(col, row);
 		Cell&     otherCell = mBoard.GetCell(cellIdx);
 		if (CheckMatch(otherCell, cell)) {
-			if (--otherCell.hits == 0) {
+			--otherCell.hits;
+			if (otherCell.hits == 0) {
 				RemoveTile(cellIdx);
+			}
+			else {
+				// Broken one layer of ice. Inform client
+				Match3Event event;
+				event.id = Match3Event::Id::iceLayerBroken;
+				event.cellIdx = cellIdx;
+				mCbk(event);
 			}
 		}
 		else {

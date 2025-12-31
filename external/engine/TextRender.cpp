@@ -18,10 +18,11 @@ TextRenderer::TextRenderer(Graphics& graphics)
     , mValidProgram { false } {
 	if (mProgramHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(mProgramHandle);
+		mPosRect = program.GetAttribLocation("posRect");
 		mColor = program.GetUniformLocation("color");
 		mOutlineColor = program.GetUniformLocation("outlineColor");
 		mTexture = program.GetUniformLocation("inputTexture");
-		mValidProgram = (mColor != -1 && mOutlineColor != -1 && mTexture != -1);
+		mValidProgram = (mPosRect >= 0 && mColor >= 0 && mOutlineColor >= 0 && mTexture >= 0);
 	}
 
 	PipelineState pipelineState;
@@ -68,29 +69,28 @@ void TextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, cons
 		Rect quad;
 		Rect uvs;
 	};
-	InstanceData instanceData = mGraphics.AllocInstances((unsigned)text.length(), sizeof(Char));
+	InstanceData instanceData = mGraphics.AllocInstances((unsigned)text.length(), sizeof(Char), mPosRect);
 	if (! instanceData.data) {
 		return;
 	}
 
-	Char*       chars = static_cast<Char*>(instanceData.data);
 	const float fontTexWidth = static_cast<float>(font.GetSurface().Width());
 	const float fontTexHeight = static_cast<float>(font.GetSurface().Height());
-	int         advance = 0;
-	for (int idx = 0; idx < (int)text.length(); ++idx) {
+	Char*       chars = static_cast<Char*>(instanceData.data);
+	for (int idx = 0, advance = 0; idx < (int)text.length(); ++idx) {
 		const Glyph& g = font.FindGlyph(text[idx]);
-
-		float left = pos.x + static_cast<float>(g.xoffset + advance);
-		float top = pos.y + static_cast<float>(g.yoffset);
-		chars[idx].quad = { left, top, left + static_cast<float>(g.width), top + static_cast<float>(g.height) };
-
+		chars[idx].quad = {
+			pos.x + static_cast<float>(g.xoffset + advance),
+			pos.y + static_cast<float>(g.yoffset),
+			static_cast<float>(g.width),
+			static_cast<float>(g.height),
+		};
 		chars[idx].uvs = {
 			static_cast<float>(g.x) / fontTexWidth,
 			static_cast<float>(g.y) / fontTexHeight,
-			static_cast<float>(g.x + g.width) / fontTexWidth,
-			static_cast<float>(g.y + g.height) / fontTexHeight,
+			static_cast<float>(g.width) / fontTexWidth,
+			static_cast<float>(g.height) / fontTexHeight,
 		};
-
 		advance += g.xadvance;
 	}
 

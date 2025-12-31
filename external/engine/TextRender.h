@@ -47,6 +47,7 @@ private:
 	// Uniforms
 	GLint mColor = -1;
 	GLint mOutlineColor = -1;
+	GLint mPosRect = -1;
 	GLint mTexture = -1;
 };
 

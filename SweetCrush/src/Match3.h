@@ -57,6 +57,7 @@ struct Match3Event {
 		dropTile,
 		newBooster,
 		boosterTriggered,
+		iceLayerBroken,
 	};
 	Id id;
 	union {

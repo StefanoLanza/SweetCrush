@@ -34,8 +34,12 @@ void ActionMgr::RunActions(float dt) {
 		if (action.delay < 0.f) {
 			action.t += dt;
 			float t01 = std::clamp(action.t / action.duration, 0.f, 1.f);
-			res = action.func(dt, t01);
-			res = res || (action.t >= action.duration);
+			if (action.t < action.duration) {
+				res = action.func(dt, t01);
+			}
+			else {
+				res = true;
+			}
 			if (res && action.counter) {
 				--*action.counter; // Decrease counter, to inform client
 			}
@@ -47,6 +51,11 @@ void ActionMgr::RunActions(float dt) {
 }
 
 void ActionMgr::Clear() {
+	for (const auto& a : mActions) {
+		if (a.counter) {
+			--*a.counter;
+		}
+	}
 	mActions.clear();
 }
 

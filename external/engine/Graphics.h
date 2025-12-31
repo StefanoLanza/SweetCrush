@@ -26,6 +26,7 @@ struct InstanceData {
 	void*    data;
 	uint32_t stride; // bytes
 	uint32_t count;
+	int      location;
 };
 
 struct DrawCall {
@@ -82,7 +83,7 @@ public:
 	const GlProgram& GetProgram(ProgramHandle program) const;
 	void             Draw(const DrawCall& drawCall);
 	void             RecompileShaders();
-	InstanceData     AllocInstances(unsigned count, unsigned stride);
+	InstanceData     AllocInstances(unsigned count, unsigned stride, int location);
 
 private:
 	struct Impl;

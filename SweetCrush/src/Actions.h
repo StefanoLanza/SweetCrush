@@ -14,3 +14,4 @@ ActionFunc ScaleTile(Cell& cell, float startScale, float endScale);
 ActionFunc DrawMovingSprite(const Cell& cell, const Wind::Engine& engine, Wind::Vec2 targetPos, int sprite);
 ActionFunc DrawExplosion(const Cell& cell, const Wind::Engine& engine, const GameConfig& gameConfig);
 ActionFunc DrawMatchScore(int score, const Cell& cell, const Wind::Engine& engine, const GameConfig& gameConfig, const Wind::Font& font);
+ActionFunc DrawBrokenIce(const Cell& cell, const Wind::Engine& engine, const GameConfig& gameConfig);

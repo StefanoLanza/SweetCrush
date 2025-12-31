@@ -21,6 +21,10 @@ const SpriteDef spriteDefs[NumSprites] {
 	{ "boosters/bomb_red.png" },
 	{ "gameartguppy/board.png" },
 	{ "sparkle.png" },
+	{ "gameartguppy/block_ice_01a.png" },
+	{ "gameartguppy/block_ice_02.png" },
+	{ "gameartguppy/block_ice_03.png" },
+	{ "outline.png" },
 };
 
 const BoardTileDef boardTileDefs[NumBoardTiles] {
@@ -45,3 +49,6 @@ const BoosterDef boosterDefs[NumBoosters] {
 Wind::TexturePtr sprites[NumSprites];
 
 const int sparkleSprite = 17;
+const int iceSprite = 18;
+const int brokenIceSprite = 19;
+const int selectionSprite = 21;

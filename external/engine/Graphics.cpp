@@ -111,7 +111,7 @@ struct Graphics::Impl {
 	void           SetTexture(int uniform, unsigned texture);
 	void           RecompileShaders();
 	void           InitGL();
-	InstanceData   AllocInstances(unsigned count, unsigned sizePerInstance);
+	InstanceData   AllocInstances(unsigned count, unsigned sizePerInstance, GLint location);
 	void           ResetState();
 
 public:
@@ -158,7 +158,7 @@ void Graphics::Impl::InitGL() {
 	mMeshes.push_back(BuildTriangle());
 }
 
-InstanceData Graphics::Impl::AllocInstances(unsigned count, unsigned stride) {
+InstanceData Graphics::Impl::AllocInstances(unsigned count, unsigned stride, GLint location) {
 	unsigned size = count * stride;
 	if (mInstanceBufferOffs + size > mInstanceBuffer.size()) {
 		SDL_LogError(0, "Cannot allocate instance data (count: %d stride: %d)", count, stride);
@@ -166,7 +166,7 @@ InstanceData Graphics::Impl::AllocInstances(unsigned count, unsigned stride) {
 	}
 	unsigned offs = mInstanceBufferOffs;
 	mInstanceBufferOffs += size;
-	return { mInstanceBuffer.data() + offs, stride, count };
+	return { mInstanceBuffer.data() + offs, stride, count, location };
 }
 
 void Graphics::Impl::ResetState() {
@@ -360,10 +360,9 @@ void Graphics::Impl::Flush() {
 
 			size_t offset = 0;
 			for (unsigned i = 0; i < batch.instances.stride / 16; ++i) {
-				// TODO Always use 3 ?
-				glEnableVertexAttribArray(3 + i);
-				glVertexAttribPointer(3 + i, 4, GL_FLOAT, GL_FALSE, batch.instances.stride, reinterpret_cast<void*>(offset + i * 16));
-				glVertexAttribDivisor(3 + i, 1);
+				glEnableVertexAttribArray(batch.instances.location + i);
+				glVertexAttribPointer(batch.instances.location + i, 4, GL_FLOAT, GL_FALSE, batch.instances.stride, reinterpret_cast<void*>(offset + i * 16));
+				glVertexAttribDivisor(batch.instances.location + i, 1);
 			}
 
 			glDrawElementsInstanced(GL_TRIANGLE_FAN, numIndices, GL_UNSIGNED_SHORT, nullptr, batch.instances.count);
@@ -539,8 +538,9 @@ void Graphics::RecompileShaders() {
 	mPimpl->RecompileShaders();
 }
 
-InstanceData Graphics::AllocInstances(unsigned count, unsigned stride) {
-	return mPimpl->AllocInstances(count, stride);
+InstanceData Graphics::AllocInstances(unsigned count, unsigned stride, int location) {
+	assert(location >= 0);
+	return mPimpl->AllocInstances(count, stride, location);
 }
 
 } // namespace Wind

@@ -67,7 +67,6 @@ PlayScreen::PlayScreen(Engine& engine, const GameConfig& gameConfig, const GameS
 PlayScreen::~PlayScreen() = default;
 
 void PlayScreen::LoadAssets() {
-	mSelectionBitmap = mEngine.LoadTexture("outline.png");
 	Audio& audio = mEngine.GetAudio();
 	mMusic = audio.LoadMusic("audio/music.ogg");
 	mSounds[0] = audio.LoadSound("audio/match.wav");
@@ -110,7 +109,7 @@ GameScreenId PlayScreen::Tick(float dt, const Input& input) {
 
 	mTime = std::max(0.f, mTime - dt);
 	if (mTime > 0.f) {
-		if (mAnimCounter == 0) { // do not update match while animations are still running
+		if (! mActionMgr.AnyRunning()) { // do not update match while animations are still running
 			mMatch3.Update(input);
 			// TODO speed up music when running out of time (missing in SDL_mixer)
 		}
@@ -192,7 +191,6 @@ void PlayScreen::StartLevel() {
 		c = 0;
 	}
 	mMatchStats.levelComplete = false;
-	mAnimCounter = 0;
 	mActionMgr.Clear();
 	SetupNewBoardAnimation();
 	mMatch3.Run();
@@ -272,6 +270,12 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 	}
 	case Match3Event::Id::boosterTriggered: {
 		TriggerBooster(event.booster);
+		break;
+	}
+	case Match3Event::Id::iceLayerBroken: {
+		const Cell& cell = mBoard.GetCell(event.cellIdx);
+		mRenderActionMgr.AddTimedAction(nullptr, 0.f, mGameConfig.brokenIceDuration, DrawBrokenIce(cell, mEngine, mGameConfig));
+		//TODO PlaySound(0);
 		break;
 	}
 	default:
@@ -386,6 +390,12 @@ void PlayScreen::DrawBoard(const BitmapRenderer& bitmapRender) const {
 			assert(cell.category == CellCategory::piece || cell.category == CellCategory::booster);
 			Vec2 pos = cell.pieceAnim.coords + Vec2 { cellWidth, cellHeight } * 0.5f;
 			bitmapRender.DrawBitmapEx(*sprites[cell.pieceAnim.spriteIdx], pos, prm);
+			if (cell.hits > 1) {
+				prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::ice);
+				prm.orientation = 0.0f;
+				prm.scale = 1.f;
+				bitmapRender.DrawBitmapEx(*sprites[iceSprite], pos, prm);
+			}
 		}
 	}
 	// Highlight selected cell
@@ -398,7 +408,7 @@ void PlayScreen::DrawBoard(const BitmapRenderer& bitmapRender) const {
 		prm.pivot = BitmapPivot::topLeft;
 		prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::boardTile);
 		prm.blending = true;
-		bitmapRender.DrawBitmapEx(*mSelectionBitmap, cell.pieceAnim.coords - Vec2 { cellSpacing, cellSpacing }, prm);
+		bitmapRender.DrawBitmapEx(*sprites[selectionSprite], cell.pieceAnim.coords - Vec2 { cellSpacing, cellSpacing }, prm);
 	}
 }
 

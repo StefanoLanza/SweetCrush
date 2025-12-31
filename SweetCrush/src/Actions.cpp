@@ -1,8 +1,8 @@
 #include "Actions.h"
 #include "AssetDefs.h"
 #include "Board.h"
-#include "GameConfig.h"
 #include "Constants.h"
+#include "GameConfig.h"
 #include "GameDrawOrder.h"
 #include <cmath>
 #include <cstdio>
@@ -71,6 +71,21 @@ ActionFunc DrawMatchScore(int score, const Cell& cell, const Engine& engine, con
 		snprintf(tmp, sizeof(tmp), "%d", score);
 		float y = xy.y - t * scrollSpeed;
 		textRender.Write(font, tmp, Vec2 { xy.x, y }, defaultTextStyle, DrawOrder::UI - 1); // below UI
+		return false;
+	};
+}
+
+ActionFunc DrawBrokenIce(const Cell& cell, const Engine& engine, const GameConfig& gameConfig) {
+	Vec2 xy = cell.coords + Vec2 { gameConfig.cellWidth, gameConfig.cellHeight } * 0.5f;
+	return [&engine, xy](float /*dt*/, float t01) {
+		const BitmapRenderer& bitmapRender = engine.GetBitmapRenderer();
+		BitmapExtParams       prm;
+		prm.scale = 1.f + t01 * 0.5f;
+		prm.pivot = BitmapPivot::center;
+		prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::ice);
+		prm.blending = true;
+		prm.color.a = 255.f * (1.f - t01 * t01 * t01 * t01); // ease-in
+		bitmapRender.DrawBitmapEx(*sprites[brokenIceSprite], xy, prm);
 		return false;
 	};
 }

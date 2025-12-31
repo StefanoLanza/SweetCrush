@@ -6,6 +6,7 @@ enum class GameDrawOrder : Wind::DrawOrderType {
 	overBackground = Wind::DrawOrder::background + 1,
 	backgroundTile = Wind::DrawOrder::user,
 	boardTile,
+	ice,
 	overlays,
 	textOverUI = Wind::DrawOrder::UI + 50,
 };

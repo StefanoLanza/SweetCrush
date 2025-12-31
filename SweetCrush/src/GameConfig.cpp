@@ -23,6 +23,7 @@ GameConfig DefaultGameConfig() {
 	config.tileScaleDuration = 0.25f;
 	config.scoreTextDuration = 1.f;
 	config.scoreTextScrollSpeed = 32.f;
+	config.brokenIceDuration = 0.25f;
 	// UI
 	config.swapThreshold = 0.55f;
 	config.startDragThreshold = 4.f;

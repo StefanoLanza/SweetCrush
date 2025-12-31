@@ -26,6 +26,7 @@ struct GameConfig {
 	float tileScaleDuration; // seconds
 	float scoreTextDuration;
 	float scoreTextScrollSpeed;
+	float brokenIceDuration;
 	// UI
 	float      swapThreshold;      // [0, 1]
 	float      startDragThreshold; // pixels

@@ -3,7 +3,7 @@
 #include "Boosters.h"
 #include <engine/FwdDecl.h>
 
-constexpr int NumSprites = 18;
+constexpr int NumSprites = 22;
 constexpr int NumGemTypes = 11;
 constexpr int NumBoardTiles = 1;
 constexpr int NumObstacleTypes = 1;
@@ -37,6 +37,9 @@ extern const BoardTileDef boardTileDefs[NumBoardTiles];
 extern const GemDef       gemDefs[NumGemTypes];
 extern const ObstacleDef  obstacleDefs[NumObstacleTypes];
 extern const BoosterDef   boosterDefs[NumBoosters];
-extern Wind::TexturePtr    sprites[NumSprites];
+extern Wind::TexturePtr   sprites[NumSprites];
 
 extern const int sparkleSprite;
+extern const int iceSprite;
+extern const int brokenIceSprite;
+extern const int selectionSprite;
