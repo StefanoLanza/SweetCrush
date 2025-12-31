@@ -1,5 +1,5 @@
 #include "Font.h"
-#include "SdlSurface.h"
+#include "Texture.h"
 #include <SDL3/SDL.h>
 #include <algorithm>
 #include <cassert>
@@ -29,7 +29,7 @@ const std::string& Font::GetName() const {
 	return mName;
 }
 
-const SdlSurface& Font::GetSurface() const {
+const Texture& Font::GetSurface() const {
 	return mSurface;
 }
 

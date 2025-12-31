@@ -3,7 +3,7 @@
 #include "Gl.h"
 #include "GlFrameBuffer.h"
 #include "GlProgram.h"
-#include "SdlSurface.h"
+#include "Texture.h"
 #include "SdlWindow.h"
 #include <SDL3/SDL.h>
 #include <algorithm>

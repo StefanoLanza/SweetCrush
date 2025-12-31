@@ -10,7 +10,7 @@
 #include "GlProgram.h"
 #include "Graphics.h"
 #include "Input.h"
-#include "SdlSurface.h"
+#include "Texture.h"
 #include "SdlWindow.h"
 #include "TextRender.h"
 #include <algorithm>
@@ -107,7 +107,7 @@ TexturePtr Engine::Implementation::RegisterTexture(std::string_view fileName) {
 		}
 		char path[260];
 		snprintf(path, sizeof(path), "%s%s", ASSETS_FOLDER, fileName.data());
-		auto texture = std::make_unique<SdlSurface>(fileName, path);
+		auto texture = std::make_unique<Texture>(fileName, path);
 		mTextures.push_back(std::move(texture));
 		return mTextures.back();
 	}

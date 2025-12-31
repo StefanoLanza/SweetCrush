@@ -19,28 +19,39 @@ const UIButtonDesc buttonDescs[1] {
 	},
 };
 
-const UITextDesc textDescs[5] {
-	{ "bigFont", (StringId)GameStringId::credits, { 0, titleY, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, titleTextStyle },
-	{ "smallFont", (StringId)GameStringId::codeBy, { 0, 420, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, defaultTextStyle },
-	{ "smallFont",
-	  (StringId)GameStringId::graphicsBy,
-	  { 0, 480, 0, 0 },
-	  UIAutoSize,
-	  UIHorizAlignment::center,
-	  UIVertAlignment::top,
-	  defaultTextStyle },
-	{ "smallFont", (StringId)GameStringId::audioBy, { 0, 540, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, defaultTextStyle },
-	{ "mediumFont", (StringId)GameStringId::back, UIZeroPos, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center, defaultTextStyle },
+const UITextDesc titleText {
+	"bigFont", (StringId)GameStringId::credits, { 0, titleY, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, titleTextStyle,
+};
+
+const UITextDesc codeByText {
+	"smallFont", (StringId)GameStringId::codeBy, { 0, 360, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, defaultTextStyle,
+};
+
+const UITextDesc graphicsByText {
+	"smallFont", (StringId)GameStringId::graphicsBy, { 0, 420, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, defaultTextStyle,
+};
+
+const UITextDesc musicByText {
+	"smallFont", (StringId)GameStringId::musicBy, { 0, 480, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, defaultTextStyle,
+};
+
+const UITextDesc versionText {
+	"smallFont", (StringId)GameStringId::version, { 0, 540, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, defaultTextStyle,
+};
+
+const UITextDesc backText {
+	"mediumFont", (StringId)GameStringId::back, UIZeroPos, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center, defaultTextStyle,
 };
 
 } // namespace
 
 CreditsScreen::CreditsScreen(Engine& engine)
-    : mTitle(textDescs[0], engine)
-    , mCodeBy(textDescs[1], engine)
-    , mGraphicsBy(textDescs[2], engine)
-    , mMusicBy(textDescs[3], engine)
-    , mBackButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[4], engine))
+    : mTitle(titleText, engine)
+    , mCodeBy(codeByText, engine)
+    , mGraphicsBy(graphicsByText, engine)
+    , mMusicBy(musicByText, engine)
+    , mVersion(versionText, engine)
+    , mBackButton(MakeButton(buttonDescs[0], buttonBitmapDesc, backText, engine))
     , mPanel(UIDefaultPanelDesc) {
 }
 
@@ -70,6 +81,7 @@ void CreditsScreen::BuildUI(UICanvas& canvas) {
 	mPanel.AddText(mCodeBy);
 	mPanel.AddText(mGraphicsBy);
 	mPanel.AddText(mMusicBy);
+	mPanel.AddText(mVersion);
 	mPanel.AddButton(mBackButton);
 	canvas.GetPanel().AddPanel(mPanel);
 }

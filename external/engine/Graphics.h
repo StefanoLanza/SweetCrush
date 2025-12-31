@@ -8,7 +8,7 @@
 
 namespace Wind {
 
-class SdlSurface;
+class Texture;
 class SdlWindow;
 class GlFrameBuffer;
 class GlProgram;

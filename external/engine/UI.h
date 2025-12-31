@@ -103,7 +103,7 @@ public:
 	void              Draw(const BitmapRenderer& renderer, DrawOrderType drawOrder) const;
 	void              UpdateRect(const UIRect& parentRect);
 	void              SetBitmap(const TexturePtr& bitmap);
-	const SdlSurface& GetBitmap() const;
+	const Texture& GetBitmap() const;
 
 private:
 	UIBitmapDesc mDesc;

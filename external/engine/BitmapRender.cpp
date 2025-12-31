@@ -2,7 +2,7 @@
 #include "Config.h"
 #include "GlProgram.h"
 #include "Graphics.h"
-#include "SdlSurface.h"
+#include "Texture.h"
 #include <SDL3/SDL.h>
 #include <cmath>
 
@@ -12,8 +12,8 @@ class BitmapRenderer::Impl {
 public:
 	explicit Impl(Graphics& graphics);
 
-	void DrawBitmap(const SdlSurface& bitmap, float x, float y) const;
-	void DrawBitmapEx(const SdlSurface& surface, float x, float y, const BitmapExtParams& prm) const;
+	void DrawBitmap(const Texture& bitmap, float x, float y) const;
+	void DrawBitmapEx(const Texture& surface, float x, float y, const BitmapExtParams& prm) const;
 
 private:
 	Graphics&      mGraphics;
@@ -48,11 +48,11 @@ BitmapRenderer::Impl::Impl(Graphics& graphics)
 	}
 }
 
-void BitmapRenderer::Impl::DrawBitmap(const SdlSurface& bitmap, float x, float y) const {
+void BitmapRenderer::Impl::DrawBitmap(const Texture& bitmap, float x, float y) const {
 	DrawBitmapEx(bitmap, x, y, BitmapExtParams {});
 }
 
-void BitmapRenderer::Impl::DrawBitmapEx(const SdlSurface& bitmap, float x, float y, const BitmapExtParams& prm) const {
+void BitmapRenderer::Impl::DrawBitmapEx(const Texture& bitmap, float x, float y, const BitmapExtParams& prm) const {
 	if (! mValidPrograms) {
 		return;
 	}
@@ -103,11 +103,11 @@ BitmapRenderer::BitmapRenderer(Graphics& graphics)
 
 BitmapRenderer::~BitmapRenderer() = default;
 
-void BitmapRenderer::DrawBitmap(const SdlSurface& bitmap, Vec2 pos) const {
+void BitmapRenderer::DrawBitmap(const Texture& bitmap, Vec2 pos) const {
 	mPimpl->DrawBitmap(bitmap, pos.x, pos.y);
 }
 
-void BitmapRenderer::DrawBitmapEx(const SdlSurface& surface, Vec2 pos, const BitmapExtParams& prm) const {
+void BitmapRenderer::DrawBitmapEx(const Texture& surface, Vec2 pos, const BitmapExtParams& prm) const {
 	mPimpl->DrawBitmapEx(surface, pos.x, pos.y, prm);
 }
 

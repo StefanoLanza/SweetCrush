@@ -5,7 +5,7 @@
 #include "Gl.h"
 #include "GlProgram.h"
 #include "Graphics.h"
-#include "SdlSurface.h"
+#include "Texture.h"
 #include "SdlWindow.h"
 #include <SDL3/SDL.h>
 #include <cassert>

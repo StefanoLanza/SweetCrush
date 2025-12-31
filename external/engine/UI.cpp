@@ -4,7 +4,7 @@
 #include "Font.h"
 #include "Graphics.h"
 #include "Input.h"
-#include "SdlSurface.h"
+#include "Texture.h"
 #include "StringTable.h"
 #include "TextRender.h"
 #include <cassert>
@@ -165,7 +165,7 @@ void UIBitmap::SetBitmap(const TexturePtr& bitmap) {
 	mBitmap = bitmap;
 }
 
-const SdlSurface& UIBitmap::GetBitmap() const {
+const Texture& UIBitmap::GetBitmap() const {
 	return *mBitmap;
 }
 

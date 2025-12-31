@@ -16,7 +16,7 @@ const UIBitmapDesc shortButtonBitmapDesc {
 	UIAutoSize,
 };
 
-const TextStyle titleTextStyle {
+constexpr TextStyle titleTextStyle {
 	yellowColor,
 	blackColor,
 };

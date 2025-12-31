@@ -1,4 +1,4 @@
-#include "SdlSurface.h"
+#include "Texture.h"
 #include "Gl.h"
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
@@ -7,11 +7,11 @@
 
 namespace Wind {
 
-SdlSurface::SdlSurface(std::string_view fileName, std::string_view path)
-    : mSurface(IMG_Load(path.data()), SDL_DestroySurface)
-    , mFileName(fileName)
+Texture::Texture(std::string_view fileName, std::string_view path)
+    : mFileName(fileName)
     , mHasAlpha { false } {
-	if (mSurface == nullptr) {
+	SDL_Surface* surface = IMG_Load(path.data());
+	if (surface == nullptr) {
 		SDL_LogError(0, "Unable to load image %s", fileName.data());
 		throw std::runtime_error(std::string("Unable to load image ") + std::string(fileName));
 	}
@@ -22,7 +22,7 @@ SdlSurface::SdlSurface(std::string_view fileName, std::string_view path)
 
 	int mode;
 	mode = GL_RGBA;
-	auto formatDetails = SDL_GetPixelFormatDetails(mSurface->format);
+	auto formatDetails = SDL_GetPixelFormatDetails(surface->format);
 	switch (formatDetails->bytes_per_pixel) {
 	case 4:
 		mode = GL_RGBA;
@@ -41,7 +41,7 @@ SdlSurface::SdlSurface(std::string_view fileName, std::string_view path)
 		SDL_LogError(0, "Image with unknown channel profile (%s)", fileName.data());
 		throw std::runtime_error("Image with unknown channel profile");
 	}
-	glTexImage2D(GL_TEXTURE_2D, 0, mode, mSurface->w, mSurface->h, 0, mode, GL_UNSIGNED_BYTE, mSurface->pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, mode, surface->w, surface->h, 0, mode, GL_UNSIGNED_BYTE, surface->pixels);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -53,30 +53,31 @@ SdlSurface::SdlSurface(std::string_view fileName, std::string_view path)
 	SDL_LogInfo(0, "Loaded image %s", path.data());
 
 	mTextureId.reset(textureId);
+
+	mWidth = surface->w;
+	mHeight = surface->h;
+	SDL_DestroySurface(surface);
+	surface = nullptr;
 }
 
-const std::string& SdlSurface::GetFileName() const {
+const std::string& Texture::GetFileName() const {
 	return mFileName;
 }
 
-int SdlSurface::Width() const {
-	return mSurface->w;
+int Texture::Width() const {
+	return mWidth;
 }
 
-int SdlSurface::Height() const {
-	return mSurface->h;
+int Texture::Height() const {
+	return mHeight;
 }
 
-GLuint SdlSurface::GetTextureId() const {
+GLuint Texture::GetTextureId() const {
 	return mTextureId.get();
 }
 
-bool SdlSurface::HasAlpha() const {
+bool Texture::HasAlpha() const {
 	return mHasAlpha;
-}
-
-SdlSurface::operator SDL_Surface*() const {
-	return mSurface.get();
 }
 
 } // namespace Wind
