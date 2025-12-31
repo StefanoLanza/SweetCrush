@@ -60,8 +60,6 @@ private:
 	Wind::UIPanel                 mPanel;
 	Wind::UIButton                mPauseButton;
 	Match3                        mMatch3;
-	int                           mBoardFillCounter;
-	int                           mAnimCounter;
 	float                         mTime;
 	Wind::FontPtr                 mFonts[3];
 	Wind::MusicPtr                mMusic;

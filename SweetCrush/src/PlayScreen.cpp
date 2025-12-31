@@ -57,8 +57,6 @@ PlayScreen::PlayScreen(Engine& engine, const GameConfig& gameConfig, const GameS
     , mPanel(UIDefaultPanelDesc)
     , mPauseButton(MakeButton(optionButtonDesc, optionButtonBitmapDesc, engine))
     , mMatch3 { mBoard, gameConfig, *mTileSelector }
-    , mBoardFillCounter { 0 }
-    , mAnimCounter { 0 }
     , mTime { 0 } {
 	mTileSelector->AddCallback([this](const TileSelectionEvent& event) { OnCellSelectionEvent(event); });
 	mMatch3.SetCallback([this](const Match3Event& event) { OnMatch3Event(event); });
@@ -199,7 +197,7 @@ void PlayScreen::StartLevel() {
 void PlayScreen::OnCellSelectionEvent(const TileSelectionEvent& event) {
 	Cell& cell = mBoard.GetCell(event.cellIdx);
 	if (event.id == TileSelectionEvent::Id::undoDrag) {
-		mActionMgr.AddAction(&mAnimCounter, 0.f, ReturnTile(cell, mGameConfig.tileMoveBackSpeed));
+		mActionMgr.AddAction(0.f, ReturnTile(cell, mGameConfig.tileMoveBackSpeed));
 	}
 }
 
@@ -222,13 +220,13 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 	case Match3Event::Id::match: {
 		int         inc = IncreaseScore(event.match);
 		const Cell& cell = mBoard.GetCell(event.match.cellIdx);
-		mRenderActionMgr.AddTimedAction(nullptr, 0.f, mGameConfig.scoreTextDuration, DrawMatchScore(inc, cell, mEngine, mGameConfig, *mFonts[1]));
+		mRenderActionMgr.AddTimedAction(0.f, mGameConfig.scoreTextDuration, DrawMatchScore(inc, cell, mEngine, mGameConfig, *mFonts[1]));
 		PlaySound(0);
 		break;
 	}
 	case Match3Event::Id::removeTile: {
 		Cell& cell = mBoard.GetCell(event.cellIdx);
-		mActionMgr.AddTimedAction(&mAnimCounter, 0.f, mGameConfig.tileScaleDuration, ScaleTile(cell, 1.f, 0.f));
+		mActionMgr.AddTimedAction(0.f, mGameConfig.tileScaleDuration, ScaleTile(cell, 1.f, 0.f));
 		OnTileRemoved(cell);
 		break;
 	}
@@ -241,20 +239,20 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		cell.pieceAnim.scaleDev = 0.f;
 		cell.pieceAnim.rotation = 0.f;
 		// Drop new tiles from the top
-		mActionMgr.AddAction(&mAnimCounter, 0.f, ReturnTile(cell, mGameConfig.tileFallSpeed));
+		mActionMgr.AddAction(0.f, ReturnTile(cell, mGameConfig.tileFallSpeed));
 		break;
 	}
 	case Match3Event::Id::swap: {
 		Cell& firstTile = mBoard.GetCell(event.pair.first);
 		Cell& secondTile = mBoard.GetCell(event.pair.second);
-		mActionMgr.AddAction(&mAnimCounter, 0.f, MoveTile(firstTile, secondTile.coords, mGameConfig.tileSwapSpeed));
-		mActionMgr.AddAction(&mAnimCounter, 0.f, MoveTile(secondTile, firstTile.coords, mGameConfig.tileSwapSpeed));
+		mActionMgr.AddAction(0.f, MoveTile(firstTile, secondTile.coords, mGameConfig.tileSwapSpeed));
+		mActionMgr.AddAction(0.f, MoveTile(secondTile, firstTile.coords, mGameConfig.tileSwapSpeed));
 		break;
 	}
 	case Match3Event::Id::dropTile: {
 		Cell&       firstTile = mBoard.GetCell(event.pair.first);
 		const Cell& secondTile = mBoard.GetCell(event.pair.second);
-		mActionMgr.AddAction(&mAnimCounter, 0.f, MoveTile(firstTile, secondTile.coords, mGameConfig.tileFallSpeed));
+		mActionMgr.AddAction(0.f, MoveTile(firstTile, secondTile.coords, mGameConfig.tileFallSpeed));
 		break;
 	}
 	case Match3Event::Id::newBooster: {
@@ -274,7 +272,7 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 	}
 	case Match3Event::Id::layerBroken: {
 		const Cell& cell = mBoard.GetCell(event.cellIdx);
-		mRenderActionMgr.AddTimedAction(nullptr, 0.f, mGameConfig.brokenIceDuration, DrawBrokenIce(cell, mEngine, mGameConfig));
+		mRenderActionMgr.AddTimedAction(0.f, mGameConfig.brokenIceDuration, DrawBrokenIce(cell, mEngine, mGameConfig));
 		//TODO PlaySound(0);
 		break;
 	}
@@ -301,7 +299,7 @@ void PlayScreen::TriggerBooster(const Booster& booster) {
 	default:
 		break;
 	}
-	mRenderActionMgr.AddTimedAction(&mAnimCounter, 0.f, mGameConfig.bombExplosionTime, DrawExplosion(cell, mEngine, mGameConfig));
+	mRenderActionMgr.AddTimedAction(0.f, mGameConfig.bombExplosionTime, DrawExplosion(cell, mEngine, mGameConfig));
 }
 
 void PlayScreen::CheckLevelCompletion() {
@@ -413,7 +411,6 @@ void PlayScreen::DrawBoard(const BitmapRenderer& bitmapRender) const {
 }
 
 void PlayScreen::SetupNewBoardAnimation() {
-	mBoardFillCounter = 0;
 	for (Cell& cell : mBoard.GetCells()) {
 		cell.pieceAnim.coords = cell.coords;
 		if (cell.category == CellCategory::piece) {
@@ -431,7 +428,7 @@ void PlayScreen::SetupNewBoardAnimation() {
 			cell.pieceAnim.rotation = 0.f;
 			// tile.currCoords = { tile.idleCoords.x, mGameConfig.tileFallYCoord };
 			float delay = 0.f; //(mBoard.GetRows() - 1 - cell.row + cell.col) * 0.05f;
-			mActionMgr.AddTimedAction(&mBoardFillCounter, delay, mGameConfig.tileScaleDuration, ScaleTile(cell, 0.f, 1.f));
+			mActionMgr.AddTimedAction(delay, mGameConfig.tileScaleDuration, ScaleTile(cell, 0.f, 1.f));
 		}
 	}
 }

@@ -4,7 +4,6 @@
 #include <cassert>
 
 struct ActionMgr::Action {
-	int*       counter;
 	float      delay;
 	float      duration;
 	float      t;
@@ -15,16 +14,13 @@ ActionMgr::ActionMgr() = default;
 
 ActionMgr::~ActionMgr() = default;
 
-void ActionMgr::AddAction(int* counter, float delay, ActionFunc&& func) {
-	AddTimedAction(counter, delay, std::numeric_limits<float>::max(), std::move(func));
+void ActionMgr::AddAction(float delay, ActionFunc&& func) {
+	AddTimedAction(delay, std::numeric_limits<float>::max(), std::move(func));
 }
 
-void ActionMgr::AddTimedAction(int* counter, float delay, float duration, ActionFunc&& func) {
+void ActionMgr::AddTimedAction(float delay, float duration, ActionFunc&& func) {
 	assert(duration >= 0.f);
-	if (counter) {
-		++*counter;
-	}
-	mActions.push_back({ counter, delay, duration, 0.f, std::move(func) });
+	mActions.push_back({ delay, duration, 0.f, std::move(func) });
 }
 
 void ActionMgr::RunActions(float dt) {
@@ -40,9 +36,6 @@ void ActionMgr::RunActions(float dt) {
 			else {
 				res = true;
 			}
-			if (res && action.counter) {
-				--*action.counter; // Decrease counter, to inform client
-			}
 		}
 		return res;
 	};
@@ -51,11 +44,6 @@ void ActionMgr::RunActions(float dt) {
 }
 
 void ActionMgr::Clear() {
-	for (const auto& a : mActions) {
-		if (a.counter) {
-			--*a.counter;
-		}
-	}
 	mActions.clear();
 }
 
