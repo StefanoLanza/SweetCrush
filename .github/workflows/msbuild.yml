@@ -20,8 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #os: [windows-latest, ubuntu-latest]
-        os: [ubuntu-latest]
+        os: [windows-latest, ubuntu-latest]
         configuration: [Debug, Release]
         arch: [x64]
         compiler: [gcc, msvc] #TODO clang
@@ -81,7 +80,7 @@ jobs:
           sudo apt-get install -y g++
         fi
 
-    - name: Set up SDL (Linux)
+    - name: Set up SDL, SDL_image, SDL_mixer (Linux)
       if: runner.os == 'Linux'
       id: sdl-setup
       uses: libsdl-org/setup-sdl@main
