@@ -83,57 +83,13 @@ jobs:
 
     - name: Set up SDL (Linux)
       if: runner.os == 'Linux'
+      id: sdl-setup
       uses: libsdl-org/setup-sdl@main
       with:
         version: 3-head
         version-sdl-image: 3-head
         version-sdl-mixer: 3-head
         install-linux-dependencies: true
-
-    # - name: Cache SDL
-    #   id: cache-sdl
-    #   uses: actions/cache@v4
-    #   with:
-    #     path: ~/SDL-install
-    #     key: ${{ runner.os }}-sdl
-
-    # - name: Cache SDL_image
-    #   id: cache-sdl_image
-    #   uses: actions/cache@v4
-    #   with:
-    #     path: ~/SDL_image-install
-    #     key: ${{ runner.os }}-sdl_image
-
-    # - name: Cache SDL_mixer
-    #   id: cache-sdl_mixer
-    #   uses: actions/cache@v4
-    #   with:
-    #     path: ~/SDL_mixer-install
-    #     key: ${{ runner.os }}-sdl_mixer
-      
-    # - name: Build and install SDL (Linux)
-    #   if: runner.os == 'Linux' && steps.cache-sdl.outputs.cache-hit != 'true'
-    #   run: |
-    #     git clone --depth 1 https://github.com/libsdl-org/SDL.git
-    #     cmake -S SDL -B build -G Ninja -DCMAKE_INSTALL_PREFIX=$HOME/SDL-install
-    #     cmake --build build
-    #     cmake --install build
-
-    # - name: Build and install SDL_image (Linux)
-    #   if: runner.os == 'Linux' && steps.cache-sdl_image.outputs.cache-hit != 'true'
-    #   run: |
-    #     git clone --depth 1 https://github.com/libsdl-org/SDL_image.git
-    #     cmake -S SDL_image -B build -G Ninja -DCMAKE_INSTALL_PREFIX=$HOME/SDL_image-install
-    #     cmake --build build
-    #     cmake --install build
-
-    # - name: Build and install SDL_mixer (Linux)
-    #   if: runner.os == 'Linux' && steps.cache-sdl_mixer.outputs.cache-hit != 'true'
-    #   run: |
-    #     git clone --depth 1 https://github.com/libsdl-org/SDL_mixer.git
-    #     cmake -S SDL_mixer -B build -G Ninja -DCMAKE_INSTALL_PREFIX=$HOME/SDL_mixer-install
-    #     cmake --build build
-    #     cmake --install build
 
     - name: Generate Visual Studio solution
       if: runner.os == 'Windows'
@@ -143,7 +99,7 @@ jobs:
       if: runner.os == 'Linux'
       run: ./premake5 gmake -cc=gcc
     
-    - name: Add MSBuild to PATH    
+    - name: Add MSBuild to PATH
       if: runner.os == 'Windows'
       uses: microsoft/setup-msbuild@v1.0.2
 
@@ -154,13 +110,19 @@ jobs:
           build
         key: build-${{ matrix.configuration }}-${{ hashFiles('**/*.cpp', '**/*.c', '**/*.h') }}
     
-    - name: Build solution
+    - name: Build solution (Windows)
       if: runner.os == 'Windows'
       working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: msbuild /m /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.vs_platform }} ${{env.VS_SLN_FILE_PATH}}
 
-    - name: Build gmake
+    - name: Build gmake (Linux)
       if: runner.os == 'Linux'
-      run: make -C build/gmake config=${{ matrix.lower_configuration }}_${{ matrix.arch }} # e.g. release_x64. Configuration must be lower case
+      run: 
+        # Note: config must be lower case e.g. release_x64
+        make -C build/gmake \
+            config=${{ matrix.lower_configuration }}_${{ matrix.arch }} \ 
+            CPPFLAGS="-I${{ steps.sdl-setup.outputs.prefix }}/include" \
+            LDFLAGS="-L${{ steps.sdl-setup.outputs.prefix }}/lib" \
+            -j$(nproc)
