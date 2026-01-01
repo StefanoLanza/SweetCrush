@@ -47,27 +47,17 @@ Texture::Texture(std::string_view fileName, std::string_view path, TextureInfo i
 		SDL_LogError(0, "Image with unknown channel profile (%s)", fileName.data());
 		throw std::runtime_error("Image with unknown channel profile");
 	}
-#if ! defined(__ANDROID__)
-	if (glTexStorage2D)
-#endif
-	{
-		int levels = 1;
-		if (info.mipmaps) {
-			levels = (int)std::floor(std::log2(std::max(surface->w, surface->h))) + 1;
-		}
-		glTexStorage2D(GL_TEXTURE_2D, levels, internalFormat, surface->w, surface->h);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, surface->w, surface->h, mode, GL_UNSIGNED_BYTE, surface->pixels);
-    }
-#if ! defined(__ANDROID__)
-	else {
-		glTexImage2D(GL_TEXTURE_2D, 0, mode, surface->w, surface->h, 0, mode, GL_UNSIGNED_BYTE, surface->pixels);
+	int levels = 1;
+	if (info.mipmaps) {
+		levels = (int)std::floor(std::log2(std::max(surface->w, surface->h))) + 1;
 	}
-#endif
+	glTexStorage2D(GL_TEXTURE_2D, levels, internalFormat, surface->w, surface->h);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, surface->w, surface->h, mode, GL_UNSIGNED_BYTE, surface->pixels);
 	if (info.mipmaps) {
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(info.filtering));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, static_cast<GLint>(info.filtering));
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, static_cast<GLint>(info.wrapMode));
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, static_cast<GLint>(info.wrapMode));
 	if (info.wrapMode == TextureWrapMode::border) {
@@ -75,11 +65,10 @@ Texture::Texture(std::string_view fileName, std::string_view path, TextureInfo i
 	}
 
 	if (auto err = glGetError(); err != GL_NO_ERROR) {
-		SDL_LogError(0, "GL Error. Code: %d", err);
-		mWidth = 0;
-		mHeight = 0;
-		mHasAlpha = false;
+		SDL_DestroySurface(surface);
 		glDeleteTextures(1, &textureId);
+		SDL_LogError(0, "GL Error. Code: %d", err);
+		throw std::runtime_error("GL Error");
 	}
 	else {
 		SDL_LogInfo(0, "Loaded image %s", path.data());
