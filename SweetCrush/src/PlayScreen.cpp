@@ -434,7 +434,7 @@ void PlayScreen::SetupNewBoardAnimation() {
 }
 
 void PlayScreen::PlayMusic() const {
-	if (mMusic && mGameSettings.audioOn) {
+	if (mMusic && mGameSettings.musicOn) {
 		mMusic->Play();
 	}
 }
@@ -458,7 +458,7 @@ void PlayScreen::ResumeMusic() const {
 }
 
 void PlayScreen::PlaySound(int idx) const {
-	if (mGameSettings.audioOn && mSounds[idx]) {
+	if (mGameSettings.sfxOn && mSounds[idx]) {
 		mSounds[idx]->Play();
 	}
 }

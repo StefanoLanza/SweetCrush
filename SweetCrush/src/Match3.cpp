@@ -337,9 +337,7 @@ void Match3::AddBooster(BoosterType boosterType, int cellIdx) {
 void Match3::HorizontalRocket(int col, int row) {
 	for (int ncol = 0; ncol < mBoard.GetCols(); ++ncol) {
 		int cellIdx = mBoard.GetCellIndex(ncol, row);
-		if (HasPiece(mBoard.GetCell(cellIdx))) {
-			HitCell(cellIdx);
-		}
+		HitCell(cellIdx);
 	}
 	HitCell(mBoard.GetCellIndex(col, row)); // remove booster
 }
@@ -347,9 +345,7 @@ void Match3::HorizontalRocket(int col, int row) {
 void Match3::VerticalRocket(int col, int row) {
 	for (int nrow = 0; nrow < mBoard.GetRows(); ++nrow) {
 		int cellIdx = mBoard.GetCellIndex(col, nrow);
-		if (HasPiece(mBoard.GetCell(cellIdx))) {
-			HitCell(cellIdx);
-		}
+		HitCell(cellIdx);
 	}
 	HitCell(mBoard.GetCellIndex(col, row)); // remove booster
 }
@@ -362,9 +358,7 @@ void Match3::Bomb(int col, int row, int radius) {
 				int ocol = col + x;
 				if (mBoard.IsInside(ocol, orow)) {
 					int cellIdx = mBoard.GetCellIndex(ocol, orow);
-					if (HasPiece(mBoard.GetCell(cellIdx))) {
-						HitCell(cellIdx);
-					}
+					HitCell(cellIdx);
 				}
 			}
 		}
@@ -375,7 +369,7 @@ void Match3::Bomb(int col, int row, int radius) {
 void Match3::DeleteAllPieces(int pieceId) {
 	int cellIdx = 0;
 	for (const Cell& cell : mBoard.GetCells()) {
-		if (HasPiece(cell) && cell.pieceId == pieceId) {
+		if (IsPiece(cell) && cell.pieceId == pieceId) {
 			HitCell(cellIdx);
 		}
 		++cellIdx;
@@ -458,25 +452,27 @@ bool Match3::CheckMatchesAfterSwap() {
 
 void Match3::HitCell(int idx) const {
 	Cell& cell = mBoard.GetCell(idx);
-	assert(cell.hits > 0);
-	--cell.hits;
-	if (cell.hits == 0) {
-		// Inform client
-		Match3Event event;
-		event.id = Match3Event::Id::removeTile;
-		event.cellIdx = idx;
-		mCbk(event);
+	if (cell.category == CellCategory::piece) {
+		assert(cell.hits > 0);
+		--cell.hits;
+		if (cell.hits == 0) {
+			// Inform client
+			Match3Event event;
+			event.id = Match3Event::Id::removeTile;
+			event.cellIdx = idx;
+			mCbk(event);
 
-		cell.category = CellCategory::empty;
-		cell.pieceId = 255;
-		cell.pieceAnim.spriteIdx = -1;
-	}
-	else {
-		// Broken one layer. Inform client
-		Match3Event event;
-		event.id = Match3Event::Id::layerBroken;
-		event.cellIdx = idx;
-		mCbk(event);
+			cell.category = CellCategory::empty;
+			cell.pieceId = 255;
+			cell.pieceAnim.spriteIdx = -1;
+		}
+		else {
+			// Broken one layer. Inform client
+			Match3Event event;
+			event.id = Match3Event::Id::layerBroken;
+			event.cellIdx = idx;
+			mCbk(event);
+		}
 	}
 }
 
@@ -576,14 +572,16 @@ void Match3::CollapseColumn(int col) {
 	for (int row = mBoard.GetRows() - 1; row >= 0; --row) {
 		const int   src = mBoard.GetCellIndex(col, row);
 		const Cell& cell = mBoard.GetCell(src);
-		if (IsEmpty(cell)) {
+		switch (cell.category) {
+		case CellCategory::empty:
 			emptyRows[numEmptyRows++] = row;
-		}
-		else if (HasObstacle(cell)) {
-			numEmptyRows = 0; // block pieces and boosts above
+			break;
+		case CellCategory::obstacle:
+			numEmptyRows = 0; // block pieces above
 			currEmptyRow = 0;
-		}
-		else { // booster or piece
+			break;
+		case CellCategory::piece:
+		case CellCategory::booster:
 			if (currEmptyRow < numEmptyRows) {
 				// Fall to an empty cell
 				const int dst = mBoard.GetCellIndex(col, emptyRows[currEmptyRow]);
@@ -594,6 +592,10 @@ void Match3::CollapseColumn(int col) {
 
 				emptyRows[numEmptyRows++] = row;
 			}
+			break;
+		case CellCategory::hole:
+			// skip it
+			break;
 		}
 	}
 

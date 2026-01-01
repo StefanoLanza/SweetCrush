@@ -12,14 +12,18 @@ using namespace Wind;
 
 namespace {
 
-const UIButtonDesc buttonDescs[] { { { 0, 440, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
-	                               { { 0, 560, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
-	                               { { 0, 680, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top } };
-const UITextDesc   textDescs[] {
-    { "bigFont", (StringId)GameStringId::settings, { 0, titleY, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, titleTextStyle },
-    { "mediumFont", (StringId)GameStringId::nextLanguage, { 0, 0, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
-    { "mediumFont", (StringId)GameStringId::audioOn, { 0, 0, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
-    { "mediumFont", (StringId)GameStringId::back, { 0, 0, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
+const UIButtonDesc buttonDescs[] {
+	{ { 0, 440, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{ { 0, 560, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{ { 0, 680, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{ { 0, 800, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
+};
+const UITextDesc textDescs[] {
+	{ "bigFont", (StringId)GameStringId::settings, { 0, titleY, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, titleTextStyle },
+	{ "mediumFont", (StringId)GameStringId::nextLanguage, { 0, 0, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
+	{ "mediumFont", (StringId)GameStringId::musicOn, { 0, 0, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
+	{ "mediumFont", (StringId)GameStringId::sfxOn, { 0, 0, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
+	{ "mediumFont", (StringId)GameStringId::back, { 0, 0, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
 };
 
 } // namespace
@@ -28,8 +32,9 @@ SettingsScreen::SettingsScreen(Engine& engine, GameSettings& gameSettings)
     : mGameConfig(gameSettings)
     , mTitle(textDescs[0], engine)
     , mLanguageButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
-    , mAudioButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2], engine))
-    , mBackButton(MakeButton(buttonDescs[2], buttonBitmapDesc, textDescs[3], engine))
+    , mMusicButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2], engine))
+    , mSfxButton(MakeButton(buttonDescs[2], buttonBitmapDesc, textDescs[3], engine))
+    , mBackButton(MakeButton(buttonDescs[3], buttonBitmapDesc, textDescs[4], engine))
     , mPanel(UIDefaultPanelDesc) {
 }
 
@@ -39,25 +44,26 @@ void SettingsScreen::LoadAssets() {
 void SettingsScreen::BuildUI(UICanvas& canvas) {
 	mPanel.AddText(mTitle);
 	mPanel.AddButton(mLanguageButton);
-	mPanel.AddButton(mAudioButton);
+	mPanel.AddButton(mMusicButton);
+	mPanel.AddButton(mSfxButton);
 	mPanel.AddButton(mBackButton);
 	canvas.GetPanel().AddPanel(mPanel);
 	RefreshLanguageButton();
-	RefreshAudioButton();
+	RefreshMusicButton();
+	RefreshSfxButton();
 }
 
 GameScreenId SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
 	if (mLanguageButton.IsPressed(input)) {
 		SetNextLanguage();
 	}
-	else if (mAudioButton.IsPressed(input)) {
-		if (mGameConfig.audioOn) {
-			mGameConfig.audioOn = false;
-		}
-		else {
-			mGameConfig.audioOn = true;
-		}
-		RefreshAudioButton();
+	else if (mMusicButton.IsPressed(input)) {
+		mGameConfig.musicOn = ! mGameConfig.musicOn;
+		RefreshMusicButton();
+	}
+	else if (mSfxButton.IsPressed(input)) {
+		mGameConfig.sfxOn = ! mGameConfig.sfxOn;
+		RefreshSfxButton();
 	}
 	else if (mBackButton.IsPressed(input)) {
 		return ScreenId::mainMenu;
@@ -81,7 +87,12 @@ void SettingsScreen::RefreshLanguageButton() {
 	mLanguageButton.GetText()->SetText(static_cast<StringId>(stringId));
 }
 
-void SettingsScreen::RefreshAudioButton() {
-	const StringId stringId = static_cast<StringId>(mGameConfig.audioOn ? GameStringId::audioOn : GameStringId::audioOff);
-	mAudioButton.GetText()->SetText(stringId);
+void SettingsScreen::RefreshMusicButton() {
+	const StringId stringId = static_cast<StringId>(mGameConfig.musicOn ? GameStringId::musicOn : GameStringId::musicOff);
+	mMusicButton.GetText()->SetText(stringId);
+}
+
+void SettingsScreen::RefreshSfxButton() {
+	const StringId stringId = static_cast<StringId>(mGameConfig.sfxOn ? GameStringId::sfxOn : GameStringId::sfxOff);
+	mSfxButton.GetText()->SetText(stringId);
 }

@@ -29,6 +29,7 @@ GameConfig DefaultGameConfig() {
 	config.startDragThreshold = 4.f;
 	config.targetGemCoord = { 70.f, 200.f };
 
-	config.audioOn = true;
+	config.musicOn = true;
+	config.sfxOn = true;
 	return config;
 }

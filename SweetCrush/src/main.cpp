@@ -58,7 +58,8 @@ int INIParser(void* user, const char* /*section*/, const char* name, const char*
 	// UI
 	PARSE_FLOAT(config->swapThreshold, "swapThreshold", 0.1f, 1.f);
 	PARSE_FLOAT(config->startDragThreshold, "startDragThreshold", 1.f, 8.f);
-	PARSE_BOOL(config->audioOn, "audioOn");
+	PARSE_BOOL(config->musicOn, "musicOn");
+	PARSE_BOOL(config->sfxOn, "sfxOn");
 
 	config->cellWidthWithSpacing = config->cellWidth + config->cellSpacing;
 	config->cellHeightWithSpacing = config->cellHeight + config->cellSpacing;

@@ -23,6 +23,7 @@ private:
 	// Uniforms
 	GLint mPosRect = -1;
 	GLint mTexture = -1;
+	GLint mSrcTexelSize = -1;
 	bool  mValidProgram;
 };
 
@@ -35,7 +36,8 @@ Blitter::Impl::Impl(Graphics& graphics)
 		mVertexPos = program.GetAttribLocation("inputPosition");
 		mPosRect = program.GetUniformLocation("posRect");
 		mTexture = program.GetUniformLocation("inputTexture");
-		mValidProgram = (mVertexPos != -1 && mPosRect != -1 && mTexture != -1);
+		mSrcTexelSize = program.GetUniformLocation("srcTexelSize");
+		mValidProgram = (mVertexPos != -1 && mPosRect != -1 && mTexture != -1 && mSrcTexelSize != -1);
 	}
 }
 
@@ -86,8 +88,15 @@ void Blitter::Impl::Blit(const GlFrameBuffer& frameBuffer) const {
 	float y0 = (float)targetRect.top / (float)mGraphics.GetTargetHeight();
 	float y1 = (float)targetRect.bottom / (float)mGraphics.GetTargetHeight();
 
-	const int      uniforms[] = { mPosRect };
-	const float    uniformData[] = { x0, y0, x1, y1 };
+	const int      uniforms[] = { mPosRect, mSrcTexelSize };
+	const float    uniformData[] = { x0,
+		                             y0,
+		                             x1,
+		                             y1, //
+		                             (float)frameBuffer.GetWidth(),
+		                             (float)frameBuffer.GetHeight(),
+		                             1.f / frameBuffer.GetWidth(),
+		                             1.f / frameBuffer.GetHeight() };
 	const unsigned textureIds[] = { frameBuffer.GetColorAttachment() };
 
 	DrawCall drawCall;
@@ -104,9 +113,9 @@ void Blitter::Impl::Blit(const GlFrameBuffer& frameBuffer) const {
 
 Vec2 Blitter::Impl::WindowToFrameBuffer(Vec2 winCoord, const GlFrameBuffer& frameBuffer) const {
 	const RectI targetRect = ComputeTargetRect(frameBuffer);
-	return { (winCoord.x - targetRect.left) * frameBuffer.GetWidth() / (float)(targetRect.right - targetRect.left),
-		     (winCoord.y - targetRect.top) * frameBuffer.GetHeight() / (float)(targetRect.bottom - targetRect.top)
-
+	return {
+		(winCoord.x - targetRect.left) * frameBuffer.GetWidth() / (float)(targetRect.right - targetRect.left),
+		(winCoord.y - targetRect.top) * frameBuffer.GetHeight() / (float)(targetRect.bottom - targetRect.top),
 	};
 }
 

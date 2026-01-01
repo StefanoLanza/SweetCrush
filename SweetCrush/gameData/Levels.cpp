@@ -1,7 +1,7 @@
 #include "Levels.h"
 #include "../src/Level.h"
 
-#define TEST_SHORT_GAME 0
+#define TEST_SHORT_GAME 1
 
 namespace {
 
@@ -14,13 +14,13 @@ constexpr int numLevels = 4;
 #if TEST_SHORT_GAME
 
 const BoardDef testLevelGrid =
-	"cccccccc"
-	"cCccccCc"
+	"ccccdccc"
+	"cCccdcCc"
 	"ccccHccc"
-	"EEcacacc"
+	"EEcabacc"
 	"ccccaccc"
-	"bbbccccc"
-	"cccccccc"
+	"abcdabcd"
+	"bcdabcda"
 	"cccHHccc";
 
 const Level levels[numLevels] {

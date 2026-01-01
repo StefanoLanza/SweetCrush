@@ -36,9 +36,9 @@ struct Cell {
 
 bool IsEmpty(const Cell& cell);
 bool IsHole(const Cell& cell);
-bool HasPiece(const Cell& cell);
+bool IsPiece(const Cell& cell);
 bool HasBooster(const Cell& cell);
-bool HasObstacle(const Cell& cell);
+bool IsObstacle(const Cell& cell);
 bool IsSelectable(const Cell& cell);
 
 // Container of cells

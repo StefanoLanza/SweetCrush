@@ -35,7 +35,8 @@ Game::~Game() = default;
 void Game::Run() {
 	SetLanguage(Language::english);
 
-	mGameSettings.audioOn = mGameConfig.audioOn;
+	mGameSettings.musicOn = mGameConfig.musicOn;
+	mGameSettings.sfxOn = mGameConfig.sfxOn;
 
 	mCanvas.SetBackground("gameartguppy/background.png", mEngine);
 #if ! defined(__ANDROID__) && (defined(_WIN32) || defined(__linux__))

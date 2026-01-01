@@ -19,13 +19,15 @@ public:
 
 private:
 	void RefreshLanguageButton();
-	void RefreshAudioButton();
+	void RefreshMusicButton();
+	void RefreshSfxButton();
 
 private:
 	GameSettings&  mGameConfig;
 	Wind::UIText   mTitle;
 	Wind::UIButton mLanguageButton;
-	Wind::UIButton mAudioButton;
+	Wind::UIButton mMusicButton;
+	Wind::UIButton mSfxButton;
 	Wind::UIButton mBackButton;
 	Wind::UIPanel  mPanel;
 };

@@ -12,7 +12,7 @@ namespace {
 
 const UIButtonDesc buttonDescs[1] {
 	{
-	    UIAbsolutePos(0, 680),
+	    UIAbsolutePos(0, 800),
 	    UIAutoSize,
 	    UIHorizAlignment::center,
 	    UIVertAlignment::top,
@@ -36,7 +36,7 @@ const UITextDesc musicByText {
 };
 
 const UITextDesc versionText {
-	"smallFont", (StringId)GameStringId::version, { 0, 540, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, defaultTextStyle,
+	"smallFont", (StringId)GameStringId::version, { 0, 640, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, defaultTextStyle,
 };
 
 const UITextDesc backText {

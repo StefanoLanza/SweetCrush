@@ -32,7 +32,8 @@ struct GameConfig {
 	float      startDragThreshold; // pixels
 	Wind::Vec2 targetGemCoord;
 	// Misc
-	bool audioOn;
+	bool musicOn;
+	bool sfxOn;
 };
 
 GameConfig DefaultGameConfig();

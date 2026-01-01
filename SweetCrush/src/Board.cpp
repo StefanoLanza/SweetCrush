@@ -62,7 +62,7 @@ bool IsHole(const Cell& cell) {
 	return cell.category == CellCategory::hole;
 }
 
-bool HasPiece(const Cell& cell) {
+bool IsPiece(const Cell& cell) {
 	return cell.category == CellCategory::piece;
 }
 
@@ -70,7 +70,7 @@ bool HasBooster(const Cell& cell) {
 	return cell.category == CellCategory::booster;
 }
 
-bool HasObstacle(const Cell& cell) {
+bool IsObstacle(const Cell& cell) {
 	return cell.category == CellCategory::obstacle;
 }
 
