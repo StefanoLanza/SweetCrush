@@ -4,9 +4,12 @@
 #include "Constants.h"
 #include "GameConfig.h"
 #include "TileSelector.h"
+
+#include <engine/Input.h>
+
 #include <cassert>
 #include <cstring>
-#include <engine/Input.h>
+#include <iterator> // std::size
 
 namespace {
 

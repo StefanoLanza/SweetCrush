@@ -1,5 +1,7 @@
 #include "Localization.h"
+
 #include <algorithm>
+#include <iterator> // std::size
 
 namespace {
 
