@@ -3,6 +3,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_log.h>
 
+#include <xutility>
+
 namespace Wind {
 
 #if defined(__ANDROID__)
@@ -15,9 +17,9 @@ PFNGLGETQUERYOBJECTUI64VEXTPROC pglGetQueryObjectui64vEXT = nullptr;
 #endif
 
 GPUTimer::GPUTimer()
-    : mSubmitted { 0 }
-    , mStartQueries {}
+    : mStartQueries {}
     , mEndQueries {}
+    , mSubmitted { 0 }
     , mIsAvailable { true } {
 	glGenQueries(std::size(mStartQueries), mStartQueries);
 	glGenQueries(std::size(mEndQueries), mEndQueries);
