@@ -119,10 +119,9 @@ jobs:
 
     - name: Build gmake (Linux)
       if: runner.os == 'Linux'
-      run: 
+      run: |
         # Note: config must be lower case e.g. release_x64
-        make -C build/gmake \
-            config=${{ matrix.lower_configuration }}_${{ matrix.arch }} \ 
-            CPPFLAGS="-I${{ steps.sdl-setup.outputs.prefix }}/include" \
-            LDFLAGS="-L${{ steps.sdl-setup.outputs.prefix }}/lib" \
-            -j$(nproc)
+        make -j$(nproc) -C build/gmake \
+          config=${{ matrix.lower_configuration }}_${{ matrix.arch }} \
+          CPPFLAGS="-I$SDL3_ROOT/include -I$SDL3_image_ROOT/include -I$SDL3_mixer_ROOT/include" \
+          LDFLAGS="-L$SDL3_ROOT/lib -L$SDL3_image_ROOT/lib -L$SDL3_mixer_ROOT/lib"
