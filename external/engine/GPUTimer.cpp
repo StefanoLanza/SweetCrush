@@ -3,7 +3,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_log.h>
 
-#include <xutility>
+#include <iterator> // std::size
 
 namespace Wind {
 
