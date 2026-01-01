@@ -80,9 +80,60 @@ jobs:
         else
           sudo apt-get install -y g++
         fi
-        sudo apt-get install libsdl3-dev
-        sudo apt-get install libsdl3-image-dev
-        sudo apt-get install libsdl3-mixer-dev
+
+    - name: Set up SDL (Linux)
+      if: runner.os == 'Linux'
+      uses: libsdl-org/setup-sdl@main
+      with:
+        version: 3-head
+        version-sdl-image: 3-head
+        version-sdl-mixer: 3-head
+        install-linux-dependencies: true
+
+    # - name: Cache SDL
+    #   id: cache-sdl
+    #   uses: actions/cache@v4
+    #   with:
+    #     path: ~/SDL-install
+    #     key: ${{ runner.os }}-sdl
+
+    # - name: Cache SDL_image
+    #   id: cache-sdl_image
+    #   uses: actions/cache@v4
+    #   with:
+    #     path: ~/SDL_image-install
+    #     key: ${{ runner.os }}-sdl_image
+
+    # - name: Cache SDL_mixer
+    #   id: cache-sdl_mixer
+    #   uses: actions/cache@v4
+    #   with:
+    #     path: ~/SDL_mixer-install
+    #     key: ${{ runner.os }}-sdl_mixer
+      
+    # - name: Build and install SDL (Linux)
+    #   if: runner.os == 'Linux' && steps.cache-sdl.outputs.cache-hit != 'true'
+    #   run: |
+    #     git clone --depth 1 https://github.com/libsdl-org/SDL.git
+    #     cmake -S SDL -B build -G Ninja -DCMAKE_INSTALL_PREFIX=$HOME/SDL-install
+    #     cmake --build build
+    #     cmake --install build
+
+    # - name: Build and install SDL_image (Linux)
+    #   if: runner.os == 'Linux' && steps.cache-sdl_image.outputs.cache-hit != 'true'
+    #   run: |
+    #     git clone --depth 1 https://github.com/libsdl-org/SDL_image.git
+    #     cmake -S SDL_image -B build -G Ninja -DCMAKE_INSTALL_PREFIX=$HOME/SDL_image-install
+    #     cmake --build build
+    #     cmake --install build
+
+    # - name: Build and install SDL_mixer (Linux)
+    #   if: runner.os == 'Linux' && steps.cache-sdl_mixer.outputs.cache-hit != 'true'
+    #   run: |
+    #     git clone --depth 1 https://github.com/libsdl-org/SDL_mixer.git
+    #     cmake -S SDL_mixer -B build -G Ninja -DCMAKE_INSTALL_PREFIX=$HOME/SDL_mixer-install
+    #     cmake --build build
+    #     cmake --install build
 
     - name: Generate Visual Studio solution
       if: runner.os == 'Windows'
