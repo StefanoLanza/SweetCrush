@@ -1,5 +1,7 @@
 #include "Input.h"
 #include "SdlWindow.h"
+
+#include <iterator> // std::size
 #include <cassert>
 
 namespace Wind {

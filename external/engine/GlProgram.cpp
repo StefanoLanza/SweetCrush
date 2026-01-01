@@ -82,8 +82,8 @@ GlProgram::GlProgram(const char* vertexShaderSource, const char* fragmentShaderS
     : mVertexShaderSource { vertexShaderSource }
     , mFragmentShaderSource { fragmentShaderSource }
     , mDefines { defines }
-    , mOrthoMatrixUniform { -1 }
-    , mHash { 0 } {
+    , mHash { 0 }
+    , mOrthoMatrixUniform { -1 } {
 }
 
 bool GlProgram::Compile() {

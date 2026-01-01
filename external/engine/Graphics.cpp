@@ -3,11 +3,13 @@
 #include "Gl.h"
 #include "GlFrameBuffer.h"
 #include "GlProgram.h"
-#include "Texture.h"
 #include "SdlWindow.h"
+#include "Texture.h"
 #include <SDL3/SDL.h>
+
 #include <algorithm>
 #include <cassert>
+#include <cstring>
 #include <vector>
 
 namespace Wind {
@@ -162,7 +164,7 @@ InstanceData Graphics::Impl::AllocInstances(unsigned count, unsigned stride, GLi
 	unsigned size = count * stride;
 	if (mInstanceBufferOffs + size > mInstanceBuffer.size()) {
 		SDL_LogError(0, "Cannot allocate instance data (count: %d stride: %d)", count, stride);
-		return { nullptr, 0, 0 };
+		return { nullptr, 0, 0, 0 };
 	}
 	unsigned offs = mInstanceBufferOffs;
 	mInstanceBufferOffs += size;
@@ -361,7 +363,8 @@ void Graphics::Impl::Flush() {
 			size_t offset = 0;
 			for (unsigned i = 0; i < batch.instances.stride / 16; ++i) {
 				glEnableVertexAttribArray(batch.instances.location + i);
-				glVertexAttribPointer(batch.instances.location + i, 4, GL_FLOAT, GL_FALSE, batch.instances.stride, reinterpret_cast<void*>(offset + i * 16));
+				glVertexAttribPointer(batch.instances.location + i, 4, GL_FLOAT, GL_FALSE, batch.instances.stride,
+				                      reinterpret_cast<void*>(offset + i * 16));
 				glVertexAttribDivisor(batch.instances.location + i, 1);
 			}
 
