@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ActionMgr.h"
 #include "Board.h"
 #include "BoostInfoPanel.h"
 #include "Match3.h"
@@ -14,7 +15,7 @@ class GameDataModule;
 
 class PlayScreen final : public Wind::GameScreen {
 public:
-	PlayScreen(Wind::Engine& engine, const GameConfig& gameConfig, const GameSettings& gameSettings, Wind::ActionMgr& renderActionMgr,
+	PlayScreen(Wind::Engine& engine, const GameConfig& gameConfig, const GameSettings& gameSettings, ActionMgr& renderActionMgr,
 	           MatchStats& matchStats, const GameDataModule& gameDataModule);
 	~PlayScreen();
 
@@ -49,7 +50,8 @@ private:
 	Wind::Engine&                 mEngine;
 	const GameConfig&             mGameConfig;
 	const GameSettings&           mGameSettings;
-	Wind::ActionMgr&              mRenderActionMgr;
+	ActionMgr                     mActionMgr;
+	ActionMgr&                    mRenderActionMgr;
 	MatchStats&                   mMatchStats;
 	const GameDataModule&         mGameDataModule;
 	Board                         mBoard;
@@ -58,10 +60,7 @@ private:
 	Wind::UIPanel                 mPanel;
 	Wind::UIButton                mPauseButton;
 	Match3                        mMatch3;
-	int                           mBoardFillCounter;
-	int                           mAnimCounter;
 	float                         mTime;
-	Wind::BitmapPtr               mSelectionBitmap;
 	Wind::FontPtr                 mFonts[3];
 	Wind::MusicPtr                mMusic;
 	Wind::SoundPtr                mSounds[2];

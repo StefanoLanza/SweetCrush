@@ -5,7 +5,7 @@
 #include "Gl.h"
 #include "GlProgram.h"
 #include "Graphics.h"
-#include "SdlSurface.h"
+#include "Texture.h"
 #include "SdlWindow.h"
 #include <SDL3/SDL.h>
 #include <cassert>
@@ -14,14 +14,22 @@ namespace Wind {
 
 TextRenderer::TextRenderer(Graphics& graphics)
     : mGraphics { graphics }
-    , mProgramHandle { graphics.NewProgram(SHADERS_FOLDER "quad.vs", SHADERS_FOLDER "font.fs") } {
-	const GlProgram& program = graphics.GetProgram(mProgramHandle);
-	mColor = program.GetUniformLocation("color");
-	mOutlineColor = program.GetUniformLocation("outlineColor");
-	mPosRect = program.GetUniformLocation("posRect");
-	mRotation = program.GetUniformLocation("rotation");
-	mUVRect = program.GetUniformLocation("uvRect");
-	mTexture = program.GetUniformLocation("inputTexture");
+    , mProgramHandle { graphics.NewProgram(SHADERS_FOLDER "font.vs", SHADERS_FOLDER "font.fs") }
+    , mValidProgram { false } {
+	if (mProgramHandle != nullProgram) {
+		const GlProgram& program = graphics.GetProgram(mProgramHandle);
+		mPosRect = program.GetAttribLocation("posRect");
+		mColor = program.GetUniformLocation("color");
+		mOutlineColor = program.GetUniformLocation("outlineColor");
+		mTexture = program.GetUniformLocation("inputTexture");
+		mValidProgram = (mPosRect >= 0 && mColor >= 0 && mOutlineColor >= 0 && mTexture >= 0);
+	}
+
+	PipelineState pipelineState;
+	pipelineState.mDepthEnabled = false;
+	pipelineState.mBlending = true;
+	pipelineState.mScissorTestEnabled = false;
+	mPipeline = mGraphics.NewPipeline(pipelineState);
 }
 
 TextRenderer::~TextRenderer() = default;
@@ -43,8 +51,7 @@ FontPtr TextRenderer::AddFont(const char* fontName) {
 		char glyphPath[260];
 		snprintf(glyphPath, sizeof(glyphPath), "%s%s.fnt", FONTS_FOLDER, fontName);
 
-		auto font = std::make_unique<Font>(fontName, textureFile, texturePath, LoadGlyphs(glyphPath));
-		mFonts.push_back(std::move(font));
+		mFonts.emplace_back(std::make_unique<Font>(fontName, textureFile, texturePath, LoadGlyphs(glyphPath)));
 		return mFonts.back();
 	}
 	catch (const std::exception& e) {
@@ -53,53 +60,63 @@ FontPtr TextRenderer::AddFont(const char* fontName) {
 	}
 }
 
-void TextRenderer::Write(const Font& font, const char* text, Vec2 pos, const TextStyle& style, DrawOrderType drawOrder) const {
-	assert(text);
+void TextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, const TextStyle& style, DrawOrderType drawOrder) const {
+	if (! mValidProgram) {
+		return;
+	}
+
+	struct Char {
+		Rect quad;
+		Rect uvs;
+	};
+	InstanceData instanceData = mGraphics.AllocInstances((unsigned)text.length(), sizeof(Char), mPosRect);
+	if (! instanceData.data) {
+		return;
+	}
 
 	const float fontTexWidth = static_cast<float>(font.GetSurface().Width());
 	const float fontTexHeight = static_cast<float>(font.GetSurface().Height());
-
-	DrawCall drawCall;
-	drawCall.program = mProgramHandle;
-	drawCall.mesh = quadMesh;
-	drawCall.texture = font.GetSurface().GetTextureId();
-	drawCall.blending = true;
-
-	int advance = 0;
-	for (; *text; ++text) {
-		const Glyph& g = font.FindGlyph(*text);
-
-		float left = pos.x + static_cast<float>(g.xoffset + advance);
-		float top = pos.y + static_cast<float>(g.yoffset);
-		float right = left + static_cast<float>(g.width);
-		float bottom = top + static_cast<float>(g.height);
-
-		Rect uvs;
-		uvs.left = static_cast<float>(g.x) / fontTexWidth;
-		uvs.right = static_cast<float>(g.x + g.width) / fontTexWidth;
-		uvs.top = static_cast<float>(g.y) / fontTexHeight;
-		uvs.bottom = static_cast<float>(g.y + g.height) / fontTexHeight;
-
-		const int   uniforms[] = { mOutlineColor, mColor, mPosRect, mUVRect, mRotation };
-		const float uniformData[][4] = {
-			{ style.outlineColor.r / 255.f, style.outlineColor.g / 255.f, style.outlineColor.b / 255.f, style.outlineColor.a / 255.f },
-			{ style.color.r / 255.f, style.color.g / 255.f, style.color.b / 255.f, style.color.a / 255.f },
-			{ left, top, right, bottom },
-			{ uvs.left, uvs.top, uvs.right, uvs.bottom },
-			{ 1.f, 0.f, 0.f, 0.f },
+	Char*       chars = static_cast<Char*>(instanceData.data);
+	for (int idx = 0, advance = 0; idx < (int)text.length(); ++idx) {
+		const Glyph& g = font.FindGlyph(text[idx]);
+		chars[idx].quad = {
+			pos.x + static_cast<float>(g.xoffset + advance),
+			pos.y + static_cast<float>(g.yoffset),
+			static_cast<float>(g.width),
+			static_cast<float>(g.height),
 		};
-
-		drawCall.drawOrder = drawOrder;
-		drawCall.uniforms = uniforms;
-		drawCall.uniformData = reinterpret_cast<const float*>(uniformData);
-		drawCall.numUniforms = 5;
-		mGraphics.Draw(drawCall);
-
+		chars[idx].uvs = {
+			static_cast<float>(g.x) / fontTexWidth,
+			static_cast<float>(g.y) / fontTexHeight,
+			static_cast<float>(g.width) / fontTexWidth,
+			static_cast<float>(g.height) / fontTexHeight,
+		};
 		advance += g.xadvance;
 	}
+
+	const int   uniforms[] = { mColor, mOutlineColor };
+	const float uniformData[][4] = {
+		{ style.color.r / 255.f, style.color.g / 255.f, style.color.b / 255.f, style.color.a / 255.f },
+		{ style.outlineColor.r / 255.f, style.outlineColor.g / 255.f, style.outlineColor.b / 255.f, style.outlineColor.a / 255.f },
+	};
+	mGraphics.SetPipeline(mPipeline);
+
+	const unsigned textureIds[] = { font.GetSurface().GetTextureId() };
+
+	DrawCall drawCall;
+	drawCall.uniforms = uniforms;
+	drawCall.uniformData = reinterpret_cast<const float*>(uniformData);
+	drawCall.numUniforms = sizeof(uniformData) / 16;
+	drawCall.textures = textureIds;
+	drawCall.numTextures = 1;
+	drawCall.program = mProgramHandle;
+	drawCall.mesh = quadMesh;
+	drawCall.drawOrder = drawOrder;
+	drawCall.instances = instanceData;
+	mGraphics.Draw(drawCall);
 }
 
-void TextRenderer::WriteAligned(const Font& font, const char* text, Vec2 pos, TextAlignment horizontalAlignment, const TextStyle& style,
+void TextRenderer::WriteAligned(const Font& font, std::string_view text, Vec2 pos, TextAlignment horizontalAlignment, const TextStyle& style,
                                 DrawOrderType drawOrder) const {
 	if (horizontalAlignment == TextAlignment::center) {
 		pos.x += 0.5f * (mGraphics.GetTargetWidth() - font.CalculateStringWidth(text));

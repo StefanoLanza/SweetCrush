@@ -8,9 +8,9 @@ namespace Wind {
 
 namespace {
 
-GLuint CompileShader(const char* source, GLenum type) {
+GLuint CompileShader(const char* sources[], int numSources, GLenum type) {
 	GLuint shader = glCreateShader(type);
-	glShaderSource(shader, 1, &source, nullptr);
+	glShaderSource(shader, numSources, sources, nullptr);
 	glCompileShader(shader);
 	GLint status;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
@@ -29,27 +29,34 @@ GLuint CompileShader(const char* source, GLenum type) {
 	return shader;
 }
 
-GLuint CompileShaderFromFile(const char* source, GLenum type) {
-	assert(source);
+GLuint CompileShaderFromFile(const char* fileName, const char* defines, GLenum type) {
+	assert(fileName);
 
-	GLuint           program = 0;
-	SDL_IOStream * const f = SDL_IOFromFile(source, "rb");
+	const char* version = "#version 310 es\n";
+
+	GLuint              program = 0;
+	SDL_IOStream* const f = SDL_IOFromFile(fileName, "rb");
 	if (f) {
 		const Sint64 length = SDL_SeekIO(f, 0, SDL_IO_SEEK_END);
 		if (length > 0) {
 			SDL_SeekIO(f, 0, SDL_IO_SEEK_SET);
-			std::vector<char> data(static_cast<size_t>(length) + 1);
-			SDL_ReadIO(f, data.data(), data.size());
-			data.back() = 0; // null terminate
-			program = CompileShader(data.data(), type);
+			std::vector<char> fileData(static_cast<size_t>(length) + 1);
+			SDL_ReadIO(f, fileData.data(), fileData.size());
+			fileData.back() = 0; // null terminate
+			const char* sources[] = {
+				version,
+				defines,
+				fileData.data(),
+			};
+			program = CompileShader(sources, 3, type);
 		}
 		else {
-			SDL_LogError(0, "Zero length file %s", source);
+			SDL_LogError(0, "Zero length file %s", fileName);
 		}
 		SDL_CloseIO(f);
 	}
 	else {
-		SDL_LogError(0, "Cannot open file %s", source);
+		SDL_LogError(0, "Cannot open file %s", fileName);
 	}
 	return program;
 }
@@ -71,16 +78,18 @@ bool Validate(GLuint program) {
 
 } // namespace
 
-GlProgram::GlProgram(const char* vertexShaderSource, const char* fragmentShaderSource)
+GlProgram::GlProgram(const char* vertexShaderSource, const char* fragmentShaderSource, const char* defines)
     : mVertexShaderSource { vertexShaderSource }
     , mFragmentShaderSource { fragmentShaderSource }
-	, mOrthoMatrixUniform { -1 } {
+    , mDefines { defines }
+    , mHash { 0 }
+    , mOrthoMatrixUniform { -1 } {
 }
 
 bool GlProgram::Compile() {
 	bool             valid = false;
-	const GLuint     vertexShader = CompileShaderFromFile(mVertexShaderSource, GL_VERTEX_SHADER);
-	const GLuint     fragmentShader = CompileShaderFromFile(mFragmentShaderSource, GL_FRAGMENT_SHADER);
+	const GLuint     vertexShader = CompileShaderFromFile(mVertexShaderSource.c_str(), mDefines.c_str(), GL_VERTEX_SHADER);
+	const GLuint     fragmentShader = CompileShaderFromFile(mFragmentShaderSource.c_str(), mDefines.c_str(), GL_FRAGMENT_SHADER);
 	GLManagedProgram program;
 	if (vertexShader && fragmentShader) {
 		program.reset(glCreateProgram());
@@ -94,7 +103,7 @@ bool GlProgram::Compile() {
 			valid = Validate(program.get());
 		}
 		else {
-			SDL_LogError(0, "Error linking program (vs: %s fs: %s)", mVertexShaderSource, mFragmentShaderSource);
+			SDL_LogError(0, "Error linking program (vs: %s fs: %s)", mVertexShaderSource.c_str(), mFragmentShaderSource.c_str());
 		}
 	}
 	glDeleteShader(vertexShader);
@@ -108,11 +117,11 @@ bool GlProgram::Compile() {
 	if (auto err = glGetError(); err != GL_NO_ERROR) {
 		SDL_LogError(0, "GL Error. Code: %d", err);
 		valid = false;
-	}	
+	}
 
-	if (valid){
-		SDL_LogInfo(0, "Compiled GL Program (vs: %s fs: %s)", mVertexShaderSource, mFragmentShaderSource);
-	}	
+	if (valid) {
+		SDL_LogInfo(0, "Compiled GL Program (vs: %s fs: %s)", mVertexShaderSource.c_str(), mFragmentShaderSource.c_str());
+	}
 
 	// else keep current program
 	return valid;
@@ -122,45 +131,50 @@ GLuint GlProgram::GetProgramId() const {
 	return mProgram.get();
 }
 
-GLint  GlProgram::GetAttribLocation(const char* attrib) const {
+GLint GlProgram::GetAttribLocation(const char* attrib) const {
 	assert(attrib);
 	if (mProgram == 0) {
 		SDL_LogError(0, "%s is not a valid glsl program attribute", attrib);
 		return -1;
 	}
 	int location = glGetAttribLocation(mProgram.get(), attrib);
-	if (location == -1){
+	if (location == -1) {
 		SDL_LogError(0, "%s is not a valid glsl program attribute", attrib);
 	}
 	return location;
 }
 
-GLint  GlProgram::GetUniformLocation(const char* uniform) const {
+GLint GlProgram::GetUniformLocation(const char* uniform) const {
 	assert(uniform);
 	if (mProgram == 0) {
 		SDL_LogError(0, "%s is not a valid glsl program uniform", uniform);
 		return -1;
 	}
 	int location = glGetUniformLocation(mProgram.get(), uniform);
-	if (location == -1){
+	if (location == -1) {
 		SDL_LogError(0, "%s is not a valid glsl program uniform", uniform);
 	}
 	return location;
 }
 
-GLint  GlProgram::TryGetUniformLocation(const char* uniform) const {
+GLint GlProgram::TryGetUniformLocation(const char* uniform) const {
 	assert(uniform);
 	if (mProgram == 0) {
 		return -1;
 	}
 	int location = glGetUniformLocation(mProgram.get(), uniform);
-	if (location == -1){
+	if (location == -1) {
 	}
 	return location;
 }
 
 GLint GlProgram::GetOrthoMatrixUniform() const {
 	return mOrthoMatrixUniform;
+}
+
+bool GlProgram::IsEqual(const char* vertexShaderSource, const char* fragmentShaderSource, std::string_view defines) const {
+	// TODO hash
+	return mVertexShaderSource == vertexShaderSource && mFragmentShaderSource == fragmentShaderSource && mDefines == defines;
 }
 
 GlProgram::operator bool() const {

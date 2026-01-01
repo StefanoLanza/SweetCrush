@@ -4,9 +4,9 @@
 #include <engine/FwdDecl.h>
 #include <engine/UI.h>
 
-class BoostInfoPanel {
+class BoostInfoPanel final {
 public:
-	BoostInfoPanel(Wind::Engine& engine);
+	explicit BoostInfoPanel(Wind::Engine& engine);
 
 	void BuildUI(Wind::UICanvas& canvas);
 	void ShowHelp(BoosterType type);

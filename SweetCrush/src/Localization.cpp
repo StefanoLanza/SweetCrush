@@ -1,5 +1,7 @@
 #include "Localization.h"
+
 #include <algorithm>
+#include <iterator> // std::size
 
 namespace {
 
@@ -20,6 +22,7 @@ const char* eng[] = {
 	"Code by Stefano Lanza",
 	"Graphics by gameartguppy.com",
 	"Music by Patrick De Arteaga",
+	"Version 0.1.0",
 	"BACK",
 	"Your score is",
 	"Your final score is",
@@ -61,6 +64,7 @@ const char* esp[] = {
 	"Codigo por Stefano Lanza",
 	"Grafica por gameartguppy.com",
 	"Musica por Patrick De Arteaga",
+	"Version 0.1.0",
 	"VOLVER",
 	"Tu punctuacion es",
 	"Tu punctuacion final es",
@@ -102,6 +106,7 @@ const char* ita[] = {
 	"Codice di Stefano Lanza",
 	"Grafica di gameartguppy.com",
 	"Musica di Patrick De Arteaga",
+	"Versione 0.1.0",
 	"INDIETRO",
 	"Il tuo punteggio e'",
 	"Il tuo punteggio finale e'",

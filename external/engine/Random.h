@@ -14,6 +14,8 @@ public:
 	void Seed(uint32_t seed);
 	int Next();
 	int Next(int min, int max);
+	float NextF();
+	float NextF(float min, float max);
 private:
 	uint32_t NextState();
 private:

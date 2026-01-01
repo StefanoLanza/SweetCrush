@@ -57,6 +57,7 @@ struct Match3Event {
 		dropTile,
 		newBooster,
 		boosterTriggered,
+		layerBroken,
 	};
 	Id id;
 	union {
@@ -99,14 +100,14 @@ private:
 	bool CheckCombos(int h, int v, int t, int b, PieceId pieceId, int cellIdx);
 	bool CheckCellCombos(int cellIdx);
 	bool CheckMatchesAfterSwap();
-	void RemoveTile(int idx) const;
+	void HitCell(int idx) const;
 	void InsertBoosters();
 	void CollapseColumns();
 	void GenerateNewPieces();
 	bool CheckMatches();
 
 	void TrySwap(int first, int second);
-	void SwapSelectedTiles(int firstTile, int secondTile);
+	void SwapSelectedCells(int firstTile, int secondTile);
 	void CollapseColumn(int col);
 	void KillMatches(const Cell& cell, int dcol, int drow);
 	void TriggerBooster(int cellIdx);

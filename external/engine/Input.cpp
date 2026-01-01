@@ -1,5 +1,7 @@
 #include "Input.h"
 #include "SdlWindow.h"
+
+#include <iterator> // std::size
 #include <cassert>
 
 namespace Wind {
@@ -66,6 +68,7 @@ void Input::BeginFrame() {
 
 void Input::ParseEvent(const SDL_Event& event, const SdlWindow& window) {
 	SDL_Keycode sym = 0;
+#if SDL_MAJOR_VERSION == 3
 	switch (event.type) {
 	case SDL_EVENT_KEY_DOWN:
 		sym = event.key.key;
@@ -115,6 +118,10 @@ void Input::ParseEvent(const SDL_Event& event, const SdlWindow& window) {
 	default:
 		break;
 	}
+
+#elif  SDL_MAJOR_VERSION == 2
+	// TODO
+#endif
 }
 
 } // namespace Wind

@@ -3,10 +3,7 @@
 #include <limits>
 #include <cassert>
 
-namespace Wind {
-
 struct ActionMgr::Action {
-	int*       counter;
 	float      delay;
 	float      duration;
 	float      t;
@@ -17,16 +14,13 @@ ActionMgr::ActionMgr() = default;
 
 ActionMgr::~ActionMgr() = default;
 
-void ActionMgr::AddAction(int* counter, float delay, ActionFunc&& func) {
-	AddTimedAction(counter, delay, std::numeric_limits<float>::max(), std::move(func));
+void ActionMgr::AddAction(float delay, ActionFunc&& func) {
+	AddTimedAction(delay, std::numeric_limits<float>::max(), std::move(func));
 }
 
-void ActionMgr::AddTimedAction(int* counter, float delay, float duration, ActionFunc&& func) {
+void ActionMgr::AddTimedAction(float delay, float duration, ActionFunc&& func) {
 	assert(duration >= 0.f);
-	if (counter) {
-		++*counter;
-	}
-	mActions.push_back({ counter, delay, duration, 0.f, std::move(func) });
+	mActions.push_back({ delay, duration, 0.f, std::move(func) });
 }
 
 void ActionMgr::RunActions(float dt) {
@@ -36,10 +30,11 @@ void ActionMgr::RunActions(float dt) {
 		if (action.delay < 0.f) {
 			action.t += dt;
 			float t01 = std::clamp(action.t / action.duration, 0.f, 1.f);
-			res = action.func(dt, t01);
-			res = res || (action.t >= action.duration);
-			if (res && action.counter) {
-				--*action.counter; // Decrease counter, to inform client
+			if (action.t < action.duration) {
+				res = action.func(dt, t01);
+			}
+			else {
+				res = true;
 			}
 		}
 		return res;
@@ -55,5 +50,3 @@ void ActionMgr::Clear() {
 bool ActionMgr::AnyRunning() const {
 	return mActions.empty() == false;
 }
-
-} // namespace Wind

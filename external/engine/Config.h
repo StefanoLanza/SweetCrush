@@ -10,3 +10,5 @@
 
 #define SHADERS_FOLDER ASSETS_FOLDER "shaders/"
 #define FONTS_FOLDER   ASSETS_FOLDER "fonts/"
+
+constexpr int instanceDataBufferSize = 64 * 1024;

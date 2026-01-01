@@ -1,37 +1,41 @@
 #pragma once
 
-#include "Color.h"
 #include "Config.h"
 #include "FwdDecl.h"
+#include "Texture.h"
 #include <functional>
+
 #include <memory>
+#include <string_view>
 
 namespace Wind {
 
 using RenderCallback = std::function<void(float dt)>;
 using UpdateCallback = std::function<void(float dt)>;
 
+enum class DisplayOrientation {
+	portrait,
+	landscape
+};
+
 class Engine final {
 public:
-	Engine(const char* windowTitle, int windowWidth, int windowHeight);
+	explicit Engine(SdlWindow& window);
 	~Engine();
 
-	const SdlWindow& GetWindow() const;
-	int              GetWindowWidth() const;
-	int              GetWindowHeight() const;
+	const SdlWindow&   GetWindow() const;
+	DisplayOrientation GetDisplayOrientation() const;
 
 	void Start(const RenderCallback& renderCbk, const UpdateCallback& updateCbk);
 	void Quit();
 
-	Input&          GetInput();
+	Input&          GetInput() const;
 	Graphics&       GetGraphics() const;
 	const Blitter&  GetBlitter() const;
 	BitmapRenderer& GetBitmapRenderer() const;
 	TextRenderer&   GetTextRenderer() const;
-	ActionMgr&      GetTickActionMgr() const;
 	Audio&          GetAudio() const;
-
-	BitmapPtr LoadBitmap(const char* fileName);
+	TexturePtr      LoadTexture(std::string_view fileName, TextureInfo texInfo = TextureInfo{});
 
 private:
 	struct Implementation;

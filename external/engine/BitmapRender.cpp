@@ -2,7 +2,7 @@
 #include "Config.h"
 #include "GlProgram.h"
 #include "Graphics.h"
-#include "SdlSurface.h"
+#include "Texture.h"
 #include <SDL3/SDL.h>
 #include <cmath>
 
@@ -10,27 +10,33 @@ namespace Wind {
 
 class BitmapRenderer::Impl {
 public:
-	Impl(Graphics& graphics);
+	explicit Impl(Graphics& graphics);
 
-	void DrawBitmap(const SdlSurface& bitmap, float x, float y) const;
-	void DrawBitmapEx(const SdlSurface& surface, float x, float y, const BitmapExtParams& prm) const;
+	void DrawBitmap(const Texture& bitmap, float x, float y) const;
+	void DrawBitmapEx(const Texture& surface, float x, float y, const BitmapExtParams& prm) const;
 
 private:
-	Graphics&     mGraphics;
-	ProgramHandle mProgramHandle;
-	bool          mValidProgram;
+	Graphics&      mGraphics;
+	PipelineHandle mPipelineBlending;
+	ProgramHandle  mProgramHandle;
+	bool           mValidPrograms;
 	// Uniforms
-	GLint mColor;
-	GLint mRotation;
-	GLint mPosRect;
-	GLint mUVRect;
-	GLint mTexture;
+	GLint mColor = 0;
+	GLint mRotation = 0;
+	GLint mPosRect = 0;
+	GLint mUVRect = 0;
+	GLint mTexture = 0;
 };
 
 BitmapRenderer::Impl::Impl(Graphics& graphics)
     : mGraphics { graphics }
     , mProgramHandle { graphics.NewProgram(SHADERS_FOLDER "quad.vs", SHADERS_FOLDER "quad.fs") }
-    , mValidProgram { false } {
+    , mValidPrograms { false } {
+
+	PipelineState pipelineState;
+	pipelineState.mBlending = true;
+	mPipelineBlending = graphics.NewPipeline(pipelineState);
+
 	if (mProgramHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(mProgramHandle);
 		mColor = program.GetUniformLocation("color");
@@ -38,17 +44,16 @@ BitmapRenderer::Impl::Impl(Graphics& graphics)
 		mPosRect = program.GetUniformLocation("posRect");
 		mUVRect = program.GetUniformLocation("uvRect");
 		mTexture = program.GetUniformLocation("inputTexture");
-		mValidProgram = (mColor != -1 && mPosRect != -1 && mUVRect != -1 && mTexture != -1);
-		;
+		mValidPrograms = (mColor != -1 && mPosRect != -1 && mUVRect != -1 && mTexture != -1);
 	}
 }
 
-void BitmapRenderer::Impl::DrawBitmap(const SdlSurface& bitmap, float x, float y) const {
+void BitmapRenderer::Impl::DrawBitmap(const Texture& bitmap, float x, float y) const {
 	DrawBitmapEx(bitmap, x, y, BitmapExtParams {});
 }
 
-void BitmapRenderer::Impl::DrawBitmapEx(const SdlSurface& bitmap, float x, float y, const BitmapExtParams& prm) const {
-	if (! mValidProgram) {
+void BitmapRenderer::Impl::DrawBitmapEx(const Texture& bitmap, float x, float y, const BitmapExtParams& prm) const {
+	if (! mValidPrograms) {
 		return;
 	}
 
@@ -70,15 +75,25 @@ void BitmapRenderer::Impl::DrawBitmapEx(const SdlSurface& bitmap, float x, float
 		{ std::cos(prm.orientation), std::sin(prm.orientation), x, y },
 	};
 
+	if (prm.blending) {
+		mGraphics.SetPipeline(mPipelineBlending);
+	}
+	else {
+		mGraphics.SetDefaultPipeline();
+	}
+
+	const unsigned textureIds[] = { bitmap.GetTextureId() };
+
 	DrawCall drawCall;
+	drawCall.uniforms = uniforms;
+	drawCall.uniformData = uniformData;
+	drawCall.numUniforms = sizeof(uniformData) / 16;
+	drawCall.textures = textureIds;
+	drawCall.numTextures = 1;
 	drawCall.program = mProgramHandle;
 	drawCall.mesh = quadMesh;
-	drawCall.texture = bitmap.GetTextureId();
 	drawCall.drawOrder = prm.drawOrder;
-	drawCall.blending = prm.blending;
-	drawCall.uniforms = uniforms;
-	drawCall.uniformData = reinterpret_cast<const float*>(uniformData);
-	drawCall.numUniforms = 4;
+	drawCall.sortKey = (bitmap.GetTextureId() & 255); // sort by texture
 	mGraphics.Draw(drawCall);
 }
 
@@ -88,11 +103,11 @@ BitmapRenderer::BitmapRenderer(Graphics& graphics)
 
 BitmapRenderer::~BitmapRenderer() = default;
 
-void BitmapRenderer::DrawBitmap(const SdlSurface& bitmap, Vec2 pos) const {
+void BitmapRenderer::DrawBitmap(const Texture& bitmap, Vec2 pos) const {
 	mPimpl->DrawBitmap(bitmap, pos.x, pos.y);
 }
 
-void BitmapRenderer::DrawBitmapEx(const SdlSurface& surface, Vec2 pos, const BitmapExtParams& prm) const {
+void BitmapRenderer::DrawBitmapEx(const Texture& surface, Vec2 pos, const BitmapExtParams& prm) const {
 	mPimpl->DrawBitmapEx(surface, pos.x, pos.y, prm);
 }
 

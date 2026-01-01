@@ -1,11 +1,11 @@
 #pragma once
 
-#include <engine/ActionMgr.h>
 #include <engine/FwdDecl.h>
 #include <engine/GameScreen.h>
 #include <engine/GlFrameBuffer.h>
 #include <engine/UI.h>
 
+#include "ActionMgr.h"
 #include "GameDataModule.h"
 #include "GameSettings.h"
 #include "MatchStats.h"
@@ -13,7 +13,7 @@
 
 struct GameConfig;
 
-class Game {
+class Game final {
 public:
 	Game(Wind::Engine& engine, const GameConfig& gameConfig, GameDataModule& gameDataModule);
 	~Game();
@@ -31,7 +31,7 @@ private:
 	Wind::GlFrameBuffer               mFrameBuffer;
 	Wind::UICanvas                    mCanvas;
 	MatchStats                        mMatchStats;
-	Wind::ActionMgr                   mRenderActionMgr;
+	ActionMgr                         mRenderActionMgr;
 	Wind::GameScreenId                mScreenId;
 	std::unique_ptr<Wind::GameScreen> mScreens[8];
 };

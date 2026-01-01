@@ -8,7 +8,7 @@ namespace Wind {
 
 class Blitter::Impl {
 public:
-	Impl(Graphics& graphics);
+	explicit Impl(Graphics& graphics);
 	void Blit(const GlFrameBuffer& frameBuffer) const;
 	Vec2 WindowToFrameBuffer(Vec2 winCoord, const GlFrameBuffer& frameBuffer) const;
 
@@ -19,11 +19,10 @@ private:
 	Graphics&     mGraphics;
 	ProgramHandle mProgramHandle;
 	// Attributes
-	GLint mVertexPos;
+	GLint mVertexPos = -1;
 	// Uniforms
-	GLint mPosRect;
-	GLint mUVRect;
-	GLint mTexture;
+	GLint mPosRect = -1;
+	GLint mTexture = -1;
 	bool  mValidProgram;
 };
 
@@ -35,14 +34,13 @@ Blitter::Impl::Impl(Graphics& graphics)
 		const GlProgram& program = graphics.GetProgram(mProgramHandle);
 		mVertexPos = program.GetAttribLocation("inputPosition");
 		mPosRect = program.GetUniformLocation("posRect");
-		mUVRect = program.GetUniformLocation("uvRect");
 		mTexture = program.GetUniformLocation("inputTexture");
-		mValidProgram = (mVertexPos != -1 && mPosRect != -1 && mUVRect != -1 && mTexture != -1);
+		mValidProgram = (mVertexPos != -1 && mPosRect != -1 && mTexture != -1);
 	}
 }
 
 RectI Blitter::Impl::ComputeTargetRect(const GlFrameBuffer& frameBuffer) const {
-	int   cx, cy, cw, ch;
+	int       cx, cy, cw, ch;
 	const int targetHeight = mGraphics.GetTargetWidth() * frameBuffer.GetHeight() / frameBuffer.GetWidth();
 	const int targetWidth = mGraphics.GetTargetHeight() * frameBuffer.GetWidth() / frameBuffer.GetHeight();
 	if (targetHeight < mGraphics.GetTargetHeight()) {
@@ -66,12 +64,7 @@ RectI Blitter::Impl::ComputeTargetRect(const GlFrameBuffer& frameBuffer) const {
 		cw = mGraphics.GetTargetWidth();
 		ch = mGraphics.GetTargetHeight();
 	}
-	RectI r;
-	r.left = cx;
-	r.right = cx + cw;
-	r.bottom = cy + ch;
-	r.top = cy;
-	return r;
+	return { cx, cy, cx + cw, cy + ch };
 }
 
 void Blitter::Impl::Blit(const GlFrameBuffer& frameBuffer) const {
@@ -81,41 +74,41 @@ void Blitter::Impl::Blit(const GlFrameBuffer& frameBuffer) const {
 
 	const RectI targetRect = ComputeTargetRect(frameBuffer);
 
-	float u0 = (float)targetRect.left / (float)mGraphics.GetTargetWidth();
-	float u1 = (float)targetRect.right / (float)mGraphics.GetTargetWidth();
-	float v0 = (float)targetRect.top / (float)mGraphics.GetTargetHeight();
-	float v1 = (float)targetRect.bottom / (float)mGraphics.GetTargetHeight();
-	// To clip space
-	u0 = -1 + 2 * u0;
-	u1 = -1 + 2 * u1;
-	v0 = -1 + 2 * v0;
-	v1 = -1 + 2 * v1;
+	PipelineState pipelineState;
+	pipelineState.mDepthEnabled = false;
+	pipelineState.mBlending = false;
+	pipelineState.EnableScissorTest(targetRect.left, targetRect.top, targetRect.right - targetRect.left, targetRect.bottom - targetRect.top);
+	PipelineHandle pipelineHandle = mGraphics.NewPipeline(pipelineState);
+	mGraphics.SetPipeline(pipelineHandle);
 
-	const int   uniforms[] = { mPosRect, mUVRect };
-	const float uniformData[] = { u0, v0, u1, v1, 0.f, 0.f, 1.f, 1.f };
+	float x0 = (float)targetRect.left / (float)mGraphics.GetTargetWidth();
+	float x1 = (float)targetRect.right / (float)mGraphics.GetTargetWidth();
+	float y0 = (float)targetRect.top / (float)mGraphics.GetTargetHeight();
+	float y1 = (float)targetRect.bottom / (float)mGraphics.GetTargetHeight();
+
+	const int      uniforms[] = { mPosRect };
+	const float    uniformData[] = { x0, y0, x1, y1 };
+	const unsigned textureIds[] = { frameBuffer.GetColorAttachment() };
 
 	DrawCall drawCall;
-	drawCall.program = mProgramHandle;
-	drawCall.mesh = triangleMesh;
-	drawCall.texture = frameBuffer.GetTexture();
-	drawCall.drawOrder = 0;
-	drawCall.blending = false;
 	drawCall.uniforms = uniforms;
 	drawCall.uniformData = uniformData;
-	drawCall.numUniforms = 2;
-	mGraphics.EnableClipRect(targetRect.left, targetRect.top, targetRect.right - targetRect.left, targetRect.bottom - targetRect.top);
+	drawCall.numUniforms = sizeof(uniformData) / 16;
+	drawCall.textures = textureIds;
+	drawCall.numTextures = 1;
+	drawCall.program = mProgramHandle;
+	drawCall.mesh = triangleMesh;
+	drawCall.drawOrder = 0;
 	mGraphics.Draw(drawCall);
-	mGraphics.DisableClipRect();
 }
 
 Vec2 Blitter::Impl::WindowToFrameBuffer(Vec2 winCoord, const GlFrameBuffer& frameBuffer) const {
 	const RectI targetRect = ComputeTargetRect(frameBuffer);
-	Vec2 fbCoord;
-	fbCoord.x = (winCoord.x - targetRect.left) * frameBuffer.GetWidth() / (float)(targetRect.right - targetRect.left);
-	fbCoord.y = (winCoord.y - targetRect.top) * frameBuffer.GetHeight() / (float)(targetRect.bottom - targetRect.top);
-	return fbCoord;
-}
+	return { (winCoord.x - targetRect.left) * frameBuffer.GetWidth() / (float)(targetRect.right - targetRect.left),
+		     (winCoord.y - targetRect.top) * frameBuffer.GetHeight() / (float)(targetRect.bottom - targetRect.top)
 
+	};
+}
 
 Blitter::Blitter(Graphics& graphics)
     : mPimpl { std::make_unique<Impl>(graphics) } {

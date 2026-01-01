@@ -102,12 +102,12 @@ public:
 
 	void              Draw(const BitmapRenderer& renderer, DrawOrderType drawOrder) const;
 	void              UpdateRect(const UIRect& parentRect);
-	void              SetBitmap(const BitmapPtr& bitmap);
-	const SdlSurface& GetBitmap() const;
+	void              SetBitmap(const TexturePtr& bitmap);
+	const Texture& GetBitmap() const;
 
 private:
 	UIBitmapDesc mDesc;
-	BitmapPtr    mBitmap;
+	TexturePtr    mBitmap;
 	UIRect       mAlignedRect;
 };
 
@@ -139,7 +139,6 @@ public:
 	void AddButton(UIButton& button);
 	void AddText(UIText& text);
 	void AddBitmap(UIBitmap& bitmap);
-	void LoadAssets(Engine& engine);
 	void Draw(const BitmapRenderer& renderer, const TextRenderer& textRender, DrawOrderType drawOrder) const;
 	void UpdateRect(const UIRect& parentRect);
 
@@ -158,16 +157,16 @@ public:
 	UICanvas();
 
 	void     SetBackground(const char* fileName, Engine& engine);
+	void     SetBackground(TexturePtr background);
 	void     SetMousePointer(const char* fileName, Engine& engine);
 	UIPanel& GetPanel();
-	void     LoadAssets(Engine& engine);
-	void     UpdateWidgets(float canvasWidth, float canvasHeight);
+	void     UpdateWidgets(int canvasWidth, int canvasHeight);
 	void     Draw(const BitmapRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords);
 
 private:
 	UIPanel   mPanel;
-	BitmapPtr mBackground;
-	BitmapPtr mMousePointer;
+	TexturePtr mBackground;
+	TexturePtr mMousePointer;
 };
 
 UIButton MakeButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, const UITextDesc& textDesc, Engine& engine);
@@ -186,4 +185,4 @@ constexpr inline UISize UIAbsoluteSize(float x, float y) {
 	return { x, y, 0.f, 0.f };
 }
 
-} // namespace Huawei
+} // namespace Wind

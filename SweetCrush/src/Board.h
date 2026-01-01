@@ -11,7 +11,7 @@ enum class CellCategory {
 	empty,
 	hole,
 	piece,
-	booster,
+	booster, // TODO Remove
 	obstacle,
 };
 

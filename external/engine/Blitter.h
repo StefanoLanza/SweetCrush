@@ -7,8 +7,6 @@ namespace Wind {
 
 struct Vec2;
 
-enum class Effect { bloom };
-
 class Blitter final {
 public:
 	explicit Blitter(Graphics& graphics);

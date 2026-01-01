@@ -32,7 +32,7 @@ struct FileTime {
 using DLLProc = void*;
 #endif
 
-class DLL {
+class DLL final {
 public:
 	DLL();
 

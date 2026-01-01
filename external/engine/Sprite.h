@@ -9,7 +9,7 @@ struct Sprite {
 	/*	const char** bitmaps;
 	    int          numBitmaps;
 	    float        animationFreq;*/
-	BitmapPtr bitmap;
+	TexturePtr bitmap;
 	Vec2      position;
 };
 

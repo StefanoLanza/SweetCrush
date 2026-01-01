@@ -1,8 +1,8 @@
 #include "Actions.h"
 #include "AssetDefs.h"
 #include "Board.h"
-#include "GameConfig.h"
 #include "Constants.h"
+#include "GameConfig.h"
 #include "GameDrawOrder.h"
 #include <cmath>
 #include <cstdio>
@@ -49,7 +49,7 @@ ActionFunc DrawMovingSprite(const Cell& cell, const Engine& engine, Vec2 targetP
 	};
 }
 
-Wind::ActionFunc DrawExplosion(const Cell& cell, const Engine& engine, const GameConfig& gameConfig) {
+ActionFunc DrawExplosion(const Cell& cell, const Engine& engine, const GameConfig& gameConfig) {
 	Vec2 xy = cell.coords + Vec2 { gameConfig.cellWidth, gameConfig.cellHeight } * 0.5f;
 	return [&engine, xy](float /*dt*/, float t) {
 		const BitmapRenderer& bitmapRender = engine.GetBitmapRenderer();
@@ -57,12 +57,13 @@ Wind::ActionFunc DrawExplosion(const Cell& cell, const Engine& engine, const Gam
 		prm.scale = 1.f + t * 4.f;
 		prm.pivot = BitmapPivot::center;
 		prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::overlays);
+		prm.blending = true;
 		bitmapRender.DrawBitmapEx(*sprites[sparkleSprite], xy, prm);
 		return false;
 	};
 }
 
-Wind::ActionFunc DrawMatchScore(int score, const Cell& cell, const Engine& engine, const GameConfig& gameConfig, const Font& font) {
+ActionFunc DrawMatchScore(int score, const Cell& cell, const Engine& engine, const GameConfig& gameConfig, const Font& font) {
 	Vec2 xy = cell.coords + Vec2 { gameConfig.cellWidth, gameConfig.cellHeight } * 0.5f;
 	return [&engine, &font, xy, score, scrollSpeed = gameConfig.scoreTextScrollSpeed](float /*dt*/, float t) {
 		const TextRenderer& textRender = engine.GetTextRenderer();
@@ -70,6 +71,21 @@ Wind::ActionFunc DrawMatchScore(int score, const Cell& cell, const Engine& engin
 		snprintf(tmp, sizeof(tmp), "%d", score);
 		float y = xy.y - t * scrollSpeed;
 		textRender.Write(font, tmp, Vec2 { xy.x, y }, defaultTextStyle, DrawOrder::UI - 1); // below UI
+		return false;
+	};
+}
+
+ActionFunc DrawBrokenIce(const Cell& cell, const Engine& engine, const GameConfig& gameConfig) {
+	Vec2 xy = cell.coords + Vec2 { gameConfig.cellWidth, gameConfig.cellHeight } * 0.5f;
+	return [&engine, xy](float /*dt*/, float t01) {
+		const BitmapRenderer& bitmapRender = engine.GetBitmapRenderer();
+		BitmapExtParams       prm;
+		prm.scale = 1.f + t01 * 0.5f;
+		prm.pivot = BitmapPivot::center;
+		prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::ice);
+		prm.blending = true;
+		prm.color.a = 255.f * (1.f - t01 * t01 * t01 * t01); // ease-in
+		bitmapRender.DrawBitmapEx(*sprites[brokenIceSprite], xy, prm);
 		return false;
 	};
 }

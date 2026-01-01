@@ -1,25 +1,23 @@
 #include "Engine.h"
 
-#include <algorithm>
-#include <cassert>
-#include <cmath>
-#include <stdexcept>
-#include <vector>
-
-#include "ActionMgr.h"
 #include "Audio.h"
 #include "BitmapRender.h"
 #include "Blitter.h"
 #include "Color.h"
+#include "Config.h"
 #include "Gl.h"
 #include "GlContext.h"
 #include "GlProgram.h"
 #include "Graphics.h"
 #include "Input.h"
-#include "Sdl.h"
-#include "SdlSurface.h"
 #include "SdlWindow.h"
 #include "TextRender.h"
+#include "Texture.h"
+#include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <stdexcept>
+#include <vector>
 
 namespace Wind {
 
@@ -30,25 +28,23 @@ constexpr uint64_t MaxFrameTicks = 300;
 } // namespace
 
 struct Engine::Implementation {
-	Sdl                    mSdl;
-	SdlWindow              mWindow;
-	GlContext              mGlContext;
-	Input                  mInput;
-	Graphics               mGraphics;
-	Audio                  mAudio;
-	BitmapRenderer         mBitmapRenderer;
-	Blitter                mBlitter;
-	TextRenderer           mTextRenderer;
-	ActionMgr              mActionMgr;
-	std::vector<BitmapPtr> mBitmaps;
-	uint64_t               mElapsedTicks;
-	float                  mAccumTime;
-	bool                   mQuit;
-	bool                   mBackground;
+	SdlWindow&              mWindow;
+	GlContext               mGlContext;
+	Input                   mInput;
+	Graphics                mGraphics;
+	Audio                   mAudio;
+	BitmapRenderer          mBitmapRenderer;
+	Blitter                 mBlitter;
+	TextRenderer            mTextRenderer;
+	std::vector<TexturePtr> mTextures;
+	uint64_t                mElapsedTicks;
+	float                   mAccumTime;
+	bool                    mQuit;
+	bool                    mAppInBackground;
+	DisplayOrientation      mDisplayOrientation;
 
-	Implementation(const char* title, int windowWidth, int windowHeight)
-		: mSdl { SDL_INIT_VIDEO | SDL_INIT_EVENTS } // SDL_INIT_AUDIO | SDL_INIT_EVENTS }
-	    , mWindow { title, windowWidth, windowHeight }
+	explicit Implementation(SdlWindow& window)
+	    : mWindow { window }
 	    , mGlContext(mWindow)
 	    , mGraphics(mWindow)
 	    , mBitmapRenderer { mGraphics }
@@ -57,13 +53,14 @@ struct Engine::Implementation {
 	    , mElapsedTicks(0)
 	    , mAccumTime(0.f)
 	    , mQuit(false)
-	    , mBackground(false) {
-		RegisterBitmap("null.png"); // placeholder
+	    , mAppInBackground(false)
+	    , mDisplayOrientation { DisplayOrientation::portrait } {
+		LoadTexture("images/null.png", {}); // placeholder
 	}
 
-	void      Start(const RenderCallback& renderCkb, const UpdateCallback& updateCbk);
-	BitmapPtr RegisterBitmap(const char* fileName);
-	void      ParseEvent();
+	void       Start(const RenderCallback& renderCkb, const UpdateCallback& updateCbk);
+	TexturePtr LoadTexture(std::string_view fileName, TextureInfo texInfo);
+	void       ParseEvent();
 };
 
 void Engine::Implementation::Start(const RenderCallback& renderCbk, const UpdateCallback& updateCbk) {
@@ -80,42 +77,42 @@ void Engine::Implementation::Start(const RenderCallback& renderCbk, const Update
 		lastFrameTicks = std::min(lastFrameTicks, MaxFrameTicks);
 		const float lastFrameSeconds = static_cast<float>(lastFrameTicks) * 0.001f;
 
-		// Update game logic with a fixed time step
+		// Update app logic with a fixed time step
 		mAccumTime += lastFrameSeconds;
 		const int steps = static_cast<int>(std::floor(mAccumTime / fixedTimeStep));
 		mAccumTime -= steps * fixedTimeStep;
 		for (int i = 0; i < steps; ++i) {
 			ParseEvent();
-			mActionMgr.RunActions(fixedTimeStep);
 			updateCbk(fixedTimeStep);
 		}
 
-		if (! mBackground) {
+		if (! mAppInBackground) {
+			mGraphics.BeginFrame();
+			if (! mQuit) {
+				renderCbk(lastFrameSeconds);
+			}
+			mGraphics.EndFrame();
 			SDL_GL_SwapWindow(mWindow);
 			SDL_HideCursor();
-			renderCbk(lastFrameSeconds);
-			mGraphics.Flush();
 		}
 	}
 }
 
-BitmapPtr Engine::Implementation::RegisterBitmap(const char* fileName) {
-	assert(fileName);
+TexturePtr Engine::Implementation::LoadTexture(std::string_view fileName, TextureInfo texInfo) {
 	try {
-		for (auto& b : mBitmaps) {
+		for (auto& b : mTextures) {
 			if (b->GetFileName() == fileName) {
 				return b;
 			}
 		}
 		char path[260];
-		snprintf(path, sizeof(path), "%s%s", ASSETS_FOLDER, fileName);
-		auto bitmap = std::make_unique<SdlSurface>(fileName, path);
-		mBitmaps.push_back(std::move(bitmap));
-		return mBitmaps.back();
+		snprintf(path, sizeof(path), "%s%s", ASSETS_FOLDER, fileName.data());
+		mTextures.emplace_back(std::make_unique<Texture>(fileName, path, texInfo));
+		return mTextures.back();
 	}
 	catch (const std::exception& e) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", e.what());
-		return mBitmaps[0]; // placeholder
+		return mTextures.empty() ? nullptr : mTextures[0]; // placeholder
 	}
 }
 
@@ -123,25 +120,48 @@ void Engine::Implementation::ParseEvent() {
 	mInput.BeginFrame();
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
-		mInput.ParseEvent(event, mWindow);
 		switch (event.type) {
+		case SDL_EVENT_WINDOW_RESIZED:
+			mWindow.OnResize(event.window.data1, event.window.data2);
+			break;
 		case SDL_EVENT_WILL_ENTER_BACKGROUND:
-			mBackground = true;
+			mAppInBackground = true;
 			break;
 		case SDL_EVENT_WILL_ENTER_FOREGROUND:
-			mBackground = false;
+			mAppInBackground = false;
 			break;
 		case SDL_EVENT_QUIT:
 			mQuit = true;
 			break;
+		case SDL_EVENT_DISPLAY_ORIENTATION: {
+			SDL_DisplayOrientation orientation = SDL_GetCurrentDisplayOrientation(event.display.displayID);
+			switch (orientation) {
+			case SDL_ORIENTATION_PORTRAIT:
+			case SDL_ORIENTATION_PORTRAIT_FLIPPED:
+				SDL_Log("Portrait mode");
+				mDisplayOrientation = DisplayOrientation::portrait;
+				break;
+
+			case SDL_ORIENTATION_LANDSCAPE:
+			case SDL_ORIENTATION_LANDSCAPE_FLIPPED:
+				SDL_Log("Landscape mode");
+				mDisplayOrientation = DisplayOrientation::landscape;
+				break;
+
+			default:
+				SDL_Log("Unknown orientation");
+				break;
+			}
+		} break;
 		default:
+			mInput.ParseEvent(event, mWindow);
 			break;
 		}
 	}
 }
 
-Engine::Engine(const char* windowTitle, int windowWidth, int windowHeight)
-    : mPimpl(std::make_unique<Implementation>(windowTitle, windowWidth, windowHeight)) {
+Engine::Engine(SdlWindow& window)
+    : mPimpl(std::make_unique<Implementation>(window)) {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	// SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetSwapInterval(1);
@@ -154,19 +174,15 @@ const SdlWindow& Engine::GetWindow() const {
 	return mPimpl->mWindow;
 }
 
-int Engine::GetWindowWidth() const {
-	return mPimpl->mWindow.GetWidth();
-}
-
-int Engine::GetWindowHeight() const {
-	return mPimpl->mWindow.GetHeight();
+DisplayOrientation Engine::GetDisplayOrientation() const {
+	return mPimpl->mDisplayOrientation;
 }
 
 void Engine::Quit() {
 	mPimpl->mQuit = true;
 }
 
-Input& Engine::GetInput() {
+Input& Engine::GetInput() const {
 	return mPimpl->mInput;
 }
 
@@ -174,14 +190,9 @@ TextRenderer& Engine::GetTextRenderer() const {
 	return mPimpl->mTextRenderer;
 }
 
-ActionMgr& Engine::GetTickActionMgr() const {
-	return mPimpl->mActionMgr;
-}
-
 Audio& Engine::GetAudio() const {
 	return mPimpl->mAudio;
 }
-
 Graphics& Engine::GetGraphics() const {
 	return mPimpl->mGraphics;
 }
@@ -198,8 +209,8 @@ void Engine::Start(const RenderCallback& renderCbk, const UpdateCallback& update
 	mPimpl->Start(renderCbk, updateCbk);
 }
 
-BitmapPtr Engine::LoadBitmap(const char* fileName) {
-	return mPimpl->RegisterBitmap(fileName);
+TexturePtr Engine::LoadTexture(std::string_view fileName, TextureInfo texInfo) {
+	return mPimpl->LoadTexture(fileName, texInfo);
 }
 
 } // namespace Wind

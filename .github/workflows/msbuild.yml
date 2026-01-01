@@ -1,0 +1,126 @@
+name: MSBuild
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  
+env:
+  # Path to the Visual Studio solution file relative to the root of the project.
+  VS_SLN_FILE_PATH: build/vs2022/SweetCrush.sln
+  premakeURL: https://github.com/premake/premake-core/releases/download/v5.0.0-beta7
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+        configuration: [Debug, Release]
+        arch: [x64]
+        compiler: [gcc, msvc] #TODO clang
+        # We need to exclude combinations that don't make sense
+        exclude:
+          - os: ubuntu-latest
+            compiler: msvc
+          - os: windows-latest
+            compiler: gcc
+          - os: windows-latest
+            compiler: clang
+        include:
+          - arch: x64
+            vs_platform: x64
+          - configuration: Release
+            lower_configuration: release
+          - configuration: Debug
+            lower_configuration: debug
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+          # 'recursive' ensures submodules within submodules are also fetched
+        submodules: recursive
+        # Fetch all history so submodules can find their specific commits
+        fetch-depth: 0
+
+    - name: Cache Premake5
+      uses: actions/cache@v4
+      with:
+        path: premake
+        key: premake-5.0.0-beta7
+    
+    - name: Download Premake (Windows)
+      if: runner.os == 'Windows' && steps.cache-premake.outputs.cache-hit != 'true'
+      shell: powershell
+      run: |
+        Invoke-WebRequest `
+          ${{env.premakeURL}}/premake-5.0.0-beta7-windows.zip `
+          -OutFile premake.zip
+        Expand-Archive premake.zip -Force -DestinationPath premake
+        echo "$PWD\premake" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+    - name: Download Premake (Linux)
+      if: runner.os == 'Linux' && steps.cache-premake.outputs.cache-hit != 'true'
+      run: |
+        curl -L -o premake.tar.gz ${{env.premakeURL}}/premake-5.0.0-beta7-linux.tar.gz
+        tar -xvf premake.tar.gz
+    
+    - name: Set up Dependencies (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        if [ "${{ matrix.compiler }}" = "clang" ]; then
+          sudo apt-get install -y clang
+        else
+          sudo apt-get install -y g++
+        fi
+
+    - name: Set up SDL, SDL_image, SDL_mixer (Linux)
+      if: runner.os == 'Linux'
+      id: sdl-setup
+      uses: libsdl-org/setup-sdl@main
+      with:
+        version: 3-head
+        version-sdl-image: 3-head
+        version-sdl-mixer: 3-head
+        install-linux-dependencies: true
+
+    - name: Generate Visual Studio solution
+      if: runner.os == 'Windows'
+      run: premake5 vs2022
+
+    - name: Generate makefiles
+      if: runner.os == 'Linux'
+      run: ./premake5 gmake -cc=gcc
+    
+    - name: Add MSBuild to PATH
+      if: runner.os == 'Windows'
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Cache build outputs
+      uses: actions/cache@v4
+      with:
+        path: |
+          build
+        key: build-${{ matrix.configuration }}-${{ hashFiles('**/*.cpp', '**/*.c', '**/*.h') }}
+    
+    - name: Build solution (Windows)
+      if: runner.os == 'Windows'
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      # Add additional options to the MSBuild command line here (like platform or verbosity level).
+      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
+      run: msbuild /m /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.vs_platform }} ${{env.VS_SLN_FILE_PATH}}
+
+    - name: Build gmake (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        # Note: config must be lower case e.g. release_x64
+        make -j$(nproc) -C build/gmake \
+          config=${{ matrix.lower_configuration }}_${{ matrix.arch }} \
+          CPPFLAGS="-I$SDL3_ROOT/include -I$SDL3_image_ROOT/include -I$SDL3_mixer_ROOT/include" \
+          LDFLAGS="-L$SDL3_ROOT/lib -L$SDL3_image_ROOT/lib -L$SDL3_mixer_ROOT/lib"

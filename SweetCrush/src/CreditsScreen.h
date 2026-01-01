@@ -6,7 +6,7 @@
 
 class CreditsScreen final : public Wind::GameScreen {
 public:
-	CreditsScreen(Wind::Engine& engine);
+	explicit CreditsScreen(Wind::Engine& engine);
 
 	void               LoadAssets() override;
 	void               BuildUI(Wind::UICanvas& canvas) override;
@@ -20,6 +20,7 @@ private:
 	Wind::UIText   mCodeBy;
 	Wind::UIText   mGraphicsBy;
 	Wind::UIText   mMusicBy;
+	Wind::UIText   mVersion;
 	Wind::UIButton mBackButton;
 	Wind::UIPanel  mPanel;
 };

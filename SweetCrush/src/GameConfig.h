@@ -7,6 +7,7 @@ struct GameConfig {
 	// Graphics
 	int   windowWidth;
 	int   windowHeight;
+	bool  fullscreen;
 	float cellWidth;
 	float cellHeight;
 	float cellSpacing;
@@ -25,6 +26,7 @@ struct GameConfig {
 	float tileScaleDuration; // seconds
 	float scoreTextDuration;
 	float scoreTextScrollSpeed;
+	float brokenIceDuration;
 	// UI
 	float      swapThreshold;      // [0, 1]
 	float      startDragThreshold; // pixels

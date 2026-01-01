@@ -1,6 +1,3 @@
-#version 300 es
-//#extension GL_ARB_explicit_uniform_location : require
-
 in vec2 inputPosition;
 uniform   vec4 orthoMatrix;
 uniform   vec4 posRect;

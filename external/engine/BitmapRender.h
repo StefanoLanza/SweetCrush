@@ -24,7 +24,7 @@ struct BitmapExtParams {
 	Rect          texRect = defaultTexCoord;
 	Color         color = whiteColor;
 	DrawOrderType drawOrder = 0;
-	bool          blending = true;
+	bool          blending = false;
 };
 
 class BitmapRenderer final {
@@ -32,8 +32,8 @@ public:
 	explicit BitmapRenderer(Graphics& graphics);
 	~BitmapRenderer();
 
-	void DrawBitmap(const SdlSurface& surface, Vec2 pos) const;
-	void DrawBitmapEx(const SdlSurface& surface, Vec2 pos, const BitmapExtParams& prm) const;
+	void DrawBitmap(const Texture& surface, Vec2 pos) const;
+	void DrawBitmapEx(const Texture& surface, Vec2 pos, const BitmapExtParams& prm) const;
 
 private:
 	class Impl;

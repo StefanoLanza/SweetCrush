@@ -1,5 +1,5 @@
 #include "Font.h"
-#include "SdlSurface.h"
+#include "Texture.h"
 #include <SDL3/SDL.h>
 #include <algorithm>
 #include <cassert>
@@ -29,7 +29,7 @@ const std::string& Font::GetName() const {
 	return mName;
 }
 
-const SdlSurface& Font::GetSurface() const {
+const Texture& Font::GetSurface() const {
 	return mSurface;
 }
 
@@ -40,11 +40,10 @@ const Glyph& Font::FindGlyph(char c) const {
 	return mDefaultGlyph;
 }
 
-int Font::CalculateStringWidth(const char* text) const {
-	assert(text);
+int Font::CalculateStringWidth(std::string_view text) const {
 	int advance = 0;
-	for (; *text; ++text) {
-		const Glyph& g = FindGlyph(*text);
+	for (char ch : text) {
+		const Glyph& g = FindGlyph(ch);
 		advance += g.xadvance;
 	}
 	return advance;
@@ -70,8 +69,9 @@ std::vector<Glyph> LoadGlyphs(const char* fileName) {
 
 	// Read and validate the tag. It should be 66, 77, 70, 2,
 	// or 'BMF' and 2 where the number is the file version.
-	char magicString[4];
+	char magicString[5];
 	SDL_ReadIO(f, magicString, 4);
+	magicString[4] = 0;
 	if (strncmp(magicString, "BMF\003", 4) != 0) {
 		throw std::runtime_error("Unrecognized file format");
 	}
@@ -108,6 +108,8 @@ std::vector<Glyph> LoadGlyphs(const char* fileName) {
 			throw std::runtime_error("Only one page supported");
 		}
 	}
+
+	// Sort glyphs to speedup search of chars
 	std::sort(std::begin(glyphs), std::end(glyphs));
 
 	SDL_CloseIO(f);

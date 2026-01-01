@@ -5,6 +5,7 @@
 #include <cmath>
 
 namespace Wind {
+
 Vec2 operator+(const Vec2& lhs, const Vec2& rhs) {
 	return { lhs.x + rhs.x, lhs.y + rhs.y };
 }
@@ -84,4 +85,5 @@ Vec2 Spline(const Vec2 p[], int n, float t) {
 float Lerp(float a, float b, float t) {
 	return a + (b - a) * t;
 }
+
 } // namespace Wind

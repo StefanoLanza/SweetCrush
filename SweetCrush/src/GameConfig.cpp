@@ -3,8 +3,9 @@
 
 GameConfig DefaultGameConfig() {
 	GameConfig config;
-	config.windowWidth = 576;
-	config.windowHeight = 1100; //768;
+	config.windowWidth = 768;
+	config.windowHeight = 1024;
+	config.fullscreen = false;
 	config.cellWidth = 64.f;
 	config.cellHeight = 72.f;
 	config.cellSpacing = 2.f;
@@ -22,6 +23,7 @@ GameConfig DefaultGameConfig() {
 	config.tileScaleDuration = 0.25f;
 	config.scoreTextDuration = 1.f;
 	config.scoreTextScrollSpeed = 32.f;
+	config.brokenIceDuration = 0.25f;
 	// UI
 	config.swapThreshold = 0.55f;
 	config.startDragThreshold = 4.f;

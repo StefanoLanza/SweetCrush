@@ -3,14 +3,14 @@
 #if defined(_WIN32)
 #include <glew/glew.h>
 #elif defined(__ANDROID__) || defined(ANDROID)
-#include <GLES3/gl3.h>
-//#include <SDL_opengles2.h>
+#define GL_GLEXT_PROTOTYPES
+#include <GLES3/gl32.h>
+#include <GLES2/gl2ext.h>
 #elif defined(__linux__) 
 /* Ensure we are using opengl's core profile only */
 #define GL3_PROTOTYPES 1
 #define GL_GLEXT_PROTOTYPES
-#include <SDL2/SDL_opengl.h>
-//#include <GL/gl3.h>
+#include <SDL3/SDL_opengl.h>
 #else
 #  error platform not supported.
 #endif
@@ -47,12 +47,14 @@ struct gl_object_deleter {
 void DeleteFBO(GLuint FBO);
 void DeleteTexture(GLuint texture);
 void DeleteProgram(GLuint program);
+void DeleteRenderBuffer(GLuint renderBuffer);
 void DeleteShader(GLuint shader);
 
 // RAII wrappers
 using GLManagedFBO = std::unique_ptr<GLuint, gl_object_deleter<DeleteFBO>>;
 using GLManagedProgram = std::unique_ptr<GLuint, gl_object_deleter<DeleteProgram>>;
 using GLManagedTexture = std::unique_ptr<GLuint, gl_object_deleter<DeleteTexture>>;
+using GLManagedRenderBuffer = std::unique_ptr<GLuint, gl_object_deleter<DeleteRenderBuffer>>;
 using GLManagedShader = std::unique_ptr<GLuint, gl_object_deleter<DeleteShader>>;
 
 } // namespace Wind
