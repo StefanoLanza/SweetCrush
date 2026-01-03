@@ -226,7 +226,7 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 	}
 	case Match3Event::Id::removePiece: {
 		Cell& cell = mBoard.GetCell(event.removePiece.cellIdx);
-		mActionMgr.AddTimedAction(0.f, mGameConfig.tileScaleDuration, ShrinkPiece(cell, 1.f, 0.f));
+		mActionMgr.AddTimedAction(0.f, mGameConfig.tileScaleDuration, ScaleCellSprite(cell, 1.f, 0.f));
 		OnPieceRemoved(cell);
 		break;
 	}
@@ -257,7 +257,13 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		break;
 	}
 	case Match3Event::Id::newBooster: {
-		mBoostInfoPanel.ShowHelp(event.booster.type);
+		if (mGameConfig.infoOn) {
+			mBoostInfoPanel.ShowHelp(event.booster.type);
+		}
+		Cell& cell = mBoard.GetCell(event.booster.cellIdx);
+		cell.pieceAnim.scale = 1.f;
+		cell.pieceAnim.scaleDev = 0.f;
+		cell.pieceAnim.rotation = 0.f;
 		break;
 	}
 	case Match3Event::Id::triggerBooster: {
@@ -350,32 +356,31 @@ void PlayScreen::DrawBoard(const BitmapRenderer& bitmapRender) const {
 	}
 	// Draw pieces, obstacles and boosters
 	for (const Cell& cell : mBoard.GetCells()) {
-		if (cell.pieceAnim.spriteIdx >= 0) {
-			BitmapExtParams prm;
-			prm.width = cellWidth;
-			prm.height = cellHeight;
-			prm.pivot = BitmapPivot::center;
+		Vec2            pos = cell.pieceAnim.coords + Vec2 { cellWidth, cellHeight } * 0.5f;
+		BitmapExtParams prm;
+		prm.width = cellWidth;
+		prm.height = cellHeight;
+		prm.pivot = BitmapPivot::center;
+		prm.blending = true;
+		if (cell.category == CellCategory::piece || cell.category == CellCategory::obstacle) {
 			prm.orientation = mTime * cell.pieceAnim.rotation;
-			prm.scale = cell.pieceAnim.scale;// + cell.pieceAnim.scaleDev * dynScaleFactor;
+			prm.scale = cell.pieceAnim.scale;
 			prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::boardTile);
-			prm.blending = true;
-			assert(cell.category == CellCategory::piece);
-			Vec2 pos = cell.pieceAnim.coords + Vec2 { cellWidth, cellHeight } * 0.5f;
 			bitmapRender.DrawBitmapEx(*sprites[cell.pieceAnim.spriteIdx], pos, prm);
-			if (cell.hits > 1) {
+			if (cell.layers > 1) {
 				prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::ice);
 				prm.orientation = 0.0f;
 				prm.scale = 1.f;
 				bitmapRender.DrawBitmapEx(*sprites[iceSprite], pos, prm);
 			}
-			if (cell.hasBooster) {
-				prm.scale = 0.5f + 0.1f  * dynScaleFactor;
-				prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::ice);
-				prm.orientation = 0.f;
-				pos.x += cellWidth * 0.25f;
-				pos.y += cellHeight * 0.25f;
-				bitmapRender.DrawBitmapEx(*sprites[boosterDefs[(int)cell.boosterType].sprite], pos, prm);
-			}
+		}
+		if (cell.hasBooster) {
+			prm.scale = 0.5f + 0.1f * dynScaleFactor;
+			prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::ice);
+			prm.orientation = 0.f;
+			pos.x += cellWidth * 0.25f;
+			pos.y += cellHeight * 0.25f;
+			bitmapRender.DrawBitmapEx(*sprites[boosterDefs[(int)cell.boosterType].sprite], pos, prm);
 		}
 	}
 	// Highlight selected cell
@@ -408,9 +413,8 @@ void PlayScreen::SetupNewBoardAnimation() {
 			cell.pieceAnim.scale = 0.f;
 			cell.pieceAnim.scaleDev = 0.f;
 			cell.pieceAnim.rotation = 0.f;
-			// tile.currCoords = { tile.idleCoords.x, mGameConfig.tileFallYCoord };
 			float delay = 0.f; //(mBoard.GetRows() - 1 - cell.row + cell.col) * 0.05f;
-			mActionMgr.AddTimedAction(delay, mGameConfig.tileScaleDuration, ShrinkPiece(cell, 0.f, 1.f));
+			mActionMgr.AddTimedAction(delay, mGameConfig.tileScaleDuration, ScaleCellSprite(cell, 0.f, 1.f));
 		}
 	}
 }
@@ -452,27 +456,21 @@ int PlayScreen::IncreaseScore(const Match& match) {
 		inc = 10;
 		break;
 	case ComboType::C4:
-		mMatch3.AddBooster(BoosterType::miniBomb, match.cellIdx);
 		inc = 40;
 		break;
 	case ComboType::C5:
-		mMatch3.AddBooster(BoosterType::hrocket, match.cellIdx);
 		inc = 80;
 		break;
 	case ComboType::T3:
-		mMatch3.AddBooster(BoosterType::vrocket, match.cellIdx);
 		inc = 160;
 		break;
 	case ComboType::L:
-		mMatch3.AddBooster(BoosterType::bomb, match.cellIdx);
 		inc = 160;
 		break;
 	case ComboType::T4:
-		mMatch3.AddBooster(BoosterType::bomb, match.cellIdx);
 		inc = 320;
 		break;
 	case ComboType::T5:
-		mMatch3.AddBooster(BoosterType::bomb, match.cellIdx);
 		inc = 640;
 		break;
 	case ComboType::Unknown:

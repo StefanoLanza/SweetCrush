@@ -71,7 +71,7 @@ bool IsObstacle(const Cell& cell) {
 }
 
 bool IsSelectable(const Cell& cell) {
-	return (cell.category == CellCategory::piece && cell.hits == 1); // cannot select if frozen
+	return (cell.category == CellCategory::piece && cell.layers == 0); // cannot select if frozen
 }
 
 bool Board::IsInside(int col, int row) const {

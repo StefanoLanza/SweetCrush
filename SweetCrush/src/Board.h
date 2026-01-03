@@ -28,7 +28,7 @@ struct Cell {
 	Wind::Vec2   coords;
 	int          col;
 	int          row;
-	int          hits;
+	int          layers;
 	PieceId      pieceId;
 	BoosterType  boosterType;
 	PieceAnim    pieceAnim;

@@ -31,5 +31,6 @@ GameConfig DefaultGameConfig() {
 
 	config.musicOn = true;
 	config.sfxOn = true;
+	config.infoOn = true;
 	return config;
 }

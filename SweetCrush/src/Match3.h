@@ -41,6 +41,7 @@ struct Match {
 struct Booster {
 	BoosterType type;
 	int         cellIdx;
+	PieceId     pieceId;
 };
 
 struct NewPiece {
@@ -92,20 +93,20 @@ public:
 	void Run();
 	void Update(const Wind::Input& input);
 	int  GetNumUserSwaps() const;
-	void AddBooster(BoosterType pieceId, int cellIdx);
+
+private:
+	void AddBooster(BoosterType boosterType, int cellIdx, PieceId pieceId);
 	// Boosters
 	void HorizontalRocket(int col, int row);
 	void VerticalRocket(int col, int row);
 	void Bomb(int col, int row, int radius);
-	void DeleteAllPieces(int pieceId);
-
-private:
+	void DeleteAllPiecesOfType(int pieceId);
 	// States
-	void SelectTiles(const Wind::Input& input);
+	void SelectPieces(const Wind::Input& input);
 	bool CheckCombos(int h, int v, int t, int b, PieceId pieceId, int cellIdx);
 	bool CheckCellCombos(int cellIdx);
 	bool CheckMatchesAfterSwap();
-	void HitCell(int idx) const;
+	void HitCell(int cellIdx);
 	void InsertBoosters();
 	void CollapseColumns();
 	void GenerateNewPieces();

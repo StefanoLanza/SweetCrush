@@ -37,6 +37,7 @@ void Game::Run() {
 
 	mGameSettings.musicOn = mGameConfig.musicOn;
 	mGameSettings.sfxOn = mGameConfig.sfxOn;
+	mGameSettings.infoOn = mGameConfig.infoOn;
 
 	mCanvas.SetBackground("gameartguppy/background.png", mEngine);
 #if ! defined(__ANDROID__) && (defined(_WIN32) || defined(__linux__))

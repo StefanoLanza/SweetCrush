@@ -60,6 +60,7 @@ int INIParser(void* user, const char* /*section*/, const char* name, const char*
 	PARSE_FLOAT(config->startDragThreshold, "startDragThreshold", 1.f, 8.f);
 	PARSE_BOOL(config->musicOn, "musicOn");
 	PARSE_BOOL(config->sfxOn, "sfxOn");
+	PARSE_BOOL(config->infoOn, "infoOn");
 
 	config->cellWidthWithSpacing = config->cellWidth + config->cellSpacing;
 	config->cellHeightWithSpacing = config->cellHeight + config->cellSpacing;

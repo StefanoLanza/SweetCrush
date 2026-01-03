@@ -34,6 +34,7 @@ struct GameConfig {
 	// Misc
 	bool musicOn;
 	bool sfxOn;
+	bool infoOn;
 };
 
 GameConfig DefaultGameConfig();

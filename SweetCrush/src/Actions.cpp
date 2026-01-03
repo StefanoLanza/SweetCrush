@@ -21,7 +21,7 @@ ActionFunc MovePiece(Cell& cell, const Vec2& targetCoords, float speed) {
 	};
 }
 
-ActionFunc ShrinkPiece(Cell& cell, float startScale, float endScale) {
+ActionFunc ScaleCellSprite(Cell& cell, float startScale, float endScale) {
 	return [&cell, startScale, endScale](float /*dt*/, float t) {
 		cell.pieceAnim.scale = Lerp(endScale, startScale, 1.f - std::pow(t, 2.f));
 		return false;
