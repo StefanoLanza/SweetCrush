@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 #endif
-	Wind::Sdl       sdl { SDL_INIT_VIDEO | SDL_INIT_EVENTS, false };
+	Wind::Sdl       sdl { SDL_INIT_VIDEO | SDL_INIT_EVENTS };
 	Wind::SdlWindow window { "SweetCrush", gameConfig.windowWidth, gameConfig.windowHeight, ASSETS_FOLDER "icon.png", gameConfig.fullscreen };
 	Wind::Engine    engine { window };
 	Game            game { engine, gameConfig, gameDataModule };

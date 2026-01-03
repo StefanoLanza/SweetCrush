@@ -57,7 +57,6 @@ void main() {
     vec2 uv12 = texPos12 * srcTexelSize.zw;
     vec2 uv3  = texPos3  * srcTexelSize.zw;
 
-    // 4 Taps instead of 16
     vec4 color = 
         texture(inputTexture, vec2(uv0.x,  uv0.y))  * (w0.x * w0.y) +
         texture(inputTexture, vec2(uv12.x, uv0.y))  * (w12.x * w0.y) +
