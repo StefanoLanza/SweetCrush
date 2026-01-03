@@ -40,10 +40,10 @@ const ObstacleDef obstacleDefs[NumObstacleTypes] {
 };
 
 const BoosterDef boosterDefs[NumBoosters] {
-	{ 12, 0.1f },
-	{ 13, 0.1f },
-	{ 14, 0.1f },
-	{ 15, 0.1f },
+	{ 12 },
+	{ 13 },
+	{ 14 },
+	{ 15 },
 };
 
 Wind::TexturePtr sprites[NumSprites];

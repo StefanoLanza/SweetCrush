@@ -5,13 +5,14 @@
 #include <engine/Span.h>
 #include <vector>
 
+#include "Boosters.h"
+
 using PieceId = uint8_t;
 
 enum class CellCategory {
 	empty,
 	hole,
 	piece,
-	booster, // TODO Remove
 	obstacle,
 };
 
@@ -29,15 +30,16 @@ struct Cell {
 	int          row;
 	int          hits;
 	PieceId      pieceId;
+	BoosterType  boosterType;
 	PieceAnim    pieceAnim;
 	CellCategory category;
+	bool         hasBooster;
 	uint8_t      backgroundTileIdx;
 };
 
 bool IsEmpty(const Cell& cell);
 bool IsHole(const Cell& cell);
 bool IsPiece(const Cell& cell);
-bool HasBooster(const Cell& cell);
 bool IsObstacle(const Cell& cell);
 bool IsSelectable(const Cell& cell);
 

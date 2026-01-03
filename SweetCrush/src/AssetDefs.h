@@ -25,7 +25,6 @@ struct ObstacleDef {
 
 struct BoosterDef {
 	int   sprite;
-	float scaleDev;
 };
 
 struct BoardTileDef {

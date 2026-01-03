@@ -33,9 +33,8 @@ private:
 	void StartLevel();
 	void SetupNewBoardAnimation();
 	void OnCellSelectionEvent(const TileSelectionEvent& event);
-	void OnTileRemoved(const Cell& cell);
+	void OnPieceRemoved(const Cell& cell);
 	void OnMatch3Event(const Match3Event& event);
-	void TriggerBooster(const Booster& booster);
 	void CheckLevelCompletion();
 	void DrawBoard(const Wind::BitmapRenderer& bitmapRender) const;
 	void DrawUI() const;

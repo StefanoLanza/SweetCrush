@@ -48,24 +48,29 @@ struct NewPiece {
 	PieceId targetPieceId;
 };
 
+struct CellEvent {
+	int cellIdx;
+};
+
 struct Match3Event {
 	enum class Id {
 		swap,
 		match,
-		removeTile,
+		removePiece,
 		newPiece,
-		dropTile,
+		dropPiece,
 		newBooster,
-		boosterTriggered,
-		layerBroken,
+		triggerBooster,
+		removeLayer,
 	};
 	Id id;
 	union {
-		Match    match;
-		CellPair pair;
-		NewPiece newPiece;
-		Booster  booster;
-		int      cellIdx;
+		Match     match;
+		CellPair  pair;
+		NewPiece  newPiece;
+		Booster   booster;
+		CellEvent removePiece;
+		CellEvent removeLayer;
 	};
 };
 

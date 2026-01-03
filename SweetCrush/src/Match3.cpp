@@ -1,6 +1,5 @@
 #include "Match3.h"
 #include "Board.h"
-#include "Boosters.h"
 #include "Constants.h"
 #include "GameConfig.h"
 #include "TileSelector.h"
@@ -194,6 +193,7 @@ void Match3::NewBoard(uint32_t seed, const char* boardDef, const int gemIds[], i
 			cell.pieceId = 0;
 			cell.backgroundTileIdx = 1;
 			cell.hits = 0;
+			cell.hasBooster = false;
 		}
 	}
 
@@ -317,7 +317,7 @@ int Match3::GetNumUserSwaps() const {
 void Match3::SelectTiles(const Wind::Input& input) {
 	if (int selected = mTileSelector.GetSelectedCell(); selected > 0) {
 		const Cell& cell = mBoard.GetCell(selected);
-		if (HasBooster(cell)) {
+		if (cell.hasBooster) {
 			TriggerBooster(selected);
 			mTileSelector.Reset();
 			return;
@@ -458,19 +458,20 @@ void Match3::HitCell(int idx) const {
 		if (cell.hits == 0) {
 			// Inform client
 			Match3Event event;
-			event.id = Match3Event::Id::removeTile;
-			event.cellIdx = idx;
+			event.id = Match3Event::Id::removePiece;
+			event.removePiece.cellIdx = idx;
 			mCbk(event);
 
 			cell.category = CellCategory::empty;
 			cell.pieceId = 255;
 			cell.pieceAnim.spriteIdx = -1;
+			cell.hasBooster = false;
 		}
 		else {
-			// Broken one layer. Inform client
+			// Remove one layer. Inform client
 			Match3Event event;
-			event.id = Match3Event::Id::layerBroken;
-			event.cellIdx = idx;
+			event.id = Match3Event::Id::removeLayer;
+			event.removeLayer.cellIdx = idx;
 			mCbk(event);
 		}
 	}
@@ -478,10 +479,9 @@ void Match3::HitCell(int idx) const {
 
 void Match3::InsertBoosters() {
 	for (const Booster& booster : mNewBoosters) {
-		// Replace cell
 		Cell& cell = mBoard.GetCell(booster.cellIdx);
-		cell.category = CellCategory::booster;
-		cell.pieceId = static_cast<PieceId>(booster.type);
+		cell.hasBooster = true;
+		cell.boosterType = booster.type;
 		cell.hits = 1;
 		// Inform client
 		Match3Event event;
@@ -501,7 +501,7 @@ void Match3::CollapseColumns() {
 	// Inform client
 	for (const CellPair& pair : mCollapseList) {
 		Match3Event event;
-		event.id = Match3Event::Id::dropTile;
+		event.id = Match3Event::Id::dropPiece;
 		event.pair = pair;
 		mCbk(event);
 	}
@@ -581,7 +581,6 @@ void Match3::CollapseColumn(int col) {
 			currEmptyRow = 0;
 			break;
 		case CellCategory::piece:
-		case CellCategory::booster:
 			if (currEmptyRow < numEmptyRows) {
 				// Fall to an empty cell
 				const int dst = mBoard.GetCellIndex(col, emptyRows[currEmptyRow]);
@@ -623,15 +622,32 @@ void Match3::KillMatches(const Cell& cell, int dcol, int drow) {
 
 void Match3::TriggerBooster(int cellIdx) {
 	const Cell& cell = mBoard.GetCell(cellIdx);
-	assert(cell.category == CellCategory::booster);
-	const BoosterType boosterType = static_cast<BoosterType>(cell.pieceId);
+	assert(cell.category == CellCategory::piece);
+	assert(cell.hasBooster);
 
 	// Inform client
 	Match3Event event;
-	event.id = Match3Event::Id::boosterTriggered;
+	event.id = Match3Event::Id::triggerBooster;
 	event.booster.cellIdx = cellIdx;
-	event.booster.type = boosterType;
+	event.booster.type = cell.boosterType;
 	mCbk(event);
+
+	switch (cell.boosterType) {
+	case BoosterType::hrocket: {
+		HorizontalRocket(cell.col, cell.row);
+	} break;
+	case BoosterType::vrocket: {
+		VerticalRocket(cell.col, cell.row);
+	} break;
+	case BoosterType::miniBomb:
+		Bomb(cell.col, cell.row, 1);
+		break;
+	case BoosterType::bomb:
+		Bomb(cell.col, cell.row, 2);
+		break;
+	default:
+		break;
+	}
 
 	mState = State::collapseColumns;
 }

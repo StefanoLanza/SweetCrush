@@ -66,17 +66,12 @@ bool IsPiece(const Cell& cell) {
 	return cell.category == CellCategory::piece;
 }
 
-bool HasBooster(const Cell& cell) {
-	return cell.category == CellCategory::booster;
-}
-
 bool IsObstacle(const Cell& cell) {
 	return cell.category == CellCategory::obstacle;
 }
 
 bool IsSelectable(const Cell& cell) {
-	return (cell.category == CellCategory::piece && cell.hits == 1) // cannot select if frozen
-	       || (cell.category == CellCategory::booster);
+	return (cell.category == CellCategory::piece && cell.hits == 1); // cannot select if frozen
 }
 
 bool Board::IsInside(int col, int row) const {

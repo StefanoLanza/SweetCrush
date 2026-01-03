@@ -12,7 +12,7 @@
 
 using namespace Wind;
 
-ActionFunc MoveTile(Cell& cell, const Vec2& targetCoords, float speed) {
+ActionFunc MovePiece(Cell& cell, const Vec2& targetCoords, float speed) {
 	const Vec2 velocity = Normalize(targetCoords - cell.pieceAnim.coords) * speed;
 	return [&cell, targetCoords, velocity](float dt, float /*t*/) {
 		const Vec2 newCoords = cell.pieceAnim.coords + velocity * dt;
@@ -21,11 +21,7 @@ ActionFunc MoveTile(Cell& cell, const Vec2& targetCoords, float speed) {
 	};
 }
 
-ActionFunc ReturnTile(Cell& cell, float speed) {
-	return MoveTile(cell, cell.coords, speed);
-}
-
-ActionFunc ScaleTile(Cell& cell, float startScale, float endScale) {
+ActionFunc ShrinkPiece(Cell& cell, float startScale, float endScale) {
 	return [&cell, startScale, endScale](float /*dt*/, float t) {
 		cell.pieceAnim.scale = Lerp(endScale, startScale, 1.f - std::pow(t, 2.f));
 		return false;
