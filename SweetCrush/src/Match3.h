@@ -36,6 +36,7 @@ struct Match {
 	PieceId   pieceId;
 	int       cellIdx;
 	int       cascadeCount;
+	bool      horizontal;
 };
 
 struct Booster {

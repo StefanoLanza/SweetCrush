@@ -14,15 +14,15 @@ GameConfig DefaultGameConfig() {
 	config.boardLeft = (RefWindowWidth - config.cellWidthWithSpacing * NumCols - config.cellSpacing) * 0.5f;
 	config.boardTop = 300.f;
 	config.colorPalette = 0;
-	config.tileMoveBackSpeed = 256.f;
-	config.tileSwapSpeed = 256.f;
-	config.tileFallSpeed = 1024.f;
+	config.tileMoveBackSpeed = 512.f;
+	config.tileSwapSpeed = 512.f;
+	config.tileFallSpeed = 2048.f;
 	config.tileFallYCoord = 0.f;
 	config.bombExplosionTime = 0.25f;
 	config.starMoveTime = 0.5f;
 	config.tileScaleDuration = 0.25f;
 	config.scoreTextDuration = 1.f;
-	config.scoreTextScrollSpeed = 32.f;
+	config.scoreTextScrollSpeed = 64.f;
 	config.brokenIceDuration = 0.25f;
 	// UI
 	config.swapThreshold = 0.55f;
