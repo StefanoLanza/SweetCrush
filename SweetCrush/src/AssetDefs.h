@@ -33,7 +33,7 @@ struct BoardTileDef {
 
 extern const SpriteDef    spriteDefs[NumSprites];
 extern const BoardTileDef boardTileDefs[NumBoardTiles];
-extern const GemDef       gemDefs[NumGemTypes];
+extern const GemDef       pieceDefs[NumGemTypes];
 extern const ObstacleDef  obstacleDefs[NumObstacleTypes];
 extern const BoosterDef   boosterDefs[NumBoosters];
 extern Wind::TexturePtr   sprites[NumSprites];

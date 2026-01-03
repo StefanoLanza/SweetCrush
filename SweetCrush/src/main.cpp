@@ -51,13 +51,14 @@ int INIParser(void* user, const char* /*section*/, const char* name, const char*
 	PARSE_FLOAT(config->cellWidth, "cellWidth", 16.f, 64.f);
 	PARSE_FLOAT(config->cellSpacing, "cellSpacing", 0.f, 8.f);
 	// Animations
-	PARSE_FLOAT(config->tileMoveBackSpeed, "tileMoveBackSpeed", 1.f, 1024.f);
-	PARSE_FLOAT(config->tileSwapSpeed, "tileSwapSpeed", 1.f, 1024.f);
-	PARSE_FLOAT(config->tileFallSpeed, "tileFallSpeed", 1.f, 1024.f);
-	PARSE_FLOAT(config->tileFallYCoord, "tileFallYCoord", -1000.f, 0.f);
+	PARSE_FLOAT(config->moveBackPieceSpeed, "moveBackPieceSpeed", 1.f, 1024.f);
+	PARSE_FLOAT(config->swapSpeed, "swapSpeed", 1.f, 1024.f);
+	PARSE_FLOAT(config->pieceFallSpeed, "pieceFallSpeed", 1.f, 1024.f);
+	PARSE_FLOAT(config->pieceFallYCoord, "pieceFallYCoord", -1000.f, 0.f);
 	// UI
-	PARSE_FLOAT(config->swapThreshold, "swapThreshold", 0.1f, 1.f);
-	PARSE_FLOAT(config->startDragThreshold, "startDragThreshold", 1.f, 8.f);
+	PARSE_FLOAT(config->ui.swapThreshold, "swapThreshold", 0.1f, 1.f);
+	PARSE_FLOAT(config->ui.startDragThreshold, "startDragThreshold", 1.f, 8.f);
+	// Misc
 	PARSE_BOOL(config->musicOn, "musicOn");
 	PARSE_BOOL(config->sfxOn, "sfxOn");
 	PARSE_BOOL(config->infoOn, "infoOn");

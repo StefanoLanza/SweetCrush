@@ -38,7 +38,7 @@ private:
 	void CheckLevelCompletion();
 	void DrawBoard(const Wind::BitmapRenderer& bitmapRender) const;
 	void DrawUI() const;
-	int  IncreaseScore(const Match& match);
+	int  IncreaseScore(const MatchEvent& match);
 	void PlayMusic() const;
 	void StopMusic() const;
 	void PauseMusic() const;

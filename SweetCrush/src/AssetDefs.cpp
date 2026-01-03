@@ -31,7 +31,7 @@ const BoardTileDef boardTileDefs[NumBoardTiles] {
 	{ 16 },
 };
 
-const GemDef gemDefs[NumGemTypes] {
+const GemDef pieceDefs[NumGemTypes] {
 	{ 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 }, { 7 }, { 8 }, { 9 }, { 10 }, { 11 },
 };
 

@@ -2,6 +2,16 @@
 
 #include <engine/Maths.h>
 
+struct Match3Config {};
+
+struct GameAnimationConfig {};
+
+struct UIConfig {
+	float      swapThreshold;      // [0, 1]
+	float      startDragThreshold; // pixels
+	Wind::Vec2 goalStartCoord;
+};
+
 // Configurable settings
 struct GameConfig {
 	// Graphics
@@ -17,24 +27,23 @@ struct GameConfig {
 	float boardTop;
 	int   colorPalette;
 	// Animations
-	float tileMoveBackSpeed; // pixels / sec
-	float tileSwapSpeed;
-	float tileFallSpeed;
-	float tileFallYCoord;    // pixels
-	float bombExplosionTime; // seconds
-	float starMoveTime;
-	float tileScaleDuration; // seconds
-	float scoreTextDuration;
-	float scoreTextScrollSpeed;
-	float brokenIceDuration;
-	// UI
-	float      swapThreshold;      // [0, 1]
-	float      startDragThreshold; // pixels
-	Wind::Vec2 targetGemCoord;
+	float    moveBackPieceSpeed; // pixels / sec
+	float    swapSpeed;
+	float    pieceFallSpeed;
+	float    pieceFallYCoord;   // pixels
+	float    bombExplosionTime; // seconds
+	float    starMoveTime;
+	float    removePieceDuration; // seconds
+	float    scoreTextDuration;
+	float    scoreTextScrollSpeed;
+	float    brokenIceDuration;
+	UIConfig ui;
 	// Misc
 	bool musicOn;
 	bool sfxOn;
 	bool infoOn;
+	// Match3
+	Match3Config match3;
 };
 
 GameConfig DefaultGameConfig();

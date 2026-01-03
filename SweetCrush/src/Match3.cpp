@@ -58,12 +58,13 @@ int CountMatches(const Cell& cell, const Board& board, Direction dir) {
 	return matches;
 }
 
-void GenRandomPiece(Cell& cell, const Board& board, Wind::Random& random, const int gemIds[], int numGemTypes) {
+void GenRandomPiece(Cell& cell, const Board& board, Wind::Random& random, const int gemIds[], int numGemTypes, const Match3Config& cfg) {
 	assert(cell.category == CellCategory::piece);
-	bool          valid = false;
+
 	constexpr int maxAttempts = 100;
+	bool          valid = false;
 	int           attempts = 0;
-	cell.layers = 0; // TODO gen ice
+	cell.layers = 0;
 	cell.hasBooster = false;
 	do {
 		cell.pieceId = static_cast<PieceId>(gemIds[random.Next(0, numGemTypes - 1)]);
@@ -234,7 +235,7 @@ void Match3::NewBoard(uint32_t seed, const char* boardDef, const int gemIds[], i
 	else {
 		// Generate random pieces
 		for (Cell& cell : mBoard.GetCells()) {
-			GenRandomPiece(cell, mBoard, mRandomEngine, gemIds, numGemIds);
+			GenRandomPiece(cell, mBoard, mRandomEngine, gemIds, numGemIds, mGameConfig.match3);
 		}
 	}
 
@@ -257,12 +258,12 @@ void Match3::Run() {
 }
 
 void Match3::Update(const Wind::Input& input) {
-	for (const CellPair& s : mSwaps) {
+	for (const CellPairEvent& s : mSwaps) {
 		SwapCells(mBoard, s.first, s.second);
 	}
 	mSwaps.clear();
 
-	for (const CellPair& pair : mCollapseList) {
+	for (const CellPairEvent& pair : mCollapseList) {
 		SwapCells(mBoard, pair.first, pair.second);
 	}
 	mCollapseList.clear();
@@ -307,7 +308,7 @@ void Match3::Update(const Wind::Input& input) {
 		break;
 	};
 
-	for (const CellPair& pair : mSwaps) {
+	for (const CellPairEvent& pair : mSwaps) {
 		Match3Event event;
 		event.id = Match3Event::Id::swap;
 		event.pair = pair;
@@ -331,33 +332,35 @@ void Match3::AddBooster(BoosterType boosterType, int cellIdx, PieceId pieceId) {
 }
 
 void Match3::HorizontalRocket(int col, int row) {
+	// Kill entire row
 	for (int ncol = 0; ncol < mBoard.GetCols(); ++ncol) {
 		if (col != ncol) {
 			int cellIdx = mBoard.GetCellIndex(ncol, row);
-			HitCell(cellIdx);
+			KillCell(cellIdx);
 		}
 	}
 }
 
 void Match3::VerticalRocket(int col, int row) {
+	// Kill entire column
 	for (int nrow = 0; nrow < mBoard.GetRows(); ++nrow) {
 		if (row != nrow) {
 			int cellIdx = mBoard.GetCellIndex(col, nrow);
-			HitCell(cellIdx);
+			KillCell(cellIdx);
 		}
 	}
 }
 
 void Match3::Bomb(int col, int row, int radius) {
+	// Kill grid around bomb
 	for (int y = -radius; y <= radius; ++y) {
 		int orow = row + y;
 		for (int x = -radius; x <= radius; ++x) {
-			int d2 = x * x + y * y;
-			if (d2 > 0 && d2 <= radius * radius) { // within radius
+			if (x * x + y * y > 0) {
 				int ocol = col + x;
 				if (mBoard.IsInside(ocol, orow)) {
 					int cellIdx = mBoard.GetCellIndex(ocol, orow);
-					HitCell(cellIdx);
+					KillCell(cellIdx);
 				}
 			}
 		}
@@ -368,7 +371,7 @@ void Match3::DeleteAllPiecesOfType(int pieceId) {
 	int cellIdx = 0;
 	for (const Cell& cell : mBoard.GetCells()) {
 		if (cell.category == CellCategory::piece && cell.pieceId == pieceId) {
-			HitCell(cellIdx);
+			KillCell(cellIdx);
 		}
 		++cellIdx;
 	}
@@ -425,6 +428,7 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int cellId
 		event.match.cellIdx = cellIdx;
 		mCbk(event);
 	}
+
 	return res;
 }
 
@@ -452,7 +456,7 @@ bool Match3::CheckCellCombos(int cellIdx) {
 			KillMatches(cell, +1, 0);
 		}
 		// Kill main cell
-		HitCell(cellIdx);
+		KillCell(cellIdx);
 	}
 
 	return res;
@@ -464,7 +468,7 @@ bool Match3::CheckMatchesAfterSwap() {
 	return res;
 }
 
-void Match3::HitCell(int idx) {
+void Match3::KillCell(int idx) {
 	Cell& cell = mBoard.GetCell(idx);
 	if (cell.category == CellCategory::piece) {
 		if (cell.layers == 0) {
@@ -495,7 +499,7 @@ void Match3::HitCell(int idx) {
 }
 
 void Match3::InsertBoosters() {
-	for (const Booster& booster : mNewBoosters) {
+	for (const BoosterEvent& booster : mNewBoosters) {
 		Cell& cell = mBoard.GetCell(booster.cellIdx);
 		assert(cell.category == CellCategory::empty); // must have been deleted
 		cell.category = CellCategory::piece;
@@ -520,7 +524,7 @@ void Match3::CollapseColumns() {
 	}
 
 	// Inform client
-	for (const CellPair& pair : mCollapseList) {
+	for (const CellPairEvent& pair : mCollapseList) {
 		Match3Event event;
 		event.id = Match3Event::Id::dropPiece;
 		event.pair = pair;
@@ -536,7 +540,8 @@ void Match3::GenerateNewPieces() {
 		Cell& cell = mBoard.GetCell(cellIdx);
 		assert(IsEmpty(cell));
 		cell.category = CellCategory::piece;
-		GenRandomPiece(cell, mBoard, mRandomEngine, mGemIds, mNumGemIds);
+		GenRandomPiece(cell, mBoard, mRandomEngine, mGemIds, mNumGemIds, mGameConfig.match3);
+
 		// Inform client
 		Match3Event event;
 		event.id = Match3Event::Id::newPiece;
@@ -631,7 +636,7 @@ void Match3::KillMatches(const Cell& cell, int dcol, int drow) {
 		const int   cellIdx = mBoard.GetCellIndex(col, row);
 		const Cell& otherCell = mBoard.GetCell(cellIdx);
 		if (CheckMatch(otherCell, cell)) {
-			HitCell(cellIdx);
+			KillCell(cellIdx);
 		}
 		else {
 			break;

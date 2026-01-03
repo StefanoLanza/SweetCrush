@@ -88,7 +88,7 @@ void MainScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
 	prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::overBackground);
 	prm.blending = true;
 	for (int i = 0; i < NumGemTypes; ++i) {
-		const GemDef& gemDef = gemDefs[i];
+		const GemDef& gemDef = pieceDefs[i];
 		prm.orientation = std::sin(phase * .25f + (float)i) * 0.5f;
 		mEngine.GetBitmapRenderer().DrawBitmapEx(*sprites[gemDef.sprite], { x, 320.f + std::cos(phase) * 4.f }, prm);
 		x += dx;

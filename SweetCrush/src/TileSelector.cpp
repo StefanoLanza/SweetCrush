@@ -90,7 +90,7 @@ std::tuple<bool, int, int> TileSelector::SelectTiles(const Wind::Input& input) {
 			if (mDragDirection == DragDirection::empty) {
 				const float absDeltaX = std::abs(deltaX);
 				const float absDeltaY = std::abs(deltaY);
-				if (absDeltaX > mGameConfig.startDragThreshold || absDeltaY > mGameConfig.startDragThreshold) {
+				if (absDeltaX > mGameConfig.ui.startDragThreshold || absDeltaY > mGameConfig.ui.startDragThreshold) {
 					mDragDirection = (absDeltaX > absDeltaY) ? DragDirection::horizontal : DragDirection::vertical;
 				}
 			}
@@ -105,12 +105,12 @@ std::tuple<bool, int, int> TileSelector::SelectTiles(const Wind::Input& input) {
 			int colDelta = 0;
 			int rowDelta = 0;
 			if (mDragDirection == DragDirection::horizontal) {
-				if (DragTileX(cell, deltaX, mGameConfig.swapThreshold)) {
+				if (DragTileX(cell, deltaX, mGameConfig.ui.swapThreshold)) {
 					colDelta = (deltaX > 0) ? 1 : -1;
 				}
 			}
 			else if (mDragDirection == DragDirection::vertical) {
-				if (DragTileY(cell, deltaY, mGameConfig.swapThreshold)) {
+				if (DragTileY(cell, deltaY, mGameConfig.ui.swapThreshold)) {
 					rowDelta = (deltaY > 0) ? 1 : -1;
 				}
 			}

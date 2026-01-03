@@ -59,6 +59,7 @@ public:
 	Cell&                  GetCell(int col, int row);
 	const Cell&            GetCell(int col, int row) const;
 	bool                   IsInside(int col, int row) const;
+	int                    TotalFrozenCount() const;
 
 private:
 	std::vector<Cell> mCells;

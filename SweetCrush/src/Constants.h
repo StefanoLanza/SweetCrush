@@ -10,7 +10,7 @@ using CellID = unsigned char;
 
 // CellIds equal to ASCII code [0, MaxGemTypes - 1] correspond to gems
 // The actual gem is gemIds[cellId]
-constexpr CellID emptyCell = 'E';
-constexpr CellID holeCell = 'H';
+constexpr CellID emptyCell = '_';
+constexpr CellID holeCell = ' ';
 constexpr CellID obstacleCell = 'O';
 // TODO add more

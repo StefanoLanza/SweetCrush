@@ -8,7 +8,7 @@
 
 enum class BoosterType;
 
-struct CellPair {
+struct CellPairEvent {
 	int first;
 	int second;
 };
@@ -31,7 +31,7 @@ enum class Direction {
 	bottom
 };
 
-struct Match {
+struct MatchEvent {
 	ComboType comboType;
 	PieceId   pieceId;
 	int       cellIdx;
@@ -39,13 +39,13 @@ struct Match {
 	bool      horizontal;
 };
 
-struct Booster {
+struct BoosterEvent {
 	BoosterType type;
 	int         cellIdx;
 	PieceId     pieceId;
 };
 
-struct NewPiece {
+struct NewPieceEvent {
 	int     cellIdx;
 	PieceId targetPieceId;
 };
@@ -67,12 +67,12 @@ struct Match3Event {
 	};
 	Id id;
 	union {
-		Match     match;
-		CellPair  pair;
-		NewPiece  newPiece;
-		Booster   booster;
-		CellEvent removePiece;
-		CellEvent removeLayer;
+		MatchEvent    match;
+		CellPairEvent pair;
+		NewPieceEvent newPiece;
+		BoosterEvent  booster;
+		CellEvent     removePiece;
+		CellEvent     removeLayer;
 	};
 };
 
@@ -107,7 +107,7 @@ private:
 	bool CheckCombos(int h, int v, int t, int b, PieceId pieceId, int cellIdx);
 	bool CheckCellCombos(int cellIdx);
 	bool CheckMatchesAfterSwap();
-	void HitCell(int cellIdx);
+	void KillCell(int cellIdx);
 	void InsertBoosters();
 	void CollapseColumns();
 	void GenerateNewPieces();
@@ -122,20 +122,20 @@ private:
 private:
 	enum class State;
 
-	TileSelector&         mTileSelector;
-	Board&                mBoard;
-	const GameConfig&     mGameConfig;
-	Match3Callback        mCbk;
-	int                   mGemIds[8];
-	int                   mNumGemIds;
-	Wind::Random          mRandomEngine;
-	State                 mState;
-	CellPair              mUserSwap;
-	std::vector<CellPair> mSwaps;
-	std::vector<int>      mNewPieces;
-	std::vector<int>      mCheckList;
-	std::vector<CellPair> mCollapseList;
-	std::vector<Booster>  mNewBoosters;
-	int                   mNumUserSwaps;
-	int                   mCascadeCount;
+	TileSelector&              mTileSelector;
+	Board&                     mBoard;
+	const GameConfig&          mGameConfig;
+	Match3Callback             mCbk;
+	int                        mGemIds[8];
+	int                        mNumGemIds;
+	Wind::Random               mRandomEngine;
+	State                      mState;
+	CellPairEvent              mUserSwap;
+	std::vector<CellPairEvent> mSwaps;
+	std::vector<int>           mNewPieces;
+	std::vector<int>           mCheckList;
+	std::vector<CellPairEvent> mCollapseList;
+	std::vector<BoosterEvent>  mNewBoosters;
+	int                        mNumUserSwaps;
+	int                        mCascadeCount;
 };

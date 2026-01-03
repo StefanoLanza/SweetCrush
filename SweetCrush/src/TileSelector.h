@@ -6,7 +6,7 @@
 
 class Board;
 struct GameConfig;
-struct CellPair;
+struct CellPairEvent;
 struct Cell;
 
 class TileSelector final : public ITileSelector {

@@ -3,7 +3,8 @@
 struct MatchStats {
 	int  score;
 	int  level;
-	int  targetGemCount[3];
+	int  targetPieceCount[3];
+	int  layerCount;
 	bool gameComplete;
 	bool levelComplete;
 	bool restartLevel;

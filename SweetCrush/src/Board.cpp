@@ -77,3 +77,11 @@ bool IsSelectable(const Cell& cell) {
 bool Board::IsInside(int col, int row) const {
 	return (col >= 0 && col < mCols && row >= 0 && row < mRows);
 }
+
+int Board::TotalFrozenCount() const {
+	int count = 0;
+	for (const Cell& cell : mCells) {
+		count += cell.layers;
+	}
+	return count;
+}

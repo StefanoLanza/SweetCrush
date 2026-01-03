@@ -1,7 +1,7 @@
 #include "Levels.h"
 #include "../src/Level.h"
 
-#define TEST_SHORT_GAME 0
+#define TEST_SHORT_GAME 1
 
 namespace {
 
@@ -14,26 +14,27 @@ constexpr int numLevels = 4;
 #if TEST_SHORT_GAME
 
 const BoardDef testLevelGrid =
-	"ccccdccc"
+	"ccccdcac"
 	"cCccdcCc"
-	"ccccHccc"
-	"EEcabacc"
-	"ccccaccc"
-	"abcdabcd"
+	"cccc ccc"
+	"  cabacc"
+	"ccccOcbc"
+	"abcdabbd"
 	"bcdabcda"
-	"cccHHccc";
+	"ccc  ccc";
+
 
 const Level levels[numLevels] {
-	{ { 1, 2, 3, 4, 5 }, { 1, 0, 0 }, 24234, 60.f, &testLevelGrid },
+	{ { 1, 2, 3, 4, 5 }, { GoalId::breakAllIce }, 24234, 600.f, &testLevelGrid },
 };
 
 #else
 
 const Level levels[numLevels] {
-	{ { 0, 2, 3, 4, 5 }, { 12, 12, 12 }, 24234, 60.f, nullptr },
-	{ { 1, 2, 3, 5, 6 }, { 15, 15, 15 }, 224234, 60.f, nullptr },
-	{ { 0, 5, 3, 4, 7 }, { 18, 18, 18 }, 324234, 60.f, nullptr },
-	{ { 3, 4, 8, 5, 6 }, { 21, 21, 21 }, 324234, 60.f, nullptr },
+	{ { 0, 2, 3, 4, 5 }, { GoalId::collectMatches, { 12, 12, 12 }}, 24234, 60.f, nullptr },
+	{ { 1, 2, 3, 5, 6 }, { GoalId::collectMatches, { 15, 15, 15 }}, 224234, 60.f, nullptr },
+	{ { 0, 5, 3, 4, 7 }, { GoalId::collectMatches, { 18, 18, 18 }}, 324234, 60.f, nullptr },
+	{ { 3, 4, 8, 5, 6 }, { GoalId::collectMatches, { 21, 21, 21 }}, 324234, 60.f, nullptr },
 };
 
 #endif
