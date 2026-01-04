@@ -14,6 +14,7 @@ public:
 	void               Draw(Wind::GameScreenId topScreen) const override;
 	void               Enter(Wind::GameScreenId prevScreen) override;
 	void               Exit() override;
+	void               ParseConfig(const char* varName, const char* varValue) override;
 
 private:
 	Wind::UIText   mTitle;

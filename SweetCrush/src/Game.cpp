@@ -35,9 +35,9 @@ Game::~Game() = default;
 void Game::Run() {
 	SetLanguage(Language::english);
 
-	mGameSettings.musicOn = mGameConfig.musicOn;
-	mGameSettings.sfxOn = mGameConfig.sfxOn;
-	mGameSettings.infoOn = mGameConfig.infoOn;
+	mGameSettings.musicOn = mGameConfig.settings.musicOn;
+	mGameSettings.sfxOn = mGameConfig.settings.sfxOn;
+	mGameSettings.infoOn = mGameConfig.settings.infoOn;
 
 	mCanvas.SetBackground("gameartguppy/background.png", mEngine);
 #if ! defined(__ANDROID__) && (defined(_WIN32) || defined(__linux__))
@@ -59,6 +59,9 @@ void Game::Run() {
 	}
 	mScreens[0]->Enter(ScreenId::empty);
 	mEngine.Start([this](float dt) { Draw(dt); }, [this](float dt) { Tick(dt); });
+}
+
+void Game::LoadConfig() {
 }
 
 void Game::Draw(float dt) {

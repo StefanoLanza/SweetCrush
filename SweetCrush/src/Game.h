@@ -18,6 +18,7 @@ public:
 	Game(Wind::Engine& engine, const GameConfig& gameConfig, GameDataModule& gameDataModule);
 	~Game();
 	void Run();
+	void LoadConfig();
 
 private:
 	void Draw(float dt);

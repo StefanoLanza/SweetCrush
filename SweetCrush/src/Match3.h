@@ -2,7 +2,6 @@
 
 #include "Board.h"
 #include <engine/FwdDecl.h>
-#include <engine/Random.h>
 #include <functional>
 #include <vector>
 
@@ -22,13 +21,6 @@ enum class ComboType {
 	T5,
 	L,
 	Unknown
-};
-
-enum class Direction {
-	left,
-	right,
-	top,
-	bottom
 };
 
 struct MatchEvent {
@@ -78,19 +70,16 @@ struct Match3Event {
 
 using Match3Callback = std::function<void(const Match3Event& event)>;
 
-class Board;
 class TileSelector;
+class BoardGenerator;
 struct GameConfig;
-struct Cell;
-struct GameInput;
 
 class Match3 final {
 public:
-	Match3(Board& board, const GameConfig& gameConfig, TileSelector& tileSelector);
+	Match3(Board& board, BoardGenerator& boardGen, const GameConfig& gameConfig, TileSelector& tileSelector);
 	~Match3();
 
 	void SetCallback(Match3Callback&& cbk);
-	void NewBoard(uint32_t seed, const char* boardDef, const int gemIds[], int gemIdCount);
 	void Run();
 	void Update(const Wind::Input& input);
 	int  GetNumUserSwaps() const;
@@ -122,13 +111,11 @@ private:
 private:
 	enum class State;
 
-	TileSelector&              mTileSelector;
 	Board&                     mBoard;
+	BoardGenerator&            mBoardGen;
+	TileSelector&              mTileSelector;
 	const GameConfig&          mGameConfig;
 	Match3Callback             mCbk;
-	int                        mGemIds[8];
-	int                        mNumGemIds;
-	Wind::Random               mRandomEngine;
 	State                      mState;
 	CellPairEvent              mUserSwap;
 	std::vector<CellPairEvent> mSwaps;

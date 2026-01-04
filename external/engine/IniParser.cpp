@@ -3,6 +3,8 @@
 #include <SDL3/SDL.h>
 #include <vector>
 
+namespace Wind {
+
 int ParseINIFile(const char* fileName, ini_handler handler, void* user) {
 	SDL_IOStream* const f = SDL_IOFromFile(fileName, "rb");
 	if (! f) {
@@ -21,3 +23,5 @@ int ParseINIFile(const char* fileName, ini_handler handler, void* user) {
 	SDL_CloseIO(f);
 	return res;
 }
+
+} // namespace Wind

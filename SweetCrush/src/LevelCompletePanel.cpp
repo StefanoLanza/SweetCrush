@@ -78,3 +78,6 @@ void LevelCompletePanel::Enter([[maybe_unused]] Wind::GameScreenId prevScreen) {
 void LevelCompletePanel::Exit() {
 	mPanel.SetVisible(false);
 }
+
+void LevelCompletePanel::ParseConfig(const char* varName, const char* varValue) {
+}

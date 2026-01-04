@@ -6,14 +6,13 @@ GameConfig DefaultGameConfig() {
 	config.windowWidth = 768;
 	config.windowHeight = 1024;
 	config.fullscreen = false;
-	config.cellWidth = 64.f;
-	config.cellHeight = 72.f;
-	config.cellSpacing = 2.f;
-	config.cellWidthWithSpacing = config.cellWidth + config.cellSpacing;
-	config.cellHeightWithSpacing = config.cellHeight + config.cellSpacing;
-	config.boardLeft = (RefWindowWidth - config.cellWidthWithSpacing * NumCols - config.cellSpacing) * 0.5f;
-	config.boardTop = 300.f;
-	config.colorPalette = 0;
+	config.board.cellWidth = 64.f;
+	config.board.cellHeight = 72.f;
+	config.board.cellSpacing = 2.f;
+	config.board.cellWidthWithSpacing = config.board.cellWidth + config.board.cellSpacing;
+	config.board.cellHeightWithSpacing = config.board.cellHeight + config.board.cellSpacing;
+	config.board.topLeftCoord.x = (RefWindowWidth - config.board.cellWidthWithSpacing * NumCols - config.board.cellSpacing) * 0.5f;
+	config.board.topLeftCoord.y = 300.f;
 	config.moveBackPieceSpeed = 512.f;
 	config.swapSpeed = 512.f;
 	config.pieceFallSpeed = 2048.f;
@@ -21,6 +20,7 @@ GameConfig DefaultGameConfig() {
 	config.bombExplosionTime = 0.25f;
 	config.starMoveTime = 0.5f;
 	config.removePieceDuration = 0.125f;
+	config.newPieceDuration = 0.25f;
 	config.scoreTextDuration = 1.f;
 	config.scoreTextScrollSpeed = 64.f;
 	config.brokenIceDuration = 0.25f;
@@ -29,8 +29,8 @@ GameConfig DefaultGameConfig() {
 	config.ui.startDragThreshold = 4.f;
 	config.ui.goalStartCoord = { 70.f, 200.f };
 
-	config.musicOn = true;
-	config.sfxOn = true;
-	config.infoOn = true;
+	config.settings.musicOn = true;
+	config.settings.sfxOn = true;
+	config.settings.infoOn = true;
 	return config;
 }

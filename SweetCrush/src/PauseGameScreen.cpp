@@ -119,3 +119,6 @@ void PauseGameScreen::Enter([[maybe_unused]] GameScreenId prevScreen) {
 void PauseGameScreen::Exit() {
 	mPanel.SetVisible(false);
 }
+
+void PauseGameScreen::ParseConfig(const char* varName, const char* varValue) {
+}

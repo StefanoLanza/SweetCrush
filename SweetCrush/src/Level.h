@@ -12,7 +12,7 @@ enum class GoalId {
 };
 
 struct GoalCollectMatches {
-	int count[3]; // three count
+	int count[3]; // three count. values <= 0 are ignored
 };
 
 struct Goal {
@@ -23,9 +23,9 @@ struct Goal {
 };
 
 struct Level {
-	int             gemIds[MaxPieceTypes];
+	int             pieceIds[MaxPieceTypes];
 	Goal            goal;
 	uint32_t        seed;
-	float           time; // seconds
-	const BoardDef* boardDef;
+	float           time;     // seconds
+	const BoardDef* boardDef; // null for random boards
 };

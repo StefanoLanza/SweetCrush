@@ -2,11 +2,11 @@
 #include <engine/Engine.h>
 #include <engine/Sdl.h>
 #include <engine/SdlWindow.h>
+#include <engine/IniParser.h>
 
 #include "Game.h"
 #include "GameConfig.h"
 #include "GameDataModule.h"
-#include "IniParser.h"
 
 #include <algorithm>
 #include <cstring>
@@ -42,14 +42,14 @@ int main(int argc, char* argv[]) {
 
 namespace {
 
-int INIParser(void* user, const char* /*section*/, const char* name, const char* value) {
+int ParseGameConfig(void* user, const char* /*section*/, const char* name, const char* value) {
 	auto config = static_cast<GameConfig*>(user);
 	PARSE_INT(config->windowWidth, "windowWidth", 0, 3456);
 	PARSE_INT(config->windowHeight, "windowHeight", 0, 2234);
 	PARSE_BOOL(config->fullscreen, "fullscreen");
-	PARSE_FLOAT(config->cellHeight, "cellHeight", 16.f, 64.f);
-	PARSE_FLOAT(config->cellWidth, "cellWidth", 16.f, 64.f);
-	PARSE_FLOAT(config->cellSpacing, "cellSpacing", 0.f, 8.f);
+	PARSE_FLOAT(config->board.cellHeight, "cellHeight", 16.f, 64.f);
+	PARSE_FLOAT(config->board.cellWidth, "cellWidth", 16.f, 64.f);
+	PARSE_FLOAT(config->board.cellSpacing, "cellSpacing", 0.f, 8.f);
 	// Animations
 	PARSE_FLOAT(config->moveBackPieceSpeed, "moveBackPieceSpeed", 1.f, 1024.f);
 	PARSE_FLOAT(config->swapSpeed, "swapSpeed", 1.f, 1024.f);
@@ -59,17 +59,17 @@ int INIParser(void* user, const char* /*section*/, const char* name, const char*
 	PARSE_FLOAT(config->ui.swapThreshold, "swapThreshold", 0.1f, 1.f);
 	PARSE_FLOAT(config->ui.startDragThreshold, "startDragThreshold", 1.f, 8.f);
 	// Misc
-	PARSE_BOOL(config->musicOn, "musicOn");
-	PARSE_BOOL(config->sfxOn, "sfxOn");
-	PARSE_BOOL(config->infoOn, "infoOn");
+	PARSE_BOOL(config->settings.musicOn, "musicOn");
+	PARSE_BOOL(config->settings.sfxOn, "sfxOn");
+	PARSE_BOOL(config->settings.infoOn, "infoOn");
 
-	config->cellWidthWithSpacing = config->cellWidth + config->cellSpacing;
-	config->cellHeightWithSpacing = config->cellHeight + config->cellSpacing;
+	config->board.cellWidthWithSpacing = config->board.cellWidth + config->board.cellSpacing;
+	config->board.cellHeightWithSpacing = config->board.cellHeight + config->board.cellSpacing;
 	return 1;
 }
 
 void LoadGameConfig(GameConfig& gameConfig, const char* iniFile) {
-	ParseINIFile(iniFile, INIParser, &gameConfig);
+	Wind::ParseINIFile(iniFile, ParseGameConfig, &gameConfig);
 }
 
 } // namespace

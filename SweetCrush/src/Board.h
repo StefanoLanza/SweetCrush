@@ -16,25 +16,22 @@ enum class CellCategory {
 	obstacle,
 };
 
-struct PieceAnim {
+struct PieceGraphics {
 	Wind::Vec2 coords;
-	int        spriteIdx;
 	float      scale;
-	float      scaleDev;
 	float      rotation;
 };
 
 struct Cell {
-	Wind::Vec2   coords;
-	int          col;
-	int          row;
-	int          layers;
-	PieceId      pieceId;
-	BoosterType  boosterType;
-	PieceAnim    pieceAnim;
-	CellCategory category;
-	bool         hasBooster;
-	uint8_t      backgroundTileIdx;
+	Wind::Vec2    coords;
+	int           col;
+	int           row;
+	int           layers;
+	BoosterType   boosterType;
+	PieceGraphics pieceGraphics;
+	CellCategory  category;
+	PieceId       pieceId;
+	bool          hasBooster;
 };
 
 bool IsEmpty(const Cell& cell);
@@ -59,7 +56,7 @@ public:
 	Cell&                  GetCell(int col, int row);
 	const Cell&            GetCell(int col, int row) const;
 	bool                   IsInside(int col, int row) const;
-	int                    TotalFrozenCount() const;
+	int                    TotalLayerCount() const;
 
 private:
 	std::vector<Cell> mCells;

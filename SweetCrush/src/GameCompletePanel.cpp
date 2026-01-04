@@ -99,3 +99,6 @@ void GameCompletePanel::Enter([[maybe_unused]] GameScreenId prevScreen) {
 void GameCompletePanel::Exit() {
 	mPanel.SetVisible(false);
 }
+
+void GameCompletePanel::ParseConfig(const char* varName, const char* varValue) {
+}

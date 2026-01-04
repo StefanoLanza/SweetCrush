@@ -111,3 +111,6 @@ void GameOverScreen::Enter(GameScreenId /*prevScreen*/) {
 void GameOverScreen::Exit() {
 	mPanel.SetVisible(false);
 }
+
+void GameOverScreen::ParseConfig(const char* varName, const char* varValue) {
+}

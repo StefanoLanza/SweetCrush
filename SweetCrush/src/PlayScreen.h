@@ -2,6 +2,7 @@
 
 #include "ActionMgr.h"
 #include "Board.h"
+#include "BoardGenerator.h"
 #include "BoostInfoPanel.h"
 #include "Match3.h"
 #include <engine/FwdDecl.h>
@@ -25,6 +26,7 @@ public:
 	void               Draw(Wind::GameScreenId topScreen) const override;
 	void               Enter(Wind::GameScreenId prevScreen) override;
 	void               Exit() override;
+	void               ParseConfig(const char* varName, const char* varValue) override;
 
 private:
 	void NewGame();
@@ -54,6 +56,7 @@ private:
 	MatchStats&                   mMatchStats;
 	const GameDataModule&         mGameDataModule;
 	Board                         mBoard;
+	BoardGenerator                mBoardGenerator;
 	std::unique_ptr<TileSelector> mTileSelector;
 	BoostInfoPanel                mBoostInfoPanel;
 	Wind::UIPanel                 mPanel;

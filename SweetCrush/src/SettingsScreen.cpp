@@ -96,3 +96,6 @@ void SettingsScreen::RefreshSfxButton() {
 	const StringId stringId = static_cast<StringId>(mGameConfig.sfxOn ? GameStringId::sfxOn : GameStringId::sfxOff);
 	mSfxButton.GetText()->SetText(stringId);
 }
+
+void SettingsScreen::ParseConfig(const char* varName, const char* varValue) {
+}

@@ -17,17 +17,17 @@ ActionFunc MoveBackPiece(Cell& cell, float speed) {
 }
 
 ActionFunc MovePieceTo(Cell& cell, const Vec2& targetCoords, float speed) {
-	const Vec2 velocity = Normalize(targetCoords - cell.pieceAnim.coords) * speed;
+	const Vec2 velocity = Normalize(targetCoords - cell.pieceGraphics.coords) * speed;
 	return [&cell, targetCoords, velocity](float dt, float /*t*/) {
-		const Vec2 newCoords = cell.pieceAnim.coords + velocity * dt;
-		cell.pieceAnim.coords = Clamp(newCoords, cell.pieceAnim.coords, targetCoords);
-		return cell.pieceAnim.coords == targetCoords;
+		const Vec2 newCoords = cell.pieceGraphics.coords + velocity * dt;
+		cell.pieceGraphics.coords = Clamp(newCoords, cell.pieceGraphics.coords, targetCoords);
+		return cell.pieceGraphics.coords == targetCoords;
 	};
 }
 
 ActionFunc ScaleCellSprite(Cell& cell, float startScale, float endScale) {
 	return [&cell, startScale, endScale](float /*dt*/, float t) {
-		cell.pieceAnim.scale = Lerp(endScale, startScale, 1.f - std::pow(t, 2.f));
+		cell.pieceGraphics.scale = Lerp(endScale, startScale, 1.f - std::pow(t, 2.f));
 		return false;
 	};
 }
@@ -50,7 +50,7 @@ ActionFunc DrawMovingSprite(const Cell& cell, const Engine& engine, Vec2 targetP
 }
 
 ActionFunc DrawExplosion(const Cell& cell, const Engine& engine, const GameConfig& gameConfig) {
-	Vec2 xy = cell.coords + Vec2 { gameConfig.cellWidth, gameConfig.cellHeight } * 0.5f;
+	Vec2 xy = cell.coords + Vec2 { gameConfig.board.cellWidth, gameConfig.board.cellHeight } * 0.5f;
 	return [&engine, xy](float /*dt*/, float t) {
 		const BitmapRenderer& bitmapRender = engine.GetBitmapRenderer();
 		BitmapExtParams       prm;
@@ -64,7 +64,7 @@ ActionFunc DrawExplosion(const Cell& cell, const Engine& engine, const GameConfi
 }
 
 ActionFunc DrawMatchScore(int score, const Cell& cell, const Engine& engine, const GameConfig& gameConfig, const Font& font) {
-	Vec2 xy = cell.coords + Vec2 { gameConfig.cellWidth, gameConfig.cellHeight } * 0.5f;
+	Vec2 xy = cell.coords + Vec2 { gameConfig.board.cellWidth, gameConfig.board.cellHeight } * 0.5f;
 	return [&engine, &font, xy, score, scrollSpeed = gameConfig.scoreTextScrollSpeed](float /*dt*/, float t) {
 		const TextRenderer& textRender = engine.GetTextRenderer();
 		char                tmp[64];
@@ -76,7 +76,7 @@ ActionFunc DrawMatchScore(int score, const Cell& cell, const Engine& engine, con
 }
 
 ActionFunc DrawBrokenIce(const Cell& cell, const Engine& engine, const GameConfig& gameConfig) {
-	Vec2 xy = cell.coords + Vec2 { gameConfig.cellWidth, gameConfig.cellHeight } * 0.5f;
+	Vec2 xy = cell.coords + Vec2 { gameConfig.board.cellWidth, gameConfig.board.cellHeight } * 0.5f;
 	return [&engine, xy](float /*dt*/, float t01) {
 		const BitmapRenderer& bitmapRender = engine.GetBitmapRenderer();
 		BitmapExtParams       prm;

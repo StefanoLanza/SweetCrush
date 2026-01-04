@@ -85,3 +85,6 @@ void CreditsScreen::BuildUI(UICanvas& canvas) {
 	mPanel.AddButton(mBackButton);
 	canvas.GetPanel().AddPanel(mPanel);
 }
+
+void CreditsScreen::ParseConfig(const char* varName, const char* varValue) {
+}

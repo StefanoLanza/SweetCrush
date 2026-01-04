@@ -103,3 +103,6 @@ void MainScreen::Enter([[maybe_unused]] GameScreenId prevScreen) {
 void MainScreen::Exit() {
 	mPanel.SetVisible(false);
 }
+
+void MainScreen::ParseConfig(const char* varName, const char* varValue) {
+}

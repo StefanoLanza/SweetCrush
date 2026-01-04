@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <cstring>
 
+namespace Wind {
+
 #define PARSE_INT(var, iniVarName, minv, maxv)          \
 	if (! strcmp(name, iniVarName)) {                   \
 		var = std::clamp(std::atoi(value), minv, maxv); \
@@ -29,3 +31,5 @@
 
 
 int ParseINIFile(const char* fileName, ini_handler handler, void* user);
+
+}
