@@ -12,7 +12,11 @@
 
 using namespace Wind;
 
-ActionFunc MovePiece(Cell& cell, const Vec2& targetCoords, float speed) {
+ActionFunc MoveBackPiece(Cell& cell, float speed) {
+	return MovePieceTo(cell, cell.coords, speed);
+}
+
+ActionFunc MovePieceTo(Cell& cell, const Vec2& targetCoords, float speed) {
 	const Vec2 velocity = Normalize(targetCoords - cell.pieceAnim.coords) * speed;
 	return [&cell, targetCoords, velocity](float dt, float /*t*/) {
 		const Vec2 newCoords = cell.pieceAnim.coords + velocity * dt;

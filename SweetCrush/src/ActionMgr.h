@@ -11,8 +11,13 @@ public:
 	ActionMgr();
 	~ActionMgr();
 
-	void AddAction(float delay, ActionFunc&& func);
-	void AddTimedAction(float delay, float duration, ActionFunc&& func);
+	enum ActionFlags : uint8_t {
+		blocking = 0,
+		unblocking = 1,
+	};
+
+	void AddAction(ActionFunc&& func, float delay, ActionFlags flags = ActionFlags::blocking);
+	void AddTimedAction(ActionFunc&& func, float delay, float duration, ActionFlags flags = ActionFlags::blocking);
 	void RunActions(float dt);
 	void Clear();
 	bool AnyRunning() const;

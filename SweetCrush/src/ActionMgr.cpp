@@ -1,26 +1,33 @@
 #include "ActionMgr.h"
 #include <algorithm>
-#include <limits>
 #include <cassert>
+#include <limits>
 
 struct ActionMgr::Action {
-	float      delay;
-	float      duration;
-	float      t;
-	ActionFunc func;
+	ActionFunc  func;
+	float       delay;
+	float       duration;
+	float       t;
+	ActionFlags flags;
 };
 
 ActionMgr::ActionMgr() = default;
 
 ActionMgr::~ActionMgr() = default;
 
-void ActionMgr::AddAction(float delay, ActionFunc&& func) {
-	AddTimedAction(delay, std::numeric_limits<float>::max(), std::move(func));
+void ActionMgr::AddAction(ActionFunc&& func, float delay, ActionFlags flags) {
+	AddTimedAction(std::move(func), delay, std::numeric_limits<float>::max(), flags);
 }
 
-void ActionMgr::AddTimedAction(float delay, float duration, ActionFunc&& func) {
+void ActionMgr::AddTimedAction(ActionFunc&& func, float delay, float duration, ActionFlags flags) {
 	assert(duration >= 0.f);
-	mActions.push_back({ delay, duration, 0.f, std::move(func) });
+	mActions.push_back({
+	    std::move(func),
+	    delay,
+	    duration,
+	    0.f,
+		flags,
+	});
 }
 
 void ActionMgr::RunActions(float dt) {

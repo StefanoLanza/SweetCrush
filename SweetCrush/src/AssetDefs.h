@@ -4,18 +4,15 @@
 #include <engine/FwdDecl.h>
 
 constexpr int NumSprites = 22;
-constexpr int NumGemTypes = 11;
+constexpr int NumPieceTypes = 11;
 constexpr int NumBoardTiles = 1;
 constexpr int NumObstacleTypes = 1;
 
 struct SpriteDef {
-	/*	const char** bitmaps;
-	    int          numBitmaps;
-	    float        animationFreq;*/
 	const char* bitmap;
 };
 
-struct GemDef {
+struct PieceDef {
 	int sprite;
 };
 
@@ -24,7 +21,7 @@ struct ObstacleDef {
 };
 
 struct BoosterDef {
-	int   sprite;
+	int sprite;
 };
 
 struct BoardTileDef {
@@ -33,7 +30,7 @@ struct BoardTileDef {
 
 extern const SpriteDef    spriteDefs[NumSprites];
 extern const BoardTileDef boardTileDefs[NumBoardTiles];
-extern const GemDef       pieceDefs[NumGemTypes];
+extern const PieceDef     pieceDefs[NumPieceTypes];
 extern const ObstacleDef  obstacleDefs[NumObstacleTypes];
 extern const BoosterDef   boosterDefs[NumBoosters];
 extern Wind::TexturePtr   sprites[NumSprites];

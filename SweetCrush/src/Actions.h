@@ -8,7 +8,8 @@ struct Cell;
 struct GameConfig;
 
 // Predefined actions
-ActionFunc MovePiece(Cell& cell, const Wind::Vec2& targetCoords, float speed);
+ActionFunc MoveBackPiece(Cell& cell, float speed);
+ActionFunc MovePieceTo(Cell& cell, const Wind::Vec2& targetCoords, float speed);
 ActionFunc ScaleCellSprite(Cell& cell, float startScale, float endScale);
 ActionFunc DrawMovingSprite(const Cell& cell, const Wind::Engine& engine, Wind::Vec2 targetPos, int sprite);
 ActionFunc DrawExplosion(const Cell& cell, const Wind::Engine& engine, const GameConfig& gameConfig);
