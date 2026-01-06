@@ -18,7 +18,7 @@ LOCAL_SRC_FILES :=                                      \
 #LOCAL_LDLIBS :=
 #LOCAL_LDFLAGS := -Wl,--no-undefined -Wl,
 #LOCAL_STATIC_LIBRARIES := 
-LOCAL_SHARED_LIBRARIES := SDL3 SDL3_mixer SDL3_image
+LOCAL_SHARED_LIBRARIES := SDL3 SDL3_mixer SDL3_image inih
 LOCAL_LDLIBS := -lGLESv3
 LOCAL_EXPORT_C_INCLUDES += $(LOCAL_PATH)/..
 
