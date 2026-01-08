@@ -37,6 +37,7 @@ struct GameConfig {
 	float        bombExplosionTime; // seconds
 	float        starMoveTime;
 	float        removePieceDuration; // seconds
+	float        suckPieceDuration;
 	float        newPieceDuration; // seconds
 	float        scoreTextDuration;
 	float        scoreTextScrollSpeed;

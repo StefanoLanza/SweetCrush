@@ -41,6 +41,7 @@ TileSelector::TileSelector(Board& board, const GameConfig& gameConfig)
     : mBoard { board }
     , mGameConfig { gameConfig }
     , mState { State::empty }
+    , mFirstCellIdx { invalidIndex }
     , mSelectedCellIdx { invalidIndex }
     , mDragDirection { DragDirection::empty }
     , mDragMouseCoords { 0.f, 0.f } {
@@ -62,11 +63,11 @@ void TileSelector::Reset() {
 
 std::tuple<bool, int, int> TileSelector::SelectTiles(const Wind::Input& input) {
 	const Wind::Vec2 mouseCoord = input.GetMappedMouseCoord();
-	const bool  mouseButtonDown = input.GetMouseButtonDown();
-	const bool  mouseButtonPressed = input.GetMouseButtonPressed();
-	bool        res = false;
-	int         first = 0;
-	int         second = 0;
+	const bool       mouseButtonDown = input.GetMouseButtonDown();
+	const bool       mouseButtonPressed = input.GetMouseButtonPressed();
+	bool             res = false;
+	int              first = 0;
+	int              second = 0;
 	if (mState == State::empty) {
 		// Wait for user to click on a cell
 		if (mouseButtonPressed) {

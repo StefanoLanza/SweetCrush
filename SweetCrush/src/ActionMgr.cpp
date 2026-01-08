@@ -37,10 +37,8 @@ void ActionMgr::RunActions(float dt) {
 		if (action.delay < 0.f) {
 			action.t += dt;
 			float t01 = std::clamp(action.t / action.duration, 0.f, 1.f);
-			if (action.t < action.duration) {
-				res = action.func(dt, t01);
-			}
-			else {
+			res = action.func(dt, t01);
+			if (t01 >= 1.f) {
 				res = true;
 			}
 		}

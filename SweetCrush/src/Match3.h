@@ -39,10 +39,16 @@ struct BoosterEvent {
 
 struct NewPieceEvent {
 	int     cellIdx;
-	PieceId targetPieceId;
+	PieceId pieceId;
 };
 
-struct CellEvent {
+struct RemovePieceEvent {
+	int cellIdx;
+	int boosterCellIdx; // for suck anims
+	int priority;
+};
+
+struct RemoveLayerEvent {
 	int cellIdx;
 };
 
@@ -59,12 +65,12 @@ struct Match3Event {
 	};
 	Id id;
 	union {
-		MatchEvent    match;
-		CellPairEvent pair;
-		NewPieceEvent newPiece;
-		BoosterEvent  booster;
-		CellEvent     removePiece;
-		CellEvent     removeLayer;
+		MatchEvent       match;
+		CellPairEvent    pair;
+		NewPieceEvent    newPiece;
+		BoosterEvent     booster;
+		RemovePieceEvent removePiece;
+		RemoveLayerEvent removeLayer;
 	};
 };
 
@@ -96,7 +102,7 @@ private:
 	bool CheckCombos(int h, int v, int t, int b, PieceId pieceId, int cellIdx);
 	bool CheckCellCombos(int cellIdx);
 	bool CheckMatchesAfterSwap();
-	void KillCell(int cellIdx);
+	void KillCell(int cellIdx, int priority, int boosterCellIdx);
 	void InsertBoosters();
 	void CollapseColumns();
 	void GenerateNewPieces();

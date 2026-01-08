@@ -17,6 +17,7 @@ enum class CellCategory {
 };
 
 struct PieceGraphics {
+	int        bitmapIdx;
 	Wind::Vec2 coords;
 	float      scale;
 	float      rotation;
