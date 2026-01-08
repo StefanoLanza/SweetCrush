@@ -211,7 +211,7 @@ void Match3::HorizontalRocket(int col, int row) {
 	for (int ncol = 0; ncol < mBoard.GetCols(); ++ncol) {
 		if (col != ncol) {
 			int cellIdx = mBoard.GetCellIndex(ncol, row);
-			KillCell(cellIdx, 0, -1); //std::abs(col - ncol), boosterCellIdx);
+			KillCell(cellIdx, 0, -1); // std::abs(col - ncol)
 		}
 	}
 }
@@ -222,7 +222,7 @@ void Match3::VerticalRocket(int col, int row) {
 	for (int nrow = 0; nrow < mBoard.GetRows(); ++nrow) {
 		if (row != nrow) {
 			int cellIdx = mBoard.GetCellIndex(col, nrow);
-			KillCell(cellIdx, 0, -1);// std::abs(row - nrow), boosterCellIdx);
+			KillCell(cellIdx, 0, -1); // std::abs(row - nrow)
 		}
 	}
 }
@@ -238,7 +238,7 @@ void Match3::Bomb(int col, int row, int radius) {
 				int ocol = col + x;
 				if (mBoard.IsInside(ocol, orow)) {
 					int cellIdx = mBoard.GetCellIndex(ocol, orow);
-					KillCell(cellIdx, 0, -1); //r, boosterCellIdx);
+					KillCell(cellIdx, 0, -1);
 				}
 			}
 		}
@@ -255,44 +255,44 @@ void Match3::DeleteAllPiecesOfType(int pieceId) {
 	}
 }
 
-bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int cellIdx) {
-	bool        res = true;
-	Match3Event event {};
+bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCellIdx) {
+	bool      res = true;
+	ComboType comboType {};
+	bool      horizontalMatch = false;
 
 	// TODO Distinguish horizontal and vertical for T and L combos ?
-
 	if (T3Combo(l, r, t, b)) {
-		event.match.comboType = ComboType::T3;
-		AddBooster(BoosterType::vrocket, cellIdx, pieceId);
+		comboType = ComboType::T3;
+		AddBooster(BoosterType::vrocket, mainCellIdx, pieceId);
 	}
 	else if (T4Combo(l, r, t, b)) {
-		event.match.comboType = ComboType::T4;
-		AddBooster(BoosterType::bomb, cellIdx, pieceId);
+		comboType = ComboType::T4;
+		AddBooster(BoosterType::bomb, mainCellIdx, pieceId);
 	}
 	else if (T5Combo(l, r, t, b)) {
-		event.match.comboType = ComboType::T5;
-		AddBooster(BoosterType::bomb, cellIdx, pieceId);
+		comboType = ComboType::T5;
+		AddBooster(BoosterType::bomb, mainCellIdx, pieceId);
 	}
 	else if (LCombo(l, r, t, b)) {
-		event.match.comboType = ComboType::L;
-		AddBooster(BoosterType::bomb, cellIdx, pieceId);
+		comboType = ComboType::L;
+		AddBooster(BoosterType::bomb, mainCellIdx, pieceId);
 	}
 	else if (_5Combo(l, r, t, b)) {
-		event.match.comboType = ComboType::C5;
-		AddBooster(BoosterType::hrocket, cellIdx, pieceId);
-		event.match.horizontal = (l + r + 1) == 5;
+		comboType = ComboType::C5;
+		AddBooster(BoosterType::hrocket, mainCellIdx, pieceId);
+		horizontalMatch = (l + r + 1) == 5;
 	}
 	else if (_4Combo(l, r, t, b)) {
-		event.match.comboType = ComboType::C4;
-		AddBooster(BoosterType::miniBomb, cellIdx, pieceId);
-		event.match.horizontal = (l + r + 1) == 4;
+		comboType = ComboType::C4;
+		AddBooster(BoosterType::miniBomb, mainCellIdx, pieceId);
+		horizontalMatch = (l + r + 1) == 4;
 	}
 	else if (_3Combo(l, r, t, b)) {
-		event.match.comboType = ComboType::C3;
-		event.match.horizontal = (l + r + 1) == 3;
+		comboType = ComboType::C3;
+		horizontalMatch = (l + r + 1) == 3;
 	}
 	else if (_AnyCombo(l, r, t, b)) {
-		event.match.comboType = ComboType::Unknown;
+		comboType = ComboType::Unknown;
 	}
 	else {
 		res = false;
@@ -300,11 +300,32 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int cellId
 
 	if (res) {
 		// Inform client
+		Match3Event event;
 		event.id = Match3Event::Id::match;
+		event.match.comboType = comboType;
 		event.match.pieceId = pieceId;
+		event.match.cellIdx = mainCellIdx;
 		event.match.cascadeCount = mCascadeCount;
-		event.match.cellIdx = cellIdx;
+		event.match.horizontal = horizontalMatch;
 		mCbk(event);
+	}
+
+	// TODO priority and boosterIDx
+
+	if (res) {
+		bool isSpecialCombo = comboType != ComboType::C3;
+		if (1 + t + b >= 3) {
+			// Kill vertical matches
+			KillAdjacentMatches(mainCellIdx, 0, -1, isSpecialCombo);
+			KillAdjacentMatches(mainCellIdx, 0, +1, isSpecialCombo);
+		}
+		if (1 + l + r >= 3) {
+			// Kill horizontal matches
+			KillAdjacentMatches(mainCellIdx, -1, 0, isSpecialCombo);
+			KillAdjacentMatches(mainCellIdx, +1, 0, isSpecialCombo);
+		}
+		// Kill main cell
+		KillCell(mainCellIdx, 0, -1);
 	}
 
 	return res;
@@ -316,30 +337,11 @@ bool Match3::CheckCellCombos(int cellIdx) {
 		return false; // already deleted
 	}
 
-	const int  l = CountMatches(cell, mBoard, CheckDirection::left);
-	const int  r = CountMatches(cell, mBoard, CheckDirection::right);
-	const int  t = CountMatches(cell, mBoard, CheckDirection::top);
-	const int  b = CountMatches(cell, mBoard, CheckDirection::bottom);
-	const bool res = CheckCombos(l, r, t, b, cell.pieceId, cellIdx);
-
-	// TODO priority and boosterIDx
-
-	if (res) {
-		if (1 + t + b >= 3) {
-			// Kill vertical matches
-			KillMatches(cell, 0, -1);
-			KillMatches(cell, 0, +1);
-		}
-		if (1 + l + r >= 3) {
-			// Kill horizontal matches
-			KillMatches(cell, -1, 0);
-			KillMatches(cell, +1, 0);
-		}
-		// Kill main cell
-		KillCell(cellIdx, 0, -1);
-	}
-
-	return res;
+	const int l = CountMatches(cell, mBoard, CheckDirection::left);
+	const int r = CountMatches(cell, mBoard, CheckDirection::right);
+	const int t = CountMatches(cell, mBoard, CheckDirection::top);
+	const int b = CountMatches(cell, mBoard, CheckDirection::bottom);
+	return CheckCombos(l, r, t, b, cell.pieceId, cellIdx);
 }
 
 bool Match3::CheckMatchesAfterSwap() {
@@ -365,7 +367,6 @@ void Match3::KillCell(int cellIdx, int priority, int boosterCellIdx) {
 				mCbk(event);
 
 				cell.category = CellCategory::empty;
-				cell.hasBooster = false;
 			}
 		}
 		else {
@@ -378,6 +379,7 @@ void Match3::KillCell(int cellIdx, int priority, int boosterCellIdx) {
 			mCbk(event);
 		}
 	}
+	// else already deleted or hole or obstacle
 }
 
 void Match3::InsertBoosters() {
@@ -511,20 +513,22 @@ void Match3::CollapseColumn(int col) {
 	}
 }
 
-void Match3::KillMatches(const Cell& cell, int dcol, int drow) {
-	int col = cell.col + dcol;
-	int row = cell.row + drow;
+void Match3::KillAdjacentMatches(int mainCellIdx, int deltaCol, int deltaRow, bool isSpecialCombo) {
+	const Cell& cell = mBoard.GetCell(mainCellIdx);
+	int col = cell.col + deltaCol;
+	int row = cell.row + deltaRow;
 	while (col >= 0 && col < mBoard.GetCols() && row >= 0 && row < mBoard.GetRows()) {
 		const int   cellIdx = mBoard.GetCellIndex(col, row);
+		assert(cellIdx != mainCellIdx); // maincell handled separately
 		const Cell& otherCell = mBoard.GetCell(cellIdx);
 		if (CheckMatch(otherCell, cell)) {
-			KillCell(cellIdx, 0, -1);
+			KillCell(cellIdx, 0, isSpecialCombo ? mainCellIdx : -1);
 		}
 		else {
 			break;
 		}
-		col += dcol;
-		row += drow;
+		col += deltaCol;
+		row += deltaRow;
 	}
 }
 
@@ -534,7 +538,7 @@ void Match3::TriggerBooster(int cellIdx) {
 	assert(cell.hasBooster);
 	assert(cell.layers == 0);
 
-	// Inform client
+	// Inform client e.g. to play some special fx
 	Match3Event event;
 	event.id = Match3Event::Id::triggerBooster;
 	event.booster.cellIdx = cellIdx;

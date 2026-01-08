@@ -5,12 +5,11 @@
 #include "GameConfig.h"
 #include "GameDrawOrder.h"
 #include <engine/BitmapRender.h>
-#include <engine/Engine.h>
 #include <engine/TextRender.h>
 
+#include <cassert>
 #include <cmath>
 #include <cstdio>
-#include <cassert>
 
 using namespace Wind;
 
@@ -27,24 +26,22 @@ ActionFunc MovePieceTo(Cell& cell, const Vec2& targetCoords) {
 }
 
 ActionFunc ScaleCellPiece(Cell& cell, float startScale, float endScale) {
-	return [&cell, startScale, endScale](float /*dt*/, float t) {
-		cell.pieceGraphics.scale = Lerp(endScale, startScale, 1.f - std::pow(t, 2.f));
+	return [&cell, startScale, endScale](float /*dt*/, float t01) {
+		cell.pieceGraphics.scale = Lerp(endScale, startScale, 1.f - t01 * t01);
 		return false;
 	};
 }
 
 ActionFunc DrawMovingSprite(const Cell& cell, const BitmapRenderer& bitmapRenderer, Vec2 targetPos, int sprite) {
-	return [&bitmapRenderer, xy0 = cell.coords, starIconCoord = targetPos, sprite](float /*dt*/, float t) {
+	return [&bitmapRenderer, xy0 = cell.coords, starIconCoord = targetPos, sprite](float /*dt*/, float t01) {
 		BitmapExtParams prm;
 		prm.scale = 1.f; // + t * 8.f; // TODO curve
 		prm.pivot = BitmapPivot::center;
-		prm.orientation = t * 3.f;
+		prm.orientation = t01 * 3.f;
 		prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::overlays);
 		prm.blending = true;
-		Vec2 xy = Lerp(xy0, starIconCoord, t);
-		if (sprites[sprite]) {
-			bitmapRenderer.DrawBitmapEx(*sprites[sprite], xy, prm);
-		}
+		Vec2 xy = Lerp(xy0, starIconCoord, t01);
+		bitmapRenderer.DrawBitmapEx(*sprites[sprite], xy, prm);
 		return false;
 	};
 }

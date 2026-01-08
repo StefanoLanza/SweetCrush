@@ -231,12 +231,15 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 	case Match3Event::Id::match: {
 		int         inc = IncreaseScore(event.match);
 		const Cell& cell = mBoard.GetCell(event.match.cellIdx);
-		mRenderActionMgr.AddTimedAction(DrawMatchScore(inc, cell, mEngine.GetTextRenderer(), mGameConfig, *mFonts[1]), 0.f, mGameConfig.scoreTextDuration);
+		mRenderActionMgr.AddTimedAction(DrawMatchScore(inc, cell, mEngine.GetTextRenderer(), mGameConfig, *mFonts[1]), 0.f,
+		                                mGameConfig.scoreTextDuration, ActionFlags::nonBlocking);
 		PlaySound(0);
 		break;
 	}
 	case Match3Event::Id::removePiece: {
 		Cell& cell = mBoard.GetCell(event.removePiece.cellIdx);
+		assert(cell.category == CellCategory::piece);
+		assert(! cell.hasBooster); // boosters are handled in Match3Event::Id::triggerBooster
 		if (event.removePiece.boosterCellIdx != -1) {
 			const Cell& dstCell = mBoard.GetCell(event.removePiece.boosterCellIdx);
 			mActionMgr.AddTimedAction(MovePieceTo(cell, dstCell.coords), 0.f, mGameConfig.suckPieceDuration);
@@ -282,13 +285,19 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		break;
 	}
 	case Match3Event::Id::triggerBooster: {
-		const Cell& cell = mBoard.GetCell(event.booster.cellIdx);
-		mRenderActionMgr.AddTimedAction(DrawExplosion(cell, mEngine.GetBitmapRenderer(), mGameConfig), 0.f, mGameConfig.bombExplosionTime);
+		Cell& cell = mBoard.GetCell(event.booster.cellIdx);
+		assert(cell.category == CellCategory::piece);
+		assert(cell.hasBooster);
+		mRenderActionMgr.AddTimedAction(DrawExplosion(cell, mEngine.GetBitmapRenderer(), mGameConfig), 0.f, mGameConfig.bombExplosionTime,
+		                                ActionFlags::nonBlocking);
+		mActionMgr.AddTimedAction(ScaleCellPiece(cell, 1.f, 0.f), 0.f, mGameConfig.removePieceDuration);
+		OnPieceRemoved(cell);
 		break;
 	}
 	case Match3Event::Id::removeLayer: {
 		const Cell& cell = mBoard.GetCell(event.removeLayer.cellIdx);
-		mRenderActionMgr.AddTimedAction(DrawBrokenIce(cell, mEngine.GetBitmapRenderer(), mGameConfig), 0.f, mGameConfig.brokenIceDuration);
+		mRenderActionMgr.AddTimedAction(DrawBrokenIce(cell, mEngine.GetBitmapRenderer(), mGameConfig), 0.f, mGameConfig.brokenIceDuration,
+		                                ActionFlags::nonBlocking);
 		assert(mMatchStats.layerCount > 0);
 		mMatchStats.layerCount--;
 		// TODO PlaySound(0);

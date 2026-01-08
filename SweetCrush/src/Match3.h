@@ -111,7 +111,7 @@ private:
 	void TrySwap(int first, int second);
 	void SwapSelectedCells(int firstTile, int secondTile);
 	void CollapseColumn(int col);
-	void KillMatches(const Cell& cell, int dcol, int drow);
+	void KillAdjacentMatches(int mainCellIdx, int deltaCol, int deltaRow, bool isSpecialCombo);
 	void TriggerBooster(int cellIdx);
 
 private:
