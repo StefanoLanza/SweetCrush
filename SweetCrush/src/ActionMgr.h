@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <vector>
+#include <cstdint>
 
 // Returns true if complete
 using ActionFunc = std::function<bool(float dt, float t)>;

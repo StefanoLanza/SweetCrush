@@ -23,7 +23,9 @@ private:
 	Wind::UIButton mStartButton;
 	Wind::UIButton mSettingsButton;
 	Wind::UIButton mCreditsButton;
+#if ! defined(__ANDROID__) && ! defined(__OHOS__)
 	Wind::UIButton mQuitButton;
+#endif
 	Wind::UIPanel  mPanel;
 	float          mTime;
 };

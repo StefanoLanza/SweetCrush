@@ -4,10 +4,12 @@
 #include "MatchStats.h"
 #include "ScreenIds.h"
 #include "UIDefs.h"
-#include <cstdio>
+
 #include <engine/Engine.h>
 #include <engine/TextRender.h>
 #include <engine/UI.h>
+
+#include <cstdio>
 
 using namespace Wind;
 
@@ -43,7 +45,7 @@ const UITextDesc textDescs[] {
 	    (StringId)GameStringId::retry,
 	    UIZeroPos,
 	    UIAutoSize,
-	    UIHorizAlignment::center,	
+	    UIHorizAlignment::center,
 	    UIVertAlignment::center,
 	},
 	{

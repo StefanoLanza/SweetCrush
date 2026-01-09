@@ -5,22 +5,33 @@
 #include "Localization.h"
 #include "ScreenIds.h"
 #include "UIDefs.h"
-#include <cmath>
+
 #include <engine/BitmapRender.h>
 #include <engine/Engine.h>
 #include <engine/TextRender.h>
 #include <engine/UI.h>
 
+#include <cmath>
+
 using namespace Wind;
 
 namespace {
 
-const UIButtonDesc buttonDescs[4] {
+#if defined(__ANDROID__) || defined(__OHOS__)
+// No quit button on mobiles
+const UIButtonDesc buttonDescs[] {
+	{ UIAbsolutePos(0, 560), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{ UIAbsolutePos(0, 680), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{ UIAbsolutePos(0, 800), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
+};
+#else
+const UIButtonDesc buttonDescs[] {
 	{ UIAbsolutePos(0, 440), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
 	{ UIAbsolutePos(0, 560), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
 	{ UIAbsolutePos(0, 680), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
 	{ UIAbsolutePos(0, 800), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
 };
+#endif
 const UITextDesc textDescs[5] {
 	{ "bigFont", (StringId)GameStringId::title, UIAbsolutePos(0, titleY), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top,
 	  titleTextStyle },
@@ -38,7 +49,9 @@ MainScreen::MainScreen(Engine& engine)
     , mStartButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
     , mSettingsButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2], engine))
     , mCreditsButton(MakeButton(buttonDescs[2], buttonBitmapDesc, textDescs[3], engine))
+#if ! defined(__ANDROID__)
     , mQuitButton(MakeButton(buttonDescs[3], buttonBitmapDesc, textDescs[4], engine))
+#endif
     , mPanel(UIDefaultPanelDesc)
     , mTime(0) {
 }
@@ -55,7 +68,7 @@ void MainScreen::BuildUI(UICanvas& canvas) {
 	mPanel.AddButton(mStartButton);
 	mPanel.AddButton(mSettingsButton);
 	mPanel.AddButton(mCreditsButton);
-#if ! defined(__ANDROID__) && (defined(_WIN32) || defined(__linux__))
+#if ! defined(__ANDROID__)
 	mPanel.AddButton(mQuitButton);
 #endif
 	canvas.GetPanel().AddPanel(mPanel);
@@ -72,7 +85,7 @@ GameScreenId MainScreen::Tick(float dt, const Wind::Input& input) {
 	else if (mCreditsButton.IsPressed(input)) {
 		return ScreenId::credits;
 	}
-#if ! defined(__ANDROID__) && (defined(_WIN32) || defined(__linux__))
+#if ! defined(__ANDROID__) && ! defined(__OHOS__)
 	else if (mQuitButton.IsPressed(input)) {
 		mEngine.Quit();
 	}
