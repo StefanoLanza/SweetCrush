@@ -17,10 +17,12 @@ vec4 cubic(float x) {
 }
 
 void main() {
+#if 1
+	fragColor = texture(inputTexture, textureCoordinate);
+#elif 0
 	vec2 samplePos = textureCoordinate * srcTexelSize.xy - 0.5;
     vec2 f = fract(samplePos);
     vec2 p0 = floor(samplePos);
-#if 0
     vec4 xWeights = cubic(f.x);
     vec4 yWeights = cubic(f.y);
     vec4 color = vec4(0.0);
@@ -31,8 +33,12 @@ void main() {
             vec2 uv = (p0 + vec2(float(x), float(y)) + 0.5) * srcTexelSize.zw;
             color += texture(inputTexture, uv) * (weightX * weightY);
         }
-    }	
+    }
+	fragColor = color;
 #else
+	vec2 samplePos = textureCoordinate * srcTexelSize.xy - 0.5;
+    vec2 f = fract(samplePos);
+    vec2 p0 = floor(samplePos);
 	// Catmull-Rom weights
     vec2 f2 = f * f;
     vec2 f3 = f2 * f;
@@ -57,7 +63,7 @@ void main() {
     vec2 uv12 = texPos12 * srcTexelSize.zw;
     vec2 uv3  = texPos3  * srcTexelSize.zw;
 
-    vec4 color = 
+    fragColor = 
         texture(inputTexture, vec2(uv0.x,  uv0.y))  * (w0.x * w0.y) +
         texture(inputTexture, vec2(uv12.x, uv0.y))  * (w12.x * w0.y) +
         texture(inputTexture, vec2(uv3.x,  uv0.y))  * (w3.x * w0.y) +
@@ -68,6 +74,4 @@ void main() {
         texture(inputTexture, vec2(uv12.x, uv3.y))  * (w12.x * w3.y) +
         texture(inputTexture, vec2(uv3.x,  uv3.y))  * (w3.x * w3.y);
 #endif
-
-    fragColor = color;
 }

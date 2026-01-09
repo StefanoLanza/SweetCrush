@@ -8,6 +8,7 @@ class CreditsScreen final : public Wind::GameScreen {
 public:
 	explicit CreditsScreen(Wind::Engine& engine);
 
+	const char*        GetName() const override;
 	void               LoadAssets() override;
 	void               BuildUI(Wind::UICanvas& canvas) override;
 	Wind::GameScreenId Tick(float dt, const Wind::Input& input) override;

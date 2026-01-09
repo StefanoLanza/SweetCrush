@@ -83,6 +83,10 @@ PauseGameScreen::PauseGameScreen(Engine& engine, MatchStats& matchStats)
     , mPanel(UIDefaultPanelDesc) {
 }
 
+const char* PauseGameScreen::GetName() const {
+	return "PauseGameScreen";
+}
+
 void PauseGameScreen::LoadAssets() {
 }
 

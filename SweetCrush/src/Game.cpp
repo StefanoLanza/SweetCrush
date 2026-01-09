@@ -1,11 +1,11 @@
 #include "Game.h"
 #include "Actions.h"
-#include "GameConfig.h"
 #include "Constants.h"
 #include "CreditsScreen.h"
-#include "GameCompletePanel.h"
+#include "GameCompleteScreen.h"
+#include "GameConfig.h"
 #include "GameOverScreen.h"
-#include "LevelCompletePanel.h"
+#include "LevelCompleteScreen.h"
 #include "Localization.h"
 #include "MainScreen.h"
 #include "PauseGameScreen.h"
@@ -26,8 +26,16 @@ Game::Game(Engine& engine, const GameConfig& gameConfig, GameDataModule& gameDat
     , mGameDataModule { gameDataModule }
     , mGameSettings {}
     , mFrameBuffer { RefWindowWidth, RefWindowHeight, FBOFlags::color }
-	, mMatchStats {}
+    , mMatchStats {}
     , mScreenId { ScreenId::mainMenu } {
+	mScreens[0] = std::make_unique<MainScreen>(mEngine);
+	mScreens[1] = std::make_unique<CreditsScreen>(mEngine);
+	mScreens[2] = std::make_unique<SettingsScreen>(mEngine, mGameSettings);
+	mScreens[3] = std::make_unique<PlayScreen>(mEngine, mGameConfig, mGameSettings, mRenderActionMgr, mMatchStats, mGameDataModule);
+	mScreens[4] = std::make_unique<GameOverScreen>(mEngine, mMatchStats);
+	mScreens[5] = std::make_unique<GameCompleteScreen>(mEngine, mMatchStats);
+	mScreens[6] = std::make_unique<PauseGameScreen>(mEngine, mMatchStats);
+	mScreens[7] = std::make_unique<LevelCompleteScreen>(mEngine, mMatchStats);
 }
 
 Game::~Game() = default;
@@ -42,15 +50,6 @@ void Game::Run() {
 	mCanvas.SetMousePointer("cursor.png", mEngine);
 #endif
 
-	mScreens[0] = std::make_unique<MainScreen>(mEngine);
-	mScreens[1] = std::make_unique<CreditsScreen>(mEngine);
-	mScreens[2] = std::make_unique<SettingsScreen>(mEngine, mGameSettings);
-	mScreens[3] = std::make_unique<PlayScreen>(mEngine, mGameConfig, mGameSettings, mRenderActionMgr, mMatchStats, mGameDataModule);
-	mScreens[4] = std::make_unique<GameOverScreen>(mEngine, mMatchStats);
-	mScreens[5] = std::make_unique<GameCompletePanel>(mEngine, mMatchStats);
-	mScreens[6] = std::make_unique<PauseGameScreen>(mEngine, mMatchStats);
-	mScreens[7] = std::make_unique<LevelCompletePanel>(mEngine, mMatchStats);
-
 	for (const auto& gs : mScreens) {
 		gs->LoadAssets();
 		gs->BuildUI(mCanvas);
@@ -59,7 +58,14 @@ void Game::Run() {
 	mEngine.Start([this](float dt) { Draw(dt); }, [this](float dt) { Tick(dt); });
 }
 
-void Game::LoadConfig() {
+int Game::ParseConfig(void* user, const char* section, const char* name, const char* value) {
+	Game* game = static_cast<Game*>(user);
+	for (const auto& screen : game->mScreens) {
+		if (! strcmp(screen->GetName(), section)) {
+			screen->ParseConfig(name, value);
+		}
+	}
+	return 1;
 }
 
 void Game::Draw(float dt) {
@@ -87,7 +93,7 @@ void Game::Tick(float dt) {
 	mCanvas.UpdateWidgets(RefWindowWidth, RefWindowHeight);
 
 	mGameDataModule.Reload();
-	if (!mGameDataModule.IsValid()) {
+	if (! mGameDataModule.IsValid()) {
 		return;
 	}
 

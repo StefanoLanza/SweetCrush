@@ -1,4 +1,4 @@
-#include "GameCompletePanel.h"
+#include "GameCompleteScreen.h"
 #include "GameDrawOrder.h"
 #include "Localization.h"
 #include "MatchStats.h"
@@ -7,6 +7,7 @@
 #include <engine/Engine.h>
 #include <engine/TextRender.h>
 #include <engine/UI.h>
+
 #include <cstdio>
 
 using namespace Wind;
@@ -49,7 +50,7 @@ const UIBitmapDesc panelBitmapDesc {
 
 } // namespace
 
-GameCompletePanel::GameCompletePanel(Engine& engine, const MatchStats& matchStats)
+GameCompleteScreen::GameCompleteScreen(Engine& engine, const MatchStats& matchStats)
     : mEngine(engine)
     , mMatchStats(matchStats)
     , mTitle(textDescs[0], engine)
@@ -58,25 +59,29 @@ GameCompletePanel::GameCompletePanel(Engine& engine, const MatchStats& matchStat
     , mPanel(UIDefaultPanelDesc) {
 }
 
-void GameCompletePanel::LoadAssets() {
+const char* GameCompleteScreen::GetName() const {
+	return "GameCompleteScreen";
+}
+
+void GameCompleteScreen::LoadAssets() {
 	mFont = mEngine.GetTextRenderer().AddFont("smallFont");
 }
 
-void GameCompletePanel::BuildUI(UICanvas& canvas) {
+void GameCompleteScreen::BuildUI(UICanvas& canvas) {
 	mPanel.AddText(mTitle);
 	mPanel.AddButton(mContinueButton);
 	// mPanel.AddBitmap(mPanelBitmap);
 	canvas.GetPanel().AddPanel(mPanel);
 }
 
-GameScreenId GameCompletePanel::Tick(float /*dt*/, const Wind::Input& input) {
+GameScreenId GameCompleteScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	if (mContinueButton.IsPressed(input)) {
 		return ScreenId::mainMenu;
 	}
 	return ScreenId::gameComplete;
 }
 
-void GameCompletePanel::Draw(GameScreenId topScreen) const {
+void GameCompleteScreen::Draw(GameScreenId topScreen) const {
 	if (topScreen != ScreenId::gameComplete) {
 		return;
 	}
@@ -92,13 +97,13 @@ void GameCompletePanel::Draw(GameScreenId topScreen) const {
 	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 460 }, TextAlignment::center, textStyle, (DrawOrder)GameDrawOrder::textOverUI);
 }
 
-void GameCompletePanel::Enter([[maybe_unused]] GameScreenId prevScreen) {
+void GameCompleteScreen::Enter([[maybe_unused]] GameScreenId prevScreen) {
 	mPanel.SetVisible(true);
 }
 
-void GameCompletePanel::Exit() {
+void GameCompleteScreen::Exit() {
 	mPanel.SetVisible(false);
 }
 
-void GameCompletePanel::ParseConfig(const char* varName, const char* varValue) {
+void GameCompleteScreen::ParseConfig(const char* varName, const char* varValue) {
 }

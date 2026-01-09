@@ -1,4 +1,4 @@
-#include "LevelCompletePanel.h"
+#include "LevelCompleteScreen.h"
 #include "Localization.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
@@ -43,7 +43,7 @@ const UITextDesc textDescs[] {
 
 } // namespace
 
-LevelCompletePanel::LevelCompletePanel(Engine& engine, const MatchStats& matchStats)
+LevelCompleteScreen::LevelCompleteScreen(Engine& engine, const MatchStats& matchStats)
     : mEngine(engine)
     , mMatchStats(matchStats)
     , mTitle(textDescs[0], engine)
@@ -51,33 +51,37 @@ LevelCompletePanel::LevelCompletePanel(Engine& engine, const MatchStats& matchSt
     , mPanel(UIDefaultPanelDesc) {
 }
 
-void LevelCompletePanel::LoadAssets() {
+const char* LevelCompleteScreen::GetName() const {
+	return "LevelCompleteScreen";
 }
 
-void LevelCompletePanel::BuildUI(UICanvas& canvas) {
+void LevelCompleteScreen::LoadAssets() {
+}
+
+void LevelCompleteScreen::BuildUI(UICanvas& canvas) {
 	mPanel.AddText(mTitle);
 	mPanel.AddButton(mNextLevelButton);
 	canvas.GetPanel().AddPanel(mPanel);
 }
 
-Wind::GameScreenId LevelCompletePanel::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
+Wind::GameScreenId LevelCompleteScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
 	if (mNextLevelButton.IsPressed(input)) {
 		return ScreenId::play;
 	}
 	return ScreenId::levelComplete;
 }
 
-void LevelCompletePanel::Draw([[maybe_unused]] Wind::GameScreenId topScreen) const {
+void LevelCompleteScreen::Draw([[maybe_unused]] Wind::GameScreenId topScreen) const {
 	// TODO show collected pastries?
 }
 
-void LevelCompletePanel::Enter([[maybe_unused]] Wind::GameScreenId prevScreen) {
+void LevelCompleteScreen::Enter([[maybe_unused]] Wind::GameScreenId prevScreen) {
 	mPanel.SetVisible(true);
 }
 
-void LevelCompletePanel::Exit() {
+void LevelCompleteScreen::Exit() {
 	mPanel.SetVisible(false);
 }
 
-void LevelCompletePanel::ParseConfig(const char* varName, const char* varValue) {
+void LevelCompleteScreen::ParseConfig(const char* varName, const char* varValue) {
 }

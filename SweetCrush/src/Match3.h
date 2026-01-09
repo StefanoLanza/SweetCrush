@@ -45,7 +45,6 @@ struct NewPieceEvent {
 struct RemovePieceEvent {
 	int cellIdx;
 	int boosterCellIdx; // for suck anims
-	int priority;
 };
 
 struct RemoveLayerEvent {
@@ -102,7 +101,7 @@ private:
 	bool CheckCombos(int h, int v, int t, int b, PieceId pieceId, int cellIdx);
 	bool CheckCellCombos(int cellIdx);
 	bool CheckMatchesAfterSwap();
-	void KillCell(int cellIdx, int priority, int boosterCellIdx);
+	void KillCell(int cellIdx, int boosterCellIdx);
 	void InsertBoosters();
 	void CollapseColumns();
 	void GenerateNewPieces();

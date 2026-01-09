@@ -18,7 +18,8 @@ public:
 	Game(Wind::Engine& engine, const GameConfig& gameConfig, GameDataModule& gameDataModule);
 	~Game();
 	void Run();
-	void LoadConfig();
+	
+	static int ParseConfig(void* game, const char* section, const char* name, const char* value);
 
 private:
 	void Draw(float dt);

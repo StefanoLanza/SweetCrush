@@ -36,8 +36,8 @@ Blitter::Impl::Impl(Graphics& graphics)
 		mVertexPos = program.GetAttribLocation("inputPosition");
 		mPosRect = program.GetUniformLocation("posRect");
 		mTexture = program.GetUniformLocation("inputTexture");
-		mSrcTexelSize = program.GetUniformLocation("srcTexelSize");
-		mValidProgram = (mVertexPos != -1 && mPosRect != -1 && mTexture != -1 && mSrcTexelSize != -1);
+		// mSrcTexelSize = program.GetUniformLocation("srcTexelSize");
+		mValidProgram = (mVertexPos != -1 && mPosRect != -1 && mTexture != -1); // && mSrcTexelSize != -1);
 	}
 }
 
@@ -69,12 +69,12 @@ RectI Blitter::Impl::ComputeTargetRect(const GlFrameBuffer& frameBuffer) const {
 	return { cx, cy, cx + cw, cy + ch };
 }
 
-void Blitter::Impl::Blit(const GlFrameBuffer& frameBuffer) const {
+void Blitter::Impl::Blit(const GlFrameBuffer& srcFrameBuffer) const {
 	if (! mValidProgram) {
 		return;
 	}
 
-	const RectI targetRect = ComputeTargetRect(frameBuffer);
+	const RectI targetRect = ComputeTargetRect(srcFrameBuffer);
 
 	PipelineState pipelineState;
 	pipelineState.mDepthEnabled = false;
@@ -88,16 +88,12 @@ void Blitter::Impl::Blit(const GlFrameBuffer& frameBuffer) const {
 	float y0 = (float)targetRect.top / (float)mGraphics.GetTargetHeight();
 	float y1 = (float)targetRect.bottom / (float)mGraphics.GetTargetHeight();
 
-	const int      uniforms[] = { mPosRect, mSrcTexelSize };
-	const float    uniformData[] = { x0,
-		                             y0,
-		                             x1,
-		                             y1, //
-		                             (float)frameBuffer.GetWidth(),
-		                             (float)frameBuffer.GetHeight(),
-		                             1.f / frameBuffer.GetWidth(),
-		                             1.f / frameBuffer.GetHeight() };
-	const unsigned textureIds[] = { frameBuffer.GetColorAttachment() };
+	const int  uniforms[] = { mPosRect }; //, mSrcTexelSize };
+	const Vec4 uniformData[] = {
+		{ x0, y0, x1, y1 },
+		//{ (float)srcFrameBuffer.GetWidth(), (float)srcFrameBuffer.GetHeight(), 1.f / srcFrameBuffer.GetWidth(), 1.f / srcFrameBuffer.GetHeight() },
+	};
+	const unsigned textureIds[] = { srcFrameBuffer.GetColorAttachment() };
 
 	DrawCall drawCall;
 	drawCall.uniforms = uniforms;

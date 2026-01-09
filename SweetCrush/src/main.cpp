@@ -13,12 +13,14 @@
 
 namespace {
 
-void LoadGameConfig(GameConfig& gameConfig, const char* iniFile);
+void LoadAppConfig(GameConfig& gameConfig, const char* iniFile);
+void LoadGameConfig(Game& game, const char* iniFile);
+
 }
 
 int main(int argc, char* argv[]) {
 	GameConfig gameConfig = DefaultGameConfig();
-	LoadGameConfig(gameConfig, ASSETS_FOLDER "game.ini");
+	LoadAppConfig(gameConfig, ASSETS_FOLDER "game.ini");
 
 	GameDataModule gameDataModule;
 #ifndef __ANDROID__
@@ -35,6 +37,7 @@ int main(int argc, char* argv[]) {
 	Wind::SdlWindow window { "SweetCrush", gameConfig.windowWidth, gameConfig.windowHeight, ASSETS_FOLDER "icon.png", gameConfig.fullscreen };
 	Wind::Engine    engine { window };
 	Game            game { engine, gameConfig, gameDataModule };
+	LoadGameConfig(game, ASSETS_FOLDER "game.ini");
 	game.Run();
 
 	return 0;
@@ -68,8 +71,12 @@ int ParseGameConfig(void* user, const char* /*section*/, const char* name, const
 	return 1;
 }
 
-void LoadGameConfig(GameConfig& gameConfig, const char* iniFile) {
+void LoadAppConfig(GameConfig& gameConfig, const char* iniFile) {
 	Wind::ParseINIFile(iniFile, ParseGameConfig, &gameConfig);
+}
+
+void LoadGameConfig(Game& game, const char* iniFile) {
+	Wind::ParseINIFile(iniFile, Game::ParseConfig, &game);
 }
 
 } // namespace

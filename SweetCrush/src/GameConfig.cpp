@@ -7,7 +7,7 @@ GameConfig DefaultGameConfig() {
 	config.windowHeight = 1024;
 	config.fullscreen = false;
 	config.board.cellWidth = 64.f;
-	config.board.cellHeight = 72.f;
+	config.board.cellHeight = 64.f;
 	config.board.cellSpacing = 2.f;
 	config.board.cellWidthWithSpacing = config.board.cellWidth + config.board.cellSpacing;
 	config.board.cellHeightWithSpacing = config.board.cellHeight + config.board.cellSpacing;

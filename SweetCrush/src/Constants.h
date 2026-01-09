@@ -2,8 +2,8 @@
 
 constexpr int NumCols = 8;
 constexpr int NumRows = 8;
-constexpr int RefWindowWidth = 768;
-constexpr int RefWindowHeight = 1024;
+constexpr int RefWindowWidth = 640;
+constexpr int RefWindowHeight = 1136;
 constexpr int MaxPieceTypes = 8;
 
 using CellID = unsigned char;

@@ -4,10 +4,10 @@
 #include "MatchStats.h"
 #include "ScreenIds.h"
 #include "UIDefs.h"
+#include <cstdio>
 #include <engine/Engine.h>
 #include <engine/TextRender.h>
 #include <engine/UI.h>
-#include <cstdio>
 
 using namespace Wind;
 
@@ -15,13 +15,13 @@ namespace {
 
 const UIButtonDesc buttonDescs[] {
 	{
-	    UIAbsolutePos(0, 560),
+	    UIAbsolutePos(0, 680),
 	    UIAutoSize,
 	    UIHorizAlignment::center,
 	    UIVertAlignment::top,
 	},
 	{
-	    UIAbsolutePos(0, 680),
+	    UIAbsolutePos(0, 800),
 	    UIAutoSize,
 	    UIHorizAlignment::center,
 	    UIVertAlignment::top,
@@ -43,7 +43,7 @@ const UITextDesc textDescs[] {
 	    (StringId)GameStringId::retry,
 	    UIZeroPos,
 	    UIAutoSize,
-	    UIHorizAlignment::center,
+	    UIHorizAlignment::center,	
 	    UIVertAlignment::center,
 	},
 	{
@@ -65,6 +65,10 @@ GameOverScreen::GameOverScreen(Engine& engine, const MatchStats& matchStats)
     , mReplayLevelButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
     , mContinueButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2], engine))
     , mPanel(UIDefaultPanelDesc) {
+}
+
+const char* GameOverScreen::GetName() const {
+	return "GameOverScreen";
 }
 
 void GameOverScreen::LoadAssets() {
@@ -99,9 +103,9 @@ void GameOverScreen::Draw(GameScreenId topScreen) const {
 	char            tmp[256];
 	const TextStyle textStyle { whiteColor, blackColor };
 	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourReachedLevel), mMatchStats.level + 1);
-	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 350 }, TextAlignment::center, textStyle, (DrawOrder)GameDrawOrder::textOverUI);
+	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 470 }, TextAlignment::center, textStyle, (DrawOrder)GameDrawOrder::textOverUI);
 	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourScoreIs), mMatchStats.score);
-	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 410 }, TextAlignment::center, textStyle, (DrawOrder)GameDrawOrder::textOverUI);
+	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 530 }, TextAlignment::center, textStyle, (DrawOrder)GameDrawOrder::textOverUI);
 }
 
 void GameOverScreen::Enter(GameScreenId /*prevScreen*/) {

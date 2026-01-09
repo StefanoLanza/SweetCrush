@@ -207,29 +207,26 @@ void Match3::AddBooster(BoosterType boosterType, int cellIdx, PieceId pieceId) {
 
 void Match3::HorizontalRocket(int col, int row) {
 	// Kill entire row
-	int boosterCellIdx = mBoard.GetCellIndex(col, row);
 	for (int ncol = 0; ncol < mBoard.GetCols(); ++ncol) {
 		if (col != ncol) {
 			int cellIdx = mBoard.GetCellIndex(ncol, row);
-			KillCell(cellIdx, 0, -1); // std::abs(col - ncol)
+			KillCell(cellIdx, -1);
 		}
 	}
 }
 
 void Match3::VerticalRocket(int col, int row) {
 	// Kill entire column
-	int boosterCellIdx = mBoard.GetCellIndex(col, row);
 	for (int nrow = 0; nrow < mBoard.GetRows(); ++nrow) {
 		if (row != nrow) {
 			int cellIdx = mBoard.GetCellIndex(col, nrow);
-			KillCell(cellIdx, 0, -1); // std::abs(row - nrow)
+			KillCell(cellIdx, -1);
 		}
 	}
 }
 
 void Match3::Bomb(int col, int row, int radius) {
 	// Kill grid around bomb
-	int boosterCellIdx = mBoard.GetCellIndex(col, row);
 	for (int y = -radius; y <= radius; ++y) {
 		int orow = row + y;
 		for (int x = -radius; x <= radius; ++x) {
@@ -238,7 +235,7 @@ void Match3::Bomb(int col, int row, int radius) {
 				int ocol = col + x;
 				if (mBoard.IsInside(ocol, orow)) {
 					int cellIdx = mBoard.GetCellIndex(ocol, orow);
-					KillCell(cellIdx, 0, -1);
+					KillCell(cellIdx, -1);
 				}
 			}
 		}
@@ -249,7 +246,7 @@ void Match3::DeleteAllPiecesOfType(int pieceId) {
 	int cellIdx = 0;
 	for (const Cell& cell : mBoard.GetCells()) {
 		if (cell.category == CellCategory::piece && cell.pieceId == pieceId) {
-			KillCell(cellIdx, 0, -1);
+			KillCell(cellIdx, -1);
 		}
 		++cellIdx;
 	}
@@ -308,11 +305,7 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 		event.match.cascadeCount = mCascadeCount;
 		event.match.horizontal = horizontalMatch;
 		mCbk(event);
-	}
 
-	// TODO priority and boosterIDx
-
-	if (res) {
 		bool isSpecialCombo = comboType != ComboType::C3;
 		if (1 + t + b >= 3) {
 			// Kill vertical matches
@@ -325,7 +318,7 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 			KillAdjacentMatches(mainCellIdx, +1, 0, isSpecialCombo);
 		}
 		// Kill main cell
-		KillCell(mainCellIdx, 0, -1);
+		KillCell(mainCellIdx, -1);
 	}
 
 	return res;
@@ -350,7 +343,7 @@ bool Match3::CheckMatchesAfterSwap() {
 	return res;
 }
 
-void Match3::KillCell(int cellIdx, int priority, int boosterCellIdx) {
+void Match3::KillCell(int cellIdx, int boosterCellIdx) {
 	Cell& cell = mBoard.GetCell(cellIdx);
 	if (cell.category == CellCategory::piece) {
 		if (cell.layers == 0) {
@@ -363,7 +356,6 @@ void Match3::KillCell(int cellIdx, int priority, int boosterCellIdx) {
 				event.id = Match3Event::Id::removePiece;
 				event.removePiece.cellIdx = cellIdx;
 				event.removePiece.boosterCellIdx = boosterCellIdx;
-				event.removePiece.priority = priority;
 				mCbk(event);
 
 				cell.category = CellCategory::empty;
@@ -522,7 +514,7 @@ void Match3::KillAdjacentMatches(int mainCellIdx, int deltaCol, int deltaRow, bo
 		assert(cellIdx != mainCellIdx); // maincell handled separately
 		const Cell& otherCell = mBoard.GetCell(cellIdx);
 		if (CheckMatch(otherCell, cell)) {
-			KillCell(cellIdx, 0, isSpecialCombo ? mainCellIdx : -1);
+			KillCell(cellIdx, isSpecialCombo ? mainCellIdx : -1);
 		}
 		else {
 			break;

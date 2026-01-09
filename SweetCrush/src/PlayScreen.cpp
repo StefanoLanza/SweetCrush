@@ -28,11 +28,11 @@ using namespace Wind;
 
 namespace {
 
-const UIButtonDesc optionButtonDesc {
-	UIAbsolutePos(-70, 160),
+const UIButtonDesc pauseButtonDesc {
+	UIAbsolutePos(-60, -60),
 	UIAutoSize,
 	UIHorizAlignment::right,
-	UIVertAlignment::top,
+	UIVertAlignment::bottom,
 };
 
 const UIBitmapDesc optionButtonBitmapDesc {
@@ -55,7 +55,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameConfig& gameConfig, const GameS
     , mTileSelector { std::make_unique<TileSelector>(mBoard, gameConfig) }
     , mBoostInfoPanel(engine)
     , mPanel(UIDefaultPanelDesc)
-    , mPauseButton(MakeButton(optionButtonDesc, optionButtonBitmapDesc, engine))
+    , mPauseButton(MakeButton(pauseButtonDesc, optionButtonBitmapDesc, engine))
     , mMatch3 { mBoard, mBoardGenerator, gameConfig, *mTileSelector }
     , mTime { 0 } {
 	mTileSelector->AddCallback([this](const TileSelectionEvent& event) { OnCellSelectionEvent(event); });
@@ -63,6 +63,10 @@ PlayScreen::PlayScreen(Engine& engine, const GameConfig& gameConfig, const GameS
 }
 
 PlayScreen::~PlayScreen() = default;
+
+const char* PlayScreen::GetName() const {
+	return "PlayScreen";
+}
 
 void PlayScreen::LoadAssets() {
 	Audio& audio = mEngine.GetAudio();
@@ -343,14 +347,14 @@ void PlayScreen::DrawUI() const {
 	const float           y = 60.f;
 
 	snprintf(tmp, sizeof(tmp), "LEVEL    %d", mMatchStats.level + 1);
-	textRenderer.Write(*mFonts[2], tmp, Vec2 { 40, y }, textStyle, DrawOrder::UI);
+	textRenderer.Write(*mFonts[2], tmp, Vec2 { 60, y }, textStyle, DrawOrder::UI);
 
 	snprintf(tmp, sizeof(tmp), "%s    %04d", GetLocalizedString(GameStringId::score), mMatchStats.score);
-	textRenderer.Write(*mFonts[2], tmp, Vec2 { 300, y }, textStyle, DrawOrder::UI);
+	textRenderer.Write(*mFonts[2], tmp, Vec2 { 340, y }, textStyle, DrawOrder::UI);
 
 	const int time = static_cast<int>(mTime);
 	snprintf(tmp, sizeof(tmp), "%d:%02d", time / 60, time % 60);
-	textRenderer.Write(*mFonts[2], tmp, Vec2 { RefWindowWidth - 140, y }, mTime < 10.f ? textStyle1 : textStyle, DrawOrder::UI);
+	textRenderer.Write(*mFonts[2], tmp, Vec2 { 60, RefWindowHeight - 120 }, mTime < 10.f ? textStyle1 : textStyle, DrawOrder::UI);
 
 	BitmapExtParams prm;
 	prm.pivot = BitmapPivot::center;

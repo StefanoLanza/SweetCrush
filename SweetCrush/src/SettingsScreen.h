@@ -10,6 +10,7 @@ class SettingsScreen final : public Wind::GameScreen {
 public:
 	SettingsScreen(Wind::Engine& engine, GameSettings& gameSettings);
 
+	const char*        GetName() const override;
 	void               LoadAssets() override;
 	void               BuildUI(Wind::UICanvas& canvas) override;
 	Wind::GameScreenId Tick(float dt, const Wind::Input& input) override;

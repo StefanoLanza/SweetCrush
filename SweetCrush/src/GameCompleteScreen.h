@@ -6,10 +6,11 @@
 
 struct MatchStats;
 
-class LevelCompletePanel final : public Wind::GameScreen {
+class GameCompleteScreen final : public Wind::GameScreen {
 public:
-	LevelCompletePanel(Wind::Engine& engine, const MatchStats& matchStats);
+	GameCompleteScreen(Wind::Engine& engine, const MatchStats& matchStats);
 
+	const char*        GetName() const override;
 	void               LoadAssets() override;
 	void               BuildUI(Wind::UICanvas& canvas) override;
 	Wind::GameScreenId Tick(float dt, const Wind::Input& input) override;
@@ -22,6 +23,8 @@ public:
 	Wind::Engine&     mEngine;
 	const MatchStats& mMatchStats;
 	Wind::UIText      mTitle;
-	Wind::UIButton    mNextLevelButton;
+	Wind::UIButton    mContinueButton;
+	Wind::UIBitmap    mPanelBitmap;
 	Wind::UIPanel     mPanel;
+	Wind::FontPtr     mFont;
 };

@@ -10,6 +10,7 @@ class GameOverScreen final : public Wind::GameScreen {
 public:
 	GameOverScreen(Wind::Engine& engine, const MatchStats& matchStats);
 
+	const char*        GetName() const override;
 	void               LoadAssets() override;
 	void               BuildUI(Wind::UICanvas& canvas) override;
 	Wind::GameScreenId Tick(float dt, const Wind::Input& input) override;

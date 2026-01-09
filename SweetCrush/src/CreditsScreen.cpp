@@ -55,6 +55,10 @@ CreditsScreen::CreditsScreen(Engine& engine)
     , mPanel(UIDefaultPanelDesc) {
 }
 
+const char* CreditsScreen::GetName() const {
+	return "CreditsScreen";
+}
+
 GameScreenId CreditsScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	if (mBackButton.IsPressed(input)) {
 		return ScreenId::mainMenu;

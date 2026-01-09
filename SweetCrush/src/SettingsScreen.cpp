@@ -38,6 +38,10 @@ SettingsScreen::SettingsScreen(Engine& engine, GameSettings& gameSettings)
     , mPanel(UIDefaultPanelDesc) {
 }
 
+const char* SettingsScreen::GetName() const {
+	return "SettingsScreen";
+}
+
 void SettingsScreen::LoadAssets() {
 }
 

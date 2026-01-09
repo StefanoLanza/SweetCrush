@@ -10,6 +10,7 @@ class PauseGameScreen final : public Wind::GameScreen {
 public:
 	PauseGameScreen(Wind::Engine& engine, MatchStats& matchStats);
 
+	const char*        GetName() const override;
 	void               LoadAssets() override;
 	void               BuildUI(Wind::UICanvas& canvas) override;
 	Wind::GameScreenId Tick(float dt, const Wind::Input& input) override;

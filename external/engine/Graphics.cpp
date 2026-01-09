@@ -12,6 +12,8 @@
 #include <cstring>
 #include <vector>
 
+#define UNIFORM_FILTERING 1
+
 namespace Wind {
 
 namespace {
@@ -51,6 +53,7 @@ struct ShaderUniform {
 	union {
 		float    fvalue[4];
 		int      ivalue[4];
+		unsigned uvalue[4];
 		unsigned texture;
 	};
 };
@@ -245,6 +248,9 @@ void Graphics::Impl::Flush() {
 
 	std::stable_sort(std::begin(mBatches), std::end(mBatches), [](const Batch& lhs, const Batch& rhs) { return lhs.sortKey < rhs.sortKey; });
 
+	uint32_t cachedUniformHash[16];
+	uint32_t cachedUniformValue[16][4];
+
 	for (const Batch& batch : mBatches) {
 		if (unsigned targetIdx = (batch.sortKey >> 28) & 0xF; currTargetIdx != targetIdx) {
 			// Change target
@@ -260,6 +266,9 @@ void Graphics::Impl::Flush() {
 		if (currProgramIdx != batch.programIdx) {
 			currProgramIdx = batch.programIdx;
 			glUseProgram(mPrograms[currProgramIdx].GetProgramId());
+			// Uniforms are per program, reset cached values
+			std::memset(cachedUniformHash, 0, sizeof cachedUniformHash);
+			std::memset(cachedUniformValue, 0, sizeof cachedUniformValue);
 			// Ortho matrix
 			if (auto uniform = mPrograms[currProgramIdx].GetOrthoMatrixUniform(); uniform != -1) {
 				glUniform4f(uniform, xScale, yScale, 0.f, 0.f);
@@ -336,14 +345,39 @@ void Graphics::Impl::Flush() {
 			continue;
 		}
 
-		// TODO filtering
 		for (unsigned ui = 0; ui < batch.numUniforms; ++ui) {
 			const ShaderUniform& su = mShaderUniforms[batch.firstUniform + ui];
+			assert(su.uniform >= 0);
+			assert(su.uniform < std::size(cachedUniformHash));
+			uint32_t hash = HashUint4(su.uvalue);
 			if (su.type == ShaderUniformType::float4) {
+#if UNIFORM_FILTERING
+				if (cachedUniformHash[su.uniform] != hash) {
+					memcpy(cachedUniformValue[su.uniform], su.fvalue, 16);
+					cachedUniformHash[su.uniform] = hash;
+					glUniform4f(su.uniform, su.fvalue[0], su.fvalue[1], su.fvalue[2], su.fvalue[3]);
+				}
+				else {
+					assert(! memcmp(cachedUniformValue[su.uniform], su.fvalue, 16));
+				}
+#else
 				glUniform4f(su.uniform, su.fvalue[0], su.fvalue[1], su.fvalue[2], su.fvalue[3]);
+#endif
 			}
 			else if (su.type == ShaderUniformType::int4) {
+#if UNIFORM_FILTERING
+				if (cachedUniformHash[su.uniform] != hash) {
+					memcpy(cachedUniformValue[su.uniform], su.ivalue, 16);
+					cachedUniformHash[su.uniform] = hash;
+					glUniform4i(su.uniform, su.ivalue[0], su.ivalue[1], su.ivalue[2], su.ivalue[3]);
+				}
+				else {
+					assert(! memcmp(cachedUniformValue[su.uniform], su.ivalue, 16));
+				}
+#else
 				glUniform4i(su.uniform, su.ivalue[0], su.ivalue[1], su.ivalue[2], su.ivalue[3]);
+
+#endif
 			}
 			else if (su.type == ShaderUniformType::texture) {
 				// TODO uniform slot

@@ -9,6 +9,7 @@ class UICanvas;
 class GameScreen {
 public:
 	virtual ~GameScreen() = default;
+	virtual const char*  GetName() const = 0;
 	virtual GameScreenId Tick(float dt, const Input& input) = 0;
 	virtual void         LoadAssets() = 0;
 	virtual void         BuildUI(UICanvas& canvas) = 0;
