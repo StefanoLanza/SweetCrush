@@ -92,18 +92,17 @@ bool _AnyCombo(int l, int r, int t, int b) {
 } // namespace
 
 enum class Match3::State {
-	selectPieces,
+	selectAndSwapPieces,
 	checkMatchesAfterSwap,
 	collapseColumns,
-	checkMatches,
-	insertBoosters,
+	checkMatches
 };
 
 Match3::Match3(Board& board, BoardGenerator& boardGen, TileSelector& tileSelector)
     : mBoard { board }
     , mBoardGen { boardGen }
     , mTileSelector { tileSelector }
-    , mState { State::selectPieces }
+    , mState { State::selectAndSwapPieces }
     , mUserSwap { 0, 0 }
     , mNumUserSwaps { 0 }
     , mCascadeCount { 0 } {
@@ -118,22 +117,25 @@ void Match3::SetCallback(Match3Callback&& cbk) {
 void Match3::Run() {
 	// Clear lists from previous match
 	mNewPieces.clear();
-	mNewBoosters.clear();
 
 	mTileSelector.Reset();
-	mState = State::selectPieces;
+	mState = State::selectAndSwapPieces;
 	mNumUserSwaps = 0;
 	mCascadeCount = 0;
 }
 
 void Match3::Update(const Wind::Input& input) {
 	switch (mState) {
-	case State::selectPieces:
-		SelectPieces(input);
+	case State::selectAndSwapPieces:
+		if (SelectAndSwapPieces(input)) {
+			mNumUserSwaps++;
+			mState = State::checkMatchesAfterSwap;
+		}
+		// else keeping waiting for user selection
 		break;
 	case State::checkMatchesAfterSwap:
 		if (CheckMatchesAfterSwap()) {
-			mState = State::insertBoosters;
+			mState = State::collapseColumns;
 		}
 		else {
 			// No matches, undo swap
@@ -141,27 +143,26 @@ void Match3::Update(const Wind::Input& input) {
 			event.id = Match3Event::Id::swap;
 			event.pair = mUserSwap;
 			mCbk(event);
-			mState = State::selectPieces;
+			mState = State::selectAndSwapPieces;
 
 			SwapCells(mBoard, mUserSwap.first, mUserSwap.second);
 		}
 		break;
-	case State::insertBoosters:
-		InsertBoosters();
-		mState = State::collapseColumns;
-		break;
 	case State::collapseColumns:
 		CollapseColumns();
 		GenerateNewPieces();
+		// Wait for drop animations before checking matches
 		mState = State::checkMatches;
 		break;
 	case State::checkMatches:
 		if (CheckMatches()) {
-			mState = State::insertBoosters;
+			// Cascade
+			mState = State::collapseColumns;
 		}
 		else {
+			// Back to user selection
 			mCascadeCount = 0;
-			mState = State::selectPieces;
+			mState = State::selectAndSwapPieces; // TODO remove one tick delay if no matches
 		}
 		break;
 	default:
@@ -170,56 +171,20 @@ void Match3::Update(const Wind::Input& input) {
 	};
 }
 
+bool Match3::IsWaitingForUser() const {
+	return mState == State::selectAndSwapPieces;
+}
+
 int Match3::GetNumUserSwaps() const {
 	return mNumUserSwaps;
 }
 
-void Match3::SelectPieces(const Wind::Input& input) {
+bool Match3::SelectAndSwapPieces(const Wind::Input& input) {
 	if (auto [swap, first, second] = mTileSelector.SelectTiles(input); swap) {
-		TrySwap(first, second);
 		mTileSelector.Reset();
+		return TrySwap(first, second);
 	}
-}
-
-void Match3::AddBooster(BoosterType boosterType, int cellIdx, PieceId pieceId) {
-	mNewBoosters.push_back({ boosterType, cellIdx, pieceId }); // TODO Remove this queue, add directly? how to avoid triggered boosters removing this
-}
-
-void Match3::HorizontalRocket(int col, int row) {
-	// Kill entire row
-	for (int ncol = 0; ncol < mBoard.GetCols(); ++ncol) {
-		if (col != ncol) {
-			int cellIdx = mBoard.GetCellIndex(ncol, row);
-			KillCell(cellIdx, -1);
-		}
-	}
-}
-
-void Match3::VerticalRocket(int col, int row) {
-	// Kill entire column
-	for (int nrow = 0; nrow < mBoard.GetRows(); ++nrow) {
-		if (row != nrow) {
-			int cellIdx = mBoard.GetCellIndex(col, nrow);
-			KillCell(cellIdx, -1);
-		}
-	}
-}
-
-void Match3::Bomb(int col, int row, int radius) {
-	// Kill grid around bomb
-	for (int y = -radius; y <= radius; ++y) {
-		int orow = row + y;
-		for (int x = -radius; x <= radius; ++x) {
-			int r = x * x + y * y;
-			if (r > 0) {
-				int ocol = col + x;
-				if (mBoard.IsInside(ocol, orow)) {
-					int cellIdx = mBoard.GetCellIndex(ocol, orow);
-					KillCell(cellIdx, -1);
-				}
-			}
-		}
-	}
+	return false;
 }
 
 void Match3::DeleteAllPiecesOfType(int pieceId) {
@@ -233,36 +198,37 @@ void Match3::DeleteAllPiecesOfType(int pieceId) {
 }
 
 bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCellIdx) {
-	bool      res = true;
-	ComboType comboType {};
-	bool      horizontalMatch = false;
+	bool        res = true;
+	ComboType   comboType {};
+	bool        horizontalMatch = false;
+	BoosterType boosterType {};
 
 	// TODO Distinguish horizontal and vertical for T and L combos ?
 	if (T3Combo(l, r, t, b)) {
 		comboType = ComboType::T3;
-		AddBooster(BoosterType::vrocket, mainCellIdx, pieceId);
+		boosterType = BoosterType::vrocket; // FIXME
 	}
 	else if (T4Combo(l, r, t, b)) {
 		comboType = ComboType::T4;
-		AddBooster(BoosterType::bomb, mainCellIdx, pieceId);
+		boosterType = BoosterType::bomb;
 	}
 	else if (T5Combo(l, r, t, b)) {
 		comboType = ComboType::T5;
-		AddBooster(BoosterType::bomb, mainCellIdx, pieceId);
+		boosterType = BoosterType::bomb;
 	}
 	else if (LCombo(l, r, t, b)) {
 		comboType = ComboType::L;
-		AddBooster(BoosterType::bomb, mainCellIdx, pieceId);
+		boosterType = BoosterType::bomb;
 	}
 	else if (_5Combo(l, r, t, b)) {
 		comboType = ComboType::C5;
 		horizontalMatch = (l + r + 1) == 5;
-		AddBooster(horizontalMatch ? BoosterType::hrocket : BoosterType::vrocket, mainCellIdx, pieceId);
+		boosterType = horizontalMatch ? BoosterType::hrocket : BoosterType::vrocket;
 	}
 	else if (_4Combo(l, r, t, b)) {
 		comboType = ComboType::C4;
 		horizontalMatch = (l + r + 1) == 4;
-		AddBooster(horizontalMatch ? BoosterType::hrocket : BoosterType::vrocket, mainCellIdx, pieceId);
+		boosterType = horizontalMatch ? BoosterType::hrocket : BoosterType::vrocket;
 	}
 	else if (_3Combo(l, r, t, b)) {
 		comboType = ComboType::C3;
@@ -296,8 +262,28 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 			KillAdjacentMatches(mainCellIdx, -1, 0, isSpecialCombo);
 			KillAdjacentMatches(mainCellIdx, +1, 0, isSpecialCombo);
 		}
-		// Kill main cell
-		KillCell(mainCellIdx, -1);
+		// Kill main cell if not booster
+		if (! isSpecialCombo) {
+			KillCell(mainCellIdx, -1);
+		}
+		else {
+			assert(mBoard.GetCell(mainCellIdx).category == CellCategory::piece);
+
+			Cell& cell = mBoard.GetCell(mainCellIdx);
+			assert(cell.category == CellCategory::piece);
+			cell.category = CellCategory::piece;
+			// cell.pieceId = booster.pieceId;
+			cell.hasBooster = true;
+			cell.boosterType = boosterType;
+			cell.layers = 0;
+
+			// Inform client
+			event.id = Match3Event::Id::newBooster;
+			event.booster.cellIdx = mainCellIdx;
+			event.booster.pieceId = cell.pieceId;
+			event.booster.type = boosterType;
+			mCbk(event);
+		}
 	}
 
 	return res;
@@ -353,25 +339,6 @@ void Match3::KillCell(int cellIdx, int boosterCellIdx) {
 	// else already deleted or hole or obstacle
 }
 
-void Match3::InsertBoosters() {
-	for (const BoosterEvent& booster : mNewBoosters) {
-		Cell& cell = mBoard.GetCell(booster.cellIdx);
-		assert(cell.category == CellCategory::empty); // must have been deleted
-		cell.category = CellCategory::piece;
-		cell.pieceId = booster.pieceId;
-		cell.hasBooster = true;
-		cell.boosterType = booster.type;
-		cell.layers = 0;
-
-		// Inform client
-		Match3Event event;
-		event.id = Match3Event::Id::newBooster;
-		event.booster = booster;
-		mCbk(event);
-	}
-	mNewBoosters.clear();
-}
-
 void Match3::CollapseColumns() {
 	CellPairEvent collapseList[NumRows];
 	for (int col = 0; col < mBoard.GetCols(); ++col) {
@@ -379,15 +346,13 @@ void Match3::CollapseColumns() {
 		for (int i = 0; i < numCollapsed; ++i) {
 			SwapCells(mBoard, collapseList[i].first, collapseList[i].second);
 
-		// Inform client
+			// Inform client
 			Match3Event event;
 			event.id = Match3Event::Id::dropPiece;
 			event.pair = collapseList[i];
 			mCbk(event);
 		}
 	}
-
-	mCheckList.insert(std::end(mCheckList), std::begin(mNewPieces), std::end(mNewPieces));
 }
 
 void Match3::GenerateNewPieces() {
@@ -418,33 +383,37 @@ bool Match3::CheckMatches() {
 	return res;
 }
 
-void Match3::TrySwap(int first, int second) {
+bool Match3::TrySwap(int first, int second) {
+	bool        res = false;
 	const Cell& firstCell = mBoard.GetCell(first);
 	const Cell& secondCell = mBoard.GetCell(second);
 	// Check whether the first and second tiles are adjacent and inside the board
 	if (firstCell.col >= 0 && firstCell.col == secondCell.col - 1 && firstCell.row == secondCell.row) {
 		SwapSelectedCells(first, second);
+		res = true;
 	}
 	else if (firstCell.col < mBoard.GetCols() && firstCell.col == secondCell.col + 1 && firstCell.row == secondCell.row) {
 		SwapSelectedCells(second, first);
+		res = true;
 	}
 	else if (firstCell.row >= 0 && firstCell.row == secondCell.row - 1 && firstCell.col == secondCell.col) {
 		SwapSelectedCells(first, second);
+		res = true;
 	}
 	else if (firstCell.row < mBoard.GetRows() && firstCell.row == secondCell.row + 1 && firstCell.col == secondCell.col) {
 		SwapSelectedCells(second, first);
+		res = true;
 	}
+	return res;
 }
 
 void Match3::SwapSelectedCells(int firstTile, int secondTile) {
 	mUserSwap.first = firstTile;
 	mUserSwap.second = secondTile;
-	mState = State::checkMatchesAfterSwap;
-	mNumUserSwaps++;
 
 	Match3Event event;
 	event.id = Match3Event::Id::swap;
-	event.pair = mUserSwap;
+	event.pair = { firstTile, secondTile };
 	mCbk(event);
 
 	SwapCells(mBoard, firstTile, secondTile);
@@ -476,8 +445,8 @@ int Match3::CollapseColumn(int col, CellPairEvent* collapseList) {
 				collapseList[numCollapsed] = { src, dst };
 				++numCollapsed;
 
+				// Check matches after piece has been dropped to dst cell
 				mCheckList.push_back(dst);
-
 
 				emptyRows[numEmptyRows++] = row;
 			}
@@ -488,6 +457,7 @@ int Match3::CollapseColumn(int col, CellPairEvent* collapseList) {
 		}
 	}
 
+	// Drop new pieces on the remaining empty rows
 	for (int e = currEmptyRow; e < numEmptyRows; ++e) {
 		mNewPieces.push_back(mBoard.GetCellIndex(col, emptyRows[e]));
 	}
@@ -546,5 +516,42 @@ void Match3::TriggerBooster(int cellIdx) {
 		break;
 	default:
 		break;
+	}
+}
+
+void Match3::HorizontalRocket(int col, int row) {
+	// Kill entire row
+	for (int ncol = 0; ncol < mBoard.GetCols(); ++ncol) {
+		if (col != ncol) {
+			int cellIdx = mBoard.GetCellIndex(ncol, row);
+			KillCell(cellIdx, -1);
+		}
+	}
+}
+
+void Match3::VerticalRocket(int col, int row) {
+	// Kill entire column
+	for (int nrow = 0; nrow < mBoard.GetRows(); ++nrow) {
+		if (row != nrow) {
+			int cellIdx = mBoard.GetCellIndex(col, nrow);
+			KillCell(cellIdx, -1);
+		}
+	}
+}
+
+void Match3::Bomb(int col, int row, int radius) {
+	// Kill grid around bomb
+	for (int y = -radius; y <= radius; ++y) {
+		int orow = row + y;
+		for (int x = -radius; x <= radius; ++x) {
+			int r = x * x + y * y;
+			if (r > 0) {
+				int ocol = col + x;
+				if (mBoard.IsInside(ocol, orow)) {
+					int cellIdx = mBoard.GetCellIndex(ocol, orow);
+					KillCell(cellIdx, -1);
+				}
+			}
+		}
 	}
 }

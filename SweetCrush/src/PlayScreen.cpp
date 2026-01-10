@@ -114,7 +114,11 @@ GameScreenId PlayScreen::Tick(float dt, const Input& input) {
 		return ScreenId::play;
 	}
 
-	mTime = std::max(0.f, mTime - dt);
+	if (mMatch3.IsWaitingForUser()) {
+		// Decrease time only when waiting for user selection
+		mTime = std::max(0.f, mTime - dt);
+	}
+
 	if (mTime > 0.f) {
 		if (! mActionMgr.AnyRunning()) { // do not update match while animations are still running
 			mMatch3.Update(input);
@@ -274,8 +278,8 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		break;
 	}
 	case Match3Event::Id::dropPiece: {
-		const Cell&       firstCell = mBoard.GetCell(event.pair.first);
-		 Cell& secondCell = mBoard.GetCell(event.pair.second);
+		const Cell& firstCell = mBoard.GetCell(event.pair.first);
+		Cell&       secondCell = mBoard.GetCell(event.pair.second);
 		// Already swapped
 		mActionMgr.AddTimedAction(FallPieceFromTo(secondCell, firstCell.coords.y, secondCell.coords.y), mGameConfig.pieceFallDuration);
 		break;
@@ -294,7 +298,8 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		assert(cell.category == CellCategory::piece);
 		assert(cell.hasBooster);
 		// TODO Scale up
-		Vec2 centralCoords = cell.coords + Vec2 { mGameConfig.board.cellWidth, mGameConfig.board.cellHeight } * 0.5f;;
+		Vec2 centralCoords = cell.coords + Vec2 { mGameConfig.board.cellWidth, mGameConfig.board.cellHeight } * 0.5f;
+		;
 		if (event.booster.type == BoosterType::hrocket) {
 			mRenderActionMgr.AddTimedAction(DrawGlow(centralCoords, true, mEngine.GetBitmapRenderer()), mGameConfig.bombExplosionTime);
 		}

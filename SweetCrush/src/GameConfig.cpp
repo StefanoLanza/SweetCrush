@@ -12,7 +12,7 @@ GameConfig DefaultGameConfig() {
 	config.board.cellWidthWithSpacing = config.board.cellWidth + config.board.cellSpacing;
 	config.board.cellHeightWithSpacing = config.board.cellHeight + config.board.cellSpacing;
 	config.board.topLeftCoord.x = (RefWindowWidth - config.board.cellWidthWithSpacing * NumCols - config.board.cellSpacing) * 0.5f;
-	config.board.topLeftCoord.y = 300.f;
+	config.board.topLeftCoord.y = 360.f;
 	//config.board.topLeftCoord.y = (RefWindowHeight - config.board.cellHeightWithSpacing * NumRows - config.board.cellSpacing) - 40.f;
 	config.moveBackPieceDuration = 0.25f;
 	config.swapSpeed = 0.25f;

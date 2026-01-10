@@ -86,44 +86,40 @@ public:
 	void SetCallback(Match3Callback&& cbk);
 	void Run();
 	void Update(const Wind::Input& input);
+	bool IsWaitingForUser() const;
 	int  GetNumUserSwaps() const;
 
 private:
-	void AddBooster(BoosterType boosterType, int cellIdx, PieceId pieceId);
-	// Boosters
-	void HorizontalRocket(int col, int row);
-	void VerticalRocket(int col, int row);
-	void Bomb(int col, int row, int radius);
 	void DeleteAllPiecesOfType(int pieceId);
-	// States
-	void SelectPieces(const Wind::Input& input);
+	bool SelectAndSwapPieces(const Wind::Input& input);
 	bool CheckCombos(int h, int v, int t, int b, PieceId pieceId, int cellIdx);
 	bool CheckCellCombos(int cellIdx);
 	bool CheckMatchesAfterSwap();
 	void KillCell(int cellIdx, int boosterCellIdx);
-	void InsertBoosters();
 	void CollapseColumns();
 	void GenerateNewPieces();
 	bool CheckMatches();
-
-	void TrySwap(int first, int second);
+	bool TrySwap(int first, int second);
 	void SwapSelectedCells(int firstTile, int secondTile);
 	int  CollapseColumn(int col, CellPairEvent* collapseList);
 	void KillAdjacentMatches(int mainCellIdx, int deltaCol, int deltaRow, bool isSpecialCombo);
 	void TriggerBooster(int cellIdx);
+	// Boosters
+	void HorizontalRocket(int col, int row);
+	void VerticalRocket(int col, int row);
+	void Bomb(int col, int row, int radius);
 
 private:
 	enum class State;
 
-	Board&                    mBoard;
-	BoardGenerator&           mBoardGen;
-	TileSelector&             mTileSelector;
-	Match3Callback            mCbk;
-	State                     mState;
-	CellPairEvent             mUserSwap;
-	std::vector<int>          mNewPieces;
-	std::vector<int>          mCheckList;
-	std::vector<BoosterEvent> mNewBoosters;
-	int                       mNumUserSwaps;
-	int                       mCascadeCount;
+	Board&           mBoard;
+	BoardGenerator&  mBoardGen;
+	TileSelector&    mTileSelector;
+	Match3Callback   mCbk;
+	State            mState;
+	CellPairEvent    mUserSwap;
+	std::vector<int> mNewPieces;
+	std::vector<int> mCheckList;
+	int              mNumUserSwaps;
+	int              mCascadeCount;
 };
