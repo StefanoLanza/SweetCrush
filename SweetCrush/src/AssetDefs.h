@@ -40,3 +40,4 @@ extern const int iceSprite;
 extern const int brokenIceSprite;
 extern const int selectionSprite;
 extern const int glowSprite;
+extern const int starSprite;

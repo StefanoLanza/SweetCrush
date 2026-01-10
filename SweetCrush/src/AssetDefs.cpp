@@ -54,3 +54,4 @@ const int iceSprite = 18;
 const int brokenIceSprite = 19;
 const int selectionSprite = 21;
 const int glowSprite = 22;
+const int starSprite = 12;

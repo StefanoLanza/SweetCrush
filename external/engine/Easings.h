@@ -26,6 +26,7 @@ inline float EaseInElastic(float x) {
 	constexpr float c4 = two_pi / 3.f;
 	return x == 0.f ? 0.f : x == 1.f ? 1.f : -std::pow(2.f, 10 * x - 10) * std::sin((x * 10 - 10.75f) * c4);
 }
+
 inline float EaseInCirc(float x) {
 	return 1 - std::sqrt(1 - std::pow(x, 2.f));
 }

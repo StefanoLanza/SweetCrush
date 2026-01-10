@@ -9,6 +9,9 @@
 #include <cstring>
 #include <iterator> // std::size
 
+// For debugging
+#define ENABLE_BOOSTERS 1
+
 namespace {
 
 void SwapCells(Board& board, int srcIdx, int dstIdx) {
@@ -251,28 +254,33 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 		event.match.cascadeCount = mCascadeCount;
 		mCbk(event);
 
-		bool isSpecialCombo = comboType != ComboType::C3;
+		int matches[NumRows * NumCols];
+		int numMatches = 0;
 		if (1 + t + b >= 3) {
 			// Kill vertical matches
-			KillAdjacentMatches(mainCellIdx, 0, -1, isSpecialCombo);
-			KillAdjacentMatches(mainCellIdx, 0, +1, isSpecialCombo);
+			numMatches = CollectMatches(mainCellIdx, 0, -1, matches, numMatches);
+			numMatches = CollectMatches(mainCellIdx, 0, +1, matches, numMatches);
 		}
 		if (1 + l + r >= 3) {
 			// Kill horizontal matches
-			KillAdjacentMatches(mainCellIdx, -1, 0, isSpecialCombo);
-			KillAdjacentMatches(mainCellIdx, +1, 0, isSpecialCombo);
+			numMatches = CollectMatches(mainCellIdx, -1, 0, matches, numMatches);
+			numMatches = CollectMatches(mainCellIdx, +1, 0, matches, numMatches);
 		}
+		assert(numMatches < NumRows * NumCols);
+
+#if ENABLE_BOOSTERS
+		const bool isSpecialCombo = comboType != ComboType::C3;
+#else
+		const bool isSpecialCombo = false;
+#endif
 		// Kill main cell if not booster
 		if (! isSpecialCombo) {
 			KillCell(mainCellIdx, -1);
 		}
 		else {
-			assert(mBoard.GetCell(mainCellIdx).category == CellCategory::piece);
-
 			Cell& cell = mBoard.GetCell(mainCellIdx);
 			assert(cell.category == CellCategory::piece);
 			cell.category = CellCategory::piece;
-			// cell.pieceId = booster.pieceId;
 			cell.hasBooster = true;
 			cell.boosterType = boosterType;
 			cell.layers = 0;
@@ -280,9 +288,13 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 			// Inform client
 			event.id = Match3Event::Id::newBooster;
 			event.booster.cellIdx = mainCellIdx;
-			event.booster.pieceId = cell.pieceId;
+			event.booster.pieceId = cell.pieceId;//FIXME redundant ?
 			event.booster.type = boosterType;
 			mCbk(event);
+		}
+
+		for (int i = 0; i < numMatches; ++i ) {
+			KillCell(matches[i], isSpecialCombo ? mainCellIdx : -1);
 		}
 	}
 
@@ -303,8 +315,9 @@ bool Match3::CheckCellCombos(int cellIdx) {
 }
 
 bool Match3::CheckMatchesAfterSwap() {
-	bool res = CheckCellCombos(mUserSwap.first);
-	res = CheckCellCombos(mUserSwap.second) || res;
+	// Execute both !
+	bool res = CheckCellCombos(mUserSwap.second);
+	res = CheckCellCombos(mUserSwap.first) || res;
 	return res;
 }
 
@@ -358,9 +371,12 @@ void Match3::CollapseColumns() {
 void Match3::GenerateNewPieces() {
 	for (int cellIdx : mNewPieces) {
 		Cell& cell = mBoard.GetCell(cellIdx);
-		assert(IsEmpty(cell));
+		assert(cell.category == CellCategory::empty);
 		cell.category = CellCategory::piece;
 		mBoardGen.GenRandomPiece(cell, mBoard);
+
+		// Check new pieces. In theory the random generator should not generate pieces that create matches
+		mCheckList.push_back(cellIdx);
 
 		// Inform client
 		Match3Event event;
@@ -461,10 +477,11 @@ int Match3::CollapseColumn(int col, CellPairEvent* collapseList) {
 	for (int e = currEmptyRow; e < numEmptyRows; ++e) {
 		mNewPieces.push_back(mBoard.GetCellIndex(col, emptyRows[e]));
 	}
+
 	return numCollapsed;
 }
 
-void Match3::KillAdjacentMatches(int mainCellIdx, int deltaCol, int deltaRow, bool isSpecialCombo) {
+int Match3::CollectMatches(int mainCellIdx, int deltaCol, int deltaRow, int* matches, int numMatches) const {
 	const Cell& cell = mBoard.GetCell(mainCellIdx);
 	int         col = cell.col + deltaCol;
 	int         row = cell.row + deltaRow;
@@ -473,7 +490,8 @@ void Match3::KillAdjacentMatches(int mainCellIdx, int deltaCol, int deltaRow, bo
 		assert(cellIdx != mainCellIdx); // maincell handled separately
 		const Cell& otherCell = mBoard.GetCell(cellIdx);
 		if (CheckMatch(otherCell, cell)) {
-			KillCell(cellIdx, isSpecialCombo ? mainCellIdx : -1);
+			matches[numMatches] = cellIdx;
+			++numMatches;
 		}
 		else {
 			break;
@@ -481,6 +499,7 @@ void Match3::KillAdjacentMatches(int mainCellIdx, int deltaCol, int deltaRow, bo
 		col += deltaCol;
 		row += deltaRow;
 	}
+	return numMatches;
 }
 
 void Match3::TriggerBooster(int cellIdx) {

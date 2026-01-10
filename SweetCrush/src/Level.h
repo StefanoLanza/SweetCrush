@@ -9,16 +9,22 @@ enum class GoalId {
 	collectMatches,
 	removeJellies,
 	breakAllIce,
+	collectAllStars,
 };
 
 struct GoalCollectMatches {
 	int count[3]; // three count. values <= 0 are ignored
 };
 
+struct GoalCollectAllStars {
+	int starCount;
+};
+
 struct Goal {
 	GoalId id;
 	union {
-		GoalCollectMatches collectMatches;
+		GoalCollectMatches  collectMatches;
+		GoalCollectAllStars collectAllStars;
 	};
 };
 
@@ -28,4 +34,5 @@ struct Level {
 	uint32_t        seed;
 	float           time;     // seconds
 	const BoardDef* boardDef; // null for random boards
+	const char*     mask;     // can be null
 };

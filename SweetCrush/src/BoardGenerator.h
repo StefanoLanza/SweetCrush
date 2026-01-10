@@ -7,7 +7,7 @@ struct BoardConfig;
 
 class BoardGenerator final {
 public:
-	void GenRandomBoard(Board& board, uint32_t seed, const int pieceIds[], int numPieceIds, const BoardConfig& boardCfg);
+	void GenRandomBoard(Board& board, uint32_t seed, const char* mask, const int pieceIds[], int numPieceIds, const BoardConfig& boardCfg);
 	void InitBoard(Board& board, const char* boardDef, uint32_t seed, const int pieceIds[], int numPieceIds, const BoardConfig& boardCfg);
 	void GenRandomPiece(Cell& cell, const Board& board);
 

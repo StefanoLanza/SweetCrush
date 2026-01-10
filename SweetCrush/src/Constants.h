@@ -8,9 +8,10 @@ constexpr int MaxPieceTypes = 8;
 
 using CellID = unsigned char;
 
-// CellIds equal to ASCII code [0, MaxPieceTypes - 1] correspond to pieces
-// The actual gem is gemIds[cellId]
-constexpr CellID emptyCell = '_';
-constexpr CellID holeCell = ' ';
-constexpr CellID obstacleCell = 'O';
+// CellId equal to ASCII code abcd etc. up to (MaxPieceTypes - 1) corresponds to pieces
+// Capital letter indicates a layer (ice)
+constexpr CellID emptyChar = '_';
+constexpr CellID holeChar = ' ';
+constexpr CellID obstacleChar = 'O';
+constexpr CellID starChar = 's';
 // TODO add more

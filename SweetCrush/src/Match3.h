@@ -102,7 +102,7 @@ private:
 	bool TrySwap(int first, int second);
 	void SwapSelectedCells(int firstTile, int secondTile);
 	int  CollapseColumn(int col, CellPairEvent* collapseList);
-	void KillAdjacentMatches(int mainCellIdx, int deltaCol, int deltaRow, bool isSpecialCombo);
+	int  CollectMatches(int mainCellIdx, int deltaCol, int deltaRow, int* matches, int numMatches) const;
 	void TriggerBooster(int cellIdx);
 	// Boosters
 	void HorizontalRocket(int col, int row);

@@ -53,22 +53,6 @@ const Cell& Board::GetCell(int col, int row) const {
 	return mCells[col + row * mCols];
 }
 
-bool IsEmpty(const Cell& cell) {
-	return cell.category == CellCategory::empty;
-}
-
-bool IsHole(const Cell& cell) {
-	return cell.category == CellCategory::hole;
-}
-
-bool IsPiece(const Cell& cell) {
-	return cell.category == CellCategory::piece;
-}
-
-bool IsObstacle(const Cell& cell) {
-	return cell.category == CellCategory::obstacle;
-}
-
 bool IsSelectable(const Cell& cell) {
 	return (cell.category == CellCategory::piece && cell.layers == 0); // cannot select if frozen
 }

@@ -200,7 +200,7 @@ void PlayScreen::StartLevel() {
 		mBoardGenerator.InitBoard(mBoard, *level.boardDef, level.seed, level.pieceIds, 5, mGameConfig.board);
 	}
 	else {
-		mBoardGenerator.GenRandomBoard(mBoard, level.seed, level.pieceIds, 5, mGameConfig.board);
+		mBoardGenerator.GenRandomBoard(mBoard, level.seed, level.mask, level.pieceIds, 5, mGameConfig.board);
 	}
 	mTime = level.time;
 	for (int& c : mMatchStats.targetPieceCount) {
@@ -289,6 +289,9 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 			mBoostInfoPanel.ShowHelp(event.booster.type);
 		}
 		Cell& cell = mBoard.GetCell(event.booster.cellIdx);
+		assert(cell.category == CellCategory::piece);
+		assert(cell.hasBooster);
+		cell.pieceGraphics.bitmapIdx = pieceDefs[event.booster.pieceId].sprite;
 		cell.pieceGraphics.scale = 1.f;
 		cell.pieceGraphics.rotation = 0.f;
 		break;
@@ -471,6 +474,9 @@ void PlayScreen::SetupNewBoardAnimation() {
 		}
 		else if (cell.category == CellCategory::obstacle) {
 			cell.pieceGraphics.bitmapIdx = obstacleDefs[cell.pieceId].sprite;
+		}
+		else if (cell.category == CellCategory::star) {
+			cell.pieceGraphics.bitmapIdx = starSprite;
 		}
 		else {
 			cell.pieceGraphics.bitmapIdx = -1;

@@ -348,10 +348,10 @@ void Graphics::Impl::Flush() {
 		for (unsigned ui = 0; ui < batch.numUniforms; ++ui) {
 			const ShaderUniform& su = mShaderUniforms[batch.firstUniform + ui];
 			assert(su.uniform >= 0);
-			assert(su.uniform < std::size(cachedUniformHash));
-			uint32_t hash = HashUint4(su.uvalue);
+			assert(su.uniform < (GLint)std::size(cachedUniformHash));
 			if (su.type == ShaderUniformType::float4) {
 #if UNIFORM_FILTERING
+				uint32_t hash = HashUint4(su.uvalue);
 				if (cachedUniformHash[su.uniform] != hash && memcmp(cachedUniformValue[su.uniform], su.fvalue, 16)) {
 					memcpy(cachedUniformValue[su.uniform], su.fvalue, 16);
 					cachedUniformHash[su.uniform] = hash;
@@ -363,6 +363,7 @@ void Graphics::Impl::Flush() {
 			}
 			else if (su.type == ShaderUniformType::int4) {
 #if UNIFORM_FILTERING
+				uint32_t hash = HashUint4(su.uvalue);
 				if (cachedUniformHash[su.uniform] != hash && memcmp(cachedUniformValue[su.uniform], su.ivalue, 16)) {
 					memcpy(cachedUniformValue[su.uniform], su.ivalue, 16);
 					cachedUniformHash[su.uniform] = hash;

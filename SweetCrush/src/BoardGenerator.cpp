@@ -8,7 +8,8 @@
 
 #include <cassert>
 
-void BoardGenerator::GenRandomBoard(Board& board, uint32_t seed, const int pieceIds[], int numPieceIds, const BoardConfig& boardCfg) {
+void BoardGenerator::GenRandomBoard(Board& board, uint32_t seed, const char* mask, const int pieceIds[], int numPieceIds,
+                                    const BoardConfig& boardCfg) {
 	mRandomEngine.Seed(seed);
 	ResetBoard(board, boardCfg);
 
@@ -16,13 +17,26 @@ void BoardGenerator::GenRandomBoard(Board& board, uint32_t seed, const int piece
 	std::memcpy(mPieceIds, pieceIds, numPieceIds * sizeof pieceIds[0]);
 	mNumPieceIds = numPieceIds;
 
-	// Generate random pieces
-	for (Cell& cell : board.GetCells()) {
-		GenRandomPiece(cell, board);
+	auto cells = board.GetCells();
+	if (mask) {
+		for (size_t i = 0; i < cells.Size(); ++i) {
+			if (mask[i] != ' ') {
+				GenRandomPiece(cells[i], board);
+			}
+			else {
+				cells[i].category = CellCategory::hole;
+			}
+		}
+	}
+	else {
+		for (Cell& cell : cells) {
+			GenRandomPiece(cell, board);
+		}
 	}
 }
 
-void BoardGenerator::InitBoard(Board& board, const char* boardDef, uint32_t seed, const int pieceIds[], int numPieceIds, const BoardConfig& boardCfg) {
+void BoardGenerator::InitBoard(Board& board, const char* boardDef, uint32_t seed, const int pieceIds[], int numPieceIds,
+                               const BoardConfig& boardCfg) {
 	mRandomEngine.Seed(seed);
 	ResetBoard(board, boardCfg);
 
@@ -34,14 +48,17 @@ void BoardGenerator::InitBoard(Board& board, const char* boardDef, uint32_t seed
 		Cell& cell = board.GetCell(i);
 		char  ch = boardDef[i];
 		switch (boardDef[i]) {
-		case holeCell:
+		case holeChar:
 			cell.category = CellCategory::hole;
 			break;
-		case obstacleCell:
+		case obstacleChar:
 			cell.category = CellCategory::obstacle;
 			break;
-		case emptyCell:
+		case emptyChar:
 			cell.category = CellCategory::empty;
+			break;
+		case starChar:
+			cell.category = CellCategory::star;
 			break;
 		default:
 			cell.category = CellCategory::piece;

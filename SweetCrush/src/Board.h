@@ -14,6 +14,7 @@ enum class CellCategory {
 	hole,
 	piece,
 	obstacle,
+	star,
 };
 
 struct PieceGraphics {
@@ -35,10 +36,6 @@ struct Cell {
 	bool          hasBooster;
 };
 
-bool IsEmpty(const Cell& cell);
-bool IsHole(const Cell& cell);
-bool IsPiece(const Cell& cell);
-bool IsObstacle(const Cell& cell);
 bool IsSelectable(const Cell& cell);
 
 // Container of cells
