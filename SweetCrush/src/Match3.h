@@ -28,7 +28,6 @@ struct MatchEvent {
 	PieceId   pieceId;
 	int       cellIdx;
 	int       cascadeCount;
-	bool      horizontal;
 };
 
 struct BoosterEvent {
@@ -81,7 +80,7 @@ struct GameConfig;
 
 class Match3 final {
 public:
-	Match3(Board& board, BoardGenerator& boardGen, const GameConfig& gameConfig, TileSelector& tileSelector);
+	Match3(Board& board, BoardGenerator& boardGen, TileSelector& tileSelector);
 	~Match3();
 
 	void SetCallback(Match3Callback&& cbk);
@@ -119,11 +118,9 @@ private:
 	Board&                     mBoard;
 	BoardGenerator&            mBoardGen;
 	TileSelector&              mTileSelector;
-	const GameConfig&          mGameConfig;
 	Match3Callback             mCbk;
 	State                      mState;
 	CellPairEvent              mUserSwap;
-	std::vector<CellPairEvent> mSwaps;
 	std::vector<int>           mNewPieces;
 	std::vector<int>           mCheckList;
 	std::vector<CellPairEvent> mCollapseList;

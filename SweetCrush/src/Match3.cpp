@@ -2,7 +2,6 @@
 #include "Board.h"
 #include "BoardGenerator.h"
 #include "Constants.h"
-#include "GameConfig.h"
 #include "MatchChecker.h"
 #include "TileSelector.h"
 
@@ -18,7 +17,7 @@ void SwapCells(Board& board, int srcIdx, int dstIdx) {
 	std::swap(src.category, dst.category);
 	std::swap(src.pieceId, dst.pieceId);
 	std::swap(src.layers, dst.layers);
-	std::swap(dst.pieceGraphics, src.pieceGraphics);
+	std::swap(src.pieceGraphics, dst.pieceGraphics);
 	std::swap(src.hasBooster, dst.hasBooster);
 	std::swap(src.boosterType, dst.boosterType);
 }
@@ -101,11 +100,10 @@ enum class Match3::State {
 	insertBoosters,
 };
 
-Match3::Match3(Board& board, BoardGenerator& boardGen, const GameConfig& gameConfig, TileSelector& tileSelector)
+Match3::Match3(Board& board, BoardGenerator& boardGen, TileSelector& tileSelector)
     : mBoard { board }
     , mBoardGen { boardGen }
     , mTileSelector { tileSelector }
-    , mGameConfig { gameConfig }
     , mState { State::selectPieces }
     , mUserSwap { 0, 0 }
     , mNumUserSwaps { 0 }
@@ -120,7 +118,6 @@ void Match3::SetCallback(Match3Callback&& cbk) {
 
 void Match3::Run() {
 	// Clear lists from previous match
-	mSwaps.clear();
 	mNewPieces.clear();
 	mCollapseList.clear();
 	mNewBoosters.clear();
@@ -132,11 +129,6 @@ void Match3::Run() {
 }
 
 void Match3::Update(const Wind::Input& input) {
-	for (const CellPairEvent& s : mSwaps) {
-		SwapCells(mBoard, s.first, s.second);
-	}
-	mSwaps.clear();
-
 	for (const CellPairEvent& pair : mCollapseList) {
 		SwapCells(mBoard, pair.first, pair.second);
 	}
@@ -152,8 +144,13 @@ void Match3::Update(const Wind::Input& input) {
 		}
 		else {
 			// No matches, undo swap
-			mSwaps.push_back(mUserSwap);
+			Match3Event event;
+			event.id = Match3Event::Id::swap;
+			event.pair = mUserSwap;
+			mCbk(event);
 			mState = State::selectPieces;
+
+			SwapCells(mBoard, mUserSwap.first, mUserSwap.second);
 		}
 		break;
 	case State::insertBoosters:
@@ -182,12 +179,6 @@ void Match3::Update(const Wind::Input& input) {
 		break;
 	};
 
-	for (const CellPairEvent& pair : mSwaps) {
-		Match3Event event;
-		event.id = Match3Event::Id::swap;
-		event.pair = pair;
-		mCbk(event);
-	}
 }
 
 int Match3::GetNumUserSwaps() const {
@@ -276,13 +267,13 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 	}
 	else if (_5Combo(l, r, t, b)) {
 		comboType = ComboType::C5;
-		AddBooster(BoosterType::hrocket, mainCellIdx, pieceId);
 		horizontalMatch = (l + r + 1) == 5;
+		AddBooster(horizontalMatch ? BoosterType::hrocket : BoosterType::vrocket, mainCellIdx, pieceId);
 	}
 	else if (_4Combo(l, r, t, b)) {
 		comboType = ComboType::C4;
-		AddBooster(BoosterType::miniBomb, mainCellIdx, pieceId);
 		horizontalMatch = (l + r + 1) == 4;
+		AddBooster(horizontalMatch ? BoosterType::hrocket : BoosterType::vrocket, mainCellIdx, pieceId);
 	}
 	else if (_3Combo(l, r, t, b)) {
 		comboType = ComboType::C3;
@@ -303,7 +294,6 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 		event.match.pieceId = pieceId;
 		event.match.cellIdx = mainCellIdx;
 		event.match.cascadeCount = mCascadeCount;
-		event.match.horizontal = horizontalMatch;
 		mCbk(event);
 
 		bool isSpecialCombo = comboType != ComboType::C3;
@@ -460,9 +450,15 @@ void Match3::TrySwap(int first, int second) {
 void Match3::SwapSelectedCells(int firstTile, int secondTile) {
 	mUserSwap.first = firstTile;
 	mUserSwap.second = secondTile;
-	mSwaps.push_back(mUserSwap);
 	mState = State::checkMatchesAfterSwap;
 	mNumUserSwaps++;
+
+	Match3Event event;
+	event.id = Match3Event::Id::swap;
+	event.pair = mUserSwap;
+	mCbk(event);
+
+	SwapCells(mBoard, firstTile, secondTile);
 }
 
 void Match3::CollapseColumn(int col) {

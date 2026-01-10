@@ -15,8 +15,8 @@ const SpriteDef spriteDefs[NumSprites] {
 	{ "gameartguppy/pastry_poptart02.png" },
 	{ "gameartguppy/pastry_starcookie01.png" },
 	{ "gameartguppy/pastry_starcookie02.png" },
-	{ "boosters/bomb_yellow.png" },
-	{ "boosters/bomb_green.png" },
+	{ "gameartguppy/pastry_starcookie01.png" },
+	{ "boosters/bomb_green.png" }, // TODO Replace
 	{ "boosters/bomb_blue.png" },
 	{ "boosters/bomb_red.png" },
 	{ "gameartguppy/board.png" },
@@ -25,6 +25,7 @@ const SpriteDef spriteDefs[NumSprites] {
 	{ "gameartguppy/block_ice_02.png" },
 	{ "gameartguppy/block_ice_03.png" },
 	{ "outline.png" },
+	{ "glow.png" },
 };
 
 const BoardTileDef boardTileDefs[NumBoardTiles] {
@@ -52,3 +53,4 @@ const int sparkleSprite = 17;
 const int iceSprite = 18;
 const int brokenIceSprite = 19;
 const int selectionSprite = 21;
+const int glowSprite = 22;

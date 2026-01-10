@@ -30,8 +30,9 @@ struct GameConfig {
 	bool        fullscreen;
 	BoardConfig board;
 	// Animations
-	float        moveBackPieceSpeed; // pixels / sec
+	float        moveBackPieceDuration; // sec
 	float        swapSpeed;
+	float        pieceFallDuration;  // pixels / sec
 	float        pieceFallSpeed;
 	float        pieceFallYCoord;   // pixels
 	float        bombExplosionTime; // seconds

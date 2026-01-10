@@ -13,11 +13,13 @@ GameConfig DefaultGameConfig() {
 	config.board.cellHeightWithSpacing = config.board.cellHeight + config.board.cellSpacing;
 	config.board.topLeftCoord.x = (RefWindowWidth - config.board.cellWidthWithSpacing * NumCols - config.board.cellSpacing) * 0.5f;
 	config.board.topLeftCoord.y = 300.f;
-	config.moveBackPieceSpeed = 0.25f;
+	//config.board.topLeftCoord.y = (RefWindowHeight - config.board.cellHeightWithSpacing * NumRows - config.board.cellSpacing) - 40.f;
+	config.moveBackPieceDuration = 0.25f;
 	config.swapSpeed = 0.25f;
-	config.pieceFallSpeed = 1.f;
-	config.pieceFallYCoord = 0.f;
-	config.bombExplosionTime = 0.25f;
+	config.pieceFallDuration = 1.f;
+	config.pieceFallSpeed = 1024.f; 
+	config.pieceFallYCoord = -64.f; // offscreen
+	config.bombExplosionTime = 0.5f;
 	config.starMoveTime = 0.5f;
 	config.removePieceDuration = 0.25f;
 	config.suckPieceDuration = 0.5f;

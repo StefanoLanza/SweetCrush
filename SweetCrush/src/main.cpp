@@ -23,12 +23,13 @@ int main(int argc, char* argv[]) {
 	LoadAppConfig(gameConfig, ASSETS_FOLDER "game.ini");
 
 	GameDataModule gameDataModule;
-#ifndef __ANDROID__
 #ifdef _WIN32
 	const char* dllName = "gameData.dll";
-#else
+	if (! gameDataModule.Init(dllName)) {
+		return 0;
+	}
+#elif defined (__linux__)
 	const char* dllName = "./libgameData.so";
-#endif
 	if (! gameDataModule.Init(dllName)) {
 		return 0;
 	}
@@ -54,9 +55,9 @@ int ParseGameConfig(void* user, const char* /*section*/, const char* name, const
 	PARSE_FLOAT(config->board.cellWidth, "cellWidth", 16.f, 64.f);
 	PARSE_FLOAT(config->board.cellSpacing, "cellSpacing", 0.f, 8.f);
 	// Animations
-	PARSE_FLOAT(config->moveBackPieceSpeed, "moveBackPieceSpeed", 0.f, 4.f);
+	PARSE_FLOAT(config->moveBackPieceDuration, "moveBackPieceSpeed", 0.f, 4.f);
 	PARSE_FLOAT(config->swapSpeed, "swapSpeed", 0.f, 4.f);
-	PARSE_FLOAT(config->pieceFallSpeed, "pieceFallSpeed", 0.f, 4.f);
+	PARSE_FLOAT(config->pieceFallDuration, "pieceFallDuration", 0.f, 4.f);
 	PARSE_FLOAT(config->pieceFallYCoord, "pieceFallYCoord", -1000.f, 0.f);
 	// UI
 	PARSE_FLOAT(config->ui.swapThreshold, "swapThreshold", 0.1f, 1.f);

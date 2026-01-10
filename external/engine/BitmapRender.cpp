@@ -57,8 +57,8 @@ void BitmapRenderer::Impl::DrawBitmapEx(const Texture& bitmap, float x, float y,
 		return;
 	}
 
-	const float bitmapWidth = (prm.width <= 0.f ? static_cast<float>(bitmap.Width()) : prm.width) * prm.scale;
-	const float bitmapHeight = (prm.height <= 0.f ? static_cast<float>(bitmap.Height()) : prm.height) * prm.scale;
+	const float bitmapWidth = (prm.width <= 0.f ? static_cast<float>(bitmap.Width()) : prm.width) * prm.scale.x;
+	const float bitmapHeight = (prm.height <= 0.f ? static_cast<float>(bitmap.Height()) : prm.height) * prm.scale.y;
 	const float pivot_x = bitmapWidth * prm.pivot.x;
 	const float pivot_y = bitmapHeight * prm.pivot.y;
 

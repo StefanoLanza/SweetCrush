@@ -14,14 +14,15 @@ constexpr int numLevels = 4;
 #if TEST_SHORT_GAME
 
 const BoardDef testLevelGrid =
-	"ccccdcac"
-	"cCccdcCc"
-	"cccc ccc"
-	"  cabacc"
-	"ccccOcbc"
-	"abcdabbd"
-	"bcdabcda"
-	"ccc  ccc";
+	"ccccdcacb"
+	"cCccdcCcb"
+	"cccc cccb"
+	"  cabaccb"
+	"ccccOcbcb"
+	"abcdabbdb"
+	"bcdabcdab"
+	"ccc   ccc"
+	"ccc   ccc";
 
 
 const Level levels[numLevels] {

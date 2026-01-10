@@ -18,7 +18,7 @@ constexpr Rect defaultTexCoord = { 0.f, 0.f, 1.f, 1.f };
 struct BitmapExtParams {
 	float         width = 0.f;
 	float         height = 0.f;
-	float         scale = 1.f;
+	Vec2          scale { 1.f, 1.f };
 	float         orientation = 0.f;
 	Vec2          pivot = { 0.f, 0.f };
 	Rect          texRect = defaultTexCoord;

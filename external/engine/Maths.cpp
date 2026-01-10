@@ -82,8 +82,4 @@ Vec2 Spline(const Vec2 p[], int n, float t) {
 	return 0.5f * ((2 * p1) + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
 }
 
-float Lerp(float a, float b, float t) {
-	return a + (b - a) * t;
-}
-
 } // namespace Wind
