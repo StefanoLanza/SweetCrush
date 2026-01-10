@@ -7,7 +7,7 @@ namespace Wind {
 // ref: https://easings.net
 
 inline float EaseInSine(float x) {
-	return 1 - std::cosf(x * pi) / 2.f;
+	return 1 - std::cos(x * pi) / 2.f;
 }
 
 inline float EaseInQuad(float x) {
@@ -24,14 +24,14 @@ inline float EaseInQuint(float x) {
 
 inline float EaseInElastic(float x) {
 	constexpr float c4 = two_pi / 3.f;
-	return x == 0.f ? 0.f : x == 1.f ? 1.f : -std::powf(2.f, 10 * x - 10) * std::sinf((x * 10 - 10.75f) * c4);
+	return x == 0.f ? 0.f : x == 1.f ? 1.f : -std::pow(2.f, 10 * x - 10) * std::sin((x * 10 - 10.75f) * c4);
 }
 inline float EaseInCirc(float x) {
-	return 1 - std::sqrtf(1 - std::powf(x, 2));
+	return 1 - std::sqrt(1 - std::pow(x, 2.f));
 }
 
 inline float EaseInOutCirc(float x) {
-	return x < 0.5 ? (1 - std::sqrtf(1 - std::powf(2 * x, 2))) / 2 : (std::sqrtf(1 - std::powf(-2 * x + 2, 2)) + 1) / 2;
+	return x < 0.5 ? (1 - std::sqrt(1 - std::pow(2 * x, 2.f))) / 2 : (std::sqrt(1 - std::pow(-2 * x + 2, 2.f)) + 1) / 2;
 }
 
 inline float EaseOutBounce(float x) {
