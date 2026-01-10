@@ -108,23 +108,22 @@ private:
 
 	void TrySwap(int first, int second);
 	void SwapSelectedCells(int firstTile, int secondTile);
-	void CollapseColumn(int col);
+	int  CollapseColumn(int col, CellPairEvent* collapseList);
 	void KillAdjacentMatches(int mainCellIdx, int deltaCol, int deltaRow, bool isSpecialCombo);
 	void TriggerBooster(int cellIdx);
 
 private:
 	enum class State;
 
-	Board&                     mBoard;
-	BoardGenerator&            mBoardGen;
-	TileSelector&              mTileSelector;
-	Match3Callback             mCbk;
-	State                      mState;
-	CellPairEvent              mUserSwap;
-	std::vector<int>           mNewPieces;
-	std::vector<int>           mCheckList;
-	std::vector<CellPairEvent> mCollapseList;
-	std::vector<BoosterEvent>  mNewBoosters;
-	int                        mNumUserSwaps;
-	int                        mCascadeCount;
+	Board&                    mBoard;
+	BoardGenerator&           mBoardGen;
+	TileSelector&             mTileSelector;
+	Match3Callback            mCbk;
+	State                     mState;
+	CellPairEvent             mUserSwap;
+	std::vector<int>          mNewPieces;
+	std::vector<int>          mCheckList;
+	std::vector<BoosterEvent> mNewBoosters;
+	int                       mNumUserSwaps;
+	int                       mCascadeCount;
 };

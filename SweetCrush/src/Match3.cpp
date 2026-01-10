@@ -95,7 +95,6 @@ enum class Match3::State {
 	selectPieces,
 	checkMatchesAfterSwap,
 	collapseColumns,
-	generateNewPieces,
 	checkMatches,
 	insertBoosters,
 };
@@ -119,7 +118,6 @@ void Match3::SetCallback(Match3Callback&& cbk) {
 void Match3::Run() {
 	// Clear lists from previous match
 	mNewPieces.clear();
-	mCollapseList.clear();
 	mNewBoosters.clear();
 
 	mTileSelector.Reset();
@@ -129,11 +127,6 @@ void Match3::Run() {
 }
 
 void Match3::Update(const Wind::Input& input) {
-	for (const CellPairEvent& pair : mCollapseList) {
-		SwapCells(mBoard, pair.first, pair.second);
-	}
-	mCollapseList.clear();
-
 	switch (mState) {
 	case State::selectPieces:
 		SelectPieces(input);
@@ -159,9 +152,6 @@ void Match3::Update(const Wind::Input& input) {
 		break;
 	case State::collapseColumns:
 		CollapseColumns();
-		mState = State::generateNewPieces;
-		break;
-	case State::generateNewPieces:
 		GenerateNewPieces();
 		mState = State::checkMatches;
 		break;
@@ -178,7 +168,6 @@ void Match3::Update(const Wind::Input& input) {
 		assert(false);
 		break;
 	};
-
 }
 
 int Match3::GetNumUserSwaps() const {
@@ -384,21 +373,21 @@ void Match3::InsertBoosters() {
 }
 
 void Match3::CollapseColumns() {
-	mCollapseList.clear();
+	CellPairEvent collapseList[NumRows];
 	for (int col = 0; col < mBoard.GetCols(); ++col) {
-		CollapseColumn(col);
-	}
+		int numCollapsed = CollapseColumn(col, collapseList);
+		for (int i = 0; i < numCollapsed; ++i) {
+			SwapCells(mBoard, collapseList[i].first, collapseList[i].second);
 
-	// Inform client
-	for (const CellPairEvent& pair : mCollapseList) {
-		Match3Event event;
-		event.id = Match3Event::Id::dropPiece;
-		event.pair = pair;
-		mCbk(event);
+		// Inform client
+			Match3Event event;
+			event.id = Match3Event::Id::dropPiece;
+			event.pair = collapseList[i];
+			mCbk(event);
+		}
 	}
 
 	mCheckList.insert(std::end(mCheckList), std::begin(mNewPieces), std::end(mNewPieces));
-	// mCheckList.insert(std::end(mCheckList), std::begin(mCollapseList), std::end(mCollapseList));
 }
 
 void Match3::GenerateNewPieces() {
@@ -461,10 +450,11 @@ void Match3::SwapSelectedCells(int firstTile, int secondTile) {
 	SwapCells(mBoard, firstTile, secondTile);
 }
 
-void Match3::CollapseColumn(int col) {
+int Match3::CollapseColumn(int col, CellPairEvent* collapseList) {
 	int emptyRows[NumRows];
 	int numEmptyRows = 0;
 	int currEmptyRow = 0;
+	int numCollapsed = 0;
 
 	// From bottom to top, stack active tiles
 	for (int row = mBoard.GetRows() - 1; row >= 0; --row) {
@@ -483,9 +473,11 @@ void Match3::CollapseColumn(int col) {
 				// Fall to an empty cell
 				const int dst = mBoard.GetCellIndex(col, emptyRows[currEmptyRow]);
 				++currEmptyRow;
-				mCollapseList.push_back({ src, dst });
+				collapseList[numCollapsed] = { src, dst };
+				++numCollapsed;
 
 				mCheckList.push_back(dst);
+
 
 				emptyRows[numEmptyRows++] = row;
 			}
@@ -499,14 +491,15 @@ void Match3::CollapseColumn(int col) {
 	for (int e = currEmptyRow; e < numEmptyRows; ++e) {
 		mNewPieces.push_back(mBoard.GetCellIndex(col, emptyRows[e]));
 	}
+	return numCollapsed;
 }
 
 void Match3::KillAdjacentMatches(int mainCellIdx, int deltaCol, int deltaRow, bool isSpecialCombo) {
 	const Cell& cell = mBoard.GetCell(mainCellIdx);
-	int col = cell.col + deltaCol;
-	int row = cell.row + deltaRow;
+	int         col = cell.col + deltaCol;
+	int         row = cell.row + deltaRow;
 	while (col >= 0 && col < mBoard.GetCols() && row >= 0 && row < mBoard.GetRows()) {
-		const int   cellIdx = mBoard.GetCellIndex(col, row);
+		const int cellIdx = mBoard.GetCellIndex(col, row);
 		assert(cellIdx != mainCellIdx); // maincell handled separately
 		const Cell& otherCell = mBoard.GetCell(cellIdx);
 		if (CheckMatch(otherCell, cell)) {

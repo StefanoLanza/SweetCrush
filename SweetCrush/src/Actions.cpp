@@ -28,7 +28,7 @@ ActionFunc MovePieceTo(Cell& cell, const Vec2& targetCoords) {
 
 ActionFunc MovePieceFromTo(Cell& cell, const Wind::Vec2& startCoords, const Wind::Vec2& endCoords) {
 	return [&cell, startCoords, endCoords](float dt, float t01) {
-		cell.pieceGraphics.coords = LerpEase(startCoords, endCoords, t01, EaseInCubic);
+		cell.pieceGraphics.coords = LerpEase(startCoords, endCoords, t01, EaseInQuad);
 		return false;
 	};
 }

@@ -274,9 +274,10 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		break;
 	}
 	case Match3Event::Id::dropPiece: {
-		Cell&       firstTile = mBoard.GetCell(event.pair.first);
-		const Cell& secondTile = mBoard.GetCell(event.pair.second);
-		mActionMgr.AddTimedAction(MovePieceTo(firstTile, secondTile.coords), mGameConfig.pieceFallDuration);
+		const Cell&       firstCell = mBoard.GetCell(event.pair.first);
+		 Cell& secondCell = mBoard.GetCell(event.pair.second);
+		// Already swapped
+		mActionMgr.AddTimedAction(FallPieceFromTo(secondCell, firstCell.coords.y, secondCell.coords.y), mGameConfig.pieceFallDuration);
 		break;
 	}
 	case Match3Event::Id::newBooster: {
