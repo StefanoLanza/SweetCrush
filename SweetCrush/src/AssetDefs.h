@@ -3,7 +3,7 @@
 #include "Boosters.h"
 #include <engine/FwdDecl.h>
 
-constexpr int NumSprites = 23;
+constexpr int NumSprites = 25;
 constexpr int NumPieceTypes = 11;
 constexpr int NumBoardTiles = 1;
 constexpr int NumObstacleTypes = 1;
@@ -41,3 +41,5 @@ extern const int brokenIceSprite;
 extern const int selectionSprite;
 extern const int glowSprite;
 extern const int starSprite;
+extern const int hrzStripesSprite;
+extern const int vrtStripesSprite;

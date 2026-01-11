@@ -272,9 +272,9 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 		const bool isSpecialCombo = comboType != ComboType::C3;
 #else
 		const bool isSpecialCombo = false;
-#endif
-		// Kill main cell if not booster
+#endif		
 		if (! isSpecialCombo) {
+			// Kill main cell if not booster
 			KillCell(mainCellIdx, -1);
 		}
 		else {

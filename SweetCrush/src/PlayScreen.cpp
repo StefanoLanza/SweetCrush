@@ -6,6 +6,7 @@
 #include "GameDataModule.h"
 #include "GameDrawOrder.h"
 #include "GameSettings.h"
+#include "GameRenderer.h"
 #include "Level.h"
 #include "Localization.h"
 #include "MatchStats.h"
@@ -137,8 +138,7 @@ void PlayScreen::Draw(GameScreenId topScreen) const {
 	if (topScreen != ScreenId::play) {
 		return;
 	}
-	const BitmapRenderer& bitmapRender = mEngine.GetBitmapRenderer();
-	DrawBoard(bitmapRender);
+	DrawBoardTiles(mBoard, 	mTileSelector->GetSelectedCell(), mEngine.GetBitmapRenderer(), mGameConfig);
 	DrawUI();
 }
 
@@ -396,73 +396,6 @@ void PlayScreen::DrawUI() const {
 			bitmapRender.DrawBitmapEx(*sprites[iceSprite], pos, prm);
 			pos.x += sprites[iceSprite]->Width() + 12;
 		}
-	}
-}
-
-void PlayScreen::DrawBoard(const BitmapRenderer& bitmapRender) const {
-	const float cellWidth = mGameConfig.board.cellWidth;
-	const float cellHeight = mGameConfig.board.cellHeight;
-	const float cellSpacing = mGameConfig.board.cellSpacing;
-	const float dynScaleFactor = std::cos(mTime * 4.f);
-	{
-		// Draw board background tiles
-		BitmapExtParams prm;
-		prm.width = cellWidth + 2.f * cellSpacing;
-		prm.height = cellHeight + 2.f * cellSpacing;
-		prm.color = { 255, 255, 255, 140 };
-		prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::backgroundTile);
-		prm.blending = true;
-		for (const Cell& cell : mBoard.GetCells()) {
-			if (cell.category != CellCategory::hole) {
-				const BoardTileDef& def = boardTileDefs[0];
-				bitmapRender.DrawBitmapEx(*sprites[def.sprite], cell.coords - Vec2 { cellSpacing, cellSpacing }, prm);
-			}
-		}
-	}
-	// Draw pieces, obstacles and boosters
-	for (const Cell& cell : mBoard.GetCells()) {
-		Vec2            pos = cell.pieceGraphics.coords + Vec2 { cellWidth, cellHeight } * 0.5f;
-		BitmapExtParams prm;
-		prm.width = cellWidth;
-		prm.height = cellHeight;
-		prm.pivot = BitmapPivot::center;
-		prm.blending = true;
-		if (cell.pieceGraphics.bitmapIdx != -1) {
-			prm.orientation = mTime * cell.pieceGraphics.rotation;
-			prm.scale.x = cell.pieceGraphics.scale;
-			prm.scale.y = cell.pieceGraphics.scale;
-			prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::boardTile);
-			bitmapRender.DrawBitmapEx(*sprites[cell.pieceGraphics.bitmapIdx], pos, prm);
-			if (cell.layers > 0) {
-				prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::ice);
-				prm.orientation = 0.0f;
-				prm.scale.x = 1.f;
-				prm.scale.y = 1.f;
-				bitmapRender.DrawBitmapEx(*sprites[iceSprite], pos, prm);
-			}
-		}
-		if (cell.hasBooster) {
-			// TODO REmove, draw different bitmap
-			prm.scale.x = 0.5f + 0.1f * dynScaleFactor;
-			prm.scale.y = 0.5f + 0.1f * dynScaleFactor;
-			prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::ice);
-			prm.orientation = 0.f;
-			pos.x += cellWidth * 0.25f;
-			pos.y += cellHeight * 0.25f;
-			bitmapRender.DrawBitmapEx(*sprites[boosterDefs[(int)cell.boosterType].sprite], pos, prm);
-		}
-	}
-	// Highlight selected cell
-	const int selected = mTileSelector->GetSelectedCell();
-	if (selected >= 0) {
-		const Cell&     cell = mBoard.GetCell(selected);
-		BitmapExtParams prm;
-		prm.width = cellWidth + 2.f * cellSpacing;
-		prm.height = cellHeight + 2.f * cellSpacing;
-		prm.pivot = BitmapPivot::topLeft;
-		prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::boardTile);
-		prm.blending = true;
-		bitmapRender.DrawBitmapEx(*sprites[selectionSprite], cell.pieceGraphics.coords - Vec2 { cellSpacing, cellSpacing }, prm);
 	}
 }
 

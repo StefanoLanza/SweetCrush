@@ -39,7 +39,6 @@ private:
 	void OnPieceRemoved(const Cell& cell);
 	void OnMatch3Event(const Match3Event& event);
 	void CheckLevelCompletion();
-	void DrawBoard(const Wind::BitmapRenderer& bitmapRender) const;
 	void DrawUI() const;
 	int  IncreaseScore(const MatchEvent& match);
 	void PlayMusic() const;

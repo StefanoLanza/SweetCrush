@@ -26,6 +26,8 @@ const SpriteDef spriteDefs[NumSprites] {
 	{ "gameartguppy/block_ice_03.png" },
 	{ "outline.png" },
 	{ "glow.png" },
+	{ "hrzStripes.png" },
+	{ "vrtStripes.png" },
 };
 
 const BoardTileDef boardTileDefs[NumBoardTiles] {
@@ -35,6 +37,8 @@ const BoardTileDef boardTileDefs[NumBoardTiles] {
 const PieceDef pieceDefs[NumPieceTypes] {
 	{ 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 }, { 7 }, { 8 }, { 9 }, { 10 }, { 11 },
 };
+
+const int pieceHrzStripesBitmaps {};
 
 const ObstacleDef obstacleDefs[NumObstacleTypes] {
 	{ 0 }, // wall
@@ -55,3 +59,5 @@ const int brokenIceSprite = 19;
 const int selectionSprite = 21;
 const int glowSprite = 22;
 const int starSprite = 12;
+const int hrzStripesSprite = 23;
+const int vrtStripesSprite = 24;
