@@ -25,7 +25,9 @@ struct PieceGraphics {
 };
 
 struct Cell {
+	void*         ud;
 	Wind::Vec2    coords;
+	Wind::Vec2    size;
 	int           col;
 	int           row;
 	int           layers;

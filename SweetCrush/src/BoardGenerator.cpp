@@ -82,7 +82,9 @@ void BoardGenerator::ResetBoard(Board& board, const BoardConfig& boardCfg) {
 		for (int col = 0; col < board.GetCols(); ++col) {
 			float x = col * boardCfg.cellWidthWithSpacing + boardCfg.topLeftCoord.x;
 			Cell& cell = board.GetCell(col, row);
+			cell.ud = nullptr;
 			cell.coords = { x, y };
+			cell.size = { boardCfg.cellWidth, boardCfg.cellHeight };
 			cell.col = col;
 			cell.row = row;
 			cell.category = CellCategory::piece;

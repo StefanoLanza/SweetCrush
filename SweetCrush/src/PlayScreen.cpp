@@ -42,6 +42,8 @@ const UIBitmapDesc optionButtonBitmapDesc {
 	UIAutoSize,
 };
 
+constexpr float criticalTime = 10.f;
+
 } // namespace
 
 PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const GameConfig& gameConfig, const GameSettings& gameSettings,
@@ -119,6 +121,13 @@ GameScreenId PlayScreen::Tick(float dt, const Input& input) {
 	if (mMatch3.IsWaitingForUser()) {
 		// Decrease time only when waiting for user selection
 		mTime = std::max(0.f, mTime - dt);
+	}
+
+	if (mTime < criticalTime) {
+		if (mMusic) {
+			mMusic->SetVolume(0.2f);
+		}
+		// TODO play clock sound
 	}
 
 	if (mTime > 0.f) {
@@ -372,7 +381,7 @@ void PlayScreen::DrawUI() const {
 
 	const int time = static_cast<int>(mTime);
 	snprintf(tmp, sizeof(tmp), "%d:%02d", time / 60, time % 60);
-	textRenderer.Write(*mFonts[2], tmp, Vec2 { 60, RefWindowHeight - 120 }, mTime < 10.f ? textStyle1 : textStyle, DrawOrder::UI);
+	textRenderer.Write(*mFonts[2], tmp, Vec2 { 60, RefWindowHeight - 120 }, mTime < criticalTime ? textStyle1 : textStyle, DrawOrder::UI);
 
 	BitmapExtParams prm;
 	prm.pivot = BitmapPivot::center;
@@ -424,6 +433,7 @@ void PlayScreen::SetupNewBoardAnimation() {
 
 void PlayScreen::PlayMusic() const {
 	if (mMusic && mGameSettings.musicOn) {
+		mMusic->SetVolume(1.0f);
 		mMusic->Play();
 	}
 }

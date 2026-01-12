@@ -231,7 +231,7 @@ void Graphics::Impl::Flush() {
 		return;
 	}
 
-	GLuint   currTexture = 0;
+	GLuint   currTexture[16] {};
 	unsigned currProgramIdx = static_cast<unsigned>(-1);
 	unsigned currTargetIdx = static_cast<unsigned>(-1);
 	unsigned currMeshIdx = static_cast<unsigned>(-1);
@@ -269,6 +269,7 @@ void Graphics::Impl::Flush() {
 			// Uniforms are per program, reset cached values
 			std::memset(cachedUniformHash, 0, sizeof cachedUniformHash);
 			std::memset(cachedUniformValue, 0, sizeof cachedUniformValue);
+			std::memset(currTexture, ~0, sizeof currTexture);
 			// Ortho matrix
 			if (auto uniform = mPrograms[currProgramIdx].GetOrthoMatrixUniform(); uniform != -1) {
 				glUniform4f(uniform, xScale, yScale, 0.f, 0.f);
@@ -345,6 +346,7 @@ void Graphics::Impl::Flush() {
 			continue;
 		}
 
+		GLuint textureUnit = 0;
 		for (unsigned ui = 0; ui < batch.numUniforms; ++ui) {
 			const ShaderUniform& su = mShaderUniforms[batch.firstUniform + ui];
 			assert(su.uniform >= 0);
@@ -375,11 +377,14 @@ void Graphics::Impl::Flush() {
 #endif
 			}
 			else if (su.type == ShaderUniformType::texture) {
-				// TODO uniform slot
-				if (su.texture != currTexture) {
+				assert(textureUnit < (GLint)std::size(currTexture));
+				 if (su.texture != currTexture[textureUnit]) {
+					glActiveTexture(GL_TEXTURE0 + textureUnit);
 					glBindTexture(GL_TEXTURE_2D, su.texture);
-					currTexture = su.texture;
+					// glUniform1i(su.texture, textureUnit);
+					currTexture[textureUnit] = su.texture;
 				}
+				++textureUnit;
 			}
 		}
 

@@ -12,7 +12,6 @@ using namespace Wind;
 
 struct TileProgram {
 	ProgramHandle mProgramHandle = nullProgram;
-	GLint         mColor = 0;
 	GLint         mCoords = 0;
 	GLint         mTexture = 0;
 	bool          mValid = false;
@@ -39,10 +38,9 @@ public:
 		mTileProgram.mProgramHandle = graphics.NewProgram(SHADERS_FOLDER "tile.vs", SHADERS_FOLDER "tile.fs");
 		if (mTileProgram.mProgramHandle != nullProgram) {
 			const GlProgram& program = graphics.GetProgram(mTileProgram.mProgramHandle);
-			mTileProgram.mColor = program.GetUniformLocation("color");
-			mTileProgram.mCoords = program.GetUniformLocation("coords");
+			mTileProgram.mCoords = program.GetAttribLocation("tileCoords");
 			mTileProgram.mTexture = program.GetUniformLocation("inputTexture");
-			mTileProgram.mValid = (mTileProgram.mColor != -1 && mTileProgram.mCoords != -1 && mTileProgram.mTexture != -1);
+			mTileProgram.mValid = (mTileProgram.mCoords != -1 && mTileProgram.mTexture != -1);
 		}
 
 		mPieceProgram.mProgramHandle = graphics.NewProgram(SHADERS_FOLDER "piece.vs", SHADERS_FOLDER "piece.fs");
@@ -50,7 +48,7 @@ public:
 			const GlProgram& program = graphics.GetProgram(mPieceProgram.mProgramHandle);
 			mPieceProgram.mColor = program.GetUniformLocation("color");
 			mPieceProgram.mCoords = program.GetUniformLocation("coords");
-			mPieceProgram.mTexture = program.GetUniformLocation("inputTexture");
+			mPieceProgram.mTexture = program.GetUniformLocation("colorTexture");
 			mPieceProgram.mValid = (mPieceProgram.mColor != -1 && mPieceProgram.mCoords != -1 && mPieceProgram.mTexture != -1);
 		}
 	}
@@ -66,31 +64,40 @@ public:
 
 		const BoardTileDef& def = boardTileDefs[0];
 		const GLuint        textureID = sprites[def.sprite]->GetTextureId();
-		const int           uniforms[] = { mTileProgram.mCoords, mTileProgram.mColor };
 		const unsigned      textureIds[] = { textureID };
 
-		DrawCall drawCall;
-		drawCall.program = mTileProgram.mProgramHandle;
-		drawCall.mesh = quadMesh;
-		drawCall.drawOrder = static_cast<DrawOrder>(GameDrawOrder::backgroundTile);
-		drawCall.sortKey = (textureID & 255); // sort by texture
-		drawCall.textures = textureIds;
-		drawCall.numTextures = 1;
-		drawCall.uniforms = uniforms;
+		struct Tile {
+			Vec4 coords;
+			Vec4 color;
+		};
+		InstanceData instanceData = mGraphics.AllocInstances((unsigned)board.GetCells().Size(), sizeof(Tile), mTileProgram.mCoords);
+		if (! instanceData.data) {
+			return;
+		}
 
+		int   idx = 0;
+		Tile* tiles = static_cast<Tile*>(instanceData.data);
 		for (const Cell& cell : board.GetCells()) {
 			if (cell.category != CellCategory::hole) {
-				float left = cell.coords.x - cellSpacing;
-				float top = cell.coords.y - cellSpacing;
-				const float uniformData[][4] = {
-					{ left, top, cellWidth + 2 * cellSpacing, cellHeight + 2 * cellSpacing },
-					{ 1.f, 1.f, 1.f, 140.f / 255.f },
-				};
-
-				drawCall.uniformData = uniformData;
-				drawCall.numUniforms = sizeof(uniformData) / 16;
-				mGraphics.Draw(drawCall);
+				tiles[idx].coords = { cell.coords.x - cellSpacing, cell.coords.y - cellSpacing, cellWidth + 2 * cellSpacing,
+					                  cellHeight + 2 * cellSpacing };
+				tiles[idx].color = { 1.f, 1.f, 1.f, 140.f / 255.f };
+				++idx;
 			}
+		}
+		if (idx > 0) {
+			DrawCall drawCall;
+			drawCall.program = mTileProgram.mProgramHandle;
+			drawCall.mesh = quadMesh;
+			drawCall.drawOrder = static_cast<DrawOrder>(GameDrawOrder::backgroundTile);
+			drawCall.sortKey = (textureID & 255); // sort by texture
+			drawCall.textures = textureIds;
+			drawCall.numTextures = 1;
+			// drawCall.uniforms = uniforms;
+			//	drawCall.uniformData = uniformData;
+			//	drawCall.numUniforms = sizeof(uniformData) / 16;
+			drawCall.instances = instanceData;
+			mGraphics.Draw(drawCall);
 		}
 	}
 
@@ -102,13 +109,15 @@ public:
 		const float cellHeight = gameConfig.board.cellHeight; // FIXME Store in Cell
 		mGraphics.SetPipeline(mPipelineBlending);
 
-		const int uniforms[] = { mPieceProgram.mCoords, mPieceProgram.mColor };
+		const int    uniforms[] = { mPieceProgram.mCoords, mPieceProgram.mColor };
+		const GLuint hrzStripesId = sprites[hrzStripesSprite]->GetTextureId();
+		unsigned     textureIds[] = { 0, 0 };
 
 		DrawCall drawCall;
 		drawCall.program = mPieceProgram.mProgramHandle;
 		drawCall.mesh = quadMesh;
 		drawCall.drawOrder = static_cast<DrawOrder>(GameDrawOrder::boardPiece);
-		drawCall.numTextures = 1;
+		drawCall.textures = textureIds;
 		drawCall.uniforms = uniforms;
 
 		for (const Cell& cell : board.GetCells()) {
@@ -117,20 +126,21 @@ public:
 			}
 
 			const Texture& texture = *sprites[cell.pieceGraphics.bitmapIdx];
-			const unsigned textureIds[] = { texture.GetTextureId() };
-
-			float w = cellWidth * cell.pieceGraphics.scale;
-			float h = cellHeight * cell.pieceGraphics.scale;
+			float          s = cell.pieceGraphics.scale;
+			if (cell.hasBooster)
+				s *= 1.1f;
+			float w = cellWidth * s;
+			float h = cellHeight * s;
 			float left = cell.pieceGraphics.coords.x + cellWidth * 0.5f - w * 0.5f;
 			float top = cell.pieceGraphics.coords.y + cellHeight * 0.5f - h * 0.5f;
 
 			const float uniformData[][4] = {
-				{ left, top, w, h },
-				{ 1.f, 1.f, 1.f, 1.f }, // TODO Remove ?
+				{ left, top, w, h }, { 1.f, 1.f, 1.f, 1.f }, // TODO Remove ?
 			};
-
-			drawCall.sortKey = (texture.GetTextureId() & 255); // sort by texture
-			drawCall.textures = textureIds;
+			textureIds[0] = texture.GetTextureId();
+			textureIds[1] = cell.hasBooster ? hrzStripesId : 0;
+			drawCall.numTextures = 2;
+			drawCall.sortKey = (texture.GetTextureId() & 255); // sort by main texture
 			drawCall.uniformData = uniformData;
 			drawCall.numUniforms = sizeof(uniformData) / 16;
 			mGraphics.Draw(drawCall);
@@ -153,31 +163,4 @@ GameRenderer::~GameRenderer() = default;
 void GameRenderer::DrawBoard(const Board& board, int selectedCell, const GameConfig& gameConfig) const {
 	mPimpl->DrawBackgroundTiles(board, gameConfig);
 	mPimpl->DrawPieces(board, gameConfig);
-
-#if 0
-	// Draw pieces, obstacles and boosters
-	for (const Cell& cell : board.GetCells()) {
-		if (cell.hasBooster) {
-			// TODO REmove, draw different bitmap
-			prm.scale.x = 0.5f + 0.1f * dynScaleFactor;
-			prm.scale.y = 0.5f + 0.1f * dynScaleFactor;
-			prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::ice);
-			prm.orientation = 0.f;
-			pos.x += cellWidth * 0.25f;
-			pos.y += cellHeight * 0.25f;
-			bitmapRender.DrawBitmapEx(*sprites[boosterDefs[(int)cell.boosterType].sprite], pos, prm);
-		}
-	}
-	// Highlight selected cell
-	if (selectedCell >= 0) {
-		const Cell&     cell = board.GetCell(selectedCell);
-		BitmapExtParams prm;
-		prm.width = cellWidth + 2.f * cellSpacing;
-		prm.height = cellHeight + 2.f * cellSpacing;
-		prm.pivot = BitmapPivot::topLeft;
-		prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::boardTile);
-		prm.blending = true;
-		bitmapRender.DrawBitmapEx(*sprites[selectionSprite], cell.pieceGraphics.coords - Vec2 { cellSpacing, cellSpacing }, prm);
-	}
-#endif
 }

@@ -16,6 +16,7 @@ public:
 	void Stop() const;
 	void Pause() const;
 	void Resume() const;
+	void SetVolume(float volume) const;
 
 private:
 	MIX_Track *mTrack;

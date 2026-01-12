@@ -17,11 +17,11 @@ ActionMgr::ActionMgr()
 
 ActionMgr::~ActionMgr() = default;
 
-void ActionMgr::AddAction(ActionFunc&& func, float delay, ActionFlags flags) {
-	AddTimedAction(std::move(func), std::numeric_limits<float>::max(), delay, flags);
+ActionId ActionMgr::AddAction(ActionFunc&& func, float delay, ActionFlags flags) {
+	return AddTimedAction(std::move(func), std::numeric_limits<float>::max(), delay, flags);
 }
 
-void ActionMgr::AddTimedAction(ActionFunc&& func, float duration, float delay, ActionFlags flags) {
+ActionId ActionMgr::AddTimedAction(ActionFunc&& func, float duration, float delay, ActionFlags flags) {
 	assert(duration >= 0.f);
 	mActions.push_back({
 	    std::move(func),
@@ -33,6 +33,7 @@ void ActionMgr::AddTimedAction(ActionFunc&& func, float duration, float delay, A
 	if (flags & ActionFlags::blocking) {
 		++mNumBlocking;
 	}
+	return static_cast<ActionId>(mActions.size());
 }
 
 void ActionMgr::RunActions(float dt) {
