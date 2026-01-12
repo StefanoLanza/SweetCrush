@@ -5,8 +5,8 @@
 #include "GameConfig.h"
 #include "GameDataModule.h"
 #include "GameDrawOrder.h"
-#include "GameSettings.h"
 #include "GameRenderer.h"
+#include "GameSettings.h"
 #include "Level.h"
 #include "Localization.h"
 #include "MatchStats.h"
@@ -44,9 +44,10 @@ const UIBitmapDesc optionButtonBitmapDesc {
 
 } // namespace
 
-PlayScreen::PlayScreen(Engine& engine, const GameConfig& gameConfig, const GameSettings& gameSettings, ActionMgr& renderActionMgr,
-                       MatchStats& matchStats, const GameDataModule& gameDataModule)
+PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const GameConfig& gameConfig, const GameSettings& gameSettings,
+                       ActionMgr& renderActionMgr, MatchStats& matchStats, const GameDataModule& gameDataModule)
     : mEngine(engine)
+    , mGameRenderer(gameRenderer)
     , mGameConfig(gameConfig)
     , mGameSettings(gameSettings)
     , mRenderActionMgr(renderActionMgr)
@@ -138,7 +139,7 @@ void PlayScreen::Draw(GameScreenId topScreen) const {
 	if (topScreen != ScreenId::play) {
 		return;
 	}
-	DrawBoardTiles(mBoard, 	mTileSelector->GetSelectedCell(), mEngine.GetBitmapRenderer(), mGameConfig);
+	mGameRenderer.DrawBoard(mBoard, mTileSelector->GetSelectedCell(), mGameConfig);
 	DrawUI();
 }
 

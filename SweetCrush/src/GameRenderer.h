@@ -5,4 +5,14 @@
 class Board;
 struct GameConfig;
 
-void DrawBoardTiles(const Board& board, int selectedCell, const Wind::BitmapRenderer& bitmapRender, const GameConfig& gameConfig);
+class GameRenderer final {
+public:
+	explicit GameRenderer(Wind::Engine& engine);
+	~GameRenderer();
+
+	void DrawBoard(const Board& board, int selectedCell, const GameConfig& gameConfig) const;
+
+private:
+	class Impl;
+	std::unique_ptr<Impl> mPimpl;
+};

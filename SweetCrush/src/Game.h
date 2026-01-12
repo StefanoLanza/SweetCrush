@@ -12,10 +12,11 @@
 #include "ScreenIds.h"
 
 struct GameConfig;
+class GameRenderer;
 
 class Game final {
 public:
-	Game(Wind::Engine& engine, const GameConfig& gameConfig, GameDataModule& gameDataModule);
+	Game(Wind::Engine& engine, const GameRenderer& gameRenderer, const GameConfig& gameConfig, GameDataModule& gameDataModule);
 	~Game();
 	void Run();
 	

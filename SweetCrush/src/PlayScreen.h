@@ -13,11 +13,12 @@ struct TileSelectionEvent;
 struct GameSettings;
 struct MatchStats;
 class GameDataModule;
+class GameRenderer;
 
 class PlayScreen final : public Wind::GameScreen {
 public:
-	PlayScreen(Wind::Engine& engine, const GameConfig& gameConfig, const GameSettings& gameSettings, ActionMgr& renderActionMgr,
-	           MatchStats& matchStats, const GameDataModule& gameDataModule);
+	PlayScreen(Wind::Engine& engine, const GameRenderer& gameRenderer, const GameConfig& gameConfig, const GameSettings& gameSettings,
+	           ActionMgr& renderActionMgr, MatchStats& matchStats, const GameDataModule& gameDataModule);
 	~PlayScreen();
 
 	const char*        GetName() const override;
@@ -49,6 +50,7 @@ private:
 
 private:
 	Wind::Engine&                 mEngine;
+	const GameRenderer&           mGameRenderer;
 	const GameConfig&             mGameConfig;
 	const GameSettings&           mGameSettings;
 	ActionMgr                     mActionMgr;

@@ -1,12 +1,13 @@
 #include <SDL3/SDL_main.h>
 #include <engine/Engine.h>
+#include <engine/IniParser.h>
 #include <engine/Sdl.h>
 #include <engine/SdlWindow.h>
-#include <engine/IniParser.h>
 
 #include "Game.h"
 #include "GameConfig.h"
 #include "GameDataModule.h"
+#include "GameRenderer.h"
 
 #include <algorithm>
 #include <cstring>
@@ -16,7 +17,7 @@ namespace {
 void LoadAppConfig(GameConfig& gameConfig, const char* iniFile);
 void LoadGameConfig(Game& game, const char* iniFile);
 
-}
+} // namespace
 
 int main(int argc, char* argv[]) {
 	GameConfig gameConfig = DefaultGameConfig();
@@ -28,7 +29,7 @@ int main(int argc, char* argv[]) {
 	if (! gameDataModule.Init(dllName)) {
 		return 0;
 	}
-#elif defined (__linux__)
+#elif defined(__linux__)
 	const char* dllName = "./libgameData.so";
 	if (! gameDataModule.Init(dllName)) {
 		return 0;
@@ -37,7 +38,8 @@ int main(int argc, char* argv[]) {
 	Wind::Sdl       sdl { SDL_INIT_VIDEO | SDL_INIT_EVENTS };
 	Wind::SdlWindow window { "SweetCrush", gameConfig.windowWidth, gameConfig.windowHeight, ASSETS_FOLDER "icon.png", gameConfig.fullscreen };
 	Wind::Engine    engine { window };
-	Game            game { engine, gameConfig, gameDataModule };
+	GameRenderer    gameRenderer { engine };
+	Game            game { engine, gameRenderer, gameConfig, gameDataModule };
 	LoadGameConfig(game, ASSETS_FOLDER "game.ini");
 	game.Run();
 
