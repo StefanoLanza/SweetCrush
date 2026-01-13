@@ -10,22 +10,6 @@
 
 using namespace Wind;
 
-struct TileProgram {
-	ProgramHandle mProgramHandle = nullProgram;
-	GLint         mCoords = 0;
-	GLint         mTexture = 0;
-	bool          mValid = false;
-};
-
-struct PieceProgram {
-	ProgramHandle mProgramHandle = nullProgram;
-	GLint         mColor = 0;
-	GLint         mCoords = 0;
-	GLint         mTexture = 0;
-	GLint         mMaskTexture = 0;
-	bool          mValid = false;
-};
-
 class GameRenderer::Impl {
 public:
 	explicit Impl(Graphics& graphics)
@@ -93,9 +77,6 @@ public:
 			drawCall.sortKey = (textureID & 255); // sort by texture
 			drawCall.textures = textureIds;
 			drawCall.numTextures = 1;
-			// drawCall.uniforms = uniforms;
-			//	drawCall.uniformData = uniformData;
-			//	drawCall.numUniforms = sizeof(uniformData) / 16;
 			drawCall.instances = instanceData;
 			mGraphics.Draw(drawCall);
 		}
@@ -120,6 +101,9 @@ public:
 		drawCall.textures = textureIds;
 		drawCall.uniforms = uniforms;
 
+		// int pieceCount[MaxPieceTypes] {};
+
+		// TODO Instanced
 		for (const Cell& cell : board.GetCells()) {
 			if (cell.pieceGraphics.bitmapIdx < 0) {
 				continue;
@@ -148,6 +132,22 @@ public:
 	}
 
 private:
+	struct TileProgram {
+		ProgramHandle mProgramHandle = nullProgram;
+		GLint         mCoords = 0;
+		GLint         mTexture = 0;
+		bool          mValid = false;
+	};
+
+	struct PieceProgram {
+		ProgramHandle mProgramHandle = nullProgram;
+		GLint         mColor = 0;
+		GLint         mCoords = 0;
+		GLint         mTexture = 0;
+		GLint         mMaskTexture = 0;
+		bool          mValid = false;
+	};
+
 	Graphics&      mGraphics;
 	PipelineHandle mPipelineBlending;
 	TileProgram    mTileProgram;

@@ -10,14 +10,7 @@ using namespace Wind;
 
 namespace {
 
-const UIButtonDesc buttonDescs[1] {
-	{
-	    UIAbsolutePos(0, 800),
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::top,
-	},
-};
+const UIButtonDesc backButtonDesc { UIAbsolutePos(0, 920), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
 
 const UITextDesc titleText {
 	"bigFont", (StringId)GameStringId::credits, { 0, titleY, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, titleTextStyle,
@@ -51,7 +44,7 @@ CreditsScreen::CreditsScreen(Engine& engine)
     , mGraphicsBy(graphicsByText, engine)
     , mMusicBy(musicByText, engine)
     , mVersion(versionText, engine)
-    , mBackButton(MakeButton(buttonDescs[0], buttonBitmapDesc, backText, engine))
+    , mBackButton(MakeButton(backButtonDesc, buttonBitmapDesc, backText, engine))
     , mPanel(UIDefaultPanelDesc) {
 }
 

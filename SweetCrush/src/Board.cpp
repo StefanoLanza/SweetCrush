@@ -4,7 +4,9 @@
 Board::Board(int cols, int rows)
     : mCells { static_cast<size_t>(cols * rows) }
     , mCols { cols }
-    , mRows { rows } {
+    , mRows { rows }
+    , mPieceCount {}
+    , mTotalLayerCount { 0 } {
 	assert(cols >= 1);
 	assert(rows >= 1);
 }

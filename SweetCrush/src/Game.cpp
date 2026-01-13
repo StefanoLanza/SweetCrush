@@ -5,6 +5,7 @@
 #include "GameCompleteScreen.h"
 #include "GameConfig.h"
 #include "GameOverScreen.h"
+#include "GraphicsSettingsScreen.h"
 #include "LevelCompleteScreen.h"
 #include "Localization.h"
 #include "MainScreen.h"
@@ -28,6 +29,7 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const GameConfig& g
     , mFrameBuffer { RefWindowWidth, RefWindowHeight, FBOFlags::color }
     , mMatchStats {}
     , mScreenId { ScreenId::mainMenu } {
+	// Note: match order of ScreenId
 	mScreens[0] = std::make_unique<MainScreen>(mEngine);
 	mScreens[1] = std::make_unique<CreditsScreen>(mEngine);
 	mScreens[2] = std::make_unique<SettingsScreen>(mEngine, mGameSettings);
@@ -36,6 +38,7 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const GameConfig& g
 	mScreens[5] = std::make_unique<GameCompleteScreen>(mEngine, mMatchStats);
 	mScreens[6] = std::make_unique<PauseGameScreen>(mEngine, mMatchStats);
 	mScreens[7] = std::make_unique<LevelCompleteScreen>(mEngine, mMatchStats);
+	mScreens[8] = std::make_unique<GraphicsSettingsScreen>(mEngine, mGameSettings);
 }
 
 Game::~Game() = default;

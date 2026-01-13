@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Boosters.h"
+#include "Constants.h"
 
 using PieceId = uint8_t;
 
@@ -48,13 +49,13 @@ public:
 
 	int                    GetCols() const;
 	int                    GetRows() const;
-	Wind::Span<Cell>       GetCells();
+	Wind::Span<Cell>       GetCells(); // TODO Remove
 	Wind::Span<const Cell> GetCells() const;
 	int                    GetCellCount() const;
 	int                    GetCellIndex(int col, int row) const;
-	Cell&                  GetCell(int index);
+	Cell&                  GetCell(int index); // TODO Remove
 	const Cell&            GetCell(int index) const;
-	Cell&                  GetCell(int col, int row);
+	Cell&                  GetCell(int col, int row); // TODO Remove
 	const Cell&            GetCell(int col, int row) const;
 	bool                   IsInside(int col, int row) const;
 	int                    TotalLayerCount() const;
@@ -63,4 +64,7 @@ private:
 	std::vector<Cell> mCells;
 	int               mCols;
 	int               mRows;
+	// Stats
+	int               mPieceCount[MaxPieceTypes];
+	int               mTotalLayerCount;
 };

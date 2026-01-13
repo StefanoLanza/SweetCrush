@@ -20,16 +20,16 @@ namespace {
 #if defined(__ANDROID__) || defined(__OHOS__)
 // No quit button on mobiles
 const UIButtonDesc buttonDescs[] {
-	{ UIAbsolutePos(0, 560), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
 	{ UIAbsolutePos(0, 680), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
 	{ UIAbsolutePos(0, 800), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{ UIAbsolutePos(0, 920), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
 };
 #else
 const UIButtonDesc buttonDescs[] {
-	{ UIAbsolutePos(0, 440), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
 	{ UIAbsolutePos(0, 560), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
 	{ UIAbsolutePos(0, 680), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
 	{ UIAbsolutePos(0, 800), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{ UIAbsolutePos(0, 920), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
 };
 #endif
 const UITextDesc textDescs[5] {
@@ -106,7 +106,7 @@ void MainScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
 	prm.blending = true;
 	for (int i = 0; i < NumPieceTypes - 2; ++i) {
 		prm.orientation = std::sin(phase * .25f + (float)i) * 0.5f;
-		mEngine.GetBitmapRenderer().DrawBitmapEx(*sprites[pieceDefs[i].sprite], { x, 320.f + std::cos(phase) * 4.f }, prm);
+		mEngine.GetBitmapRenderer().DrawBitmapEx(*sprites[pieceDefs[i].sprite], { x, 380.f + std::cos(phase) * 4.f }, prm);
 		x += dx;
 		phase += 6.28f / static_cast<float>(NumPieceTypes);
 	}

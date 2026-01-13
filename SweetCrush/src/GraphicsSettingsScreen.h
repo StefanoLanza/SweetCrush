@@ -6,9 +6,9 @@
 
 struct GameSettings;
 
-class SettingsScreen final : public Wind::GameScreen {
+class GraphicsSettingsScreen final : public Wind::GameScreen {
 public:
-	SettingsScreen(Wind::Engine& engine, GameSettings& gameSettings);
+	GraphicsSettingsScreen(Wind::Engine& engine, GameSettings& gameSettings);
 
 	const char*        GetName() const override;
 	void               LoadAssets() override;
@@ -20,17 +20,12 @@ public:
 	void               ParseConfig(const char* varName, const char* varValue) override;
 
 private:
-	void RefreshLanguageButton();
-	void RefreshMusicButton();
-	void RefreshSfxButton();
+//	void RefreshLanguageButton();
 
 private:
 	GameSettings&  mGameConfig;
 	Wind::UIText   mTitle;
-	Wind::UIButton mGraphicsButton;
-	Wind::UIButton mLanguageButton;
-	Wind::UIButton mMusicButton;
-	Wind::UIButton mSfxButton;
+	Wind::UIButton mFilterButton;
 	Wind::UIButton mBackButton;
 	Wind::UIPanel  mPanel;
 };

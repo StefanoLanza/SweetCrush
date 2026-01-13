@@ -12,4 +12,5 @@ enum ScreenId : Wind::GameScreenId {
 	gameComplete,
 	pauseGame,
 	levelComplete,
+	graphicsSettings,
 };
