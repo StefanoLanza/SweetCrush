@@ -98,7 +98,7 @@ private:
 
 class UIBitmap {
 public:
-	UIBitmap(const UIBitmapDesc& desc, Engine& engine);
+	UIBitmap(const UIBitmapDesc& desc, Graphics& graphics);
 
 	void              Draw(const BitmapRenderer& renderer, DrawOrderType drawOrder) const;
 	void              UpdateRect(const UIRect& parentRect);
@@ -156,9 +156,9 @@ class UICanvas {
 public:
 	UICanvas();
 
-	void     SetBackground(const char* fileName, Engine& engine);
+	void     SetBackground(const char* fileName, Graphics& graphics);
 	void     SetBackground(TexturePtr background);
-	void     SetMousePointer(const char* fileName, Engine& engine);
+	void     SetMousePointer(const char* fileName, Graphics& graphics);
 	UIPanel& GetPanel();
 	void     UpdateWidgets(int canvasWidth, int canvasHeight);
 	void     Draw(const BitmapRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords);

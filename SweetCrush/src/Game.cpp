@@ -45,9 +45,9 @@ void Game::Run() {
 
 	mGameSettings = mGameConfig.settings;
 
-	mCanvas.SetBackground("gameartguppy/background.png", mEngine);
+	mCanvas.SetBackground("gameartguppy/background.png", mEngine.GetGraphics());
 #if ! defined(__ANDROID__) && (defined(_WIN32) || defined(__linux__))
-	mCanvas.SetMousePointer("cursor.png", mEngine);
+	mCanvas.SetMousePointer("cursor.png", mEngine.GetGraphics());
 #endif
 
 	for (const auto& gs : mScreens) {
@@ -82,7 +82,7 @@ void Game::Draw(float dt) {
 	mRenderActionMgr.RunActions(dt);
 
 	graphics.SetDefaultFrameBuffer();
-	mEngine.GetBlitter().Blit(mFrameBuffer);
+	mEngine.GetBlitter().Blit(mFrameBuffer, BlitFilter::point);
 	graphics.Flush();
 }
 

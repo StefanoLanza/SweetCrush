@@ -10,9 +10,9 @@ namespace {
 
 constexpr int invalidIndex = -1;
 
-std::pair<bool, int> GetCellAtCoordinates(const Board& board, const BoardConfig& boadConfig, float x, float y) {
-	const int col = static_cast<int>(std::floor((x - boadConfig.topLeftCoord.x) / boadConfig.cellWidthWithSpacing));
-	const int row = static_cast<int>(std::floor((y - boadConfig.topLeftCoord.y) / boadConfig.cellHeightWithSpacing));
+std::pair<bool, int> GetCellAtCoordinates(const Board& board, const BoardConfig& boardConfig, float x, float y) {
+	const int col = static_cast<int>(std::floor((x - boardConfig.topLeftCoord.x) / boardConfig.cellWidthWithSpacing));
+	const int row = static_cast<int>(std::floor((y - boardConfig.topLeftCoord.y) / boardConfig.cellHeightWithSpacing));
 	if (col < 0 || col >= board.GetCols() || row < 0 || row >= board.GetRows()) {
 		return { false, invalidIndex };
 	}

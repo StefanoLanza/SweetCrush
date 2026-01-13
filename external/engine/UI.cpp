@@ -131,9 +131,9 @@ void UIText::SetText(StringId stringId) {
 	mDesc.stringId = stringId;
 }
 
-UIBitmap::UIBitmap(const UIBitmapDesc& desc, Engine& engine)
+UIBitmap::UIBitmap(const UIBitmapDesc& desc, Graphics& graphics)
     : mDesc(desc)
-    , mBitmap(engine.LoadTexture(desc.fileName))
+    , mBitmap(graphics.LoadTexture(desc.fileName))
     , mAlignedRect {} {
 	UISize size = mDesc.size;
 	if (size.rWidth <= -1.f) {
@@ -244,16 +244,16 @@ UICanvas::UICanvas()
 	mPanel.SetVisible(true);
 }
 
-void UICanvas::SetBackground(const char* fileName, Engine& engine) {
-	mBackground = engine.LoadTexture(fileName);
+void UICanvas::SetBackground(const char* fileName, Graphics& graphics) {
+	mBackground = graphics.LoadTexture(fileName);
 }
 
 void UICanvas::SetBackground(TexturePtr background) {
 	mBackground = background;
 }
 
-void UICanvas::SetMousePointer(const char* fileName, Engine& engine) {
-	mMousePointer = engine.LoadTexture(fileName);
+void UICanvas::SetMousePointer(const char* fileName, Graphics& graphics) {
+	mMousePointer = graphics.LoadTexture(fileName);
 }
 
 UIPanel& UICanvas::GetPanel() {
@@ -285,13 +285,13 @@ void UICanvas::Draw(const BitmapRenderer& bitmapRender, const TextRenderer& text
 }
 
 UIButton MakeButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, const UITextDesc& textDesc, Engine& engine) {
-	auto bitmap = std::make_unique<UIBitmap>(bitmapDesc, engine);
+	auto bitmap = std::make_unique<UIBitmap>(bitmapDesc, engine.GetGraphics());
 	auto text = std::make_unique<UIText>(textDesc, engine);
 	return UIButton(desc, std::move(bitmap), std::move(text));
 }
 
 UIButton MakeButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, Engine& engine) {
-	auto bitmap = std::make_unique<UIBitmap>(bitmapDesc, engine);
+	auto bitmap = std::make_unique<UIBitmap>(bitmapDesc, engine.GetGraphics());
 	return UIButton(desc, std::move(bitmap), nullptr);
 }
 

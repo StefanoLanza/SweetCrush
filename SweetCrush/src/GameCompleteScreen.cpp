@@ -55,7 +55,7 @@ GameCompleteScreen::GameCompleteScreen(Engine& engine, const MatchStats& matchSt
     , mMatchStats(matchStats)
     , mTitle(textDescs[0], engine)
     , mContinueButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
-    , mPanelBitmap(panelBitmapDesc, engine)
+    , mPanelBitmap(panelBitmapDesc, engine.GetGraphics())
     , mPanel(UIDefaultPanelDesc) {
 }
 

@@ -2,7 +2,6 @@
 
 #include "Config.h"
 #include "FwdDecl.h"
-#include "Texture.h"
 #include <functional>
 
 #include <memory>
@@ -35,7 +34,6 @@ public:
 	BitmapRenderer& GetBitmapRenderer() const;
 	TextRenderer&   GetTextRenderer() const;
 	Audio&          GetAudio() const;
-	TexturePtr      LoadTexture(std::string_view fileName, TextureInfo texInfo = TextureInfo{});
 
 private:
 	struct Implementation;

@@ -9,35 +9,59 @@ namespace Wind {
 class Blitter::Impl {
 public:
 	explicit Impl(Graphics& graphics);
-	void Blit(const GlFrameBuffer& frameBuffer) const;
+	void Blit(const GlFrameBuffer& frameBuffer, BlitFilter filter) const;
 	Vec2 WindowToFrameBuffer(Vec2 winCoord, const GlFrameBuffer& frameBuffer) const;
 
 private:
-	RectI ComputeTargetRect(const GlFrameBuffer& frameBuffer) const;
+	RectI ComputeTargetRect(const GlFrameBuffer& srcFrameBuffer) const;
+	struct BlitProgram;
+	void InitProgram(BlitProgram& program, Graphics& graphics, const char* fs) const;
 
 private:
-	Graphics&     mGraphics;
-	ProgramHandle mProgramHandle;
-	// Attributes
-	GLint mVertexPos = -1;
-	// Uniforms
-	GLint mPosRect = -1;
-	GLint mTexture = -1;
-	GLint mSrcTexelSize = -1;
-	bool  mValidProgram;
+	struct BlitProgram {
+		ProgramHandle mHandle = nullProgram;
+		// Attributes
+		GLint mVertexPos = -1;
+		// Uniforms
+		GLint mPosRect = -1;
+		GLint mTexture = -1;
+		GLint mSrcTexelSize = -1;
+		bool  mValid;
+	};
+
+	BlitProgram mPrograms[2];
+	Graphics&   mGraphics;
+	GLuint      mSamplers[2];
 };
 
 Blitter::Impl::Impl(Graphics& graphics)
-    : mGraphics { graphics }
-    , mProgramHandle { graphics.NewProgram(SHADERS_FOLDER "blit.vs", SHADERS_FOLDER "blit.fs") }
-    , mValidProgram { false } {
-	if (mProgramHandle != nullProgram) {
-		const GlProgram& program = graphics.GetProgram(mProgramHandle);
-		mVertexPos = program.GetAttribLocation("inputPosition");
-		mPosRect = program.GetUniformLocation("posRect");
-		mTexture = program.GetUniformLocation("inputTexture");
-		// mSrcTexelSize = program.GetUniformLocation("srcTexelSize");
-		mValidProgram = (mVertexPos != -1 && mPosRect != -1 && mTexture != -1); // && mSrcTexelSize != -1);
+    : mGraphics { graphics } {
+	InitProgram(mPrograms[0], graphics, SHADERS_FOLDER "blit.fs");
+	InitProgram(mPrograms[1], graphics, SHADERS_FOLDER "blitCubic.fs");
+
+	glGenSamplers(2, mSamplers);
+	// Sampler 0: Point (Nearest) Filtering
+	glSamplerParameteri(mSamplers[0], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glSamplerParameteri(mSamplers[0], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glSamplerParameteri(mSamplers[0], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(mSamplers[0], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	// Sampler 1: Linear Filtering
+	glSamplerParameteri(mSamplers[1], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glSamplerParameteri(mSamplers[1], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glSamplerParameteri(mSamplers[1], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(mSamplers[1], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+}
+
+void Blitter::Impl::InitProgram(BlitProgram& blitProgram, Graphics& graphics, const char* fs) const {
+	blitProgram.mHandle = graphics.NewProgram(SHADERS_FOLDER "blit.vs", SHADERS_FOLDER "blit.fs");
+
+	if (blitProgram.mHandle != nullProgram) {
+		const GlProgram& program = graphics.GetProgram(blitProgram.mHandle);
+		blitProgram.mVertexPos = program.GetAttribLocation("inputPosition");
+		blitProgram.mPosRect = program.GetUniformLocation("posRect");
+		blitProgram.mTexture = program.GetUniformLocation("inputTexture");
+		blitProgram.mSrcTexelSize = program.GetUniformLocation("srcTexelSize");
+		blitProgram.mValid = (blitProgram.mVertexPos != -1 && blitProgram.mPosRect != -1 && blitProgram.mTexture != -1); // && mSrcTexelSize != -1);
 	}
 }
 
@@ -69,8 +93,9 @@ RectI Blitter::Impl::ComputeTargetRect(const GlFrameBuffer& frameBuffer) const {
 	return { cx, cy, cx + cw, cy + ch };
 }
 
-void Blitter::Impl::Blit(const GlFrameBuffer& srcFrameBuffer) const {
-	if (! mValidProgram) {
+void Blitter::Impl::Blit(const GlFrameBuffer& srcFrameBuffer, BlitFilter filter) const {
+	const BlitProgram& program = mPrograms[0];
+	if (! program.mValid) {
 		return;
 	}
 
@@ -88,20 +113,22 @@ void Blitter::Impl::Blit(const GlFrameBuffer& srcFrameBuffer) const {
 	float y0 = (float)targetRect.top / (float)mGraphics.GetTargetHeight();
 	float y1 = (float)targetRect.bottom / (float)mGraphics.GetTargetHeight();
 
-	const int  uniforms[] = { mPosRect }; //, mSrcTexelSize };
+	const int  uniforms[] = { program.mPosRect }; //, mSrcTexelSize };
 	const Vec4 uniformData[] = {
 		{ x0, y0, x1, y1 },
 		//{ (float)srcFrameBuffer.GetWidth(), (float)srcFrameBuffer.GetHeight(), 1.f / srcFrameBuffer.GetWidth(), 1.f / srcFrameBuffer.GetHeight() },
 	};
 	const unsigned textureIds[] = { srcFrameBuffer.GetColorAttachment() };
+	const unsigned samplers[] = { mSamplers[0] };
 
 	DrawCall drawCall;
 	drawCall.uniforms = uniforms;
 	drawCall.uniformData = uniformData;
 	drawCall.numUniforms = sizeof(uniformData) / 16;
 	drawCall.textures = textureIds;
+	drawCall.samplers = samplers;
 	drawCall.numTextures = 1;
-	drawCall.program = mProgramHandle;
+	drawCall.program = program.mHandle;
 	drawCall.mesh = triangleMesh;
 	drawCall.drawOrder = 0;
 	mGraphics.Draw(drawCall);
@@ -121,8 +148,8 @@ Blitter::Blitter(Graphics& graphics)
 
 Blitter::~Blitter() = default;
 
-void Blitter::Blit(const GlFrameBuffer& frameBuffer) const {
-	mPimpl->Blit(frameBuffer);
+void Blitter::Blit(const GlFrameBuffer& srcFrameBuffer, BlitFilter filter) const {
+	mPimpl->Blit(srcFrameBuffer, filter);
 }
 
 Vec2 Blitter::WindowToFrameBuffer(Vec2 winCoord, const GlFrameBuffer& frameBuffer) const {

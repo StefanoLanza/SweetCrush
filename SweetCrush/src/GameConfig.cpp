@@ -8,11 +8,11 @@ GameConfig DefaultGameConfig() {
 	config.fullscreen = false;
 	config.board.cellWidth = 64.f;
 	config.board.cellHeight = 72.f;
-	config.board.cellSpacing = 0.f;
+	config.board.cellSpacing = 1.f;
 	config.board.cellWidthWithSpacing = config.board.cellWidth + config.board.cellSpacing;
 	config.board.cellHeightWithSpacing = config.board.cellHeight + config.board.cellSpacing;
 	config.board.topLeftCoord.x = (RefWindowWidth - config.board.cellWidthWithSpacing * NumCols - config.board.cellSpacing) * 0.5f;
-	config.board.topLeftCoord.y = 360.f;
+	config.board.topLeftCoord.y = 320.f;
 	//config.board.topLeftCoord.y = (RefWindowHeight - config.board.cellHeightWithSpacing * NumRows - config.board.cellSpacing) - 40.f;
 	config.moveBackPieceDuration = 0.25f;
 	config.swapSpeed = 0.25f;

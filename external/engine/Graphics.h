@@ -2,13 +2,14 @@
 
 #include "Color.h"
 #include "Maths.h"
+#include "Texture.h"
+#include "FwdDecl.h"
 
 #include <memory>
 #include <string_view>
 
 namespace Wind {
 
-class Texture;
 class SdlWindow;
 class GlFrameBuffer;
 class GlProgram;
@@ -18,9 +19,12 @@ constexpr ProgramHandle nullProgram = static_cast<ProgramHandle>(0);
 
 enum class MeshHandle : uint32_t;
 constexpr MeshHandle nullMesh = static_cast<MeshHandle>(0);
-// Predefines meshes
+// Predefined meshes
 constexpr MeshHandle quadMesh = static_cast<MeshHandle>(1);
 constexpr MeshHandle triangleMesh = static_cast<MeshHandle>(2);
+
+enum class MaterialHandle : uint32_t;
+constexpr MaterialHandle nullMaterial = static_cast<MaterialHandle>(0);
 
 struct InstanceData {
 	void*    data;
@@ -33,7 +37,8 @@ struct DrawCall {
 	const int*      uniforms = nullptr;
 	const void*     uniformData = nullptr;
 	int             numUniforms = 0;
-	const unsigned* textures;
+	const unsigned* textures = nullptr;
+	const unsigned* samplers = nullptr;
 	int             numTextures = 0;
 	ProgramHandle   program = nullProgram;
 	MeshHandle      mesh = nullMesh;
@@ -71,6 +76,7 @@ public:
 	int              GetTargetHeight() const;
 	ProgramHandle    NewProgram(const char* vs, const char* fs, const char* defines = "");
 	PipelineHandle   NewPipeline(const PipelineState& pipelineState);
+	TexturePtr       LoadTexture(std::string_view fileName, TextureInfo texInfo = TextureInfo {});
 	void             SetFrameBuffer(const GlFrameBuffer& frameBuffer);
 	void             SetDefaultFrameBuffer();
 	void             ClearDefaultFrameBuffer(float r, float g, float b, float a);

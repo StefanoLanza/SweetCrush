@@ -13,10 +13,12 @@
 #include "ScreenIds.h"
 #include "TileSelector.h"
 #include "UIDefs.h"
+
 #include <engine/Audio.h>
 #include <engine/BitmapRender.h>
 #include <engine/Engine.h>
 #include <engine/Font.h>
+#include <engine/Graphics.h>
 #include <engine/Input.h>
 #include <engine/SdlMusic.h>
 #include <engine/SdlSound.h>
@@ -73,11 +75,12 @@ const char* PlayScreen::GetName() const {
 }
 
 void PlayScreen::LoadAssets() {
-	Audio& audio = mEngine.GetAudio();
+	Audio&    audio = mEngine.GetAudio();
+	Graphics& graphics = mEngine.GetGraphics();
 	mMusic = audio.LoadMusic("audio/music.ogg");
 	mSounds[0] = audio.LoadSound("audio/match.wav");
 	for (int i = 0; i < NumSprites; ++i) {
-		sprites[i] = mEngine.LoadTexture(spriteDefs[i].bitmap);
+		sprites[i] = graphics.LoadTexture(spriteDefs[i].bitmap);
 	}
 }
 

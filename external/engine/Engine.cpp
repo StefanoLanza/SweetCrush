@@ -7,12 +7,10 @@
 #include "Config.h"
 #include "Gl.h"
 #include "GlContext.h"
-#include "GlProgram.h"
 #include "Graphics.h"
 #include "Input.h"
 #include "SdlWindow.h"
 #include "TextRender.h"
-#include "Texture.h"
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -36,7 +34,6 @@ struct Engine::Implementation {
 	BitmapRenderer          mBitmapRenderer;
 	Blitter                 mBlitter;
 	TextRenderer            mTextRenderer;
-	std::vector<TexturePtr> mTextures;
 	uint64_t                mElapsedTicks;
 	float                   mAccumTime;
 	bool                    mQuit;
@@ -55,11 +52,9 @@ struct Engine::Implementation {
 	    , mQuit(false)
 	    , mAppInBackground(false)
 	    , mDisplayOrientation { DisplayOrientation::portrait } {
-		LoadTexture("images/null.png", {}); // placeholder
 	}
 
 	void       Start(const RenderCallback& renderCkb, const UpdateCallback& updateCbk);
-	TexturePtr LoadTexture(std::string_view fileName, TextureInfo texInfo);
 	void       ParseEvent();
 };
 
@@ -95,24 +90,6 @@ void Engine::Implementation::Start(const RenderCallback& renderCbk, const Update
 			SDL_GL_SwapWindow(mWindow);
 			SDL_HideCursor();
 		}
-	}
-}
-
-TexturePtr Engine::Implementation::LoadTexture(std::string_view fileName, TextureInfo texInfo) {
-	try {
-		for (auto& b : mTextures) {
-			if (b->GetFileName() == fileName) {
-				return b;
-			}
-		}
-		char path[260];
-		snprintf(path, sizeof(path), "%s%s", ASSETS_FOLDER, fileName.data());
-		mTextures.emplace_back(std::make_unique<Texture>(fileName, path, texInfo));
-		return mTextures.back();
-	}
-	catch (const std::exception& e) {
-		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", e.what());
-		return mTextures.empty() ? nullptr : mTextures[0]; // placeholder
 	}
 }
 
@@ -207,10 +184,6 @@ BitmapRenderer& Engine::GetBitmapRenderer() const {
 
 void Engine::Start(const RenderCallback& renderCbk, const UpdateCallback& updateCbk) {
 	mPimpl->Start(renderCbk, updateCbk);
-}
-
-TexturePtr Engine::LoadTexture(std::string_view fileName, TextureInfo texInfo) {
-	return mPimpl->LoadTexture(fileName, texInfo);
 }
 
 } // namespace Wind

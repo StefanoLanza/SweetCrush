@@ -3,6 +3,8 @@
 #include "Localization.h"
 #include "UIDefs.h"
 
+#include <engine/Engine.h>
+
 using namespace Wind;
 
 namespace {
@@ -63,8 +65,8 @@ BoostInfoPanel::BoostInfoPanel(Engine& engine)
     : mTitle(textDesc[0], engine)
     , mText(textDesc[1], engine)
     , mOKButton(MakeButton(buttonDesc, buttonBitmapDesc, textDesc[2], engine))
-    , mBoosterIcon(boosterIconDesc, engine)
-    , mPanelBitmap(panelBitmapDesc, engine)
+    , mBoosterIcon(boosterIconDesc, engine.GetGraphics())
+    , mPanelBitmap(panelBitmapDesc, engine.GetGraphics())
     , mPanel(panelDesc) {
 	for (bool& b : mShowBoosterHelp) {
 		b = true;

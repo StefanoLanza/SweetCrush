@@ -22,6 +22,7 @@ struct PieceGraphics {
 	Wind::Vec2 coords;
 	float      scale;
 	float      rotation;
+	uint8_t    priority;
 };
 
 struct Cell {

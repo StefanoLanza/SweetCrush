@@ -47,14 +47,19 @@ enum class ShaderUniformType {
 	texture,
 };
 
+struct TextureAndSampler {
+	unsigned texture;
+	unsigned sampler;
+};
+
 struct ShaderUniform {
 	ShaderUniformType type;
 	GLint             uniform;
 	union {
-		float    fvalue[4];
-		int      ivalue[4];
-		unsigned uvalue[4];
-		unsigned texture;
+		float             fvalue[4];
+		int               ivalue[4];
+		unsigned          uvalue[4];
+		TextureAndSampler texture;
 	};
 };
 
@@ -111,9 +116,10 @@ struct Graphics::Impl {
 	void           SetPipeline(PipelineHandle pipeline);
 	ProgramHandle  NewProgram(const char* vs, const char* fs, const char* defines);
 	PipelineHandle NewPipeline(const PipelineState& pipelineState);
+	TexturePtr     LoadTexture(std::string_view fileName, TextureInfo texInfo);
 	void           Draw(const DrawCall& drawCall);
 	void           SetFloat4(int uniform, float x, float y, float z, float w);
-	void           SetTexture(int uniform, unsigned texture);
+	void           SetTexture(int uniform, unsigned texture, unsigned sampler);
 	void           RecompileShaders();
 	void           InitGL();
 	InstanceData   AllocInstances(unsigned count, unsigned sizePerInstance, GLint location);
@@ -132,6 +138,7 @@ public:
 	std::vector<GlProgram>     mPrograms;
 	std::vector<ShaderUniform> mShaderUniforms;
 	std::vector<PipelineState> mPipelineStates;
+	std::vector<TexturePtr>    mTextures;
 	std::vector<char>          mInstanceBuffer;
 	unsigned                   mInstanceBufferOffs;
 	GLuint                     mInstanceVBO;
@@ -204,8 +211,15 @@ void Graphics::Impl::Draw(const DrawCall& drawCall) {
 	mBatches.push_back(batch);
 
 	mShaderUniforms.reserve(mShaderUniforms.size() + batch.numUniforms);
-	for (int i = 0; i < drawCall.numTextures; ++i) {
-		SetTexture(i, drawCall.textures[i]);
+	if (drawCall.samplers) {
+		for (int i = 0; i < drawCall.numTextures; ++i) {
+			SetTexture(i, drawCall.textures[i], drawCall.samplers[i]);
+		}
+	}
+	else {
+		for (int i = 0; i < drawCall.numTextures; ++i) {
+			SetTexture(i, drawCall.textures[i], 0 /*default */);
+		}
 	}
 	const float* u = static_cast<const float*>(drawCall.uniformData);
 	for (int i = 0; i < drawCall.numUniforms; ++i) {
@@ -378,13 +392,15 @@ void Graphics::Impl::Flush() {
 			}
 			else if (su.type == ShaderUniformType::texture) {
 				assert(textureUnit < (GLint)std::size(currTexture));
-				 if (su.texture != currTexture[textureUnit]) {
+				if (su.texture.texture != currTexture[textureUnit]) {
 					glActiveTexture(GL_TEXTURE0 + textureUnit);
-					glBindTexture(GL_TEXTURE_2D, su.texture);
+					glBindTexture(GL_TEXTURE_2D, su.texture.texture);
+					glBindSampler(textureUnit, su.texture.sampler);
 					// glUniform1i(su.texture, textureUnit);
-					currTexture[textureUnit] = su.texture;
+					currTexture[textureUnit] = su.texture.texture;
 				}
-				++textureUnit;
+				if (batch.firstUniform)
+					++textureUnit;
 			}
 		}
 
@@ -413,6 +429,7 @@ void Graphics::Impl::Flush() {
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
 	glUseProgram(0);
+	glBindSampler(0, 0);
 
 	ResetState();
 }
@@ -454,6 +471,24 @@ PipelineHandle Graphics::Impl::NewPipeline(const PipelineState& pipelineState) {
 	return static_cast<PipelineHandle>(mPipelineStates.size());
 }
 
+TexturePtr Graphics::Impl::LoadTexture(std::string_view fileName, TextureInfo texInfo) {
+	try {
+		for (auto& b : mTextures) {
+			if (b->GetFileName() == fileName) {
+				return b;
+			}
+		}
+		char path[260];
+		snprintf(path, sizeof(path), "%s%s", ASSETS_FOLDER, fileName.data());
+		mTextures.emplace_back(std::make_unique<Texture>(fileName, path, texInfo));
+		return mTextures.back();
+	}
+	catch (const std::exception& e) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", e.what());
+		return mTextures.empty() ? nullptr : mTextures[0]; // placeholder
+	}
+}
+
 void Graphics::Impl::SetFloat4(int uniform, float x, float y, float z, float w) {
 	ShaderUniform su;
 	su.type = ShaderUniformType::float4;
@@ -465,11 +500,12 @@ void Graphics::Impl::SetFloat4(int uniform, float x, float y, float z, float w) 
 	mShaderUniforms.push_back(su);
 }
 
-void Graphics::Impl::SetTexture(int uniform, unsigned texture) {
+void Graphics::Impl::SetTexture(int uniform, unsigned texture, unsigned sampler) {
 	ShaderUniform su;
 	su.type = ShaderUniformType::texture;
 	su.uniform = uniform;
-	su.texture = texture;
+	su.texture.texture = texture;
+	su.texture.sampler = sampler;
 	mShaderUniforms.push_back(su);
 }
 
@@ -533,6 +569,10 @@ ProgramHandle Graphics::NewProgram(const char* vs, const char* fs, const char* d
 
 PipelineHandle Graphics::NewPipeline(const PipelineState& pipelineState) {
 	return mPimpl->NewPipeline(pipelineState);
+}
+
+TexturePtr Graphics::LoadTexture(std::string_view fileName, TextureInfo texInfo) {
+	return mPimpl->LoadTexture(fileName, texInfo);
 }
 
 void Graphics::InitGL() {
