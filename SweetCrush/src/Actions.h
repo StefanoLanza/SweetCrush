@@ -6,13 +6,14 @@
 
 struct Cell;
 struct GameConfig;
+struct TileVisual;
 
 // Predefined actions
-ActionFunc MovePieceTo(Cell& cell, const Wind::Vec2& targetCoords);
-ActionFunc MovePieceFromTo(Cell& cell, const Wind::Vec2& startCoords, const Wind::Vec2& endCoords);
-ActionFunc FallPieceFromTo(Cell& cell, float startCoord, float endCoord);
-ActionFunc MovePieceTo(Cell& cell, const Wind::Vec2& targetCoords, float speed);
-ActionFunc ScaleCellPiece(Cell& cell, float startScale, float endScale);
+ActionFunc MovePieceTo(TileVisual& cell, const Wind::Vec2& targetCoords);
+ActionFunc MovePieceFromTo(TileVisual& cell, const Wind::Vec2& startCoords, const Wind::Vec2& endCoords);
+ActionFunc FallPieceFromTo(TileVisual& cell, float xCoord, float startYCoord, float endYCoord);
+ActionFunc MovePieceTo(TileVisual& cell, const Wind::Vec2& targetCoords, float speed);
+ActionFunc ScaleCellPiece(TileVisual& cell, float startScale, float endScale);
 ActionFunc DrawMovingSprite(const Cell& cell, const Wind::BitmapRenderer& bitmapRenderer, Wind::Vec2 targetPos, int sprite);
 ActionFunc DrawExplosion(const Cell& cell, const Wind::BitmapRenderer& bitmapRenderer, const GameConfig& gameConfig);
 ActionFunc DrawMatchScore(int score, const Cell& cell, const Wind::TextRenderer& textRenderer, const GameConfig& gameConfig, const Wind::Font& font);

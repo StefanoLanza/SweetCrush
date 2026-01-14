@@ -11,6 +11,7 @@
 
 // For debugging
 #define ENABLE_EFFECTS 1
+#define CREATE_NEW_PIECES 1
 
 namespace {
 
@@ -20,7 +21,6 @@ void SwapCells(Board& board, int srcIdx, int dstIdx) {
 	std::swap(src.category, dst.category);
 	std::swap(src.pieceId, dst.pieceId);
 	std::swap(src.layers, dst.layers);
-	std::swap(src.pieceGraphics, dst.pieceGraphics);
 	std::swap(src.hasEffect, dst.hasEffect);
 	std::swap(src.effectType, dst.effectType);
 }
@@ -369,6 +369,7 @@ void Match3::CollapseColumns() {
 }
 
 void Match3::GenerateNewPieces() {
+#if CREATE_NEW_PIECES
 	for (int cellIdx : mNewPieces) {
 		Cell& cell = mBoard.GetCell(cellIdx);
 		assert(cell.category == CellCategory::empty);
@@ -385,6 +386,7 @@ void Match3::GenerateNewPieces() {
 		event.newPiece.pieceId = cell.pieceId;
 		mCbk(event);
 	}
+#endif
 	mNewPieces.clear();
 }
 

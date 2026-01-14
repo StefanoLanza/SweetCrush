@@ -105,18 +105,19 @@ public:
 
 		// TODO Instanced
 		for (const Cell& cell : board.GetCells()) {
-			if (cell.pieceGraphics.bitmapIdx < 0) {
+			auto tileVisual = static_cast<TileVisual*>(cell.ud);
+			if (tileVisual->bitmapIdx < 0) {
 				continue;
 			}
 
-			const Texture& texture = *sprites[cell.pieceGraphics.bitmapIdx];
-			float          s = cell.pieceGraphics.scale;
+			const Texture& texture = *sprites[tileVisual->bitmapIdx];
+			float          s = tileVisual->scale;
 			if (cell.hasEffect)
 				s *= 1.1f;
 			float w = cellWidth * s;
 			float h = cellHeight * s;
-			float left = cell.pieceGraphics.coords.x + cellWidth * 0.5f - w * 0.5f;
-			float top = cell.pieceGraphics.coords.y + cellHeight * 0.5f - h * 0.5f;
+			float left = tileVisual->coords.x + cellWidth * 0.5f - w * 0.5f;
+			float top = tileVisual->coords.y + cellHeight * 0.5f - h * 0.5f;
 
 			const float uniformData[][4] = {
 				{ left, top, w, h }, { 1.f, 1.f, 1.f, 1.f }, // TODO Remove ?

@@ -81,17 +81,15 @@ void BoardGenerator::ResetBoard(Board& board, const BoardConfig& boardCfg) {
 		float y = row * boardCfg.cellHeightWithSpacing + boardCfg.topLeftCoord.y;
 		for (int col = 0; col < board.GetCols(); ++col) {
 			float x = col * boardCfg.cellWidthWithSpacing + boardCfg.topLeftCoord.x;
-			Cell  cell {};
-			cell.ud = &cell.pieceGraphics; // TODO Move outside
+			Cell&  cell = board.GetCell(col, row);
 			cell.coords = { x, y };
-			cell.size = { boardCfg.cellWidth, boardCfg.cellHeight };
 			cell.col = col;
 			cell.row = row;
 			cell.category = CellCategory::piece;
 			cell.pieceId = 0;
 			cell.layers = 0;
 			cell.hasEffect = false;
-			board.ReplaceCell(col, row, cell, cell.ud);
+			//board.ReplaceCell(col, row, cell, cell.ud);
 		}
 	}
 }

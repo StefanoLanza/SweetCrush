@@ -15,39 +15,39 @@
 
 using namespace Wind;
 
-ActionFunc MovePieceTo(Cell& cell, const Vec2& targetCoords) {
-	return [&cell, initialCoords = cell.pieceGraphics.coords, targetCoords](float dt, float t01) {
-		cell.pieceGraphics.coords = LerpEase(initialCoords, targetCoords, t01, EaseInOutCirc);
+ActionFunc MovePieceTo(TileVisual& cell, const Vec2& targetCoords) {
+	return [&cell, initialCoords = cell.coords, targetCoords](float dt, float t01) {
+		cell.coords = LerpEase(initialCoords, targetCoords, t01, EaseInOutCirc);
 		return false;
 	};
 }
 
-ActionFunc MovePieceFromTo(Cell& cell, const Wind::Vec2& startCoords, const Wind::Vec2& endCoords) {
+ActionFunc MovePieceFromTo(TileVisual& cell, const Wind::Vec2& startCoords, const Wind::Vec2& endCoords) {
 	return [&cell, startCoords, endCoords](float dt, float t01) {
-		cell.pieceGraphics.coords = LerpEase(startCoords, endCoords, t01, EaseInQuad);
+		cell.coords = LerpEase(startCoords, endCoords, t01, EaseInQuad);
 		return false;
 	};
 }
 
-ActionFunc FallPieceFromTo(Cell& cell, float startCoord, float endCoord) {
-	cell.pieceGraphics.coords.x = cell.coords.x;
-	return [&cell, startCoord, endCoord](float dt, float t01) {
-		cell.pieceGraphics.coords.y = LerpEase(startCoord, endCoord, t01, EaseOutBounce);
+ActionFunc FallPieceFromTo(TileVisual& cell, float xCoord, float startYCoord, float endYCoord) {
+	cell.coords.x = xCoord;
+	return [&cell, startYCoord, endYCoord](float dt, float t01) {
+		cell.coords.y = LerpEase(startYCoord, endYCoord, t01, EaseOutBounce);
 		return false;
 	};
 }
 
-ActionFunc MovePieceTo(Cell& cell, const Wind::Vec2& targetCoords, float speed) {
-	const Vec2 velocity = Normalize(targetCoords - cell.pieceGraphics.coords) * speed;
+ActionFunc MovePieceTo(TileVisual& cell, const Wind::Vec2& targetCoords, float speed) {
+	const Vec2 velocity = Normalize(targetCoords - cell.coords) * speed;
 	return [&cell, targetCoords, velocity](float dt, float /*t01*/) {
-		cell.pieceGraphics.coords = Clamp(cell.pieceGraphics.coords + velocity * dt, cell.pieceGraphics.coords, targetCoords);
-		return cell.pieceGraphics.coords == targetCoords;
+		cell.coords = Clamp(cell.coords + velocity * dt, cell.coords, targetCoords);
+		return cell.coords == targetCoords;
 	};
 }
 
-ActionFunc ScaleCellPiece(Cell& cell, float startScale, float endScale) {
+ActionFunc ScaleCellPiece(TileVisual& cell, float startScale, float endScale) {
 	return [&cell, startScale, endScale](float /*dt*/, float t01) {
-		cell.pieceGraphics.scale = LerpEase(startScale, endScale, t01, EaseInQuad);
+		cell.scale = LerpEase(startScale, endScale, t01, EaseInQuad);
 		return false;
 	};
 }

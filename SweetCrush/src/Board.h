@@ -18,7 +18,7 @@ enum class CellCategory {
 	star,
 };
 
-struct PieceGraphics {
+struct TileVisual {
 	int        bitmapIdx;
 	Wind::Vec2 coords;
 	float      scale;
@@ -27,17 +27,15 @@ struct PieceGraphics {
 };
 
 struct Cell {
-	void*         ud;
-	Wind::Vec2    coords;
-	Wind::Vec2    size;
-	int           col;
-	int           row;
-	int           layers;
-	EffectType    effectType;
-	PieceGraphics pieceGraphics;
-	CellCategory  category;
-	PieceId       pieceId;
-	bool          hasEffect;
+	void*        ud;
+	Wind::Vec2   coords;
+	int          col;
+	int          row;
+	int          layers;
+	EffectType   effectType;
+	CellCategory category;
+	PieceId      pieceId;
+	bool         hasEffect;
 };
 
 bool IsSelectable(const Cell& cell);
@@ -54,8 +52,8 @@ public:
 	int                    GetCellCount() const;
 	int                    GetCellIndex(int col, int row) const;
 	Cell&                  GetCell(int index); // TODO Remove
-	void                   ReplaceCell(int index, const Cell& cell, void* ud);
-	void                   ReplaceCell(int col, int row, const Cell& cell, void* ud);
+	//void                   ReplaceCell(int index, const Cell& cell, void* ud);
+	//void                   ReplaceCell(int col, int row, const Cell& cell, void* ud);
 	const Cell&            GetCell(int index) const;
 	Cell&                  GetCell(int col, int row); // TODO Remove
 	const Cell&            GetCell(int col, int row) const;

@@ -64,6 +64,7 @@ private:
 	Wind::UIPanel                 mPanel;
 	Wind::UIButton                mPauseButton;
 	Match3                        mMatch3;
+	std::vector<TileVisual>     mTileGraphics;
 	float                         mTime;
 	Wind::FontPtr                 mFonts[3];
 	Wind::MusicPtr                mMusic;

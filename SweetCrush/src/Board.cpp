@@ -39,14 +39,14 @@ Cell& Board::GetCell(int index) {
 	return mCells[index];
 }
 
-void Board::ReplaceCell(int index, const Cell& cell, void* ud) {
+/*void Board::ReplaceCell(int index, const Cell& cell, void* ud) {
 	mCells[index] = cell;
 	mCells[index].ud = ud;
 }
 
 void Board::ReplaceCell(int col, int row, const Cell& cell, void* ud) {
 	ReplaceCell(GetCellIndex(col,row), cell, ud);
-}
+}*/
 
 const Cell& Board::GetCell(int index) const {
 	return mCells[index];
