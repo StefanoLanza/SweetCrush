@@ -6,23 +6,22 @@
 
 class Board;
 struct GameConfig;
-struct CellPairEvent;
 struct Cell;
 
 class TileSelector final : public ITileSelector {
 public:
-	TileSelector(Board& boardDef, const GameConfig& gameConfig);
+	TileSelector(Board& board, const GameConfig& gameConfig);
 
-	void                       AddCallback(TileSelectionCallback&& cbk);
-	int                        GetSelectedCell() const override;
+	void                       SetCallback(TileSelectionCallback&& cbk);
+	int                        GetSelectedTile() const override;
 	void                       Reset() override;
 	std::tuple<bool, int, int> SelectTiles(const Wind::Input& input) override;
 
 private:
 	void SelectFirstCell(int idx);
 	void StartDrag(float mouseX, float mouseY);
-	bool DragTileX(Cell& cell, float deltaX, float threshold) const;
-	bool DragTileY(Cell& cell, float deltaY, float threshold) const;
+	bool DragTileX(const Cell& cell, float deltaX, float threshold) const;
+	bool DragTileY(const Cell& cell, float deltaY, float threshold) const;
 	void UndoDrag();
 
 private:

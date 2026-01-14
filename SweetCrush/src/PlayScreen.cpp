@@ -59,12 +59,12 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const G
     , mGameDataModule(gameDataModule)
     , mBoard { NumCols, NumRows }
     , mTileSelector { std::make_unique<TileSelector>(mBoard, gameConfig) }
-    , mBoostInfoPanel(engine)
+    , mEffectInfoPanel(engine)
     , mPanel(UIDefaultPanelDesc)
     , mPauseButton(MakeButton(pauseButtonDesc, optionButtonBitmapDesc, engine))
     , mMatch3 { mBoard, mBoardGenerator, *mTileSelector }
     , mTime { 0 } {
-	mTileSelector->AddCallback([this](const TileSelectionEvent& event) { OnCellSelectionEvent(event); });
+	mTileSelector->SetCallback([this](const TileSelectionEvent& event) { OnTileSelectionEvent(event); });
 	mMatch3.SetCallback([this](const Match3Event& event) { OnMatch3Event(event); });
 }
 
@@ -85,7 +85,7 @@ void PlayScreen::LoadAssets() {
 }
 
 void PlayScreen::BuildUI(UICanvas& canvas) {
-	mBoostInfoPanel.BuildUI(canvas);
+	mEffectInfoPanel.BuildUI(canvas);
 	mFonts[0] = mEngine.GetTextRenderer().AddFont("mediumFont");
 	mFonts[1] = mEngine.GetTextRenderer().AddFont("tiny");
 	mFonts[2] = mEngine.GetTextRenderer().AddFont("smallFont");
@@ -117,7 +117,7 @@ GameScreenId PlayScreen::Tick(float dt, const Input& input) {
 		return ScreenId::levelComplete;
 	}
 
-	if (mBoostInfoPanel.Wait(input)) {
+	if (mEffectInfoPanel.Wait(input)) {
 		return ScreenId::play;
 	}
 
@@ -151,7 +151,7 @@ void PlayScreen::Draw(GameScreenId topScreen) const {
 	if (topScreen != ScreenId::play) {
 		return;
 	}
-	mGameRenderer.DrawBoard(mBoard, mTileSelector->GetSelectedCell(), mGameConfig);
+	mGameRenderer.DrawBoard(mBoard, mTileSelector->GetSelectedTile(), mGameConfig);
 	DrawUI();
 }
 
@@ -182,7 +182,7 @@ void PlayScreen::Enter(GameScreenId prevScreen) {
 
 void PlayScreen::Exit() {
 	mRenderActionMgr.Clear(); // stop showing score and other effects
-	mBoostInfoPanel.Hide();
+	mEffectInfoPanel.Hide();
 	mPanel.SetVisible(false);
 	PauseMusic();
 }
@@ -226,10 +226,13 @@ void PlayScreen::StartLevel() {
 	mMatch3.Run();
 }
 
-void PlayScreen::OnCellSelectionEvent(const TileSelectionEvent& event) {
-	Cell& cell = mBoard.GetCell(event.cellIdx);
-	if (event.id == TileSelectionEvent::Id::undoDrag) {
-		mActionMgr.AddTimedAction(MoveBackPiece(cell), mGameConfig.moveBackPieceDuration);
+void PlayScreen::OnTileSelectionEvent(const TileSelectionEvent& event) {
+	// Cell& cell = mBoard.GetCell(event.cellIdx);
+	if (event.id == TileSelectionEvent::Id::drag) {
+		((Cell*)event.cell)->pieceGraphics.coords = event.draggedCoord;
+	}
+	else if (event.id == TileSelectionEvent::Id::undoDrag) {
+		mActionMgr.AddTimedAction(MovePieceTo((Cell&)*event.cell, event.cell->coords), mGameConfig.moveBackPieceDuration); // FIXME
 	}
 }
 
@@ -260,9 +263,9 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 	case Match3Event::Id::removePiece: {
 		Cell& cell = mBoard.GetCell(event.removePiece.cellIdx);
 		assert(cell.category == CellCategory::piece);
-		assert(! cell.hasBooster); // boosters are handled in Match3Event::Id::triggerBooster
-		if (event.removePiece.boosterCellIdx != -1) {
-			const Cell& dstCell = mBoard.GetCell(event.removePiece.boosterCellIdx);
+		assert(! cell.hasEffect); // effects are handled in Match3Event::Id::triggerEffect
+		if (event.removePiece.targetCellIdx != -1) {
+			const Cell& dstCell = mBoard.GetCell(event.removePiece.targetCellIdx);
 			mActionMgr.AddTimedAction(MovePieceTo(cell, dstCell.coords), mGameConfig.suckPieceDuration);
 		}
 		else {
@@ -297,29 +300,29 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		mActionMgr.AddTimedAction(FallPieceFromTo(secondCell, firstCell.coords.y, secondCell.coords.y), mGameConfig.pieceFallDuration);
 		break;
 	}
-	case Match3Event::Id::newBooster: {
+	case Match3Event::Id::newEffect: {
 		if (mGameConfig.settings.infoOn) {
-			mBoostInfoPanel.ShowHelp(event.booster.type);
+			mEffectInfoPanel.ShowHelp(event.specialPiece.type);
 		}
-		Cell& cell = mBoard.GetCell(event.booster.cellIdx);
+		Cell& cell = mBoard.GetCell(event.specialPiece.cellIdx);
 		assert(cell.category == CellCategory::piece);
-		assert(cell.hasBooster);
-		cell.pieceGraphics.bitmapIdx = pieceDefs[event.booster.pieceId].sprite;
+		assert(cell.hasEffect);
+		cell.pieceGraphics.bitmapIdx = pieceDefs[event.specialPiece.pieceId].sprite;
 		cell.pieceGraphics.scale = 1.f;
 		cell.pieceGraphics.rotation = 0.f;
 		break;
 	}
-	case Match3Event::Id::triggerBooster: {
-		Cell& cell = mBoard.GetCell(event.booster.cellIdx);
+	case Match3Event::Id::triggerEffect: {
+		Cell& cell = mBoard.GetCell(event.specialPiece.cellIdx);
 		assert(cell.category == CellCategory::piece);
-		assert(cell.hasBooster);
+		assert(cell.hasEffect);
 		// TODO Scale up
 		Vec2 centralCoords = cell.coords + Vec2 { mGameConfig.board.cellWidth, mGameConfig.board.cellHeight } * 0.5f;
 		;
-		if (event.booster.type == BoosterType::hrocket) {
+		if (event.specialPiece.type == EffectType::hrocket) {
 			mRenderActionMgr.AddTimedAction(DrawGlow(centralCoords, true, mEngine.GetBitmapRenderer()), mGameConfig.bombExplosionTime);
 		}
-		else if (event.booster.type == BoosterType::vrocket) {
+		else if (event.specialPiece.type == EffectType::vrocket) {
 			mRenderActionMgr.AddTimedAction(DrawGlow(centralCoords, false, mEngine.GetBitmapRenderer()), mGameConfig.bombExplosionTime);
 		}
 		//		mRenderActionMgr.AddTimedAction(DrawExplosion(cell, mEngine.GetBitmapRenderer(), mGameConfig), mGameConfig.bombExplosionTime, 0.f,
@@ -368,7 +371,7 @@ void PlayScreen::CheckLevelCompletion() {
 }
 
 void PlayScreen::DrawUI() const {
-	const auto&           textRenderer = mEngine.GetTextRenderer();
+	const TextRenderer&   textRenderer = mEngine.GetTextRenderer();
 	const BitmapRenderer& bitmapRender = mEngine.GetBitmapRenderer();
 	const TextStyle       textStyle { whiteColor, blackColor };
 	const TextStyle       textStyle1 { redColor, blackColor };

@@ -3,7 +3,7 @@
 #include "ActionMgr.h"
 #include "Board.h"
 #include "BoardGenerator.h"
-#include "BoostInfoPanel.h"
+#include "EffectInfoPanel.h"
 #include "Match3.h"
 #include <engine/FwdDecl.h>
 #include <engine/GameScreen.h>
@@ -36,7 +36,7 @@ private:
 	void ReplayLevel();
 	void StartLevel();
 	void SetupNewBoardAnimation();
-	void OnCellSelectionEvent(const TileSelectionEvent& event);
+	void OnTileSelectionEvent(const TileSelectionEvent& event);
 	void OnPieceRemoved(const Cell& cell);
 	void OnMatch3Event(const Match3Event& event);
 	void CheckLevelCompletion();
@@ -60,7 +60,7 @@ private:
 	Board                         mBoard;
 	BoardGenerator                mBoardGenerator;
 	std::unique_ptr<TileSelector> mTileSelector;
-	BoostInfoPanel                mBoostInfoPanel;
+	EffectInfoPanel               mEffectInfoPanel;
 	Wind::UIPanel                 mPanel;
 	Wind::UIButton                mPauseButton;
 	Match3                        mMatch3;

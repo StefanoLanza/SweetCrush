@@ -8,7 +8,6 @@ struct Cell;
 struct GameConfig;
 
 // Predefined actions
-ActionFunc MoveBackPiece(Cell& cell);
 ActionFunc MovePieceTo(Cell& cell, const Wind::Vec2& targetCoords);
 ActionFunc MovePieceFromTo(Cell& cell, const Wind::Vec2& startCoords, const Wind::Vec2& endCoords);
 ActionFunc FallPieceFromTo(Cell& cell, float startCoord, float endCoord);

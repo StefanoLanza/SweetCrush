@@ -1,10 +1,12 @@
 #include "TileSelector.h"
 #include "Board.h"
 #include "GameConfig.h"
+
+#include <engine/Input.h>
+
 #include <algorithm>
 #include <cassert>
 #include <cmath>
-#include <engine/Input.h>
 
 namespace {
 
@@ -47,11 +49,11 @@ TileSelector::TileSelector(Board& board, const GameConfig& gameConfig)
     , mDragMouseCoords { 0.f, 0.f } {
 }
 
-void TileSelector::AddCallback(TileSelectionCallback&& cbk) {
+void TileSelector::SetCallback(TileSelectionCallback&& cbk) {
 	mCbk = std::move(cbk);
 }
 
-int TileSelector::GetSelectedCell() const {
+int TileSelector::GetSelectedTile() const {
 	return mSelectedCellIdx;
 }
 
@@ -82,9 +84,6 @@ std::tuple<bool, int, int> TileSelector::SelectTiles(const Wind::Input& input) {
 		assert(mFirstCellIdx != invalidIndex);
 
 		if (mouseButtonDown) {
-			// Drag selected tile
-			Cell& cell = mBoard.GetCell(mFirstCellIdx);
-
 			const float deltaX = mouseCoord.x - mDragMouseCoords.x;
 			const float deltaY = mouseCoord.y - mDragMouseCoords.y;
 			// Start dragging the selected tile either horizontally or vertically after the mouse has moved over a threshold
@@ -101,6 +100,9 @@ std::tuple<bool, int, int> TileSelector::SelectTiles(const Wind::Input& input) {
 			else if (mDragDirection == DragDirection::vertical) {
 				mDragMouseCoords.x = mouseCoord.x;
 			}
+
+			// Drag selected tile
+			const Cell& cell = mBoard.GetCell(mFirstCellIdx);
 
 			// Wait for the selected tile to be dragged close enough to an adjacent tile, before attempting a swap
 			int colDelta = 0;
@@ -154,13 +156,10 @@ std::tuple<bool, int, int> TileSelector::SelectTiles(const Wind::Input& input) {
 void TileSelector::StartDrag(float mouseX, float mouseY) {
 	mDragMouseCoords = { mouseX, mouseY };
 	mDragDirection = DragDirection::empty;
-	TileSelectionEvent event;
-	event.id = TileSelectionEvent::Id::drag;
-	event.cellIdx = mFirstCellIdx;
-	mCbk(event);
 }
 
 void TileSelector::SelectFirstCell(int idx) {
+#if  0
 	if (mSelectedCellIdx != invalidIndex) {
 		TileSelectionEvent event;
 		event.id = TileSelectionEvent::Id::deselect;
@@ -173,31 +172,48 @@ void TileSelector::SelectFirstCell(int idx) {
 		event.cellIdx = idx;
 		mCbk(event);
 	}
+#endif
 	mSelectedCellIdx = idx;
 }
 
-bool TileSelector::DragTileX(Cell& cell, float deltaX, float threshold) const {
-	// Don't drag tile outside the board or further than one tile or against walls
+bool TileSelector::DragTileX(const Cell& cell, float deltaX, float threshold) const {
+	// Don't drag tile outside the board or further than one tile or against non-selectables
 	if (deltaX > 0 && ((cell.col == mBoard.GetCols() - 1) || ! IsSelectable(mBoard.GetCell(cell.col + 1, cell.row)))) {
 		return false;
 	}
 	if (deltaX < 0 && ((cell.col == 0) || ! IsSelectable(mBoard.GetCell(cell.col - 1, cell.row)))) {
 		return false;
 	}
-	cell.pieceGraphics.coords.x = cell.coords.x + std::clamp(deltaX, -mGameConfig.board.cellWidth, mGameConfig.board.cellWidth);
-	return std::abs(cell.pieceGraphics.coords.x - cell.coords.x) > (threshold * mGameConfig.board.cellWidth);
+
+	float xCoord = cell.coords.x + std::clamp(deltaX, -mGameConfig.board.cellWidth, mGameConfig.board.cellWidth);;
+	xCoord = cell.coords.x + std::clamp(deltaX, -mGameConfig.board.cellWidth, mGameConfig.board.cellWidth);
+
+	TileSelectionEvent event;
+	event.id = TileSelectionEvent::Id::drag;
+	event.cell = &cell;
+	event.draggedCoord = { xCoord, cell.coords.y };
+	mCbk(event);
+
+	return std::abs(xCoord - cell.coords.x) > (threshold * mGameConfig.board.cellWidth);
 }
 
-bool TileSelector::DragTileY(Cell& cell, float deltaY, float threshold) const {
-	// Don't drag tile outside the board or further than one tile or against walls
+bool TileSelector::DragTileY(const Cell& cell, float deltaY, float threshold) const {
+	// Don't drag tile outside the board or further than one tile or against non-selectables
 	if (deltaY > 0 && ((cell.row == mBoard.GetRows() - 1) || ! IsSelectable(mBoard.GetCell(cell.col, cell.row + 1)))) {
 		return false;
 	}
 	if (deltaY < 0 && ((cell.row == 0 || ! IsSelectable(mBoard.GetCell(cell.col, cell.row - 1))))) {
 		return false;
 	}
-	cell.pieceGraphics.coords.y = cell.coords.y + std::clamp(deltaY, -mGameConfig.board.cellHeight, mGameConfig.board.cellHeight);
-	return std::abs(cell.pieceGraphics.coords.y - cell.coords.y) > (threshold * mGameConfig.board.cellHeight);
+	float yCoord = cell.coords.y + std::clamp(deltaY, -mGameConfig.board.cellHeight, mGameConfig.board.cellHeight);
+
+	TileSelectionEvent event;
+	event.id = TileSelectionEvent::Id::drag;
+	event.cell = &cell;
+	event.draggedCoord = { cell.coords.x, yCoord };
+	mCbk(event);
+
+	return std::abs(yCoord - cell.coords.y) > (threshold * mGameConfig.board.cellHeight);
 }
 
 void TileSelector::UndoDrag() {
@@ -206,7 +222,7 @@ void TileSelector::UndoDrag() {
 		mDragDirection = DragDirection::empty;
 		TileSelectionEvent event;
 		event.id = TileSelectionEvent::Id::undoDrag;
-		event.cellIdx = mSelectedCellIdx;
+		event.cell = &mBoard.GetCell(mSelectedCellIdx);
 		mCbk(event);
 		Reset();
 	}

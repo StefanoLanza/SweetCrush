@@ -111,7 +111,7 @@ public:
 
 			const Texture& texture = *sprites[cell.pieceGraphics.bitmapIdx];
 			float          s = cell.pieceGraphics.scale;
-			if (cell.hasBooster)
+			if (cell.hasEffect)
 				s *= 1.1f;
 			float w = cellWidth * s;
 			float h = cellHeight * s;
@@ -122,7 +122,7 @@ public:
 				{ left, top, w, h }, { 1.f, 1.f, 1.f, 1.f }, // TODO Remove ?
 			};
 			textureIds[0] = texture.GetTextureId();
-			textureIds[1] = cell.hasBooster ? hrzStripesId : 0;
+			textureIds[1] = cell.hasEffect ? hrzStripesId : 0;
 			drawCall.numTextures = 2;
 			drawCall.sortKey = (texture.GetTextureId() & 255); // sort by main texture
 			drawCall.uniformData = uniformData;

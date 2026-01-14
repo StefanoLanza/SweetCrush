@@ -15,10 +15,6 @@
 
 using namespace Wind;
 
-ActionFunc MoveBackPiece(Cell& cell) {
-	return MovePieceTo(cell, cell.coords);
-}
-
 ActionFunc MovePieceTo(Cell& cell, const Vec2& targetCoords) {
 	return [&cell, initialCoords = cell.pieceGraphics.coords, targetCoords](float dt, float t01) {
 		cell.pieceGraphics.coords = LerpEase(initialCoords, targetCoords, t01, EaseInOutCirc);

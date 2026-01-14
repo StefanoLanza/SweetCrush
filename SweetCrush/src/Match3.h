@@ -5,7 +5,7 @@
 #include <functional>
 #include <vector>
 
-enum class BoosterType;
+enum class EffectType;
 
 struct CellPairEvent {
 	int first;
@@ -30,10 +30,10 @@ struct MatchEvent {
 	int       cascadeCount;
 };
 
-struct BoosterEvent {
-	BoosterType type;
-	int         cellIdx;
-	PieceId     pieceId;
+struct NewSpecialPieceEvent {
+	EffectType type;
+	int        cellIdx;
+	PieceId    pieceId;
 };
 
 struct NewPieceEvent {
@@ -43,7 +43,7 @@ struct NewPieceEvent {
 
 struct RemovePieceEvent {
 	int cellIdx;
-	int boosterCellIdx; // for suck anims
+	int targetCellIdx; // for suck anims
 };
 
 struct RemoveLayerEvent {
@@ -57,18 +57,18 @@ struct Match3Event {
 		removePiece,
 		newPiece,
 		dropPiece,
-		newBooster,
-		triggerBooster,
+		newEffect,
+		triggerEffect,
 		removeLayer,
 	};
 	Id id;
 	union {
-		MatchEvent       match;
-		CellPairEvent    pair;
-		NewPieceEvent    newPiece;
-		BoosterEvent     booster;
-		RemovePieceEvent removePiece;
-		RemoveLayerEvent removeLayer;
+		MatchEvent           match;
+		CellPairEvent        pair;
+		NewPieceEvent        newPiece;
+		NewSpecialPieceEvent specialPiece;
+		RemovePieceEvent     removePiece;
+		RemoveLayerEvent     removeLayer;
 	};
 };
 
@@ -95,7 +95,7 @@ private:
 	bool CheckCombos(int h, int v, int t, int b, PieceId pieceId, int cellIdx);
 	bool CheckCellCombos(int cellIdx);
 	bool CheckMatchesAfterSwap();
-	void KillCell(int cellIdx, int boosterCellIdx);
+	void KillCell(int cellIdx, int targetCellIdx);
 	void CollapseColumns();
 	void GenerateNewPieces();
 	bool CheckMatches();
@@ -103,7 +103,7 @@ private:
 	void SwapSelectedCells(int firstTile, int secondTile);
 	int  CollapseColumn(int col, CellPairEvent* collapseList);
 	int  CollectMatches(int mainCellIdx, int deltaCol, int deltaRow, int* matches, int numMatches) const;
-	void TriggerBooster(int cellIdx);
+	void TriggerEffect(int cellIdx);
 	// Boosters
 	void HorizontalRocket(int col, int row);
 	void VerticalRocket(int col, int row);

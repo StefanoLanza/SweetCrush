@@ -1,21 +1,22 @@
 #pragma once
 
-#include "Boosters.h"
+#include "Effects.h"
+
 #include <engine/FwdDecl.h>
 #include <engine/UI.h>
 
-class BoostInfoPanel final {
+class EffectInfoPanel final {
 public:
-	explicit BoostInfoPanel(Wind::Engine& engine);
+	explicit EffectInfoPanel(Wind::Engine& engine);
 
 	void BuildUI(Wind::UICanvas& canvas);
-	void ShowHelp(BoosterType type);
+	void ShowHelp(EffectType type);
 	bool IsVisible() const;
 	bool Wait(const Wind::Input& input);
 	void Hide();
 
 private:
-	bool           mShowBoosterHelp[NumBoosters];
+	bool           mShowBoosterHelp[NumEffects];
 	Wind::UIText   mTitle;
 	Wind::UIText   mText;
 	Wind::UIButton mOKButton;

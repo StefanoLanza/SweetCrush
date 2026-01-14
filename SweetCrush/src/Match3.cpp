@@ -10,7 +10,7 @@
 #include <iterator> // std::size
 
 // For debugging
-#define ENABLE_BOOSTERS 1
+#define ENABLE_EFFECTS 1
 
 namespace {
 
@@ -21,8 +21,8 @@ void SwapCells(Board& board, int srcIdx, int dstIdx) {
 	std::swap(src.pieceId, dst.pieceId);
 	std::swap(src.layers, dst.layers);
 	std::swap(src.pieceGraphics, dst.pieceGraphics);
-	std::swap(src.hasBooster, dst.hasBooster);
-	std::swap(src.boosterType, dst.boosterType);
+	std::swap(src.hasEffect, dst.hasEffect);
+	std::swap(src.effectType, dst.effectType);
 }
 
 //  OOO
@@ -201,37 +201,37 @@ void Match3::DeleteAllPiecesOfType(int pieceId) {
 }
 
 bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCellIdx) {
-	bool        res = true;
-	ComboType   comboType {};
-	bool        horizontalMatch = false;
-	BoosterType boosterType {};
+	bool       res = true;
+	ComboType  comboType {};
+	bool       horizontalMatch = false;
+	EffectType effectType {};
 
 	// TODO Distinguish horizontal and vertical for T and L combos ?
 	if (T3Combo(l, r, t, b)) {
 		comboType = ComboType::T3;
-		boosterType = BoosterType::vrocket; // FIXME
+		effectType = EffectType::vrocket; // FIXME
 	}
 	else if (T4Combo(l, r, t, b)) {
 		comboType = ComboType::T4;
-		boosterType = BoosterType::bomb;
+		effectType = EffectType::bomb;
 	}
 	else if (T5Combo(l, r, t, b)) {
 		comboType = ComboType::T5;
-		boosterType = BoosterType::bomb;
+		effectType = EffectType::bomb;
 	}
 	else if (LCombo(l, r, t, b)) {
 		comboType = ComboType::L;
-		boosterType = BoosterType::bomb;
+		effectType = EffectType::bomb;
 	}
 	else if (_5Combo(l, r, t, b)) {
 		comboType = ComboType::C5;
 		horizontalMatch = (l + r + 1) == 5;
-		boosterType = horizontalMatch ? BoosterType::hrocket : BoosterType::vrocket;
+		effectType = horizontalMatch ? EffectType::hrocket : EffectType::vrocket;
 	}
 	else if (_4Combo(l, r, t, b)) {
 		comboType = ComboType::C4;
 		horizontalMatch = (l + r + 1) == 4;
-		boosterType = horizontalMatch ? BoosterType::hrocket : BoosterType::vrocket;
+		effectType = horizontalMatch ? EffectType::hrocket : EffectType::vrocket;
 	}
 	else if (_3Combo(l, r, t, b)) {
 		comboType = ComboType::C3;
@@ -268,32 +268,32 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 		}
 		assert(numMatches < NumRows * NumCols);
 
-#if ENABLE_BOOSTERS
+#if ENABLE_EFFECTS
 		const bool isSpecialCombo = comboType != ComboType::C3;
 #else
 		const bool isSpecialCombo = false;
-#endif		
+#endif
 		if (! isSpecialCombo) {
-			// Kill main cell if not booster
+			// Kill main cell if not specialPiece
 			KillCell(mainCellIdx, -1);
 		}
 		else {
 			Cell& cell = mBoard.GetCell(mainCellIdx);
 			assert(cell.category == CellCategory::piece);
 			cell.category = CellCategory::piece;
-			cell.hasBooster = true;
-			cell.boosterType = boosterType;
+			cell.hasEffect = true;
+			cell.effectType = effectType;
 			cell.layers = 0;
 
 			// Inform client
-			event.id = Match3Event::Id::newBooster;
-			event.booster.cellIdx = mainCellIdx;
-			event.booster.pieceId = cell.pieceId;//FIXME redundant ?
-			event.booster.type = boosterType;
+			event.id = Match3Event::Id::newEffect;
+			event.specialPiece.cellIdx = mainCellIdx;
+			event.specialPiece.pieceId = cell.pieceId; // FIXME redundant ?
+			event.specialPiece.type = effectType;
 			mCbk(event);
 		}
 
-		for (int i = 0; i < numMatches; ++i ) {
+		for (int i = 0; i < numMatches; ++i) {
 			KillCell(matches[i], isSpecialCombo ? mainCellIdx : -1);
 		}
 	}
@@ -321,19 +321,19 @@ bool Match3::CheckMatchesAfterSwap() {
 	return res;
 }
 
-void Match3::KillCell(int cellIdx, int boosterCellIdx) {
+void Match3::KillCell(int cellIdx, int targetCellIdx) {
 	Cell& cell = mBoard.GetCell(cellIdx);
 	if (cell.category == CellCategory::piece) {
 		if (cell.layers == 0) {
-			if (cell.hasBooster) {
-				TriggerBooster(cellIdx);
+			if (cell.hasEffect) {
+				TriggerEffect(cellIdx);
 			}
 			else {
 				// Inform client
 				Match3Event event;
 				event.id = Match3Event::Id::removePiece;
 				event.removePiece.cellIdx = cellIdx;
-				event.removePiece.boosterCellIdx = boosterCellIdx;
+				event.removePiece.targetCellIdx = targetCellIdx;
 				mCbk(event);
 
 				cell.category = CellCategory::empty;
@@ -502,35 +502,35 @@ int Match3::CollectMatches(int mainCellIdx, int deltaCol, int deltaRow, int* mat
 	return numMatches;
 }
 
-void Match3::TriggerBooster(int cellIdx) {
+void Match3::TriggerEffect(int cellIdx) {
 	Cell& cell = mBoard.GetCell(cellIdx);
 	assert(cell.category == CellCategory::piece);
-	assert(cell.hasBooster);
+	assert(cell.hasEffect);
 	assert(cell.layers == 0);
 
 	// Inform client e.g. to play some special fx
 	Match3Event event;
-	event.id = Match3Event::Id::triggerBooster;
-	event.booster.cellIdx = cellIdx;
-	event.booster.type = cell.boosterType;
+	event.id = Match3Event::Id::triggerEffect;
+	event.specialPiece.cellIdx = cellIdx;
+	event.specialPiece.type = cell.effectType;
 	mCbk(event);
 
-	// Delete piece with booster
+	// Delete piece with specialPiece
 	// Important: do it before triggering, to avoid infinite recursion in same cases
 	cell.category = CellCategory::empty;
-	cell.hasBooster = false;
+	cell.hasEffect = false;
 
-	switch (cell.boosterType) {
-	case BoosterType::hrocket: {
+	switch (cell.effectType) {
+	case EffectType::hrocket: {
 		HorizontalRocket(cell.col, cell.row);
 	} break;
-	case BoosterType::vrocket: {
+	case EffectType::vrocket: {
 		VerticalRocket(cell.col, cell.row);
 	} break;
-	case BoosterType::miniBomb:
+	case EffectType::miniBomb:
 		Bomb(cell.col, cell.row, 1);
 		break;
-	case BoosterType::bomb:
+	case EffectType::bomb:
 		Bomb(cell.col, cell.row, 2);
 		break;
 	default:

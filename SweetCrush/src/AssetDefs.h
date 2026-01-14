@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Boosters.h"
+#include "Effects.h"
 #include <engine/FwdDecl.h>
 
 constexpr int NumSprites = 25;
@@ -32,7 +32,7 @@ extern const SpriteDef    spriteDefs[NumSprites];
 extern const BoardTileDef boardTileDefs[NumBoardTiles];
 extern const PieceDef     pieceDefs[NumPieceTypes];
 extern const ObstacleDef  obstacleDefs[NumObstacleTypes];
-extern const BoosterDef   boosterDefs[NumBoosters];
+extern const BoosterDef   boosterDefs[NumEffects];
 extern Wind::TexturePtr   sprites[NumSprites];
 
 extern const int sparkleSprite;

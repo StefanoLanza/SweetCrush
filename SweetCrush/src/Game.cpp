@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Actions.h"
+#include "AudioSettingsScreen.h"
 #include "Constants.h"
 #include "CreditsScreen.h"
 #include "GameCompleteScreen.h"
@@ -39,6 +40,7 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const GameConfig& g
 	mScreens[6] = std::make_unique<PauseGameScreen>(mEngine, mMatchStats);
 	mScreens[7] = std::make_unique<LevelCompleteScreen>(mEngine, mMatchStats);
 	mScreens[8] = std::make_unique<GraphicsSettingsScreen>(mEngine, mGameSettings);
+	mScreens[9] = std::make_unique<AudioSettingsScreen>(mEngine, mGameSettings);
 }
 
 Game::~Game() = default;

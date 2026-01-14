@@ -5,8 +5,8 @@
 #include <engine/Span.h>
 #include <vector>
 
-#include "Boosters.h"
 #include "Constants.h"
+#include "Effects.h"
 
 using PieceId = uint8_t;
 
@@ -33,11 +33,11 @@ struct Cell {
 	int           col;
 	int           row;
 	int           layers;
-	BoosterType   boosterType;
+	EffectType    effectType;
 	PieceGraphics pieceGraphics;
 	CellCategory  category;
 	PieceId       pieceId;
-	bool          hasBooster;
+	bool          hasEffect;
 };
 
 bool IsSelectable(const Cell& cell);
@@ -54,6 +54,8 @@ public:
 	int                    GetCellCount() const;
 	int                    GetCellIndex(int col, int row) const;
 	Cell&                  GetCell(int index); // TODO Remove
+	void                   ReplaceCell(int index, const Cell& cell, void* ud);
+	void                   ReplaceCell(int col, int row, const Cell& cell, void* ud);
 	const Cell&            GetCell(int index) const;
 	Cell&                  GetCell(int col, int row); // TODO Remove
 	const Cell&            GetCell(int col, int row) const;
@@ -65,6 +67,6 @@ private:
 	int               mCols;
 	int               mRows;
 	// Stats
-	int               mPieceCount[MaxPieceTypes];
-	int               mTotalLayerCount;
+	int mPieceCount[MaxPieceTypes];
+	int mTotalLayerCount;
 };

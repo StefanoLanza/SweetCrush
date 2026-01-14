@@ -12,7 +12,7 @@ using namespace Wind;
 
 namespace {
 
-const UIButtonDesc filterButtonDesc { { 0, 440, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
+const UIButtonDesc filterButtonDesc { { 0, 560, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
 
 const UIButtonDesc backButtonDesc { { 0, 920, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
 

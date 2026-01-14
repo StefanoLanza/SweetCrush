@@ -44,7 +44,7 @@ const ObstacleDef obstacleDefs[NumObstacleTypes] {
 	{ 0 }, // wall
 };
 
-const BoosterDef boosterDefs[NumBoosters] {
+const BoosterDef boosterDefs[NumEffects] {
 	{ 12 },
 	{ 13 },
 	{ 14 },

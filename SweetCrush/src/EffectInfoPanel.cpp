@@ -1,4 +1,4 @@
-#include "BoostInfoPanel.h"
+#include "EffectInfoPanel.h"
 #include "AssetDefs.h"
 #include "Localization.h"
 #include "UIDefs.h"
@@ -61,7 +61,7 @@ const UIPanelDesc panelDesc {
 
 } // namespace
 
-BoostInfoPanel::BoostInfoPanel(Engine& engine)
+EffectInfoPanel::EffectInfoPanel(Engine& engine)
     : mTitle(textDesc[0], engine)
     , mText(textDesc[1], engine)
     , mOKButton(MakeButton(buttonDesc, buttonBitmapDesc, textDesc[2], engine))
@@ -73,7 +73,7 @@ BoostInfoPanel::BoostInfoPanel(Engine& engine)
 	}
 }
 
-void BoostInfoPanel::BuildUI(UICanvas& canvas) {
+void EffectInfoPanel::BuildUI(UICanvas& canvas) {
 	mPanel.SetVisible(false);
 	mPanel.AddBitmap(mPanelBitmap);
 	mPanel.AddBitmap(mBoosterIcon);
@@ -83,7 +83,7 @@ void BoostInfoPanel::BuildUI(UICanvas& canvas) {
 	canvas.GetPanel().AddPanel(mPanel);
 }
 
-void BoostInfoPanel::ShowHelp(BoosterType boosterType) {
+void EffectInfoPanel::ShowHelp(EffectType boosterType) {
 	const int typeIdx = static_cast<int>(boosterType);
 	if (! mShowBoosterHelp[typeIdx]) {
 		return;
@@ -94,19 +94,19 @@ void BoostInfoPanel::ShowHelp(BoosterType boosterType) {
 	GameStringId titleStringId = GameStringId::empty;
 	GameStringId textStringId = GameStringId::empty;
 	switch (boosterType) {
-	case BoosterType::hrocket:
+	case EffectType::hrocket:
 		titleStringId = GameStringId::hRocket;
 		textStringId = GameStringId::hRocketDescription;
 		break;
-	case BoosterType::vrocket:
+	case EffectType::vrocket:
 		titleStringId = GameStringId::vRocket;
 		textStringId = GameStringId::vRocketDescription;
 		break;
-	case BoosterType::bomb:
+	case EffectType::bomb:
 		titleStringId = GameStringId::bomb;
 		textStringId = GameStringId::bombDescription;
 		break;
-	case BoosterType::miniBomb:
+	case EffectType::miniBomb:
 		titleStringId = GameStringId::miniBomb;
 		textStringId = GameStringId::miniBombDescription;
 		break;
@@ -119,11 +119,11 @@ void BoostInfoPanel::ShowHelp(BoosterType boosterType) {
 	mPanel.SetVisible(true);
 }
 
-bool BoostInfoPanel::IsVisible() const {
+bool EffectInfoPanel::IsVisible() const {
 	return mPanel.IsVisible();
 }
 
-bool BoostInfoPanel::Wait(const Input& input) {
+bool EffectInfoPanel::Wait(const Input& input) {
 	if (mPanel.IsVisible()) {
 		if (mOKButton.IsPressed(input)) {
 			Hide();
@@ -134,6 +134,6 @@ bool BoostInfoPanel::Wait(const Input& input) {
 	return false;
 }
 
-void BoostInfoPanel::Hide() {
+void EffectInfoPanel::Hide() {
 	mPanel.SetVisible(false);
 }
