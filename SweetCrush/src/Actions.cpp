@@ -15,21 +15,21 @@
 
 using namespace Wind;
 
-ActionFunc MovePieceTo(TileVisual& cell, const Vec2& targetCoords) {
+ActionFunc MovePieceTo(CellVisual& cell, const Vec2& targetCoords) {
 	return [&cell, initialCoords = cell.coords, targetCoords](float dt, float t01) {
 		cell.coords = LerpEase(initialCoords, targetCoords, t01, EaseInOutCirc);
 		return false;
 	};
 }
 
-ActionFunc MovePieceFromTo(TileVisual& cell, const Wind::Vec2& startCoords, const Wind::Vec2& endCoords) {
+ActionFunc MovePieceFromTo(CellVisual& cell, const Wind::Vec2& startCoords, const Wind::Vec2& endCoords) {
 	return [&cell, startCoords, endCoords](float dt, float t01) {
 		cell.coords = LerpEase(startCoords, endCoords, t01, EaseInQuad);
 		return false;
 	};
 }
 
-ActionFunc FallPieceFromTo(TileVisual& cell, float xCoord, float startYCoord, float endYCoord) {
+ActionFunc FallPieceFromTo(CellVisual& cell, float xCoord, float startYCoord, float endYCoord) {
 	cell.coords.x = xCoord;
 	return [&cell, startYCoord, endYCoord](float dt, float t01) {
 		cell.coords.y = LerpEase(startYCoord, endYCoord, t01, EaseOutBounce);
@@ -37,7 +37,7 @@ ActionFunc FallPieceFromTo(TileVisual& cell, float xCoord, float startYCoord, fl
 	};
 }
 
-ActionFunc MovePieceTo(TileVisual& cell, const Wind::Vec2& targetCoords, float speed) {
+ActionFunc MovePieceTo(CellVisual& cell, const Wind::Vec2& targetCoords, float speed) {
 	const Vec2 velocity = Normalize(targetCoords - cell.coords) * speed;
 	return [&cell, targetCoords, velocity](float dt, float /*t01*/) {
 		cell.coords = Clamp(cell.coords + velocity * dt, cell.coords, targetCoords);
@@ -45,7 +45,7 @@ ActionFunc MovePieceTo(TileVisual& cell, const Wind::Vec2& targetCoords, float s
 	};
 }
 
-ActionFunc ScaleCellPiece(TileVisual& cell, float startScale, float endScale) {
+ActionFunc ScaleCellPiece(CellVisual& cell, float startScale, float endScale) {
 	return [&cell, startScale, endScale](float /*dt*/, float t01) {
 		cell.scale = LerpEase(startScale, endScale, t01, EaseInQuad);
 		return false;

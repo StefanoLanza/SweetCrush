@@ -12,28 +12,12 @@ struct SpriteDef {
 	const char* bitmap;
 };
 
-struct PieceDef {
-	int sprite;
-};
-
-struct ObstacleDef {
-	int sprite;
-};
-
-struct BoosterDef {
-	int sprite;
-};
-
-struct BoardTileDef {
-	int sprite;
-};
-
-extern const SpriteDef    spriteDefs[NumSprites];
-extern const BoardTileDef boardTileDefs[NumBoardTiles];
-extern const PieceDef     pieceDefs[NumPieceTypes];
-extern const ObstacleDef  obstacleDefs[NumObstacleTypes];
-extern const BoosterDef   boosterDefs[NumEffects];
-extern Wind::TexturePtr   sprites[NumSprites];
+extern Wind::TexturePtr sprites[NumSprites];
+extern const SpriteDef  spriteDefs[NumSprites];
+extern const int        boardTileDefs[NumBoardTiles];
+extern const int        pieceIcons[NumPieceTypes];
+extern const int        obstacleIcons[NumObstacleTypes];
+extern const int        effectIcons[NumEffects];
 
 extern const int sparkleSprite;
 extern const int iceSprite;

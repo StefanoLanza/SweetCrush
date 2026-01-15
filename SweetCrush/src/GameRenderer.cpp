@@ -35,6 +35,10 @@ public:
 			mPieceProgram.mTexture = program.GetUniformLocation("colorTexture");
 			mPieceProgram.mValid = (mPieceProgram.mColor != -1 && mPieceProgram.mCoords != -1 && mPieceProgram.mTexture != -1);
 		}
+
+		for (int i = 0; i < NumSprites; ++i) {
+			sprites[i] = graphics.LoadTexture(spriteDefs[i].bitmap);
+		}
 	}
 
 	void DrawBackgroundTiles(const Board& board, const GameConfig& gameConfig) const {
@@ -46,9 +50,8 @@ public:
 		const float cellSpacing = gameConfig.board.cellSpacing;
 		mGraphics.SetPipeline(mPipelineBlending);
 
-		const BoardTileDef& def = boardTileDefs[0];
-		const GLuint        textureID = sprites[def.sprite]->GetTextureId();
-		const unsigned      textureIds[] = { textureID };
+		const GLuint   textureID = sprites[boardTileDefs[0]]->GetTextureId();
+		const unsigned textureIds[] = { textureID };
 
 		struct Tile {
 			Vec4 coords;
@@ -105,7 +108,7 @@ public:
 
 		// TODO Instanced
 		for (const Cell& cell : board.GetCells()) {
-			auto tileVisual = static_cast<TileVisual*>(cell.ud);
+			auto tileVisual = static_cast<CellVisual*>(cell.ud);
 			if (tileVisual->bitmapIdx < 0) {
 				continue;
 			}

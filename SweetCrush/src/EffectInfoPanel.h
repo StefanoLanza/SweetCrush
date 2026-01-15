@@ -14,13 +14,14 @@ public:
 	bool IsVisible() const;
 	bool Wait(const Wind::Input& input);
 	void Hide();
+	void ParseConfig(const char* varName, const char* varValue);
 
 private:
-	bool           mShowBoosterHelp[NumEffects];
 	Wind::UIText   mTitle;
 	Wind::UIText   mText;
 	Wind::UIButton mOKButton;
-	Wind::UIBitmap mBoosterIcon;
+	Wind::UIBitmap mEffectIcon;
 	Wind::UIBitmap mPanelBitmap;
 	Wind::UIPanel  mPanel;
+	bool           mShowHelp[NumEffects];
 };

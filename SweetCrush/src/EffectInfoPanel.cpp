@@ -65,10 +65,11 @@ EffectInfoPanel::EffectInfoPanel(Engine& engine)
     : mTitle(textDesc[0], engine)
     , mText(textDesc[1], engine)
     , mOKButton(MakeButton(buttonDesc, buttonBitmapDesc, textDesc[2], engine))
-    , mBoosterIcon(boosterIconDesc, engine.GetGraphics())
+    , mEffectIcon(boosterIconDesc, engine.GetGraphics())
     , mPanelBitmap(panelBitmapDesc, engine.GetGraphics())
-    , mPanel(panelDesc) {
-	for (bool& b : mShowBoosterHelp) {
+    , mPanel(panelDesc)
+    , mShowHelp {} {
+	for (bool& b : mShowHelp) {
 		b = true;
 	}
 }
@@ -76,7 +77,7 @@ EffectInfoPanel::EffectInfoPanel(Engine& engine)
 void EffectInfoPanel::BuildUI(UICanvas& canvas) {
 	mPanel.SetVisible(false);
 	mPanel.AddBitmap(mPanelBitmap);
-	mPanel.AddBitmap(mBoosterIcon);
+	mPanel.AddBitmap(mEffectIcon);
 	mPanel.AddButton(mOKButton);
 	mPanel.AddText(mTitle);
 	mPanel.AddText(mText);
@@ -85,11 +86,11 @@ void EffectInfoPanel::BuildUI(UICanvas& canvas) {
 
 void EffectInfoPanel::ShowHelp(EffectType boosterType) {
 	const int typeIdx = static_cast<int>(boosterType);
-	if (! mShowBoosterHelp[typeIdx]) {
+	if (! mShowHelp[typeIdx]) {
 		return;
 	}
-	if (mShowBoosterHelp[typeIdx]) {
-		mShowBoosterHelp[typeIdx] = false;
+	if (mShowHelp[typeIdx]) {
+		mShowHelp[typeIdx] = false;
 	}
 	GameStringId titleStringId = GameStringId::empty;
 	GameStringId textStringId = GameStringId::empty;
@@ -115,7 +116,7 @@ void EffectInfoPanel::ShowHelp(EffectType boosterType) {
 	}
 	mTitle.SetText(static_cast<StringId>(titleStringId));
 	mText.SetText(static_cast<StringId>(textStringId));
-	mBoosterIcon.SetBitmap(sprites[boosterDefs[typeIdx].sprite]);
+	mEffectIcon.SetBitmap(sprites[effectIcons[typeIdx]]);
 	mPanel.SetVisible(true);
 }
 
@@ -136,4 +137,7 @@ bool EffectInfoPanel::Wait(const Input& input) {
 
 void EffectInfoPanel::Hide() {
 	mPanel.SetVisible(false);
+}
+
+void EffectInfoPanel::ParseConfig(const char* varName, const char* varValue) {
 }

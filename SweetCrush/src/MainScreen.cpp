@@ -106,7 +106,7 @@ void MainScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
 	prm.blending = true;
 	for (int i = 0; i < NumPieceTypes - 2; ++i) {
 		prm.orientation = std::sin(phase * .25f + (float)i) * 0.5f;
-		mEngine.GetBitmapRenderer().DrawBitmapEx(*sprites[pieceDefs[i].sprite], { x, 380.f + std::cos(phase) * 4.f }, prm);
+		mEngine.GetBitmapRenderer().DrawBitmapEx(*sprites[pieceIcons[i]], { x, 380.f + std::cos(phase) * 4.f }, prm);
 		x += dx;
 		phase += 6.28f / static_cast<float>(NumPieceTypes);
 	}

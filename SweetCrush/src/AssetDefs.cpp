@@ -30,25 +30,17 @@ const SpriteDef spriteDefs[NumSprites] {
 	{ "vrtStripes.png" },
 };
 
-const BoardTileDef boardTileDefs[NumBoardTiles] {
-	{ 16 },
-};
+const int boardTileDefs[NumBoardTiles] { 16 };
 
-const PieceDef pieceDefs[NumPieceTypes] {
-	{ 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 }, { 7 }, { 8 }, { 9 }, { 10 }, { 11 },
-};
+const int pieceIcons[NumPieceTypes] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 
-const int pieceHrzStripesBitmaps {};
+const int obstacleIcons[NumObstacleTypes] { 0 };
 
-const ObstacleDef obstacleDefs[NumObstacleTypes] {
-	{ 0 }, // wall
-};
-
-const BoosterDef boosterDefs[NumEffects] {
-	{ 12 },
-	{ 13 },
-	{ 14 },
-	{ 15 },
+const int effectIcons[NumEffects] {
+	12,
+	13,
+	14,
+	15,
 };
 
 Wind::TexturePtr sprites[NumSprites];

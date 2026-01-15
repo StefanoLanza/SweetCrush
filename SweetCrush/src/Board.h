@@ -18,7 +18,7 @@ enum class CellCategory {
 	star,
 };
 
-struct TileVisual {
+struct CellVisual {
 	int        bitmapIdx;
 	Wind::Vec2 coords;
 	float      scale;
@@ -27,7 +27,7 @@ struct TileVisual {
 };
 
 struct Cell {
-	void*        ud;
+	void*        ud; // user data, e.g. graphics
 	Wind::Vec2   coords;
 	int          col;
 	int          row;

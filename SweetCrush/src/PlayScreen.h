@@ -59,14 +59,16 @@ private:
 	const GameDataModule&         mGameDataModule;
 	Board                         mBoard;
 	BoardGenerator                mBoardGenerator;
-	std::unique_ptr<TileSelector> mTileSelector;
+	std::unique_ptr<TileSelector> mCellSelector;
 	EffectInfoPanel               mEffectInfoPanel;
 	Wind::UIPanel                 mPanel;
 	Wind::UIButton                mPauseButton;
+	Wind::UIButton                mBoosterButtons[3];
 	Match3                        mMatch3;
-	std::vector<TileVisual>     mTileGraphics;
+	std::vector<CellVisual>       mCellGraphics;
 	float                         mTime;
 	Wind::FontPtr                 mFonts[3];
 	Wind::MusicPtr                mMusic;
 	Wind::SoundPtr                mSounds[2];
+	Wind::TexturePtr              mBoosterPanel;
 };

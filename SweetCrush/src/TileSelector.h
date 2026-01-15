@@ -10,7 +10,7 @@ struct Cell;
 
 class TileSelector final : public ITileSelector {
 public:
-	TileSelector(Board& board, const GameConfig& gameConfig);
+	TileSelector(const Board& board, const GameConfig& gameConfig);
 
 	void                       SetCallback(TileSelectionCallback&& cbk);
 	int                        GetSelectedTile() const override;
@@ -28,7 +28,7 @@ private:
 	enum class State;
 	enum class DragDirection;
 
-	Board&                mBoard;
+	const Board&          mBoard;
 	const GameConfig&     mGameConfig;
 	TileSelectionCallback mCbk;
 	State                 mState;

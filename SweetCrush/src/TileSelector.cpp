@@ -39,7 +39,7 @@ enum class TileSelector::State {
 	waitForSecond,
 };
 
-TileSelector::TileSelector(Board& board, const GameConfig& gameConfig)
+TileSelector::TileSelector(const Board& board, const GameConfig& gameConfig)
     : mBoard { board }
     , mGameConfig { gameConfig }
     , mState { State::empty }
