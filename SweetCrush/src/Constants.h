@@ -5,6 +5,8 @@ constexpr int NumRows = 9;
 constexpr int RefWindowWidth = 640;
 constexpr int RefWindowHeight = 1136;
 constexpr int MaxPieceTypes = 8;
+constexpr float TileWidth = 64.f;
+constexpr float TileHeight = 72.f;
 
 using CellID = unsigned char;
 

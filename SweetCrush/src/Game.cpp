@@ -80,7 +80,7 @@ void Game::Draw(float dt) {
 	Graphics&           graphics = mEngine.GetGraphics();
 
 	graphics.SetFrameBuffer(mFrameBuffer);
-	mCanvas.Draw(mUIRenderer, textRenderer, input.GetMappedMouseCoord());
+	mCanvas.Draw(RefWindowWidth, RefWindowHeight,  mUIRenderer, textRenderer, input.GetMappedMouseCoord());
 	for (const auto& screen : mScreens) {
 		screen->Draw(mScreenId);
 	}
@@ -95,7 +95,6 @@ void Game::Tick(float dt) {
 	Input&     input = mEngine.GetInput();
 	const Vec2 fbMouseCoord = mEngine.GetBlitter().WindowToFrameBuffer(input.GetMouseCoord(), mFrameBuffer);
 	input.SetMappedMouseCoord(fbMouseCoord);
-	mCanvas.UpdateWidgets(RefWindowWidth, RefWindowHeight);
 
 	mGameDataModule.Reload();
 	if (! mGameDataModule.IsValid()) {

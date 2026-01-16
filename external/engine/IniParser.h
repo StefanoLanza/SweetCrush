@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <functional>
 
 namespace Wind {
 
@@ -29,7 +30,19 @@ namespace Wind {
 		var = value;                  \
 	}
 
-
 int ParseINIFile(const char* fileName, ini_handler handler, void* user);
 
-}
+using INIListener = std::function<bool(const char* varName, const char* varValue)>;
+
+class INIParser final {
+public:
+	void AddListener(const char* section, INIListener&& listener);
+	int  ParseFile(const char* fileName) const;
+
+private:
+	static int Handler(void* user, const char* section, const char* name, const char* value);
+
+	std::vector<std::pair<const char*, INIListener>> mListeners;
+};
+
+} // namespace Wind

@@ -5,6 +5,7 @@
 #include "Maths.h"
 #include "StringTable.h"
 #include "TextRender.h"
+
 #include <memory>
 #include <vector>
 
@@ -161,8 +162,7 @@ public:
 	void     SetBackground(TexturePtr background);
 	void     SetMousePointer(const char* fileName, Graphics& graphics);
 	UIPanel& GetPanel();
-	void     UpdateWidgets(int canvasWidth, int canvasHeight);
-	void     Draw(const UIRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords);
+	void     Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords);
 
 private:
 	UIPanel    mPanel;

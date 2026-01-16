@@ -10,7 +10,7 @@ public:
 	explicit GameRenderer(Wind::Engine& engine);
 	~GameRenderer();
 
-	void DrawBoard(const Board& board, int selectedCell, const GameConfig& gameConfig) const;
+	void DrawBoard(const Board& board, int selectedCell, const GameConfig& gameConfig, float time) const;
 	void DrawLaser(Wind::Vec2 start, Wind::Vec2 end, float w, float t01) const;
 
 private:

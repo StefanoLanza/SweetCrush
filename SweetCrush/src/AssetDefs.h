@@ -3,8 +3,8 @@
 #include "Effects.h"
 #include <engine/FwdDecl.h>
 
-constexpr int NumSprites = 25;
-constexpr int NumPieceTypes = 11;
+constexpr int NumSprites = 13;
+constexpr int NumPieceTypes = 12;
 constexpr int NumBoardTiles = 1;
 constexpr int NumObstacleTypes = 1;
 
@@ -12,6 +12,7 @@ struct SpriteDef {
 	const char* bitmap;
 };
 
+extern Wind::TexturePtr pastryAtlas;
 extern Wind::TexturePtr sprites[NumSprites];
 extern const SpriteDef  spriteDefs[NumSprites];
 extern const int        boardTileDefs[NumBoardTiles];

@@ -40,21 +40,21 @@ const UIButtonDesc pauseButtonDesc {
 
 const UIButtonDesc booster0ButtonDesc {
 	UIAbsolutePos(10, -10),
-	UIAutoSize,
+	{ 100.f, 100.f, 0.f, 0.f },
 	UIHorizAlignment::left,
 	UIVertAlignment::bottom,
 };
 
 const UIButtonDesc booster1ButtonDesc {
 	UIAbsolutePos(0, -10),
-	UIAutoSize,
+	{ 100.f, 100.f, 0.f, 0.f },
 	UIHorizAlignment::center,
 	UIVertAlignment::bottom,
 };
 
 const UIButtonDesc booster2ButtonDesc {
 	UIAbsolutePos(-10, -10),
-	UIAutoSize,
+	{ 100.f, 100.f, 0.f, 0.f },
 	UIHorizAlignment::right,
 	UIVertAlignment::bottom,
 };
@@ -62,8 +62,8 @@ const UIButtonDesc booster2ButtonDesc {
 const UIBitmapDesc boosterButtonBitmapDesc {
 	.fileName = "button.png",
 	.pos = UIZeroPos,
-	.size = { 70.f, 70.f, 0.f, 0.f },
-	._9patch = { 16, 0.f, 0.f, 0.f }
+	.size = UIParentSize,
+	._9patch = { 16, 0.f, 0.f, 0.f },
 };
 
 const UIBitmapDesc optionButtonBitmapDesc {
@@ -74,7 +74,7 @@ const UIBitmapDesc optionButtonBitmapDesc {
 
 constexpr UIPanelDesc BoosterPanelDesc {
 	{ 0.f, -20.f, 0.f, 0.f },   // pos
-	{ 300.f, 100.f, 0.f, 0.f }, // size
+	{ 400.f, 100.f, 0.f, 0.f }, // size
 	UIHorizAlignment::center,
 	UIVertAlignment::bottom,
 };
@@ -106,7 +106,8 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const G
 	                    MakeButton(booster1ButtonDesc, boosterButtonBitmapDesc, engine),
 	                    MakeButton(booster2ButtonDesc, boosterButtonBitmapDesc, engine) }
     , mMatch3 { mBoard, mBoardGenerator, *mCellSelector }
-    , mTime { 0 } {
+    , mTime { 0.f }
+    , mMatchTime { 0 } {
 	mCellSelector->SetCallback([this](const TileSelectionEvent& event) { OnTileSelectionEvent(event); });
 	mMatch3.SetCallback([this](const Match3Event& event) { OnMatch3Event(event); });
 	mCellGraphics.resize(NumCols * NumRows);
@@ -168,17 +169,18 @@ GameScreenId PlayScreen::Tick(float dt, const Input& input) {
 
 	if (mMatch3.IsWaitingForUser()) {
 		// Decrease time only when waiting for user selection
-		mTime = std::max(0.f, mTime - dt);
+		mMatchTime = std::max(0.f, mMatchTime - dt);
 	}
 
-	if (mTime < criticalTime) {
+	if (mMatchTime < criticalTime) {
 		if (mMusic) {
 			mMusic->SetVolume(0.2f);
 		}
 		// TODO play clock sound
 	}
 
-	if (mTime > 0.f) {
+	mTime += dt;
+	if (mMatchTime > 0.f) {
 		if (! mActionMgr.AnyRunning()) { // do not update match while animations are still running
 			mMatch3.Update(input);
 		}
@@ -195,12 +197,12 @@ void PlayScreen::Draw(GameScreenId topScreen) const {
 	if (topScreen != ScreenId::play) {
 		return;
 	}
-	mGameRenderer.DrawBoard(mBoard, mCellSelector->GetSelectedTile(), mGameConfig);
+	mGameRenderer.DrawBoard(mBoard, mCellSelector->GetSelectedTile(), mGameConfig, mTime);
 	DrawUI();
 
 	// FIXME
-	//mGameRenderer.DrawLaser({ 0.f, 300.f }, { mGameConfig.board.bottomRightCoord.x, 300.f }, 64, 0.5 + 0.5 * sinf(mTime * 5.0));
-	//mGameRenderer.DrawLaser({ 100.f, 0.f }, { 100.f, mGameConfig.board.bottomRightCoord.y }, 64, 0.5 + 0.5 * sinf(mTime * 5.0));
+	// mGameRenderer.DrawLaser({ 0.f, 300.f }, { mGameConfig.board.bottomRightCoord.x, 300.f }, 64, 0.5 + 0.5 * sinf(mMatchTime * 5.0));
+	// mGameRenderer.DrawLaser({ 100.f, 0.f }, { 100.f, mGameConfig.board.bottomRightCoord.y }, 64, 0.5 + 0.5 * sinf(mMatchTime * 5.0));
 }
 
 void PlayScreen::Enter(GameScreenId prevScreen) {
@@ -226,6 +228,7 @@ void PlayScreen::Enter(GameScreenId prevScreen) {
 		PlayMusic();
 	}
 	mPanel.SetVisible(true);
+	mTime = 0.f;
 }
 
 void PlayScreen::Exit() {
@@ -266,7 +269,7 @@ void PlayScreen::StartLevel() {
 	for (int i = 0; i < mBoard.GetCellCount(); ++i) {
 		mBoard.GetCell(i).ud = &mCellGraphics[i];
 	}
-	mTime = level.availTime;
+	mMatchTime = level.availTime;
 	for (int& c : mMatchStats.targetPieceCount) {
 		c = 0;
 	}
@@ -332,7 +335,8 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		visual.scale = 1.f;
 		visual.rotation = 0.f;
 		// Drop new tiles from the top
-		mActionMgr.AddTimedAction(FallPieceFromTo(visual, event.newPiece.cell->coords.x, mGameConfig.pieceFallYCoord, event.newPiece.cell->coords.y), mGameConfig.pieceFallDuration);
+		mActionMgr.AddTimedAction(FallPieceFromTo(visual, event.newPiece.cell->coords.x, mGameConfig.pieceFallYCoord, event.newPiece.cell->coords.y),
+		                          mGameConfig.pieceFallDuration);
 		mMatchStats.layerCount += event.newPiece.cell->layers;
 		break;
 	}
@@ -377,7 +381,8 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		Vec2 startCoords = event.effect.mainCell->coords + Vec2 { mGameConfig.board.cellWidth, mGameConfig.board.cellHeight } * 0.5f;
 		if (event.effect.type == EffectType::hrocket) {
 			mRenderActionMgr.AddTimedAction(DrawLaser(startCoords, { 0.f, startCoords.y }, mGameRenderer), mGameConfig.glowTrailTime);
-			mRenderActionMgr.AddTimedAction(DrawLaser(startCoords, { mGameConfig.board.bottomRightCoord.x, startCoords.y }, mGameRenderer), mGameConfig.glowTrailTime);
+			mRenderActionMgr.AddTimedAction(DrawLaser(startCoords, { mGameConfig.board.bottomRightCoord.x, startCoords.y }, mGameRenderer),
+			                                mGameConfig.glowTrailTime);
 		}
 		else if (event.effect.type == EffectType::vrocket) {
 			// TODO
@@ -440,9 +445,9 @@ void PlayScreen::DrawUI() const {
 	snprintf(tmp, sizeof(tmp), "%04d", mMatchStats.score);
 	textRenderer.Write(*mFonts[2], tmp, Vec2 { 60, y }, textStyle, DrawOrder::UI);
 
-	const int time = static_cast<int>(mTime);
+	const int time = static_cast<int>(mMatchTime);
 	snprintf(tmp, sizeof(tmp), "%d:%02d", time / 60, time % 60);
-	textRenderer.Write(*mFonts[2], tmp, Vec2 { 500, y }, mTime < criticalTime ? textStyle1 : textStyle, DrawOrder::UI);
+	textRenderer.Write(*mFonts[2], tmp, Vec2 { 500, y }, mMatchTime < criticalTime ? textStyle1 : textStyle, DrawOrder::UI);
 
 	BitmapExtParams prm;
 	prm.pivot = BitmapPivot::center;

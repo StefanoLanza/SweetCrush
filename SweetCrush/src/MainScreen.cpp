@@ -97,16 +97,20 @@ void MainScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
 	if (! mPanel.IsVisible()) {
 		return;
 	}
-	constexpr float dx = 66;
+	constexpr float dx = TileWidth + 2;
 	float           phase = mTime * 4.f;
-	float           x = (RefWindowWidth - (NumPieceTypes - 3) * dx) * 0.5f;
+	float           x = (RefWindowWidth - (NumPieceTypes - 4) * dx) * 0.5f;
 	BitmapExtParams prm;
 	prm.pivot = BitmapPivot::center;
 	prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::overBackground);
 	prm.blending = true;
-	for (int i = 0; i < NumPieceTypes - 2; ++i) {
+	for (int i = 0; i < NumPieceTypes - 3; ++i) {
 		prm.orientation = std::sin(phase * .25f + (float)i) * 0.5f;
-		mEngine.GetBitmapRenderer().DrawBitmapEx(*sprites[pieceIcons[i]], { x, 380.f + std::cos(phase) * 4.f }, prm);
+		prm.width = TileWidth;
+		prm.height = TileHeight;
+		int id = pieceIcons[i];
+		prm.texRect = { (float)(id % 4), (float)(id / 4), TileWidth / 256.0f, TileHeight / 256.0f };
+		mEngine.GetBitmapRenderer().DrawBitmapEx(*pastryAtlas, { x, 380.f + std::cos(phase) * 4.f }, prm);
 		x += dx;
 		phase += 6.28f / static_cast<float>(NumPieceTypes);
 	}

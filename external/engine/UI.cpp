@@ -68,11 +68,11 @@ void UIButton::Draw(const UIRenderer& renderer, const TextRenderer& textRender, 
 void UIButton::UpdateRect(const UIRect& parentRect) {
 	UISize size = mDesc.size;
 	if (mBitmap) {
-		if (size.rWidth <= 0.f) {
+		if (size.rWidth < 0.f && size.aWidth < 0.0f) {
 			size.aWidth = static_cast<float>(mBitmap->GetBitmap().Width());
 			size.rWidth = 0.f;
 		}
-		if (size.rHeight <= 0.f) {
+		if (size.rHeight < 0.f && size.rHeight < 0.0f) {
 			size.aHeight = static_cast<float>(mBitmap->GetBitmap().Height());
 			size.rHeight = 0.f;
 		}
@@ -226,10 +226,14 @@ void UIPanel::UpdateRect(const UIRect& parentRect) {
 	mRect = rect;
 	// Update children
 	for (auto& panel : mPanels) {
-		panel->UpdateRect(rect);
+		if (panel->IsVisible()) {
+			panel->UpdateRect(rect);
+		}
 	}
 	for (auto& bitmap : mBitmaps) {
-		bitmap->UpdateRect(rect);
+//		if (bitmap->IsVisible()) {
+			bitmap->UpdateRect(rect);
+	//	}
 	}
 	for (auto& button : mButtons) {
 		button->UpdateRect(rect);
@@ -260,12 +264,10 @@ UIPanel& UICanvas::GetPanel() {
 	return mPanel;
 }
 
-void UICanvas::UpdateWidgets(int canvasWidth, int canvasHeight) {
+void UICanvas::Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords) {
 	const UIRect parentRect { { 0.f, 0.f }, (float)canvasWidth, (float)canvasHeight };
 	mPanel.UpdateRect(parentRect);
-}
 
-void UICanvas::Draw(const UIRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords) {
 	if (mBackground) {
 		const UIDrawParams prm {
 			.blending = false,

@@ -67,6 +67,7 @@ private:
 	Wind::UIButton                mBoosterButtons[3];
 	Match3                        mMatch3;
 	std::vector<CellVisual>       mCellGraphics;
+	float                         mMatchTime;
 	float                         mTime;
 	Wind::FontPtr                 mFonts[3];
 	Wind::MusicPtr                mMusic;

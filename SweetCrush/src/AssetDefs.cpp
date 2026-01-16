@@ -2,20 +2,11 @@
 
 using namespace Wind;
 
+Wind::TexturePtr pastryAtlas;
+Wind::TexturePtr sprites[NumSprites];
+
 const SpriteDef spriteDefs[NumSprites] {
 	{ "null.png" },
-	{ "gameartguppy/pastry_cookie01.png" },
-	{ "gameartguppy/pastry_cookie02.png" },
-	{ "gameartguppy/pastry_croissant.png" },
-	{ "gameartguppy/pastry_cupcake.png" },
-	{ "gameartguppy/pastry_donut.png" },
-	{ "gameartguppy/pastry_macaroon.png" },
-	{ "gameartguppy/pastry_pie.png" },
-	{ "gameartguppy/pastry_poptart01.png" },
-	{ "gameartguppy/pastry_poptart02.png" },
-	{ "gameartguppy/pastry_starcookie01.png" },
-	{ "gameartguppy/pastry_starcookie02.png" },
-	{ "gameartguppy/pastry_starcookie01.png" },
 	{ "boosters/bomb_green.png" }, // TODO Replace
 	{ "boosters/bomb_blue.png" },
 	{ "boosters/bomb_red.png" },
@@ -30,26 +21,24 @@ const SpriteDef spriteDefs[NumSprites] {
 	{ "vrtStripes.png" },
 };
 
-const int boardTileDefs[NumBoardTiles] { 16 };
+const int boardTileDefs[NumBoardTiles] { 4 };
 
-const int pieceIcons[NumPieceTypes] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+const int pieceIcons[NumPieceTypes] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 
 const int obstacleIcons[NumObstacleTypes] { 0 };
 
 const int effectIcons[NumEffects] {
-	12,
-	13,
-	14,
-	15,
+	0,
+	1,
+	2,
+	3,
 };
 
-Wind::TexturePtr sprites[NumSprites];
-
-const int sparkleSprite = 17;
-const int iceSprite = 18;
-const int brokenIceSprite = 19;
-const int selectionSprite = 21;
-const int glowSprite = 22;
-const int starSprite = 12;
-const int hrzStripesSprite = 23;
-const int vrtStripesSprite = 24;
+const int sparkleSprite = 5;
+const int iceSprite = 6;
+const int brokenIceSprite = 7;
+const int selectionSprite = 9;
+const int glowSprite = 10;
+const int starSprite = 0; // FIXME
+const int hrzStripesSprite = 11;
+const int vrtStripesSprite = 12;

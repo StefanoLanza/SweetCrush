@@ -15,5 +15,5 @@ void main() {
 	pos = rotate(pos, rotation.xy);
 	pos = vec2(-1. + pos.x * orthoMatrix.x, 1. - pos.y * orthoMatrix.y);
     gl_Position = vec4(pos, 0., 1.);
-	textureCoordinate = mix(uvRect.xy, uvRect.zw, inputPosition.xy); // to atlas UVs
+	textureCoordinate = (uvRect.xy + inputPosition.xy) * uvRect.zw; // atlas UVs
 }

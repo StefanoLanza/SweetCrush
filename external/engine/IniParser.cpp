@@ -24,4 +24,23 @@ int ParseINIFile(const char* fileName, ini_handler handler, void* user) {
 	return res;
 }
 
+void INIParser::AddListener(const char* section, INIListener&& listener) {
+	mListeners.emplace_back(section, std::move(listener));
+}
+
+int INIParser::ParseFile(const char* fileName) const {
+	//		res = ini_parse_string(fileData.data(), Handler, this);
+	return 0;
+}
+
+int INIParser::Handler(void* user, const char* section, const char* name, const char* value) {
+	auto self = static_cast<INIParser*>(user);
+	for (auto&& l : self->mListeners) {
+		if (! strcmp(l.first, section)) {
+			return l.second(name, value);
+		}
+	}
+	return 0;
+}
+
 } // namespace Wind
