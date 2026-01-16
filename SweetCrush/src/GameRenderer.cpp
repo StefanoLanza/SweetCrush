@@ -233,6 +233,6 @@ void GameRenderer::DrawBoard(const Board& board, int selectedCell, const GameCon
 	mPimpl->DrawPieces(board, gameConfig);
 }
 
-void GameRenderer::DrawGlow(Wind::Vec2 start, Wind::Vec2 end, float w, float t01) const {
+void GameRenderer::DrawLaser(Wind::Vec2 start, Wind::Vec2 end, float w, float t01) const {
 	mPimpl->DrawTrail(start, end, w, t01);
 }

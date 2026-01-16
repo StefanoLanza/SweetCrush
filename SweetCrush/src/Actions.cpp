@@ -113,14 +113,9 @@ ActionFunc DrawBrokenIce(const Cell& cell, const BitmapRenderer& bitmapRenderer,
 	};
 }
 
-ActionFunc DrawGlow(Vec2 startCoords, Vec2 endCoords, const GameRenderer& gameRenderer) {
+ActionFunc DrawLaser(Vec2 startCoords, Vec2 endCoords, const GameRenderer& gameRenderer) {
 	return [&gameRenderer, startCoords, endCoords](float /*dt*/, float t01) {
-/*		BitmapExtParams prm;
-		prm.scale.x = 0.25f + t01 * 4.f;
-		prm.scale.y = 1.f;
-		prm.pivot = BitmapPivot::center;
-		prm.color.a = LerpEase(0.f, 255.f, t01, EaseInQuint);*/
-		gameRenderer.DrawGlow(startCoords, endCoords, 32.f, t01);
+		gameRenderer.DrawLaser(startCoords, endCoords, 64.f, EaseInQuint(t01));
 		return false;
 	};
 }

@@ -199,8 +199,8 @@ void PlayScreen::Draw(GameScreenId topScreen) const {
 	DrawUI();
 
 	// FIXME
-	mGameRenderer.DrawGlow({ 0.f, 300.f }, { mGameConfig.board.bottomRightCoord.x, 300.f }, 64.f, 0.5 + 0.5 * sinf(mTime));
-	mGameRenderer.DrawGlow({ 100.f, 0.f }, { 100.f, mGameConfig.board.bottomRightCoord.y }, 64.f, 0.5 + 0.5 * sinf(mTime));
+	//mGameRenderer.DrawLaser({ 0.f, 300.f }, { mGameConfig.board.bottomRightCoord.x, 300.f }, 64, 0.5 + 0.5 * sinf(mTime * 5.0));
+	//mGameRenderer.DrawLaser({ 100.f, 0.f }, { 100.f, mGameConfig.board.bottomRightCoord.y }, 64, 0.5 + 0.5 * sinf(mTime * 5.0));
 }
 
 void PlayScreen::Enter(GameScreenId prevScreen) {
@@ -376,8 +376,8 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		// TODO Scale up
 		Vec2 startCoords = event.effect.mainCell->coords + Vec2 { mGameConfig.board.cellWidth, mGameConfig.board.cellHeight } * 0.5f;
 		if (event.effect.type == EffectType::hrocket) {
-			mRenderActionMgr.AddTimedAction(DrawGlow(startCoords, { 0.f, startCoords.y }, mGameRenderer), mGameConfig.glowTrailTime);
-			mRenderActionMgr.AddTimedAction(DrawGlow(startCoords, { mGameConfig.board.bottomRightCoord.x, startCoords.y }, mGameRenderer), mGameConfig.glowTrailTime);
+			mRenderActionMgr.AddTimedAction(DrawLaser(startCoords, { 0.f, startCoords.y }, mGameRenderer), mGameConfig.glowTrailTime);
+			mRenderActionMgr.AddTimedAction(DrawLaser(startCoords, { mGameConfig.board.bottomRightCoord.x, startCoords.y }, mGameRenderer), mGameConfig.glowTrailTime);
 		}
 		else if (event.effect.type == EffectType::vrocket) {
 			// TODO

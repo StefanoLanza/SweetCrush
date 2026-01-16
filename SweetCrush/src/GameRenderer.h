@@ -11,7 +11,7 @@ public:
 	~GameRenderer();
 
 	void DrawBoard(const Board& board, int selectedCell, const GameConfig& gameConfig) const;
-	void DrawGlow(Wind::Vec2 start, Wind::Vec2 end, float w, float t01) const;
+	void DrawLaser(Wind::Vec2 start, Wind::Vec2 end, float w, float t01) const;
 
 private:
 	class Impl;
