@@ -199,7 +199,7 @@ void PlayScreen::Draw(GameScreenId topScreen) const {
 	DrawUI();
 
 	// FIXME
-	mGameRenderer.DrawGlow({ 0.f, 300.f }, { mGameConfig.board.bottomRightCoord.x, 300.f }, 32.f, 0.5 + 0.5 * sinf(mTime));
+	mGameRenderer.DrawGlow({ 0.f, 300.f }, { mGameConfig.board.bottomRightCoord.x, 300.f }, 64.f, 0.5 + 0.5 * sinf(mTime));
 	mGameRenderer.DrawGlow({ 100.f, 0.f }, { 100.f, mGameConfig.board.bottomRightCoord.y }, 64.f, 0.5 + 0.5 * sinf(mTime));
 }
 

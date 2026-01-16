@@ -280,7 +280,7 @@ void UICanvas::Draw(const UIRenderer& renderer, const TextRenderer& textRender, 
 			.blending = true,
 			.priority = DrawOrder::mousePointer,
 		};
-		//FIXME renderer.DrawRect({ mouseCoords.x, mouseCoords.y, (float)mMousePointer->Width(), (float)mMousePointer->Height() }, *mMousePointer, prm);
+		renderer.DrawRect({ mouseCoords.x, mouseCoords.y, (float)mMousePointer->Width(), (float)mMousePointer->Height() }, *mMousePointer, prm);
 	}
 }
 

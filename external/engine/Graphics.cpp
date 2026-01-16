@@ -236,7 +236,6 @@ void Graphics::Impl::Flush() {
 	}
 
 	glActiveTexture(GL_TEXTURE0);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_BLEND);
 
 	if (auto err = glGetError(); err != GL_NO_ERROR) {
@@ -331,6 +330,7 @@ void Graphics::Impl::Flush() {
 					glEnable(GL_BLEND);
 					blendEnabled = 1;
 				}
+				glBlendFunc(ps.mSrcAlpha, ps.mDstAlpha); // TODO Cache
 			}
 			else {
 				if (blendEnabled != 0) {

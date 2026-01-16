@@ -17,7 +17,14 @@ public:
 
 		PipelineState pipelineState;
 		pipelineState.mBlending = true;
+		pipelineState.mSrcAlpha = GL_SRC_ALPHA;
+		pipelineState.mDstAlpha = GL_ONE_MINUS_SRC_ALPHA;
 		mPipelineBlending = graphics.NewPipeline(pipelineState);
+
+		pipelineState.mBlending = true;
+		pipelineState.mSrcAlpha = GL_SRC_ALPHA;
+		pipelineState.mDstAlpha = GL_ONE;
+		mPipelineAdditive = graphics.NewPipeline(pipelineState);
 
 		mTileProgram.mProgramHandle = graphics.NewProgram(SHADERS_FOLDER "tile.vs", SHADERS_FOLDER "tile.fs");
 		if (mTileProgram.mProgramHandle != nullProgram) {
@@ -42,8 +49,8 @@ public:
 			mTrailProgram.mCoords = program.GetUniformLocation("coords");
 			mTrailProgram.mPerp = program.GetUniformLocation("perp");
 			mTrailProgram.mColor = program.GetUniformLocation("color");
-			//mTrailProgram.mTexture = program.GetUniformLocation("inputTexture");
-			mTrailProgram.mValid = (mTrailProgram.mCoords != -1);// && mTrailProgram.mTexture != -1);
+			// mTrailProgram.mTexture = program.GetUniformLocation("inputTexture");
+			mTrailProgram.mValid = (mTrailProgram.mCoords != -1); // && mTrailProgram.mTexture != -1);
 		}
 
 		for (int i = 0; i < NumSprites; ++i) {
@@ -151,17 +158,21 @@ public:
 			return;
 		}
 
-		Vec2 perp = Ortho(Normalize(end - start)) * w;
-		end = Lerp(start, end, t01);
+		Vec2 dir = Normalize(end - start);
+		Vec2 perp = Ortho(dir) * w;
+		
+		const float th = 0.1f;
+		Vec2 trailStart = start;
+		Vec2 trailEnd = Lerp(start, end, th + (1.f - th) * t01);
 
-		mGraphics.SetPipeline(mPipelineBlending);
+		mGraphics.SetPipeline(mPipelineAdditive);
 
 		const Texture& texture = *sprites[glowSprite];
 		const int      uniforms[] = { mTrailProgram.mCoords, mTrailProgram.mPerp, mTrailProgram.mColor };
 		unsigned       textureIds[] = { texture.GetTextureId() };
 		const float    uniformData[] = {
-            start.x, start.y, end.x, end.y, //
-            perp.x,  perp.y,  0.f,     0.f,   //
+            trailStart.x, trailStart.y, trailEnd.x, trailEnd.y, //
+            perp.x,  perp.y,  0.f,   0.f,   //
             1.f,     1.f,     1.f,   1.f,   // TODO Remove color ?
 		};
 
@@ -170,7 +181,7 @@ public:
 		drawCall.mesh = quadMesh;
 		drawCall.drawOrder = static_cast<DrawOrder>(GameDrawOrder::overlays);
 		drawCall.textures = textureIds;
-		drawCall.numTextures = 0;//FIXME
+		drawCall.numTextures = 1;
 		drawCall.uniforms = uniforms;
 		drawCall.uniformData = uniformData;
 		drawCall.numUniforms = sizeof(uniformData) / 16;
@@ -205,6 +216,7 @@ private:
 
 	Graphics&      mGraphics;
 	PipelineHandle mPipelineBlending;
+	PipelineHandle mPipelineAdditive;
 	TileProgram    mTileProgram;
 	PieceProgram   mPieceProgram;
 	TrailProgram   mTrailProgram;

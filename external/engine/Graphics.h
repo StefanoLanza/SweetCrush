@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Color.h"
+#include "FwdDecl.h"
 #include "Maths.h"
 #include "Texture.h"
-#include "FwdDecl.h"
 
 #include <memory>
 #include <string_view>
@@ -55,11 +55,13 @@ public:
 	void DisableScissorTest();
 
 public:
-	RectI mScissorRect {};
-	bool  mDepthEnabled = false;
-	bool  mDepthWriteEnabled = false;
-	bool  mScissorTestEnabled = false;
-	bool  mBlending = false;
+	RectI  mScissorRect {};
+	bool   mDepthEnabled = false;
+	bool   mDepthWriteEnabled = false;
+	bool   mScissorTestEnabled = false;
+	GLenum mSrcAlpha = GL_SRC_ALPHA;
+	GLenum mDstAlpha = GL_ONE_MINUS_SRC_ALPHA;
+	bool   mBlending = false;
 
 	friend class Graphics;
 };
