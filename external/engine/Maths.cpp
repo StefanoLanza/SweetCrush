@@ -52,6 +52,10 @@ Vec2 Clamp(Vec2 v, Vec2 min, Vec2 max) {
 	return { Clamp(v.x, min.x, max.x), Clamp(v.y, min.y, max.y) };
 }
 
+Vec2 Ortho(Vec2 v) {
+	return { v.y, -v.x };
+}
+
 bool RectContainsPoint(const Rect& rect, const Vec2& point) {
 	return std::clamp(point.x, rect.left, rect.right) == point.x && std::clamp(point.y, rect.top, rect.bottom) == point.y;
 }

@@ -66,6 +66,7 @@ struct UIBitmapDesc {
 	Color            color = whiteColor;
 	UIBlending       blending = UIBlending::on;
 	unsigned int     relDrawOrder = 0;
+	Rect             _9patch = { 0.f, 0.f, 0.f, 0.f }; // pixels
 };
 
 struct UIButtonDesc {
@@ -82,7 +83,7 @@ struct UIPanelDesc {
 	UIVertAlignment  verticalAlignment = UIVertAlignment::center;
 };
 
-class UIText {
+class UIText final {
 public:
 	UIText(const UITextDesc& desc, Engine& engine);
 
@@ -100,18 +101,18 @@ class UIBitmap {
 public:
 	UIBitmap(const UIBitmapDesc& desc, Graphics& graphics);
 
-	void              Draw(const BitmapRenderer& renderer, DrawOrderType drawOrder) const;
-	void              UpdateRect(const UIRect& parentRect);
-	void              SetBitmap(const TexturePtr& bitmap);
+	void           Draw(const BitmapRenderer& renderer, DrawOrderType drawOrder) const;
+	void           UpdateRect(const UIRect& parentRect);
+	void           SetBitmap(const TexturePtr& bitmap);
 	const Texture& GetBitmap() const;
 
 private:
 	UIBitmapDesc mDesc;
-	TexturePtr    mBitmap;
+	TexturePtr   mBitmap;
 	UIRect       mAlignedRect;
 };
 
-class UIButton {
+class UIButton final {
 public:
 	UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text);
 
@@ -132,15 +133,15 @@ class UIPanel final {
 public:
 	explicit UIPanel(const UIPanelDesc& desc);
 
-	void SetVisible(bool visible);
-	bool IsVisible() const;
+	void          SetVisible(bool visible);
+	bool          IsVisible() const;
 	const UIRect& Rect() const;
-	void AddPanel(UIPanel& panel);
-	void AddButton(UIButton& button);
-	void AddText(UIText& text);
-	void AddBitmap(UIBitmap& bitmap);
-	void Draw(const BitmapRenderer& renderer, const TextRenderer& textRender, DrawOrderType drawOrder) const;
-	void UpdateRect(const UIRect& parentRect);
+	void          AddPanel(UIPanel& panel);
+	void          AddButton(UIButton& button);
+	void          AddText(UIText& text);
+	void          AddBitmap(UIBitmap& bitmap);
+	void          Draw(const BitmapRenderer& renderer, const TextRenderer& textRender, DrawOrderType drawOrder) const;
+	void          UpdateRect(const UIRect& parentRect);
 
 private:
 	UIPanelDesc            mDesc;
@@ -152,7 +153,7 @@ private:
 	bool                   mVisible;
 };
 
-class UICanvas {
+class UICanvas final {
 public:
 	UICanvas();
 
@@ -164,7 +165,7 @@ public:
 	void     Draw(const BitmapRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords);
 
 private:
-	UIPanel   mPanel;
+	UIPanel    mPanel;
 	TexturePtr mBackground;
 	TexturePtr mMousePointer;
 };

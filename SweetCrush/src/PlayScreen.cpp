@@ -60,15 +60,23 @@ const UIButtonDesc booster2ButtonDesc {
 };
 
 const UIBitmapDesc boosterButtonBitmapDesc {
-	"booster.png",
-	UIZeroPos,
-	UIAutoSize,
+	.fileName = "button.png",
+	.pos = UIZeroPos,
+	.size = { 70.f, 70.f, 0.f, 0.f },
+	._9patch = { 16, 0.f, 0.f, 0.f }
 };
 
 const UIBitmapDesc optionButtonBitmapDesc {
 	"menuButton.png",
 	UIZeroPos,
 	UIAutoSize,
+};
+
+constexpr UIPanelDesc BoosterPanelDesc {
+	{ 0.f, -20.f, 0.f, 0.f },   // pos
+	{ 300.f, 100.f, 0.f, 0.f }, // size
+	UIHorizAlignment::center,
+	UIVertAlignment::bottom,
 };
 
 constexpr float criticalTime = 10.f;
@@ -92,12 +100,11 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const G
     , mCellSelector { std::make_unique<TileSelector>(mBoard, gameConfig) }
     , mEffectInfoPanel(engine)
     , mPanel(UIDefaultPanelDesc)
+    , mBoostersPanel(BoosterPanelDesc)
     , mPauseButton(MakeButton(pauseButtonDesc, optionButtonBitmapDesc, engine))
-	, mBoosterButtons {
-		MakeButton(booster0ButtonDesc, boosterButtonBitmapDesc, engine),
-		MakeButton(booster1ButtonDesc, boosterButtonBitmapDesc, engine),
-		MakeButton(booster2ButtonDesc, boosterButtonBitmapDesc, engine)
-	}
+    , mBoosterButtons { MakeButton(booster0ButtonDesc, boosterButtonBitmapDesc, engine),
+	                    MakeButton(booster1ButtonDesc, boosterButtonBitmapDesc, engine),
+	                    MakeButton(booster2ButtonDesc, boosterButtonBitmapDesc, engine) }
     , mMatch3 { mBoard, mBoardGenerator, *mCellSelector }
     , mTime { 0 } {
 	mCellSelector->SetCallback([this](const TileSelectionEvent& event) { OnTileSelectionEvent(event); });
@@ -112,11 +119,9 @@ const char* PlayScreen::GetName() const {
 }
 
 void PlayScreen::LoadAssets() {
-	Audio&    audio = mEngine.GetAudio();
-	Graphics& graphics = mEngine.GetGraphics();
+	Audio& audio = mEngine.GetAudio();
 	mMusic = audio.LoadMusic("audio/music.ogg");
 	mSounds[0] = audio.LoadSound("audio/match.wav");
-	mBoosterPanel = graphics.LoadTexture("booster.png");
 }
 
 void PlayScreen::BuildUI(UICanvas& canvas) {
@@ -124,11 +129,11 @@ void PlayScreen::BuildUI(UICanvas& canvas) {
 	mFonts[0] = mEngine.GetTextRenderer().AddFont("mediumFont");
 	mFonts[1] = mEngine.GetTextRenderer().AddFont("tiny");
 	mFonts[2] = mEngine.GetTextRenderer().AddFont("smallFont");
-	// TODO ? mPanel.AddButton(mPauseButton);
-	mPanel.AddButton(mBoosterButtons[0]);
-	mPanel.AddButton(mBoosterButtons[1]);
-	mPanel.AddButton(mBoosterButtons[2]);
-	// TODO ? mPanel.AddButton(mPauseButton);
+	mPanel.AddPanel(mBoostersPanel);
+	mBoostersPanel.SetVisible(true);
+	mBoostersPanel.AddButton(mBoosterButtons[0]);
+	mBoostersPanel.AddButton(mBoosterButtons[1]);
+	mBoostersPanel.AddButton(mBoosterButtons[2]);
 	// TODO ? mPanel.AddButton(mPauseButton);
 	canvas.GetPanel().AddPanel(mPanel);
 }
@@ -192,6 +197,10 @@ void PlayScreen::Draw(GameScreenId topScreen) const {
 	}
 	mGameRenderer.DrawBoard(mBoard, mCellSelector->GetSelectedTile(), mGameConfig);
 	DrawUI();
+
+	// FIXME
+	mGameRenderer.DrawGlow({ 0.f, 300.f }, { mGameConfig.board.bottomRightCoord.x, 300.f }, 32.f, 0.5 + 0.5 * sinf(mTime));
+	mGameRenderer.DrawGlow({ 100.f, 0.f }, { 100.f, mGameConfig.board.bottomRightCoord.y }, 64.f, 0.5 + 0.5 * sinf(mTime));
 }
 
 void PlayScreen::Enter(GameScreenId prevScreen) {
@@ -311,21 +320,20 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 			mActionMgr.AddTimedAction(MovePieceTo(*static_cast<CellVisual*>(cell.ud), dstCell.coords), mGameConfig.suckPieceDuration);
 		}
 		else {
-			mActionMgr.AddTimedAction(ScaleCellPiece(*static_cast<CellVisual*>(cell.ud), 1.f, 0.f), mGameConfig.removePieceDuration);
+			mActionMgr.AddTimedAction(ScalePiece(*static_cast<CellVisual*>(cell.ud), 1.f, 0.f), mGameConfig.removePieceDuration);
 		}
 		OnPieceRemoved(cell);
 		break;
 	}
 	case Match3Event::Id::newPiece: {
-		Cell& cell = mBoard.GetCell(event.newPiece.cellIdx);
-		assert(cell.category == CellCategory::piece);
-		CellVisual& visual = GetVisual(cell);
+		assert(event.newPiece.cell->category == CellCategory::piece);
+		CellVisual& visual = GetVisual(*event.newPiece.cell);
 		visual.bitmapIdx = pieceIcons[event.newPiece.pieceId];
 		visual.scale = 1.f;
 		visual.rotation = 0.f;
 		// Drop new tiles from the top
-		mActionMgr.AddTimedAction(FallPieceFromTo(visual, cell.coords.x, mGameConfig.pieceFallYCoord, cell.coords.y), mGameConfig.pieceFallDuration);
-		mMatchStats.layerCount += cell.layers;
+		mActionMgr.AddTimedAction(FallPieceFromTo(visual, event.newPiece.cell->coords.x, mGameConfig.pieceFallYCoord, event.newPiece.cell->coords.y), mGameConfig.pieceFallDuration);
+		mMatchStats.layerCount += event.newPiece.cell->layers;
 		break;
 	}
 	case Match3Event::Id::swap: {
@@ -353,7 +361,7 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		if (mGameConfig.settings.infoOn) {
 			mEffectInfoPanel.ShowHelp(event.specialPiece.type);
 		}
-		Cell& cell = mBoard.GetCell(event.specialPiece.cellIdx);
+		const Cell& cell = mBoard.GetCell(event.specialPiece.cellIdx);
 		assert(cell.category == CellCategory::piece);
 		assert(cell.hasEffect);
 		CellVisual* visual = static_cast<CellVisual*>(cell.ud);
@@ -363,26 +371,27 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		break;
 	}
 	case Match3Event::Id::triggerEffect: {
-		Cell& cell = mBoard.GetCell(event.specialPiece.cellIdx);
-		assert(cell.category == CellCategory::piece);
-		assert(cell.hasEffect);
+		assert(event.effect.mainCell->category == CellCategory::piece);
+		assert(event.effect.mainCell->hasEffect);
 		// TODO Scale up
-		Vec2 centralCoords = cell.coords + Vec2 { mGameConfig.board.cellWidth, mGameConfig.board.cellHeight } * 0.5f;
-		;
-		if (event.specialPiece.type == EffectType::hrocket) {
-			mRenderActionMgr.AddTimedAction(DrawGlow(centralCoords, true, mEngine.GetBitmapRenderer()), mGameConfig.bombExplosionTime);
+		Vec2 startCoords = event.effect.mainCell->coords + Vec2 { mGameConfig.board.cellWidth, mGameConfig.board.cellHeight } * 0.5f;
+		if (event.effect.type == EffectType::hrocket) {
+			mRenderActionMgr.AddTimedAction(DrawGlow(startCoords, { 0.f, startCoords.y }, mGameRenderer), mGameConfig.glowTrailTime);
+			mRenderActionMgr.AddTimedAction(DrawGlow(startCoords, { mGameConfig.board.bottomRightCoord.x, startCoords.y }, mGameRenderer), mGameConfig.glowTrailTime);
 		}
-		else if (event.specialPiece.type == EffectType::vrocket) {
-			mRenderActionMgr.AddTimedAction(DrawGlow(centralCoords, false, mEngine.GetBitmapRenderer()), mGameConfig.bombExplosionTime);
+		else if (event.effect.type == EffectType::vrocket) {
+			// TODO
 		}
-		//		mRenderActionMgr.AddTimedAction(DrawExplosion(cell, mEngine.GetBitmapRenderer(), mGameConfig), mGameConfig.bombExplosionTime, 0.f,
-		//	                                ActionFlags::nonBlocking);
-		mActionMgr.AddTimedAction(ScaleCellPiece(*static_cast<CellVisual*>(cell.ud), 1.f, 0.f), mGameConfig.removePieceDuration);
-		OnPieceRemoved(cell);
+		else {
+			//		mRenderActionMgr.AddTimedAction(DrawExplosion(cell, mEngine.GetBitmapRenderer(), mGameConfig), mGameConfig.bombExplosionTime, 0.f,
+			//	                                ActionFlags::nonBlocking);
+		}
+		mActionMgr.AddTimedAction(ScalePiece(GetVisual(*event.effect.mainCell), 1.f, 0.f), mGameConfig.removePieceDuration);
+		OnPieceRemoved(*event.effect.mainCell);
 		break;
 	}
 	case Match3Event::Id::removeLayer: {
-		const Cell& cell = mBoard.GetCell(event.removeLayer.cellIdx);
+		const Cell& cell = *event.removeLayer.cell;
 		mRenderActionMgr.AddTimedAction(DrawBrokenIce(cell, mEngine.GetBitmapRenderer(), mGameConfig), mGameConfig.brokenIceDuration);
 		assert(mMatchStats.layerCount > 0);
 		mMatchStats.layerCount--;
@@ -428,7 +437,7 @@ void PlayScreen::DrawUI() const {
 	char                  tmp[256];
 	const float           y = 60.f;
 
-	snprintf(tmp, sizeof(tmp), "%s    %04d", GetLocalizedString(GameStringId::score), mMatchStats.score);
+	snprintf(tmp, sizeof(tmp), "%04d", mMatchStats.score);
 	textRenderer.Write(*mFonts[2], tmp, Vec2 { 60, y }, textStyle, DrawOrder::UI);
 
 	const int time = static_cast<int>(mTime);
@@ -459,16 +468,10 @@ void PlayScreen::DrawUI() const {
 			pos.x += sprites[iceSprite]->Width() + 12;
 		}
 	}
-
-#if 0
-	prm.pivot = BitmapPivot::topLeft;
-	bitmapRender.DrawBitmapEx(*mBoosterPanel, { 80, 1000 }, prm);
-	bitmapRender.DrawBitmapEx(*mBoosterPanel, { 200, 1000 }, prm);
-	bitmapRender.DrawBitmapEx(*mBoosterPanel, { 320, 1000 }, prm);
-#endif
 }
 
 void PlayScreen::SetupNewBoardAnimation() {
+	Random rnd;
 	for (Cell& cell : mBoard.GetCells()) {
 		CellVisual& visual = GetVisual(cell);
 		visual.coords = cell.coords;
@@ -486,8 +489,10 @@ void PlayScreen::SetupNewBoardAnimation() {
 		}
 		visual.scale = 0.f;
 		visual.rotation = 0.f;
-		float delay = 0.f; //(mBoard.GetRows() - 1 - cell.row + cell.col) * 0.05f;
-		mActionMgr.AddTimedAction(ScaleCellPiece(visual, 0.f, 1.f), mGameConfig.newPieceDuration, delay);
+		visual.bkgAlpha = 0.f;
+		float delay = rnd.NextF(0.f, 0.5f); //(mBoard.GetRows() - 1 - cell.row + cell.col) * 0.05f;
+		mActionMgr.AddTimedAction(FadeInAlpha(visual), mGameConfig.newPieceDuration, delay);
+		mActionMgr.AddTimedAction(ScalePiece(visual, 0.f, 1.f), mGameConfig.newPieceDuration, delay);
 	}
 }
 

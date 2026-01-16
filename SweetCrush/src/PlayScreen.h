@@ -63,6 +63,7 @@ private:
 	EffectInfoPanel               mEffectInfoPanel;
 	Wind::UIPanel                 mPanel;
 	Wind::UIButton                mPauseButton;
+	Wind::UIPanel                 mBoostersPanel;
 	Wind::UIButton                mBoosterButtons[3];
 	Match3                        mMatch3;
 	std::vector<CellVisual>       mCellGraphics;
@@ -70,5 +71,4 @@ private:
 	Wind::FontPtr                 mFonts[3];
 	Wind::MusicPtr                mMusic;
 	Wind::SoundPtr                mSounds[2];
-	Wind::TexturePtr              mBoosterPanel;
 };

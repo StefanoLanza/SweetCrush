@@ -22,6 +22,7 @@ struct CellVisual {
 	int        bitmapIdx;
 	Wind::Vec2 coords;
 	float      scale;
+	float      bkgAlpha;
 	float      rotation;
 	uint8_t    priority;
 };

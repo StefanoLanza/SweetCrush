@@ -15,6 +15,7 @@ struct UIConfig {
 
 struct BoardConfig {
 	Wind::Vec2 topLeftCoord;
+	Wind::Vec2 bottomRightCoord;
 	float      cellWidth;
 	float      cellHeight;
 	float      cellSpacing;
@@ -32,10 +33,11 @@ struct GameConfig {
 	// Animations
 	float        moveBackPieceDuration; // sec
 	float        swapSpeed;
-	float        pieceFallDuration;  // pixels / sec
+	float        pieceFallDuration; // pixels / sec
 	float        pieceFallSpeed;
 	float        pieceFallYCoord;   // pixels
 	float        bombExplosionTime; // seconds
+	float        glowTrailTime;
 	float        starMoveTime;
 	float        removePieceDuration; // seconds
 	float        suckPieceDuration;

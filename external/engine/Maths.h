@@ -52,6 +52,7 @@ bool RectContainsPoint(const Rect& rect, const Vec2& point);
 Vec2 Lerp(Vec2 a, Vec2 b, float t);
 Vec2 Spline(const Vec2 p[], int n, float t);
 Vec2 Clamp(Vec2 v, Vec2 min, Vec2 max);
+Vec2 Ortho(Vec2 v);
 
 template <typename Curve>
 Vec2 LerpEase(Vec2 a, Vec2 b, float t, Curve&& curve) {

@@ -4,6 +4,7 @@
 #include "Constants.h"
 #include "GameConfig.h"
 #include "GameDrawOrder.h"
+#include "GameRenderer.h"
 
 #include <engine/BitmapRender.h>
 #include <engine/Easings.h>
@@ -37,17 +38,24 @@ ActionFunc FallPieceFromTo(CellVisual& cell, float xCoord, float startYCoord, fl
 	};
 }
 
-ActionFunc MovePieceTo(CellVisual& cell, const Wind::Vec2& targetCoords, float speed) {
-	const Vec2 velocity = Normalize(targetCoords - cell.coords) * speed;
-	return [&cell, targetCoords, velocity](float dt, float /*t01*/) {
-		cell.coords = Clamp(cell.coords + velocity * dt, cell.coords, targetCoords);
-		return cell.coords == targetCoords;
+ActionFunc MovePieceTo(CellVisual& visual, const Wind::Vec2& targetCoords, float speed) {
+	const Vec2 velocity = Normalize(targetCoords - visual.coords) * speed;
+	return [&visual, targetCoords, velocity](float dt, float /*t01*/) {
+		visual.coords = Clamp(visual.coords + velocity * dt, visual.coords, targetCoords);
+		return visual.coords == targetCoords;
 	};
 }
 
-ActionFunc ScaleCellPiece(CellVisual& cell, float startScale, float endScale) {
-	return [&cell, startScale, endScale](float /*dt*/, float t01) {
-		cell.scale = LerpEase(startScale, endScale, t01, EaseInQuad);
+ActionFunc ScalePiece(CellVisual& visual, float startScale, float endScale) {
+	return [&visual, startScale, endScale](float /*dt*/, float t01) {
+		visual.scale = LerpEase(startScale, endScale, t01, EaseInQuad);
+		return false;
+	};
+}
+
+ActionFunc FadeInAlpha(CellVisual& visual) {
+	return [&visual](float /*dt*/, float t01) {
+		visual.bkgAlpha = LerpEase(0.f, 1.f, t01, EaseInQuad);
 		return false;
 	};
 }
@@ -105,20 +113,14 @@ ActionFunc DrawBrokenIce(const Cell& cell, const BitmapRenderer& bitmapRenderer,
 	};
 }
 
-ActionFunc DrawGlow(Vec2 xy, bool horizontal, const Wind::BitmapRenderer& bitmapRenderer) {
-	return [&bitmapRenderer, xy, horizontal](float /*dt*/, float t01) {
-		BitmapExtParams prm;
+ActionFunc DrawGlow(Vec2 startCoords, Vec2 endCoords, const GameRenderer& gameRenderer) {
+	return [&gameRenderer, startCoords, endCoords](float /*dt*/, float t01) {
+/*		BitmapExtParams prm;
 		prm.scale.x = 0.25f + t01 * 4.f;
 		prm.scale.y = 1.f;
 		prm.pivot = BitmapPivot::center;
-		prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::overlays);
-		prm.orientation = horizontal ? 0.f : half_pi;
-		prm.blending = true;
-		prm.color.r = 512.f;
-		prm.color.g = 512.f;
-		prm.color.b = 512.f;
-		prm.color.a = LerpEase(0.f, 255.f, t01, EaseInQuint);
-		bitmapRenderer.DrawBitmapEx(*sprites[glowSprite], xy, prm);
+		prm.color.a = LerpEase(0.f, 255.f, t01, EaseInQuint);*/
+		gameRenderer.DrawGlow(startCoords, endCoords, 32.f, t01);
 		return false;
 	};
 }

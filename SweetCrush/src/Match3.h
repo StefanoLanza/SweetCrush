@@ -37,8 +37,8 @@ struct NewSpecialPieceEvent {
 };
 
 struct NewPieceEvent {
-	int     cellIdx;
-	PieceId pieceId;
+	const Cell* cell;
+	PieceId     pieceId;
 };
 
 struct RemovePieceEvent {
@@ -47,7 +47,12 @@ struct RemovePieceEvent {
 };
 
 struct RemoveLayerEvent {
-	int cellIdx;
+	const Cell* cell;
+};
+
+struct EffectEvent {
+	const Cell* mainCell;
+	EffectType  type;
 };
 
 struct Match3Event {
@@ -67,6 +72,7 @@ struct Match3Event {
 		CellPairEvent        pair;
 		NewPieceEvent        newPiece;
 		NewSpecialPieceEvent specialPiece;
+		EffectEvent          effect;
 		RemovePieceEvent     removePiece;
 		RemoveLayerEvent     removeLayer;
 	};

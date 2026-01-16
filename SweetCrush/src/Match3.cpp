@@ -10,7 +10,7 @@
 #include <iterator> // std::size
 
 // For debugging
-#define ENABLE_EFFECTS 1
+#define ENABLE_EFFECTS    1
 #define CREATE_NEW_PIECES 1
 
 namespace {
@@ -343,9 +343,10 @@ void Match3::KillCell(int cellIdx, int targetCellIdx) {
 			// Remove one layer
 			--cell.layers;
 			// Inform client
-			Match3Event event;
-			event.id = Match3Event::Id::removeLayer;
-			event.removeLayer.cellIdx = cellIdx;
+			Match3Event event {
+				.id = Match3Event::Id::removeLayer,
+				.removeLayer = { .cell = &cell },
+			};
 			mCbk(event);
 		}
 	}
@@ -360,9 +361,10 @@ void Match3::CollapseColumns() {
 			SwapCells(mBoard, collapseList[i].first, collapseList[i].second);
 
 			// Inform client
-			Match3Event event;
-			event.id = Match3Event::Id::dropPiece;
-			event.pair = collapseList[i];
+			Match3Event event {
+				.id = Match3Event::Id::dropPiece,
+				.pair = collapseList[i],
+			};
 			mCbk(event);
 		}
 	}
@@ -380,10 +382,10 @@ void Match3::GenerateNewPieces() {
 		mCheckList.push_back(cellIdx);
 
 		// Inform client
-		Match3Event event;
-		event.id = Match3Event::Id::newPiece;
-		event.newPiece.cellIdx = cellIdx;
-		event.newPiece.pieceId = cell.pieceId;
+		Match3Event event {
+			.id = Match3Event::Id::newPiece,
+			.newPiece = { .cell = &cell, .pieceId = cell.pieceId },
+		};
 		mCbk(event);
 	}
 #endif
@@ -429,9 +431,10 @@ void Match3::SwapSelectedCells(int firstTile, int secondTile) {
 	mUserSwap.first = firstTile;
 	mUserSwap.second = secondTile;
 
-	Match3Event event;
-	event.id = Match3Event::Id::swap;
-	event.pair = { firstTile, secondTile };
+	Match3Event event {
+		.id = Match3Event::Id::swap,
+		.pair = { firstTile, secondTile },
+	};
 	mCbk(event);
 
 	SwapCells(mBoard, firstTile, secondTile);
@@ -511,10 +514,10 @@ void Match3::TriggerEffect(int cellIdx) {
 	assert(cell.layers == 0);
 
 	// Inform client e.g. to play some special fx
-	Match3Event event;
-	event.id = Match3Event::Id::triggerEffect;
-	event.specialPiece.cellIdx = cellIdx;
-	event.specialPiece.type = cell.effectType;
+	Match3Event event {
+		.id = Match3Event::Id::triggerEffect,
+		.effect = { .mainCell = &cell, .type = cell.effectType },
+	};
 	mCbk(event);
 
 	// Delete piece with specialPiece

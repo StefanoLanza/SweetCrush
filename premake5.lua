@@ -20,7 +20,7 @@ workspace ("SweetCrush")
 	location (workspacePath)
 	characterset "MBCS"
 	flags   { "MultiProcessorCompile", } --"ConformanceMode", }
-	cppdialect "c++17"
+	cppdialect "c++20"
 	exceptionhandling "On"
 	rtti "Off"
 	startproject "SweetCrush"

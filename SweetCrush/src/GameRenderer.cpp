@@ -36,6 +36,16 @@ public:
 			mPieceProgram.mValid = (mPieceProgram.mColor != -1 && mPieceProgram.mCoords != -1 && mPieceProgram.mTexture != -1);
 		}
 
+		mTrailProgram.mProgramHandle = graphics.NewProgram(SHADERS_FOLDER "trail.vs", SHADERS_FOLDER "trail.fs");
+		if (mTrailProgram.mProgramHandle != nullProgram) {
+			const GlProgram& program = graphics.GetProgram(mTrailProgram.mProgramHandle);
+			mTrailProgram.mCoords = program.GetUniformLocation("coords");
+			mTrailProgram.mPerp = program.GetUniformLocation("perp");
+			mTrailProgram.mColor = program.GetUniformLocation("color");
+			//mTrailProgram.mTexture = program.GetUniformLocation("inputTexture");
+			mTrailProgram.mValid = (mTrailProgram.mCoords != -1);// && mTrailProgram.mTexture != -1);
+		}
+
 		for (int i = 0; i < NumSprites; ++i) {
 			sprites[i] = graphics.LoadTexture(spriteDefs[i].bitmap);
 		}
@@ -66,9 +76,10 @@ public:
 		Tile* tiles = static_cast<Tile*>(instanceData.data);
 		for (const Cell& cell : board.GetCells()) {
 			if (cell.category != CellCategory::hole) {
+				auto visual = static_cast<const CellVisual*>(cell.ud);
 				tiles[idx].coords = { cell.coords.x - cellSpacing, cell.coords.y - cellSpacing, cellWidth + 2 * cellSpacing,
 					                  cellHeight + 2 * cellSpacing };
-				tiles[idx].color = { 1.f, 1.f, 1.f, 140.f / 255.f };
+				tiles[idx].color = { 1.f, 1.f, 1.f, 140.f / 255.f * visual->bkgAlpha };
 				++idx;
 			}
 		}
@@ -108,7 +119,7 @@ public:
 
 		// TODO Instanced
 		for (const Cell& cell : board.GetCells()) {
-			auto tileVisual = static_cast<CellVisual*>(cell.ud);
+			auto tileVisual = static_cast<const CellVisual*>(cell.ud);
 			if (tileVisual->bitmapIdx < 0) {
 				continue;
 			}
@@ -135,6 +146,37 @@ public:
 		}
 	}
 
+	void DrawTrail(Wind::Vec2 start, Wind::Vec2 end, float w, float t01) const {
+		if (! mTrailProgram.mValid) {
+			return;
+		}
+
+		Vec2 perp = Ortho(Normalize(end - start)) * w;
+		end = Lerp(start, end, t01);
+
+		mGraphics.SetPipeline(mPipelineBlending);
+
+		const Texture& texture = *sprites[glowSprite];
+		const int      uniforms[] = { mTrailProgram.mCoords, mTrailProgram.mPerp, mTrailProgram.mColor };
+		unsigned       textureIds[] = { texture.GetTextureId() };
+		const float    uniformData[] = {
+            start.x, start.y, end.x, end.y, //
+            perp.x,  perp.y,  0.f,     0.f,   //
+            1.f,     1.f,     1.f,   1.f,   // TODO Remove color ?
+		};
+
+		DrawCall drawCall;
+		drawCall.program = mTrailProgram.mProgramHandle;
+		drawCall.mesh = quadMesh;
+		drawCall.drawOrder = static_cast<DrawOrder>(GameDrawOrder::overlays);
+		drawCall.textures = textureIds;
+		drawCall.numTextures = 0;//FIXME
+		drawCall.uniforms = uniforms;
+		drawCall.uniformData = uniformData;
+		drawCall.numUniforms = sizeof(uniformData) / 16;
+		mGraphics.Draw(drawCall);
+	}
+
 private:
 	struct TileProgram {
 		ProgramHandle mProgramHandle = nullProgram;
@@ -152,10 +194,20 @@ private:
 		bool          mValid = false;
 	};
 
+	struct TrailProgram {
+		ProgramHandle mProgramHandle = nullProgram;
+		GLint         mCoords = 0;
+		GLint         mPerp = 0;
+		GLint         mTexture = 0;
+		GLint         mColor = 0;
+		bool          mValid = false;
+	};
+
 	Graphics&      mGraphics;
 	PipelineHandle mPipelineBlending;
 	TileProgram    mTileProgram;
 	PieceProgram   mPieceProgram;
+	TrailProgram   mTrailProgram;
 };
 
 GameRenderer::GameRenderer(Wind::Engine& engine)
@@ -167,4 +219,8 @@ GameRenderer::~GameRenderer() = default;
 void GameRenderer::DrawBoard(const Board& board, int selectedCell, const GameConfig& gameConfig) const {
 	mPimpl->DrawBackgroundTiles(board, gameConfig);
 	mPimpl->DrawPieces(board, gameConfig);
+}
+
+void GameRenderer::DrawGlow(Wind::Vec2 start, Wind::Vec2 end, float w, float t01) const {
+	mPimpl->DrawTrail(start, end, w, t01);
 }

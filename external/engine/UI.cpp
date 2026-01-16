@@ -154,6 +154,7 @@ void UIBitmap::Draw(const BitmapRenderer& renderer, DrawOrderType drawOrder) con
 	prm.color = mDesc.color;
 	prm.blending = mDesc.blending == UIBlending::on;
 	prm.drawOrder = drawOrder + mDesc.relDrawOrder;
+	prm._9patch =  mDesc._9patch;
 	renderer.DrawBitmapEx(*mBitmap, mAlignedRect.pos, prm);
 }
 
