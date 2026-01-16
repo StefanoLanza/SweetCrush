@@ -28,6 +28,7 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const GameConfig& g
     , mGameDataModule { gameDataModule }
     , mGameSettings {}
     , mFrameBuffer { RefWindowWidth, RefWindowHeight, FBOFlags::color }
+    , mUIRenderer { engine.GetGraphics() }
     , mMatchStats {}
     , mScreenId { ScreenId::mainMenu } {
 	// Note: match order of ScreenId
@@ -74,13 +75,12 @@ int Game::ParseConfig(void* user, const char* section, const char* name, const c
 }
 
 void Game::Draw(float dt) {
-	const Input&          input = mEngine.GetInput();
-	const TextRenderer&   textRenderer = mEngine.GetTextRenderer();
-	const BitmapRenderer& bitmapRender = mEngine.GetBitmapRenderer();
-	Graphics&             graphics = mEngine.GetGraphics();
+	const Input&        input = mEngine.GetInput();
+	const TextRenderer& textRenderer = mEngine.GetTextRenderer();
+	Graphics&           graphics = mEngine.GetGraphics();
 
 	graphics.SetFrameBuffer(mFrameBuffer);
-	mCanvas.Draw(bitmapRender, textRenderer, input.GetMappedMouseCoord());
+	mCanvas.Draw(mUIRenderer, textRenderer, input.GetMappedMouseCoord());
 	for (const auto& screen : mScreens) {
 		screen->Draw(mScreenId);
 	}

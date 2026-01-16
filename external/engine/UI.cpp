@@ -1,12 +1,12 @@
 #include "UI.h"
-#include "BitmapRender.h"
 #include "Engine.h"
 #include "Font.h"
 #include "Graphics.h"
 #include "Input.h"
-#include "Texture.h"
 #include "StringTable.h"
 #include "TextRender.h"
+#include "Texture.h"
+#include "UIRenderer.h"
 #include <cassert>
 
 namespace Wind {
@@ -56,7 +56,7 @@ bool UIButton::IsPressed(const Input& input) {
 	return res;
 }
 
-void UIButton::Draw(const BitmapRenderer& renderer, const TextRenderer& textRender, DrawOrderType drawOrder) const {
+void UIButton::Draw(const UIRenderer& renderer, const TextRenderer& textRender, DrawOrderType drawOrder) const {
 	if (mBitmap) {
 		mBitmap->Draw(renderer, drawOrder);
 	}
@@ -147,15 +147,14 @@ UIBitmap::UIBitmap(const UIBitmapDesc& desc, Graphics& graphics)
 	mDesc.size = size;
 }
 
-void UIBitmap::Draw(const BitmapRenderer& renderer, DrawOrderType drawOrder) const {
-	BitmapExtParams prm;
-	prm.width = mAlignedRect.width;
-	prm.height = mAlignedRect.height;
-	prm.color = mDesc.color;
-	prm.blending = mDesc.blending == UIBlending::on;
-	prm.drawOrder = drawOrder + mDesc.relDrawOrder;
-	prm._9patch =  mDesc._9patch;
-	renderer.DrawBitmapEx(*mBitmap, mAlignedRect.pos, prm);
+void UIBitmap::Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const {
+	const UIDrawParams prm {
+		.color = mDesc.color,
+		.blending = mDesc.blending == UIBlending::on,
+		.priority = drawOrder + mDesc.relDrawOrder,
+		._9patch = mDesc._9patch,
+	};
+	renderer.DrawRect(mAlignedRect, *mBitmap, prm);
 }
 
 void UIBitmap::UpdateRect(const UIRect& parentRect) {
@@ -204,7 +203,7 @@ void UIPanel::AddText(UIText& text) {
 	mTexts.push_back(&text);
 }
 
-void UIPanel::Draw(const BitmapRenderer& bitmapRenderer, const TextRenderer& textRender, DrawOrderType drawOrder) const {
+void UIPanel::Draw(const UIRenderer& bitmapRenderer, const TextRenderer& textRender, DrawOrderType drawOrder) const {
 	if (! mVisible) {
 		return;
 	}
@@ -266,22 +265,22 @@ void UICanvas::UpdateWidgets(int canvasWidth, int canvasHeight) {
 	mPanel.UpdateRect(parentRect);
 }
 
-void UICanvas::Draw(const BitmapRenderer& bitmapRender, const TextRenderer& textRender, const Vec2& mouseCoords) {
+void UICanvas::Draw(const UIRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords) {
 	if (mBackground) {
-		BitmapExtParams prm;
-		prm.width = mPanel.Rect().width;
-		prm.height = mPanel.Rect().height;
-		prm.blending = false;
-		prm.drawOrder = DrawOrder::background;
-		bitmapRender.DrawBitmapEx(*mBackground, Vec2 { 0.f, 0.f }, prm);
+		const UIDrawParams prm {
+			.blending = false,
+			.priority = DrawOrder::background,
+		};
+		renderer.DrawRect(mPanel.Rect(), *mBackground, prm);
 	}
-	mPanel.Draw(bitmapRender, textRender, DrawOrder::UI);
+	mPanel.Draw(renderer, textRender, DrawOrder::UI);
 
 	if (mMousePointer) {
-		BitmapExtParams prm;
-		prm.blending = true;
-		prm.drawOrder = DrawOrder::mousePointer;
-		bitmapRender.DrawBitmapEx(*mMousePointer, mouseCoords, prm);
+		const UIDrawParams prm {
+			.blending = true,
+			.priority = DrawOrder::mousePointer,
+		};
+		//FIXME renderer.DrawRect({ mouseCoords.x, mouseCoords.y, (float)mMousePointer->Width(), (float)mMousePointer->Height() }, *mMousePointer, prm);
 	}
 }
 

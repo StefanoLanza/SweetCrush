@@ -101,7 +101,7 @@ class UIBitmap {
 public:
 	UIBitmap(const UIBitmapDesc& desc, Graphics& graphics);
 
-	void           Draw(const BitmapRenderer& renderer, DrawOrderType drawOrder) const;
+	void           Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const;
 	void           UpdateRect(const UIRect& parentRect);
 	void           SetBitmap(const TexturePtr& bitmap);
 	const Texture& GetBitmap() const;
@@ -117,7 +117,7 @@ public:
 	UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text);
 
 	bool      IsPressed(const Input& input);
-	void      Draw(const BitmapRenderer& renderer, const TextRenderer& textRender, DrawOrderType drawOrder) const;
+	void      Draw(const UIRenderer& renderer, const TextRenderer& textRender, DrawOrderType drawOrder) const;
 	void      UpdateRect(const UIRect& parentRect);
 	UIBitmap* GetBitmap() const;
 	UIText*   GetText() const;
@@ -140,7 +140,7 @@ public:
 	void          AddButton(UIButton& button);
 	void          AddText(UIText& text);
 	void          AddBitmap(UIBitmap& bitmap);
-	void          Draw(const BitmapRenderer& renderer, const TextRenderer& textRender, DrawOrderType drawOrder) const;
+	void          Draw(const UIRenderer& renderer, const TextRenderer& textRender, DrawOrderType drawOrder) const;
 	void          UpdateRect(const UIRect& parentRect);
 
 private:
@@ -162,7 +162,7 @@ public:
 	void     SetMousePointer(const char* fileName, Graphics& graphics);
 	UIPanel& GetPanel();
 	void     UpdateWidgets(int canvasWidth, int canvasHeight);
-	void     Draw(const BitmapRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords);
+	void     Draw(const UIRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords);
 
 private:
 	UIPanel    mPanel;

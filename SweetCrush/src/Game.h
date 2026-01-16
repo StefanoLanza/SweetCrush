@@ -4,6 +4,7 @@
 #include <engine/GameScreen.h>
 #include <engine/GlFrameBuffer.h>
 #include <engine/UI.h>
+#include <engine/UIRenderer.h>
 
 #include "ActionMgr.h"
 #include "GameDataModule.h"
@@ -19,7 +20,7 @@ public:
 	Game(Wind::Engine& engine, const GameRenderer& gameRenderer, const GameConfig& gameConfig, GameDataModule& gameDataModule);
 	~Game();
 	void Run();
-	
+
 	static int ParseConfig(void* game, const char* section, const char* name, const char* value);
 
 private:
@@ -33,6 +34,7 @@ private:
 	GameSettings                      mGameSettings;
 	Wind::GlFrameBuffer               mFrameBuffer;
 	Wind::UICanvas                    mCanvas;
+	Wind::UIRenderer                  mUIRenderer;
 	MatchStats                        mMatchStats;
 	ActionMgr                         mRenderActionMgr;
 	Wind::GameScreenId                mScreenId;

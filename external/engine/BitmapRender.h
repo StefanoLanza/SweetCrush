@@ -22,7 +22,6 @@ struct BitmapExtParams {
 	float         orientation = 0.f;
 	Vec2          pivot = { 0.f, 0.f };
 	Rect          texRect = defaultTexCoord;
-	Rect          _9patch = { 0.f, 0.f, 0.f, 0.f };
 	Color         color = whiteColor;
 	DrawOrderType drawOrder = 0;
 	bool          blending = false;

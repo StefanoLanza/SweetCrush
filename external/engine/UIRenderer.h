@@ -1,0 +1,29 @@
+#pragma once
+
+#include "Color.h"
+#include "FwdDecl.h"
+#include "Maths.h"
+#include <memory>
+
+namespace Wind {
+
+struct UIDrawParams {
+	Color    color = whiteColor;
+	bool     blending = false;
+	unsigned priority = 0;
+	Rect     _9patch = { 0.f, 0.f, 0.f, 0.f }; // pixels
+};
+
+class UIRenderer final {
+public:
+	explicit UIRenderer(Graphics& graphics);
+	~UIRenderer();
+
+	void DrawRect(const UIRect& rect, const Texture& texture, const UIDrawParams& prms) const;
+
+private:
+	class Impl;
+	std::unique_ptr<Impl> mPimpl;
+};
+
+} // namespace Wind

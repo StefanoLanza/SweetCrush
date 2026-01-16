@@ -368,7 +368,7 @@ void Graphics::Impl::Flush() {
 			if (su.type == ShaderUniformType::float4) {
 #if UNIFORM_FILTERING
 				uint32_t hash = HashUint4(su.uvalue);
-				if (cachedUniformHash[su.uniform] != hash && memcmp(cachedUniformValue[su.uniform], su.fvalue, 16)) {
+				if (cachedUniformHash[su.uniform] != hash || memcmp(cachedUniformValue[su.uniform], su.fvalue, 16)) {
 					memcpy(cachedUniformValue[su.uniform], su.fvalue, 16);
 					cachedUniformHash[su.uniform] = hash;
 					glUniform4f(su.uniform, su.fvalue[0], su.fvalue[1], su.fvalue[2], su.fvalue[3]);
@@ -380,7 +380,7 @@ void Graphics::Impl::Flush() {
 			else if (su.type == ShaderUniformType::int4) {
 #if UNIFORM_FILTERING
 				uint32_t hash = HashUint4(su.uvalue);
-				if (cachedUniformHash[su.uniform] != hash && memcmp(cachedUniformValue[su.uniform], su.ivalue, 16)) {
+				if (cachedUniformHash[su.uniform] != hash || memcmp(cachedUniformValue[su.uniform], su.ivalue, 16)) {
 					memcpy(cachedUniformValue[su.uniform], su.ivalue, 16);
 					cachedUniformHash[su.uniform] = hash;
 					glUniform4i(su.uniform, su.ivalue[0], su.ivalue[1], su.ivalue[2], su.ivalue[3]);

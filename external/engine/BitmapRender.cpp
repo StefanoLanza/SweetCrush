@@ -26,7 +26,6 @@ private:
 	GLint mPosRect = 0;
 	GLint mUVRect = 0;
 	GLint mTexture = 0;
-	GLint m9Patch = 0;
 };
 
 BitmapRenderer::Impl::Impl(Graphics& graphics)
@@ -45,8 +44,7 @@ BitmapRenderer::Impl::Impl(Graphics& graphics)
 		mPosRect = program.GetUniformLocation("posRect");
 		mUVRect = program.GetUniformLocation("uvRect");
 		mTexture = program.GetUniformLocation("inputTexture");
-		m9Patch = program.GetUniformLocation("_9Patch");
-		mValidPrograms = (mColor != -1 && mPosRect != -1 && m9Patch != -1 && mUVRect != -1 && mTexture != -1);
+		mValidPrograms = (mColor != -1 && mPosRect != -1 && mUVRect != -1 && mTexture != -1);
 	}
 }
 
@@ -60,19 +58,20 @@ void BitmapRenderer::Impl::DrawBitmapEx(const Texture& bitmap, float x, float y,
 	}
 
 	const float bitmapWidth = static_cast<float>(bitmap.Width());
-	const float bitmapHeight =  static_cast<float>(bitmap.Height());
+	const float bitmapHeight = static_cast<float>(bitmap.Height());
 	const float rectWidth = (prm.width <= 0.f ? bitmapWidth : prm.width) * prm.scale.x;
 	const float rectHeight = (prm.height <= 0.f ? bitmapHeight : prm.height) * prm.scale.y;
 	const float pivot_x = rectWidth * prm.pivot.x;
 	const float pivot_y = rectHeight * prm.pivot.y;
 
-	const int   uniforms[] = { mPosRect, mUVRect, mColor, mRotation, m9Patch };
+	const int uniforms[] = {
+		mPosRect, mUVRect, mColor, mRotation,
+	};
 	const float uniformData[][4] = {
 		{ x - pivot_x, y - pivot_y, rectWidth, rectHeight },
 		{ prm.texRect.left, prm.texRect.top, prm.texRect.right, prm.texRect.bottom },
 		{ prm.color.r / 255.f, prm.color.g / 255.f, prm.color.b / 255.f, prm.color.a / 255.f },
 		{ std::cos(prm.orientation), std::sin(prm.orientation), x, y },
-		{ prm._9patch.left, prm._9patch.left / bitmapWidth, prm._9patch.left / bitmapHeight, 0.f },
 	};
 
 	if (prm.blending) {
