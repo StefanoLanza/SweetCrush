@@ -73,11 +73,20 @@ const UIBitmapDesc optionButtonBitmapDesc {
 	UIAutoSize,
 };
 
+constexpr UIPanelDesc GoalPanelDesc {
+	.pos = { 0.f, 120.f, 0.f, 0.f },
+	.size = { 340.f, 100.f, 0.f, 0.f },
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::top,
+	.background = "button.png",
+	.backgroundColor = whiteColor,
+};
+
 constexpr UIPanelDesc BoosterPanelDesc {
-	{ 0.f, -20.f, 0.f, 0.f },   // pos
-	{ 320.f, 100.f, 0.f, 0.f }, // size
-	UIHorizAlignment::center,
-	UIVertAlignment::bottom,
+	.pos = { 0.f, -20.f, 0.f, 0.f },
+	.size = { 340.f, 100.f, 0.f, 0.f },
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::bottom,
 };
 
 constexpr float criticalTime = 10.f;
@@ -101,6 +110,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
     , mCellSelector { std::make_unique<TileSelector>(mBoard, gameConfig) }
     , mEffectInfoPanel(engine)
     , mPanel(UIDefaultPanelDesc)
+    , mGoalPanel(GoalPanelDesc)
     , mBoostersPanel(BoosterPanelDesc)
     , mPauseButton(MakeButton(pauseButtonDesc, optionButtonBitmapDesc, engine))
     , mBoosterButtons { MakeButton(booster0ButtonDesc, boosterButtonBitmapDesc, engine),
@@ -131,7 +141,9 @@ void PlayScreen::BuildUI(UICanvas& canvas) {
 	mFonts[0] = mEngine.GetTextRenderer().AddFont("mediumFont");
 	mFonts[1] = mEngine.GetTextRenderer().AddFont("tiny");
 	mFonts[2] = mEngine.GetTextRenderer().AddFont("smallFont");
+	mPanel.AddPanel(mGoalPanel);
 	mPanel.AddPanel(mBoostersPanel);
+	mGoalPanel.SetVisible(true);
 	mBoostersPanel.SetVisible(true);
 	mBoostersPanel.AddButton(mBoosterButtons[0]);
 	mBoostersPanel.AddButton(mBoosterButtons[1]);
@@ -316,17 +328,17 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		break;
 	}
 	case Match3Event::Id::removePiece: {
-		Cell& cell = mBoard.GetCell(event.removePiece.cellIdx);
-		assert(cell.category == CellCategory::piece);
-		assert(! cell.hasEffect); // effects are handled in Match3Event::Id::triggerEffect
+		assert(event.removePiece.cell->category == CellCategory::piece);
+		assert(! event.removePiece.cell->hasEffect); // effects are handled in Match3Event::Id::triggerEffect
 		if (event.removePiece.targetCellIdx != -1) {
 			const Cell& dstCell = mBoard.GetCell(event.removePiece.targetCellIdx);
-			mActionMgr.AddTimedAction(MovePieceTo(*static_cast<CellVisual*>(cell.ud), dstCell.coords), mGameConfig.suckPieceDuration);
+			mActionMgr.AddTimedAction(MovePieceTo(*static_cast<CellVisual*>(event.removePiece.cell->ud), dstCell.coords),
+			                          mGameConfig.suckPieceDuration);
 		}
 		else {
-			mActionMgr.AddTimedAction(ScalePiece(*static_cast<CellVisual*>(cell.ud), 1.f, 0.f), mGameConfig.removePieceDuration);
+			mActionMgr.AddTimedAction(ScalePiece(*static_cast<CellVisual*>(event.removePiece.cell->ud), 1.f, 0.f), mGameConfig.removePieceDuration);
 		}
-		OnPieceRemoved(cell);
+		OnPieceRemoved(*event.removePiece.cell);
 		break;
 	}
 	case Match3Event::Id::newPiece: {
@@ -366,10 +378,9 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		if (mGameConfig.settings.infoOn) {
 			mEffectInfoPanel.ShowHelp(event.specialPiece.type);
 		}
-		const Cell& cell = mBoard.GetCell(event.specialPiece.cellIdx);
-		assert(cell.category == CellCategory::piece);
-		assert(cell.hasEffect);
-		CellVisual* visual = static_cast<CellVisual*>(cell.ud);
+		assert(event.specialPiece.cell->category == CellCategory::piece);
+		assert(event.specialPiece.cell->hasEffect);
+		CellVisual* visual = static_cast<CellVisual*>(event.specialPiece.cell->ud);
 		visual->bitmapIdx = pieceIcons[event.specialPiece.pieceId];
 		visual->scale = 1.f;
 		visual->rotation = 0.f;
@@ -453,7 +464,7 @@ void PlayScreen::DrawUI() const {
 		Vec2 pos = mGameConfig.ui.goalStartCoord;
 		for (int i = 0; i < 3; ++i) {
 			const int icon = pieceIcons[level.pieceIds[i]];
-			mGameRenderer.DrawIcon(icon, pos, 0.f);
+			mGameRenderer.DrawIcon(icon, pos, 0.f, whiteColor);
 			snprintf(tmp, sizeof(tmp), "%d/%d", mMatchStats.targetPieceCount[i], level.goal.collectMatches.count[i]);
 			textRenderer.Write(*mFonts[2], tmp, pos + Vec2 { 40.f, -20.f }, textStyle, DrawOrder::UI);
 			pos.x += 180.f;
@@ -462,8 +473,8 @@ void PlayScreen::DrawUI() const {
 	else if (level.goal.id == GoalId::breakIce) {
 		Vec2 pos = mGameConfig.ui.goalStartCoord;
 		for (int i = 0; i < mMatchStats.layerCount; ++i) {
-			mGameRenderer.DrawIcon(iceSprite, pos, 0.f);
-			pos.x += sprites[iceSprite]->Width() + 12;
+			mGameRenderer.DrawIcon(iceSprites[0], pos, 0.f, whiteColor);
+			pos.x += gameTextures[iceSprites[0]]->Width() + 12;
 		}
 	}
 }

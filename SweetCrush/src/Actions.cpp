@@ -68,21 +68,7 @@ ActionFunc DrawMovingSprite(const Cell& cell, const BitmapRenderer& bitmapRender
 		prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::overlays);
 		prm.blending = true;
 		Vec2 xy = Lerp(xy0, starIconCoord, t01);
-		bitmapRenderer.DrawBitmapEx(*sprites[sprite], xy, prm);
-		return false;
-	};
-}
-
-ActionFunc DrawExplosion(const Cell& cell, const BitmapRenderer& bitmapRenderer, const AppConfig& gameConfig) {
-	Vec2 xy = cell.coords + Vec2 { gameConfig.board.cellWidth, gameConfig.board.cellHeight } * 0.5f;
-	return [&bitmapRenderer, xy](float /*dt*/, float t) {
-		BitmapExtParams prm;
-		prm.scale.x = 1.f + t * 4.f;
-		prm.scale.y = prm.scale.x;
-		prm.pivot = BitmapPivot::center;
-		prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::overlays);
-		prm.blending = true;
-		bitmapRenderer.DrawBitmapEx(*sprites[sparkleSprite], xy, prm);
+		bitmapRenderer.DrawBitmapEx(*gameTextures[sprite], xy, prm);
 		return false;
 	};
 }
@@ -108,7 +94,7 @@ ActionFunc DrawBrokenIce(const Cell& cell, const BitmapRenderer& bitmapRenderer,
 		prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::ice);
 		prm.blending = true;
 		prm.color.a = LerpEase(255.f, 0.f, t01, EaseInCubic);
-		bitmapRenderer.DrawBitmapEx(*sprites[brokenIceSprite], xy, prm);
+		bitmapRenderer.DrawBitmapEx(*gameTextures[iceSprites[1]], xy, prm);
 		return false;
 	};
 }

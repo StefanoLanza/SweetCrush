@@ -62,6 +62,7 @@ private:
 	std::unique_ptr<TileSelector> mCellSelector;
 	EffectInfoPanel               mEffectInfoPanel;
 	Wind::UIPanel                 mPanel;
+	Wind::UIPanel                 mGoalPanel;
 	Wind::UIButton                mPauseButton;
 	Wind::UIPanel                 mBoostersPanel;
 	Wind::UIButton                mBoosterButtons[3];

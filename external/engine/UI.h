@@ -82,6 +82,8 @@ struct UIPanelDesc {
 	UISize           size;
 	UIHorizAlignment horizontalAlignment = UIHorizAlignment::center;
 	UIVertAlignment  verticalAlignment = UIVertAlignment::center;
+	const char*      background = nullptr;
+	Color            backgroundColor = whiteColor;
 };
 
 class UIText final {
@@ -141,6 +143,7 @@ public:
 	void          AddButton(UIButton& button);
 	void          AddText(UIText& text);
 	void          AddBitmap(UIBitmap& bitmap);
+	void          LoadGraphics(Graphics& graphics);
 	void          Draw(const UIRenderer& renderer, const TextRenderer& textRender, DrawOrderType drawOrder) const;
 	void          UpdateRect(const UIRect& parentRect);
 
@@ -151,6 +154,7 @@ private:
 	std::vector<UIButton*> mButtons;
 	std::vector<UIText*>   mTexts;
 	UIRect                 mRect;
+	TexturePtr             mBackground;
 	bool                   mVisible;
 };
 
@@ -159,9 +163,9 @@ public:
 	UICanvas();
 
 	void     SetBackground(const char* fileName, Graphics& graphics);
-	void     SetBackground(TexturePtr background);
 	void     SetMousePointer(const char* fileName, Graphics& graphics);
 	UIPanel& GetPanel();
+	void     LoadGraphics(Graphics& graphics);
 	void     Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords);
 
 private:

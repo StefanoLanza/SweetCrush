@@ -116,7 +116,7 @@ void EffectInfoPanel::ShowHelp(EffectType boosterType) {
 	}
 	mTitle.SetText(static_cast<StringId>(titleStringId));
 	mText.SetText(static_cast<StringId>(textStringId));
-	mEffectIcon.SetBitmap(sprites[effectIcons[typeIdx]]);
+	mEffectIcon.SetBitmap(gameTextures[effectIcons[typeIdx]]);
 	mPanel.SetVisible(true);
 }
 

@@ -100,11 +100,11 @@ void MainScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
 	}
 	constexpr float dx = TileWidth + 2;
 	float           phase = mTime * 4.f;
-	float           x = (RefWindowWidth - (NumPieceTypes - 4) * dx) * 0.5f;
+	float           x = (RefWindowWidth - (NumPieceTypes - 1) * dx) * 0.5f;
 
-	for (int i = 0; i < NumPieceTypes - 3; ++i) {
+	for (int i = 0; i < NumPieceTypes; ++i) {
 		float rotation = std::sin(phase * .25f + (float)i) * 0.5f;
-		mGameRenderer.DrawIcon(pieceIcons[i], { x, 380.f + std::cos(phase) * 4.f }, rotation);
+		mGameRenderer.DrawIcon(pieceIcons[i], { x, 380.f + std::cos(phase) * 4.f }, rotation, whiteColor);
 		x += dx;
 		phase += 6.28f / static_cast<float>(NumPieceTypes);
 	}

@@ -62,11 +62,12 @@ void Game::Run() {
 #if ! defined(__ANDROID__) && ! defined(__OHOS__) && ((defined(_WIN32) || defined(__linux__)))
 	mCanvas.SetMousePointer("cursor.png", mEngine.GetGraphics());
 #endif
-
-	for (const auto& gs : mScreens) {
-		gs->LoadAssets();
-		gs->BuildUI(mCanvas);
+	for (const auto& screen : mScreens) {
+		screen->LoadAssets();
+		screen->BuildUI(mCanvas);
 	}
+	mCanvas.LoadGraphics(mEngine.GetGraphics());
+
 	mScreens[0]->Enter(ScreenId::empty);
 	mEngine.Start([this](float dt) { Draw(dt); }, [this](float dt) { Tick(dt); });
 }

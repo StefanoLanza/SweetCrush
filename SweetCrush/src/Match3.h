@@ -31,9 +31,9 @@ struct MatchEvent {
 };
 
 struct NewSpecialPieceEvent {
-	EffectType type;
-	int        cellIdx;
-	PieceId    pieceId;
+	EffectType  type;
+	const Cell* cell;
+	PieceId     pieceId;
 };
 
 struct NewPieceEvent {
@@ -42,8 +42,8 @@ struct NewPieceEvent {
 };
 
 struct RemovePieceEvent {
-	int cellIdx;
-	int targetCellIdx; // for suck anims
+	const Cell* cell;
+	int         targetCellIdx; // for suck anims
 };
 
 struct RemoveLayerEvent {

@@ -1,13 +1,8 @@
 in vec2 inputPosition;
-uniform   vec4 orthoMatrix;
-
-// Per-instance attributes
-layout (location = 1) in vec4 pieceCoords;
-layout (location = 2) in vec4 pieceMisc;
-layout (location = 3) in vec4 pieceColor;
-
+uniform vec4 transform;
+uniform vec4 pieceMisc;
 uniform vec4 tileSize;
-out vec4 color;
+uniform vec4 orthoMatrix;
 out vec2 textureCoordinate;
 
 vec2 rotate(vec2 v, vec2 r) {
@@ -15,12 +10,8 @@ vec2 rotate(vec2 v, vec2 r) {
 }
  
 void main() {
-	vec2 scaledTileSize = tileSize.xy * pieceMisc.y;
-	vec2 pos = rotate(inputPosition.xy - 0.5, pieceMisc.zw); // -0.5 , 0.5 
-	pos = pieceCoords.xy + /*(tileSize.xy - scaledTileSize) * 0.5 +*/ pos * scaledTileSize;
+	vec2 pos = transform.xy + rotate(inputPosition.xy - 0.5, transform.zw) * tileSize.xy;
 	pos = vec2(-1. + pos.x * orthoMatrix.x, 1. - pos.y * orthoMatrix.y);
 	gl_Position = vec4(pos, 0., 1.);
-	int id = int(pieceMisc.x);
-	textureCoordinate = (inputPosition.xy + vec2(float(id % 4), float(id / 4))) * tileSize.xy / vec2(256.0);
-	color = pieceColor;
+	textureCoordinate = inputPosition.xy;
 }

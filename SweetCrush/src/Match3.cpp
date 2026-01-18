@@ -287,7 +287,7 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 
 			// Inform client
 			event.id = Match3Event::Id::newEffect;
-			event.specialPiece.cellIdx = mainCellIdx;
+			event.specialPiece.cell = &mBoard.GetCell(mainCellIdx);
 			event.specialPiece.pieceId = cell.pieceId; // FIXME redundant ?
 			event.specialPiece.type = effectType;
 			mCbk(event);
@@ -330,10 +330,10 @@ void Match3::KillCell(int cellIdx, int targetCellIdx) {
 			}
 			else {
 				// Inform client
-				Match3Event event;
-				event.id = Match3Event::Id::removePiece;
-				event.removePiece.cellIdx = cellIdx;
-				event.removePiece.targetCellIdx = targetCellIdx;
+				Match3Event event {
+					.id = Match3Event::Id::removePiece,
+					.removePiece = { .cell = &cell, .targetCellIdx = targetCellIdx },
+				};
 				mCbk(event);
 
 				cell.category = CellCategory::empty;

@@ -17,7 +17,6 @@ ActionFunc MovePieceTo(CellVisual& cell, const Wind::Vec2& targetCoords, float s
 ActionFunc ScalePiece(CellVisual& cell, float startScale, float endScale);
 ActionFunc FadeInAlpha(CellVisual& visual);
 ActionFunc DrawMovingSprite(const Cell& cell, const Wind::BitmapRenderer& bitmapRenderer, Wind::Vec2 targetPos, int sprite);
-ActionFunc DrawExplosion(const Cell& cell, const Wind::BitmapRenderer& bitmapRenderer, const AppConfig& gameConfig);
 ActionFunc DrawMatchScore(int score, const Cell& cell, const Wind::TextRenderer& textRenderer, const AppConfig& gameConfig, const Wind::Font& font);
 ActionFunc DrawBrokenIce(const Cell& cell, const Wind::BitmapRenderer& bitmapRenderer, const AppConfig& gameConfig);
 ActionFunc DrawLaser(Wind::Vec2 startCoords, Wind::Vec2 endCoords, const GameRenderer& bitmapRenderer);

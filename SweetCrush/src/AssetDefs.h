@@ -3,27 +3,22 @@
 #include "Effects.h"
 #include <engine/FwdDecl.h>
 
-constexpr int NumSprites = 13;
-constexpr int NumPieceTypes = 12;
+using SpriteID = uint8_t;
+
+constexpr int NumGameTextures = 20;
+constexpr int NumPieceTypes = 9;
 constexpr int NumBoardTiles = 1;
 constexpr int NumObstacleTypes = 1;
 
-struct SpriteDef {
-	const char* bitmap;
-};
+extern Wind::TexturePtr gameTextures[NumGameTextures];
+extern const char*      gameTexturePath[NumGameTextures];
+extern const SpriteID   boardTileIcons[NumBoardTiles];
+extern const SpriteID   pieceIcons[NumPieceTypes];
+extern const SpriteID   obstacleIcons[NumObstacleTypes];
+extern const SpriteID   effectIcons[NumEffects];
 
-extern Wind::TexturePtr pastryAtlas;
-extern Wind::TexturePtr sprites[NumSprites];
-extern const SpriteDef  spriteDefs[NumSprites];
-extern const int        boardTileDefs[NumBoardTiles];
-extern const int        pieceIcons[NumPieceTypes];
-extern const int        obstacleIcons[NumObstacleTypes];
-extern const int        effectIcons[NumEffects];
-
-extern const int sparkleSprite;
-extern const int iceSprite;
-extern const int brokenIceSprite;
-extern const int selectionSprite;
+extern const SpriteID iceSprites[3];
+extern const SpriteID selectionSprite;
 extern const int glowSprite;
 extern const int starSprite;
 extern const int hrzStripesSprite;

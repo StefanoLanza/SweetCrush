@@ -1,7 +1,7 @@
 #include "Levels.h"
 #include "../src/Level.h"
 
-#define TEST_SHORT_GAME 0
+#define TEST_SHORT_GAME 1
 
 namespace {
 
@@ -76,7 +76,7 @@ const BoardDef testLevelGrid = //
     "ccc   ccc";
 
 const Level levels[numLevels] {
-	{ { 1, 2, 3, 4, 5 }, { GoalId::breakAllIce }, 24234, 600.f, &testLevelGrid },
+	{ { 1, 2, 3, 4, 5 }, { GoalId::breakIce }, 24234, 600.f, &testLevelGrid },
 };
 
 #else

@@ -203,18 +203,34 @@ void UIPanel::AddText(UIText& text) {
 	mTexts.push_back(&text);
 }
 
-void UIPanel::Draw(const UIRenderer& bitmapRenderer, const TextRenderer& textRender, DrawOrderType drawOrder) const {
+void UIPanel::LoadGraphics(Graphics& graphics) {
+	if (! mBackground && mDesc.background) {
+		mBackground = graphics.LoadTexture(mDesc.background);
+	}
+	for (auto& panel : mPanels) {
+		panel->LoadGraphics(graphics);
+	}
+}
+
+void UIPanel::Draw(const UIRenderer& renderer, const TextRenderer& textRender, DrawOrderType drawOrder) const {
 	if (! mVisible) {
 		return;
 	}
+	if (mBackground) {
+		UIDrawParams prms;
+		prms.blending = (mDesc.backgroundColor.a < 255.f) || mBackground->HasAlpha();
+		prms.color = mDesc.backgroundColor;
+		prms.priority = drawOrder;
+		renderer.DrawRect(mRect, *mBackground, prms);
+	}
 	for (const auto& bitmap : mBitmaps) {
-		bitmap->Draw(bitmapRenderer, drawOrder + 1);
+		bitmap->Draw(renderer, drawOrder + 1);
 	}
 	for (const auto& panel : mPanels) {
-		panel->Draw(bitmapRenderer, textRender, drawOrder + 2);
+		panel->Draw(renderer, textRender, drawOrder + 2);
 	}
 	for (const auto& button : mButtons) {
-		button->Draw(bitmapRenderer, textRender, drawOrder + 3);
+		button->Draw(renderer, textRender, drawOrder + 3);
 	}
 	for (const auto& text : mTexts) {
 		text->Draw(textRender, drawOrder + 4);
@@ -231,9 +247,7 @@ void UIPanel::UpdateRect(const UIRect& parentRect) {
 		}
 	}
 	for (auto& bitmap : mBitmaps) {
-//		if (bitmap->IsVisible()) {
-			bitmap->UpdateRect(rect);
-	//	}
+		bitmap->UpdateRect(rect);
 	}
 	for (auto& button : mButtons) {
 		button->UpdateRect(rect);
@@ -252,10 +266,6 @@ void UICanvas::SetBackground(const char* fileName, Graphics& graphics) {
 	mBackground = graphics.LoadTexture(fileName);
 }
 
-void UICanvas::SetBackground(TexturePtr background) {
-	mBackground = background;
-}
-
 void UICanvas::SetMousePointer(const char* fileName, Graphics& graphics) {
 	mMousePointer = graphics.LoadTexture(fileName);
 }
@@ -264,17 +274,21 @@ UIPanel& UICanvas::GetPanel() {
 	return mPanel;
 }
 
+void UICanvas::LoadGraphics(Graphics& graphics) {
+	mPanel.LoadGraphics(graphics);
+}
+
 void UICanvas::Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords) {
 	const UIRect parentRect { { 0.f, 0.f }, (float)canvasWidth, (float)canvasHeight };
 	mPanel.UpdateRect(parentRect);
 
 	if (mBackground) {
-		const UIDrawParams prm {
-			.blending = false,
-			.priority = DrawOrder::background,
-		};
-		renderer.DrawRect(mPanel.Rect(), *mBackground, prm);
+		UIDrawParams prms;
+		prms.blending = false;
+		prms.priority = DrawOrder::background;
+		renderer.DrawRect(parentRect, *mBackground, prms);
 	}
+
 	mPanel.Draw(renderer, textRender, DrawOrder::UI);
 
 	if (mMousePointer) {
