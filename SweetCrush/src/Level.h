@@ -37,7 +37,7 @@ struct Level {
 	int             pieceIds[MaxPieceTypes];
 	Goal            goal;
 	uint32_t        seed;
-	float           availTime; // seconds
+	float           availableTime; // seconds
 	const BoardDef* boardDef;  // null for random boards
 	const char*     boardMask; // can be null
 };

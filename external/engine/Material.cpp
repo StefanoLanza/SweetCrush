@@ -1,5 +1,6 @@
 #include "Material.h"
 
+#include <iterator>
 #include <cassert>
 
 namespace Wind {

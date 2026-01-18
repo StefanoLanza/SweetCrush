@@ -1,7 +1,7 @@
 #include "Levels.h"
 #include "../src/Level.h"
 
-#define TEST_SHORT_GAME 1
+#define TEST_SHORT_GAME 0
 
 namespace {
 
@@ -76,7 +76,12 @@ const BoardDef testLevelGrid = //
     "ccc   ccc";
 
 const Level levels[numLevels] {
-	{ { 1, 2, 3, 4, 5 }, { GoalId::breakIce }, 24234, 600.f, &testLevelGrid },
+	{ .pieceIds { 1, 2, 3, 4, 5 },
+	  .goal { .id = GoalId::breakIce, .breakIce { .iceBlocksCount = 0 } },
+	  .seed = 24234,
+	  .availableTime = 600.f,
+	  .boardDef = &testLevelGrid,
+	  .boardMask = nullptr, },
 };
 
 #else
@@ -94,7 +99,6 @@ const Level levels[numLevels] {
 
 extern "C"
 {
-
 	int GetNumLevels() {
 		return numLevels;
 	}

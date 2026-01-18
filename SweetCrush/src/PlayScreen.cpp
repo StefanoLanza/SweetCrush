@@ -141,7 +141,7 @@ void PlayScreen::BuildUI(UICanvas& canvas) {
 	mFonts[0] = mEngine.GetTextRenderer().AddFont("mediumFont");
 	mFonts[1] = mEngine.GetTextRenderer().AddFont("tiny");
 	mFonts[2] = mEngine.GetTextRenderer().AddFont("smallFont");
-	mPanel.AddPanel(mGoalPanel);
+	// mPanel.AddPanel(mGoalPanel);
 	mPanel.AddPanel(mBoostersPanel);
 	mGoalPanel.SetVisible(true);
 	mBoostersPanel.SetVisible(true);
@@ -212,6 +212,8 @@ void PlayScreen::Draw(GameScreenId topScreen) const {
 	}
 	mGameRenderer.DrawBoard(mBoard, mCellSelector->GetSelectedTile(), mGameConfig, mTime);
 	DrawUI();
+	mGameRenderer.DrawIcon(boosterIcons[0], mBoosterButtons[0].GetRect().pos + mBoosterButtons[0].GetRect().size * 0.5f, 0.f, whiteColor,
+	                       static_cast<unsigned>(GameDrawOrder::overUI));
 
 	// FIXME
 	// mGameRenderer.DrawLaser({ 0.f, 300.f }, { mGameConfig.board.bottomRightCoord.x, 300.f }, 64, 0.5 + 0.5 * sinf(mMatchTime * 5.0));
@@ -282,7 +284,7 @@ void PlayScreen::StartLevel() {
 	for (int i = 0; i < mBoard.GetCellCount(); ++i) {
 		mBoard.GetCell(i).ud = &mCellGraphics[i];
 	}
-	mMatchTime = level.availTime;
+	mMatchTime = level.availableTime;
 	for (int& c : mMatchStats.targetPieceCount) {
 		c = 0;
 	}
@@ -464,7 +466,7 @@ void PlayScreen::DrawUI() const {
 		Vec2 pos = mGameConfig.ui.goalStartCoord;
 		for (int i = 0; i < 3; ++i) {
 			const int icon = pieceIcons[level.pieceIds[i]];
-			mGameRenderer.DrawIcon(icon, pos, 0.f, whiteColor);
+			mGameRenderer.DrawIcon(icon, pos, 0.f, whiteColor, static_cast<unsigned>(GameDrawOrder::overlays));
 			snprintf(tmp, sizeof(tmp), "%d/%d", mMatchStats.targetPieceCount[i], level.goal.collectMatches.count[i]);
 			textRenderer.Write(*mFonts[2], tmp, pos + Vec2 { 40.f, -20.f }, textStyle, DrawOrder::UI);
 			pos.x += 180.f;
@@ -473,7 +475,7 @@ void PlayScreen::DrawUI() const {
 	else if (level.goal.id == GoalId::breakIce) {
 		Vec2 pos = mGameConfig.ui.goalStartCoord;
 		for (int i = 0; i < mMatchStats.layerCount; ++i) {
-			mGameRenderer.DrawIcon(iceSprites[0], pos, 0.f, whiteColor);
+			mGameRenderer.DrawIcon(iceSprites[0], pos, 0.f, whiteColor, static_cast<unsigned>(GameDrawOrder::overlays));
 			pos.x += gameTextures[iceSprites[0]]->Width() + 12;
 		}
 	}

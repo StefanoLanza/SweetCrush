@@ -15,21 +15,21 @@ namespace {
 
 UIRect AlignRect(const UIPos& pos, const UISize& size, const UIRect& parentRect, UIHorizAlignment horizAlignment, UIVertAlignment vertAlignment) {
 	UIRect alignedRect;
-	alignedRect.width = size.aWidth + parentRect.width * size.rWidth;
-	alignedRect.height = size.aHeight + parentRect.height * size.rHeight;
+	alignedRect.size.x = size.aWidth + parentRect.size.x * size.rWidth;
+	alignedRect.size.y = size.aHeight + parentRect.size.y * size.rHeight;
 
-	alignedRect.pos = parentRect.pos + Vec2 { pos.ax + parentRect.width * pos.rx, pos.ay + parentRect.height * pos.ry };
+	alignedRect.pos = parentRect.pos + Vec2 { pos.ax + parentRect.size.x * pos.rx, pos.ay + parentRect.size.y * pos.ry };
 	if (horizAlignment == UIHorizAlignment::center) {
-		alignedRect.pos.x += (parentRect.width - alignedRect.width) * 0.5f;
+		alignedRect.pos.x += (parentRect.size.x - alignedRect.size.x) * 0.5f;
 	}
 	else if (horizAlignment == UIHorizAlignment::right) {
-		alignedRect.pos.x += (parentRect.width - alignedRect.width);
+		alignedRect.pos.x += (parentRect.size.x - alignedRect.size.x);
 	}
 	if (vertAlignment == UIVertAlignment::center) {
-		alignedRect.pos.y += (parentRect.height - alignedRect.height) * 0.5f;
+		alignedRect.pos.y += (parentRect.size.y - alignedRect.size.y) * 0.5f;
 	}
 	else if (vertAlignment == UIVertAlignment::bottom) {
-		alignedRect.pos.y += (parentRect.height - alignedRect.height);
+		alignedRect.pos.y += (parentRect.size.y - alignedRect.size.y);
 	}
 	return alignedRect;
 }
@@ -40,17 +40,17 @@ UIButton::UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, s
     : mDesc(desc)
     , mBitmap(std::move(bitmap))
     , mText(std::move(text))
-    , mAlignedRect {} {
+    , mRect {} {
 }
 
 bool UIButton::IsPressed(const Input& input) const {
 	bool res = false;
 	if (input.GetMouseButtonPressed() || input.GetFingerPressed()) {
 		Rect r;
-		r.left = mAlignedRect.pos.x;
-		r.right = r.left + mAlignedRect.width;
-		r.top = mAlignedRect.pos.y;
-		r.bottom = r.top + mAlignedRect.height;
+		r.left = mRect.pos.x;
+		r.right = r.left + mRect.size.x;
+		r.top = mRect.pos.y;
+		r.bottom = r.top + mRect.size.y;
 		res = RectContainsPoint(r, input.GetMappedMouseCoord());
 	}
 	return res;
@@ -78,12 +78,12 @@ void UIButton::UpdateRect(const UIRect& parentRect) {
 		}
 	}
 
-	mAlignedRect = AlignRect(mDesc.pos, size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
+	mRect = AlignRect(mDesc.pos, size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 	if (mBitmap) {
-		mBitmap->UpdateRect(mAlignedRect);
+		mBitmap->UpdateRect(mRect);
 	}
 	if (mText) {
-		mText->UpdateRect(mAlignedRect);
+		mText->UpdateRect(mRect);
 	}
 }
 
@@ -93,6 +93,10 @@ UIBitmap* UIButton::GetBitmap() const {
 
 UIText* UIButton::GetText() const {
 	return mText.get();
+}
+
+const UIRect& UIButton::GetRect() const {
+	return mRect;
 }
 
 UIText::UIText(const UITextDesc& desc, Engine& engine)

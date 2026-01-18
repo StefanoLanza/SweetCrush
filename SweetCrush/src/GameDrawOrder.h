@@ -8,5 +8,5 @@ enum class GameDrawOrder : Wind::DrawOrderType {
 	boardPiece,
 	ice,
 	overlays,
-	textOverUI = Wind::DrawOrder::UI + 50,
+	overUI = Wind::DrawOrder::UI + 50,
 };

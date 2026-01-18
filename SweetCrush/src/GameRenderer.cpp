@@ -157,7 +157,7 @@ public:
 			mGraphics.Draw(drawCall);
 
 			if (cell.layers > 0) {
-				DrawIcon(cell.coords + Vec2{cellWidth,cellHeight} * 0.5f, iceSprites[0], 0.f, whiteColor);
+				DrawIcon(cell.coords + Vec2{cellWidth,cellHeight} * 0.5f, iceSprites[0], 0.f, whiteColor, static_cast<unsigned>(GameDrawOrder::ice));
 			}
 		}
 	}
@@ -197,7 +197,7 @@ public:
 		mGraphics.Draw(drawCall);
 	}
 
-	void DrawIcon(Vec2 coords, uint32_t iconIdx, float rotation, const Color& color) const {
+	void DrawIcon(Vec2 coords, uint32_t iconIdx, float rotation, const Color& color, unsigned drawOrder) const {
 		if (! mPieceProgram.mValid) {
 			return;
 		}
@@ -228,7 +228,7 @@ public:
 		DrawCall drawCall;
 		drawCall.program = mPieceProgram.mProgramHandle;
 		drawCall.mesh = quadMesh;
-		drawCall.drawOrder = static_cast<DrawOrder>(GameDrawOrder::boardPiece);
+		drawCall.drawOrder = drawOrder;
 		drawCall.sortKey = textureIds[0]; // sort by main texture
 		drawCall.textures = textureIds;
 		drawCall.numTextures = 1;
@@ -285,7 +285,7 @@ void GameRenderer::DrawBoard(const Board& board, int selectedCell, const AppConf
 	mPimpl->DrawPieces(board, gameConfig, time);
 	if (selectedCell >= 0) {
 		const Cell& cell = board.GetCell(selectedCell);
-		mPimpl->DrawIcon(cell.coords + Vec2 { TileWidth, TileHeight } * 0.5f, selectionSprite, 0.f, whiteColor);
+		mPimpl->DrawIcon(cell.coords + Vec2 { TileWidth, TileHeight } * 0.5f, selectionSprite, 0.f, whiteColor, static_cast<unsigned>(GameDrawOrder::overlays));
 	}
 }
 
@@ -293,6 +293,6 @@ void GameRenderer::DrawLaser(Vec2 start, Vec2 end, float w, float t01) const {
 	mPimpl->DrawTrail(start, end, w, t01);
 }
 
-void GameRenderer::DrawIcon(uint32_t iconIdx, Vec2 coords, float rotation, const Color& color) const {
-	mPimpl->DrawIcon(coords, iconIdx, rotation, color);
+void GameRenderer::DrawIcon(uint32_t iconIdx, Vec2 coords, float rotation, const Color& color, unsigned drawOrder) const {
+	mPimpl->DrawIcon(coords, iconIdx, rotation, color, drawOrder);
 }

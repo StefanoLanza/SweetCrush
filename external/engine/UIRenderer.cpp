@@ -63,7 +63,7 @@ void UIRenderer::Impl::DrawRect(const UIRect& rect, const Texture& texture, cons
 		m9Patch,
 	};
 	const float uniformData[][4] = {
-		{ rect.pos.x, rect.pos.y, rect.width, rect.height },
+		{ rect.pos.x, rect.pos.y, rect.size.x, rect.size.y },
 		{ 0.f, 0.f, 1.f, 1.f },
 		{ prms.color.r / 255.f, prms.color.g / 255.f, prms.color.b / 255.f, prms.color.a / 255.f },
 		{ prms._9patch.left, prms._9patch.left / textureWidth, prms._9patch.left / textureHeight, 0.f },

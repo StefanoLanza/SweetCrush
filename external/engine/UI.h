@@ -44,8 +44,7 @@ struct UISize {
 
 struct UIRect {
 	Vec2  pos;
-	float width;
-	float height;
+	Vec2  size;
 };
 
 struct UITextDesc {
@@ -124,12 +123,13 @@ public:
 	void      UpdateRect(const UIRect& parentRect);
 	UIBitmap* GetBitmap() const;
 	UIText*   GetText() const;
+	const UIRect& GetRect() const;
 
 private:
 	UIButtonDesc              mDesc;
 	std::unique_ptr<UIBitmap> mBitmap;
 	std::unique_ptr<UIText>   mText;
-	UIRect                    mAlignedRect;
+	UIRect                    mRect;
 };
 
 class UIPanel final {

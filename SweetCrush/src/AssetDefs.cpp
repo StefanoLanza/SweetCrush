@@ -26,6 +26,10 @@ const char* gameTexturePath[NumGameTextures] {
 	"glow.png",
 	"hrzStripes.png",
 	"vrtStripes.png",
+	// Boosters
+	"gameartguppy/candy_05_candycane_100.png",
+	"gameartguppy/candy_04_lollipop_100.png",
+	"gameartguppy/candy_09_gummibear_100.png",
 };
 
 const SpriteID pieceIcons[NumPieceTypes] { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -36,6 +40,12 @@ const SpriteID effectIcons[NumEffects] {
 	11,
 	12,
 	13,
+};
+
+const SpriteID boosterIcons[NumBoosters] = {
+	20,
+	21,
+	22,
 };
 
 const SpriteID iceSprites[3] = { 13, 14, 15 };
