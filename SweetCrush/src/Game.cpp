@@ -4,7 +4,7 @@
 #include "Constants.h"
 #include "CreditsScreen.h"
 #include "GameCompleteScreen.h"
-#include "GameConfig.h"
+#include "AppConfig.h"
 #include "GameOverScreen.h"
 #include "GraphicsSettingsScreen.h"
 #include "LevelCompleteScreen.h"
@@ -14,15 +14,17 @@
 #include "PlayScreen.h"
 #include "ScreenIds.h"
 #include "SettingsScreen.h"
-#include <cassert>
 #include <engine/Blitter.h>
 #include <engine/Engine.h>
 #include <engine/Graphics.h>
+#include <engine/IniParser.h>
 #include <engine/Input.h>
+
+#include <cassert>
 
 using namespace Wind;
 
-Game::Game(Engine& engine, const GameRenderer& gameRenderer, const GameConfig& gameConfig, GameDataModule& gameDataModule)
+Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& gameConfig, GameDataModule& gameDataModule, Wind::INIParser& iniParser)
     : mEngine { engine }
     , mGameConfig { gameConfig }
     , mGameDataModule { gameDataModule }
@@ -32,7 +34,7 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const GameConfig& g
     , mMatchStats {}
     , mScreenId { ScreenId::mainMenu } {
 	// Note: match order of ScreenId
-	mScreens[0] = std::make_unique<MainScreen>(mEngine);
+	mScreens[0] = std::make_unique<MainScreen>(mEngine, gameRenderer);
 	mScreens[1] = std::make_unique<CreditsScreen>(mEngine);
 	mScreens[2] = std::make_unique<SettingsScreen>(mEngine, mGameSettings);
 	mScreens[3] = std::make_unique<PlayScreen>(mEngine, gameRenderer, mGameConfig, mGameSettings, mRenderActionMgr, mMatchStats, mGameDataModule);
@@ -42,6 +44,11 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const GameConfig& g
 	mScreens[7] = std::make_unique<LevelCompleteScreen>(mEngine, mMatchStats);
 	mScreens[8] = std::make_unique<GraphicsSettingsScreen>(mEngine, mGameSettings);
 	mScreens[9] = std::make_unique<AudioSettingsScreen>(mEngine, mGameSettings);
+
+	for (const auto& screen : mScreens) {
+		iniParser.AddListener(screen->GetName(),
+		                      [screenPtr = screen.get()](const char* varName, const char* varValue) { screenPtr->ParseConfig(varName, varValue); });
+	}
 }
 
 Game::~Game() = default;
@@ -52,7 +59,7 @@ void Game::Run() {
 	mGameSettings = mGameConfig.settings;
 
 	mCanvas.SetBackground("gameartguppy/background.png", mEngine.GetGraphics());
-#if ! defined(__ANDROID__) && (defined(_WIN32) || defined(__linux__))
+#if ! defined(__ANDROID__) && ! defined(__OHOS__) && ((defined(_WIN32) || defined(__linux__)))
 	mCanvas.SetMousePointer("cursor.png", mEngine.GetGraphics());
 #endif
 
@@ -64,23 +71,13 @@ void Game::Run() {
 	mEngine.Start([this](float dt) { Draw(dt); }, [this](float dt) { Tick(dt); });
 }
 
-int Game::ParseConfig(void* user, const char* section, const char* name, const char* value) {
-	Game* game = static_cast<Game*>(user);
-	for (const auto& screen : game->mScreens) {
-		if (! strcmp(screen->GetName(), section)) {
-			screen->ParseConfig(name, value);
-		}
-	}
-	return 1;
-}
-
 void Game::Draw(float dt) {
 	const Input&        input = mEngine.GetInput();
 	const TextRenderer& textRenderer = mEngine.GetTextRenderer();
 	Graphics&           graphics = mEngine.GetGraphics();
 
 	graphics.SetFrameBuffer(mFrameBuffer);
-	mCanvas.Draw(RefWindowWidth, RefWindowHeight,  mUIRenderer, textRenderer, input.GetMappedMouseCoord());
+	mCanvas.Draw(RefWindowWidth, RefWindowHeight, mUIRenderer, textRenderer, input.GetMappedMouseCoord());
 	for (const auto& screen : mScreens) {
 		screen->Draw(mScreenId);
 	}

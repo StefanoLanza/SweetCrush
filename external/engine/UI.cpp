@@ -43,7 +43,7 @@ UIButton::UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, s
     , mAlignedRect {} {
 }
 
-bool UIButton::IsPressed(const Input& input) {
+bool UIButton::IsPressed(const Input& input) const {
 	bool res = false;
 	if (input.GetMouseButtonPressed() || input.GetFingerPressed()) {
 		Rect r;
@@ -72,7 +72,7 @@ void UIButton::UpdateRect(const UIRect& parentRect) {
 			size.aWidth = static_cast<float>(mBitmap->GetBitmap().Width());
 			size.rWidth = 0.f;
 		}
-		if (size.rHeight < 0.f && size.rHeight < 0.0f) {
+		if (size.rHeight < 0.f && size.aHeight < 0.0f) {
 			size.aHeight = static_cast<float>(mBitmap->GetBitmap().Height());
 			size.rHeight = 0.f;
 		}

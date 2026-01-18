@@ -1,7 +1,7 @@
 #include "GameRenderer.h"
+#include "AppConfig.h"
 #include "AssetDefs.h"
 #include "Board.h"
-#include "GameConfig.h"
 #include "GameDrawOrder.h"
 
 #include <engine/Engine.h>
@@ -60,7 +60,7 @@ public:
 		pastryAtlas = graphics.LoadTexture("gameartguppy/pastries.png");
 	}
 
-	void DrawBackgroundTiles(const Board& board, const GameConfig& gameConfig) const {
+	void DrawBackgroundTiles(const Board& board, const AppConfig& gameConfig) const {
 		if (! mTileProgram.mValid) {
 			return;
 		}
@@ -105,7 +105,7 @@ public:
 		}
 	}
 
-	void DrawPieces(const Board& board, const GameConfig& gameConfig, float time) const {
+	void DrawPieces(const Board& board, const AppConfig& gameConfig, float time) const {
 		if (! mPieceProgram.mValid) {
 			return;
 		}
@@ -135,14 +135,14 @@ public:
 			float s = visual->scale;
 			if (cell.hasEffect)
 				s *= dynScale;
-			tiles[idx].coords = { visual->coords.x, visual->coords.y, 0.f, 0.f };
-			tiles[idx].misc = { (float)visual->bitmapIdx, s, 0.f, 0.f };
+			tiles[idx].coords = { visual->coords.x + cellWidth * 0.5f, visual->coords.y + cellHeight * 0.5f, 0.f, 0.f };
+			tiles[idx].misc = { (float)visual->bitmapIdx, s, 1.f, 0.f };
 			tiles[idx].color = { 1.f, 1.f, 1.f, 1.f }; // TODO Remove ?
 			++idx;
 		}
 
 		if (idx > 0) {
-			const int   uniforms[] = { mPieceProgram.mTileSize }; // TODO Cell size
+			const int   uniforms[] = { mPieceProgram.mTileSize };
 			const float uniformData[] = { cellWidth, cellHeight, 0.f, 0.f };
 			//  const GLuint hrzStripesId = sprites[hrzStripesSprite]->GetTextureId();
 			const unsigned textureIds[] = { pastryAtlas->GetTextureId(), 0 };
@@ -163,7 +163,7 @@ public:
 	}
 	// TODO ice, selected
 
-	void DrawTrail(Wind::Vec2 start, Wind::Vec2 end, float w, float t01) const {
+	void DrawTrail(Vec2 start, Vec2 end, float w, float t01) const {
 		if (! mTrailProgram.mValid) {
 			return;
 		}
@@ -195,6 +195,47 @@ public:
 		drawCall.uniforms = uniforms;
 		drawCall.uniformData = uniformData;
 		drawCall.numUniforms = sizeof(uniformData) / 16;
+		mGraphics.Draw(drawCall);
+	}
+
+	void DrawIcon(Vec2 coords, int iconIdx, float rotation) {
+		if (! mPieceProgram.mValid) {
+			return;
+		}
+		mGraphics.SetPipeline(mPipelineBlending);
+
+		struct Tile {
+			Vec4 coords;
+			Vec4 misc;
+			Vec4 color;
+		};
+
+		InstanceData instanceData = mGraphics.AllocInstances(1, sizeof(Tile), mPieceProgram.mCoords);
+		if (! instanceData.data) {
+			return;
+		}
+
+		int   idx = 0;
+		Tile* tiles = static_cast<Tile*>(instanceData.data);
+		tiles[idx].coords = { coords.x, coords.y, 0.f, 0.f };
+		tiles[idx].misc = { (float)iconIdx, 1.f, std::cos(rotation), std::sin(rotation) };
+		tiles[idx].color = { 1.f, 1.f, 1.f, 1.f }; // TODO Remove ?
+
+		const int      uniforms[] = { mPieceProgram.mTileSize };
+		const float    uniformData[] = { TileWidth, TileHeight, 0.f, 0.f };
+		const unsigned textureIds[] = { pastryAtlas->GetTextureId(), 0 };
+
+		DrawCall drawCall;
+		drawCall.program = mPieceProgram.mProgramHandle;
+		drawCall.mesh = quadMesh;
+		drawCall.drawOrder = static_cast<DrawOrder>(GameDrawOrder::overBackground);
+		drawCall.sortKey = textureIds[0]; // sort by texture
+		drawCall.textures = textureIds;
+		drawCall.numTextures = 1;
+		drawCall.uniforms = uniforms;
+		drawCall.uniformData = uniformData;
+		drawCall.numUniforms = std::size(uniforms);
+		drawCall.instances = instanceData;
 		mGraphics.Draw(drawCall);
 	}
 
@@ -232,17 +273,21 @@ private:
 	TrailProgram   mTrailProgram;
 };
 
-GameRenderer::GameRenderer(Wind::Engine& engine)
+GameRenderer::GameRenderer(Engine& engine)
     : mPimpl { std::make_unique<Impl>(engine.GetGraphics()) } {
 }
 
 GameRenderer::~GameRenderer() = default;
 
-void GameRenderer::DrawBoard(const Board& board, int selectedCell, const GameConfig& gameConfig, float time) const {
+void GameRenderer::DrawBoard(const Board& board, int selectedCell, const AppConfig& gameConfig, float time) const {
 	mPimpl->DrawBackgroundTiles(board, gameConfig);
 	mPimpl->DrawPieces(board, gameConfig, time);
 }
 
-void GameRenderer::DrawLaser(Wind::Vec2 start, Wind::Vec2 end, float w, float t01) const {
+void GameRenderer::DrawLaser(Vec2 start, Vec2 end, float w, float t01) const {
 	mPimpl->DrawTrail(start, end, w, t01);
+}
+
+void GameRenderer::DrawIcon(int iconIdx, Vec2 coords, float rotation) const {
+	mPimpl->DrawIcon(coords, iconIdx, rotation);
 }

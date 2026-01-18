@@ -1,6 +1,6 @@
 #include "TileSelector.h"
 #include "Board.h"
-#include "GameConfig.h"
+#include "AppConfig.h"
 
 #include <engine/Input.h>
 
@@ -39,7 +39,7 @@ enum class TileSelector::State {
 	waitForSecond,
 };
 
-TileSelector::TileSelector(const Board& board, const GameConfig& gameConfig)
+TileSelector::TileSelector(const Board& board, const AppConfig& gameConfig)
     : mBoard { board }
     , mGameConfig { gameConfig }
     , mState { State::empty }

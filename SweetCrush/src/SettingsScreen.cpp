@@ -1,5 +1,5 @@
 #include "SettingsScreen.h"
-#include "GameConfig.h"
+#include "AppConfig.h"
 #include "Localization.h"
 #include "ScreenIds.h"
 #include "UIDefs.h"

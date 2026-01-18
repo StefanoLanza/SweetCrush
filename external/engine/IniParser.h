@@ -32,7 +32,7 @@ namespace Wind {
 
 int ParseINIFile(const char* fileName, ini_handler handler, void* user);
 
-using INIListener = std::function<bool(const char* varName, const char* varValue)>;
+using INIListener = std::function<void(const char* varName, const char* varValue)>;
 
 class INIParser final {
 public:

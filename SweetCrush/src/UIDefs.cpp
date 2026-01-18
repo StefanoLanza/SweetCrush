@@ -5,15 +5,10 @@
 using namespace Wind;
 
 const UIBitmapDesc buttonBitmapDesc {
-	"button.png",
-	UIZeroPos,
-	UIAutoSize,
-};
-
-const UIBitmapDesc shortButtonBitmapDesc {
-	"shortbutton.png",
-	UIZeroPos,
-	UIAutoSize,
+	.fileName = "button.png",
+	.pos = UIZeroPos,
+	.size = UIAutoSize,
+	.color = { 96.f, 194.f, 180.f, 255.f },
 };
 
 constexpr TextStyle titleTextStyle {

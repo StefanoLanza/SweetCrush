@@ -2,7 +2,7 @@
 #include "AssetDefs.h"
 #include "Board.h"
 #include "Constants.h"
-#include "GameConfig.h"
+#include "AppConfig.h"
 #include "GameDrawOrder.h"
 #include "GameRenderer.h"
 
@@ -73,7 +73,7 @@ ActionFunc DrawMovingSprite(const Cell& cell, const BitmapRenderer& bitmapRender
 	};
 }
 
-ActionFunc DrawExplosion(const Cell& cell, const BitmapRenderer& bitmapRenderer, const GameConfig& gameConfig) {
+ActionFunc DrawExplosion(const Cell& cell, const BitmapRenderer& bitmapRenderer, const AppConfig& gameConfig) {
 	Vec2 xy = cell.coords + Vec2 { gameConfig.board.cellWidth, gameConfig.board.cellHeight } * 0.5f;
 	return [&bitmapRenderer, xy](float /*dt*/, float t) {
 		BitmapExtParams prm;
@@ -87,7 +87,7 @@ ActionFunc DrawExplosion(const Cell& cell, const BitmapRenderer& bitmapRenderer,
 	};
 }
 
-ActionFunc DrawMatchScore(int score, const Cell& cell, const TextRenderer& textRenderer, const GameConfig& gameConfig, const Font& font) {
+ActionFunc DrawMatchScore(int score, const Cell& cell, const TextRenderer& textRenderer, const AppConfig& gameConfig, const Font& font) {
 	Vec2 xy = cell.coords + Vec2 { gameConfig.board.cellWidth, gameConfig.board.cellHeight } * 0.5f;
 	return [&textRenderer, &font, xy, score, scrollSpeed = gameConfig.scoreTextScrollSpeed](float /*dt*/, float t) {
 		char tmp[64];
@@ -98,7 +98,7 @@ ActionFunc DrawMatchScore(int score, const Cell& cell, const TextRenderer& textR
 	};
 }
 
-ActionFunc DrawBrokenIce(const Cell& cell, const BitmapRenderer& bitmapRenderer, const GameConfig& gameConfig) {
+ActionFunc DrawBrokenIce(const Cell& cell, const BitmapRenderer& bitmapRenderer, const AppConfig& gameConfig) {
 	Vec2 xy = cell.coords + Vec2 { gameConfig.board.cellWidth, gameConfig.board.cellHeight } * 0.5f;
 	return [&bitmapRenderer, xy](float /*dt*/, float t01) {
 		BitmapExtParams prm;

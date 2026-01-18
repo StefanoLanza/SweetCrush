@@ -35,5 +35,6 @@ enum class ProgramHandle : uint32_t;
 enum class PipelineHandle : uint32_t;
 struct Color;
 struct Vec2;
+class INIParser;
 
 } // namespace Wind

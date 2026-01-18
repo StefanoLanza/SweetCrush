@@ -1,6 +1,6 @@
 in vec2 inputPosition;
 uniform   vec4 orthoMatrix;
-uniform   vec4 posRect;
+highp uniform   vec4 posRect;
 out vec2 textureCoordinate;
  
 void main() {

@@ -1,7 +1,7 @@
 precision mediump float;
 
 uniform sampler2D inputTexture;
-uniform   vec4 posRect;
+highp uniform   vec4 posRect;
 uniform   vec4 _9Patch; // margin, margin / bitmapWidth, margin / bitmapHeight
 uniform   vec4 uvRect;
 uniform vec4 color;

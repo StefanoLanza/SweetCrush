@@ -2,7 +2,7 @@
 
 #include "Board.h"
 #include "Constants.h"
-#include "GameConfig.h"
+#include "AppConfig.h"
 #include "MatchChecker.h"
 #include <engine/Random.h>
 

@@ -1,8 +1,8 @@
-#include "GameConfig.h"
+#include "AppConfig.h"
 #include "Constants.h"
 
-GameConfig DefaultGameConfig() {
-	GameConfig config;
+AppConfig DefaultGameConfig() {
+	AppConfig config;
 	config.windowWidth = 768;
 	config.windowHeight = 1024;
 	config.fullscreen = false;

@@ -117,7 +117,7 @@ class UIButton final {
 public:
 	UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text);
 
-	bool      IsPressed(const Input& input);
+	bool      IsPressed(const Input& input) const;
 	void      Draw(const UIRenderer& renderer, const TextRenderer& textRender, DrawOrderType drawOrder) const;
 	void      UpdateRect(const UIRect& parentRect);
 	UIBitmap* GetBitmap() const;

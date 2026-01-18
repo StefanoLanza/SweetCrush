@@ -82,7 +82,7 @@ using Match3Callback = std::function<void(const Match3Event& event)>;
 
 class TileSelector;
 class BoardGenerator;
-struct GameConfig;
+struct AppConfig;
 
 class Match3 final {
 public:

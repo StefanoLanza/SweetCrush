@@ -2,11 +2,11 @@
 #include "AssetDefs.h"
 #include "Constants.h"
 #include "GameDrawOrder.h"
+#include "GameRenderer.h"
 #include "Localization.h"
 #include "ScreenIds.h"
 #include "UIDefs.h"
 
-#include <engine/BitmapRender.h>
 #include <engine/Engine.h>
 #include <engine/TextRender.h>
 #include <engine/UI.h>
@@ -43,13 +43,14 @@ const UITextDesc textDescs[5] {
 
 } // namespace
 
-MainScreen::MainScreen(Engine& engine)
+MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
     : mEngine(engine)
+	, mGameRenderer(gameRenderer)
     , mTitle(textDescs[0], engine)
     , mStartButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
     , mSettingsButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2], engine))
     , mCreditsButton(MakeButton(buttonDescs[2], buttonBitmapDesc, textDescs[3], engine))
-#if ! defined(__ANDROID__)
+#if ! defined(__ANDROID__) && ! defined(__OHOS__)
     , mQuitButton(MakeButton(buttonDescs[3], buttonBitmapDesc, textDescs[4], engine))
 #endif
     , mPanel(UIDefaultPanelDesc)
@@ -68,7 +69,7 @@ void MainScreen::BuildUI(UICanvas& canvas) {
 	mPanel.AddButton(mStartButton);
 	mPanel.AddButton(mSettingsButton);
 	mPanel.AddButton(mCreditsButton);
-#if ! defined(__ANDROID__)
+#if ! defined(__ANDROID__) && ! defined(__OHOS__)
 	mPanel.AddButton(mQuitButton);
 #endif
 	canvas.GetPanel().AddPanel(mPanel);
@@ -100,17 +101,10 @@ void MainScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
 	constexpr float dx = TileWidth + 2;
 	float           phase = mTime * 4.f;
 	float           x = (RefWindowWidth - (NumPieceTypes - 4) * dx) * 0.5f;
-	BitmapExtParams prm;
-	prm.pivot = BitmapPivot::center;
-	prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::overBackground);
-	prm.blending = true;
+
 	for (int i = 0; i < NumPieceTypes - 3; ++i) {
-		prm.orientation = std::sin(phase * .25f + (float)i) * 0.5f;
-		prm.width = TileWidth;
-		prm.height = TileHeight;
-		int id = pieceIcons[i];
-		prm.texRect = { (float)(id % 4), (float)(id / 4), TileWidth / 256.0f, TileHeight / 256.0f };
-		mEngine.GetBitmapRenderer().DrawBitmapEx(*pastryAtlas, { x, 380.f + std::cos(phase) * 4.f }, prm);
+		float rotation = std::sin(phase * .25f + (float)i) * 0.5f;
+		mGameRenderer.DrawIcon(pieceIcons[i], { x, 380.f + std::cos(phase) * 4.f }, rotation);
 		x += dx;
 		phase += 6.28f / static_cast<float>(NumPieceTypes);
 	}

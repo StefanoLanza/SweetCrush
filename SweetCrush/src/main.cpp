@@ -5,7 +5,7 @@
 #include <engine/SdlWindow.h>
 
 #include "Game.h"
-#include "GameConfig.h"
+#include "AppConfig.h"
 #include "GameDataModule.h"
 #include "GameRenderer.h"
 
@@ -14,13 +14,12 @@
 
 namespace {
 
-void LoadAppConfig(GameConfig& gameConfig, const char* iniFile);
-void LoadGameConfig(Game& game, const char* iniFile);
+void LoadAppConfig(AppConfig& gameConfig, const char* iniFile);
 
 } // namespace
 
 int main(int argc, char* argv[]) {
-	GameConfig gameConfig = DefaultGameConfig();
+	AppConfig gameConfig = DefaultGameConfig();
 	LoadAppConfig(gameConfig, ASSETS_FOLDER "game.ini");
 
 	GameDataModule gameDataModule;
@@ -39,8 +38,10 @@ int main(int argc, char* argv[]) {
 	Wind::SdlWindow window { "SweetCrush", gameConfig.windowWidth, gameConfig.windowHeight, ASSETS_FOLDER "icon.png", gameConfig.fullscreen };
 	Wind::Engine    engine { window };
 	GameRenderer    gameRenderer { engine };
-	Game            game { engine, gameRenderer, gameConfig, gameDataModule };
-	LoadGameConfig(game, ASSETS_FOLDER "game.ini");
+	Wind::INIParser parser;
+	Game            game { engine, gameRenderer, gameConfig, gameDataModule, parser };
+	parser.ParseFile(ASSETS_FOLDER "game.ini");
+	
 	game.Run();
 
 	return 0;
@@ -48,8 +49,8 @@ int main(int argc, char* argv[]) {
 
 namespace {
 
-int ParseGameConfig(void* user, const char* /*section*/, const char* name, const char* value) {
-	auto config = static_cast<GameConfig*>(user);
+int ParseAppConfig(void* user, const char* /*section*/, const char* name, const char* value) {
+	auto config = static_cast<AppConfig*>(user);
 	PARSE_INT(config->windowWidth, "windowWidth", 0, 3456);
 	PARSE_INT(config->windowHeight, "windowHeight", 0, 2234);
 	PARSE_BOOL(config->fullscreen, "fullscreen");
@@ -74,12 +75,8 @@ int ParseGameConfig(void* user, const char* /*section*/, const char* name, const
 	return 1;
 }
 
-void LoadAppConfig(GameConfig& gameConfig, const char* iniFile) {
-	Wind::ParseINIFile(iniFile, ParseGameConfig, &gameConfig);
-}
-
-void LoadGameConfig(Game& game, const char* iniFile) {
-	Wind::ParseINIFile(iniFile, Game::ParseConfig, &game);
+void LoadAppConfig(AppConfig& gameConfig, const char* iniFile) {
+	Wind::ParseINIFile(iniFile, ParseAppConfig, &gameConfig);
 }
 
 } // namespace

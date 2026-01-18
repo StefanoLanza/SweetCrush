@@ -17,7 +17,7 @@ class GameRenderer;
 
 class PlayScreen final : public Wind::GameScreen {
 public:
-	PlayScreen(Wind::Engine& engine, const GameRenderer& gameRenderer, const GameConfig& gameConfig, const GameSettings& gameSettings,
+	PlayScreen(Wind::Engine& engine, const GameRenderer& gameRenderer, const AppConfig& gameConfig, const GameSettings& gameSettings,
 	           ActionMgr& renderActionMgr, MatchStats& matchStats, const GameDataModule& gameDataModule);
 	~PlayScreen();
 
@@ -51,7 +51,7 @@ private:
 private:
 	Wind::Engine&                 mEngine;
 	const GameRenderer&           mGameRenderer;
-	const GameConfig&             mGameConfig;
+	const AppConfig&              mGameConfig;
 	const GameSettings&           mGameSettings;
 	ActionMgr                     mActionMgr;
 	ActionMgr&                    mRenderActionMgr;

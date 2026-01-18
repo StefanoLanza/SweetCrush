@@ -42,17 +42,27 @@ inline float EaseOutBounce(float x) {
 		return n1 * x * x;
 	}
 	else if (x < 2.f / d1) {
-        x -= 1.5f / d1;
+		x -= 1.5f / d1;
 		return n1 * x * x + 0.75f;
 	}
 	else if (x < 2.5f / d1) {
-        x -= 2.25f / d1;
+		x -= 2.25f / d1;
 		return n1 * x * x + 0.9375f;
 	}
 	else {
-        x -= 2.625f / d1;
+		x -= 2.625f / d1;
 		return n1 * x * x + 0.984375f;
 	}
+}
+
+inline float EaseInBounce(float x) {
+	return 1.f - EaseOutBounce(1.f - x);
+}
+
+inline float EaseInOutBack(float x) {
+	constexpr float c1 = 1.70158f;
+	constexpr float c2 = c1 * 1.525f;
+	return x < 0.5f ? (std::pow(2 * x, 2.f) * ((c2 + 1) * 2 * x - c2)) / 2 : (std::pow(2 * x - 2, 2.f) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2;
 }
 
 } // namespace Wind

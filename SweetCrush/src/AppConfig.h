@@ -24,7 +24,7 @@ struct BoardConfig {
 };
 
 // Configurable settings
-struct GameConfig {
+struct AppConfig {
 	// Graphics
 	int         windowWidth;
 	int         windowHeight;
@@ -50,4 +50,4 @@ struct GameConfig {
 	Match3Config match3;
 };
 
-GameConfig DefaultGameConfig();
+AppConfig DefaultGameConfig();

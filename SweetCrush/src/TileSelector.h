@@ -5,12 +5,12 @@
 #include <engine/Maths.h>
 
 class Board;
-struct GameConfig;
+struct AppConfig;
 struct Cell;
 
 class TileSelector final : public ITileSelector {
 public:
-	TileSelector(const Board& board, const GameConfig& gameConfig);
+	TileSelector(const Board& board, const AppConfig& gameConfig);
 
 	void                       SetCallback(TileSelectionCallback&& cbk);
 	int                        GetSelectedTile() const override;
@@ -29,7 +29,7 @@ private:
 	enum class DragDirection;
 
 	const Board&          mBoard;
-	const GameConfig&     mGameConfig;
+	const AppConfig&     mGameConfig;
 	TileSelectionCallback mCbk;
 	State                 mState;
 	int                   mFirstCellIdx;

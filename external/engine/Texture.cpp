@@ -42,6 +42,7 @@ Texture::Texture(std::string_view fileName, std::string_view path, TextureInfo i
 	case 1:
 		mode = GL_LUMINANCE_ALPHA;
 		internalFormat = GL_R8;
+		SDL_LogError(0, "Unsupported image format ");
 		break;
 	default:
 		SDL_LogError(0, "Image with unknown channel profile (%s)", fileName.data());
@@ -51,6 +52,7 @@ Texture::Texture(std::string_view fileName, std::string_view path, TextureInfo i
 	if (info.mipmaps) {
 		levels = (int)std::floor(std::log2(std::max(surface->w, surface->h))) + 1;
 	}
+	// Tell OpenGL the row alignment matches SDL's pitch
 	glTexStorage2D(GL_TEXTURE_2D, levels, internalFormat, surface->w, surface->h);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, surface->w, surface->h, mode, GL_UNSIGNED_BYTE, surface->pixels);
 	if (info.mipmaps) {

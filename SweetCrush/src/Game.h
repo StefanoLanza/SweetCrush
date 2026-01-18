@@ -12,16 +12,15 @@
 #include "MatchStats.h"
 #include "ScreenIds.h"
 
-struct GameConfig;
+struct AppConfig;
 class GameRenderer;
 
 class Game final {
 public:
-	Game(Wind::Engine& engine, const GameRenderer& gameRenderer, const GameConfig& gameConfig, GameDataModule& gameDataModule);
+	Game(Wind::Engine& engine, const GameRenderer& gameRenderer, const AppConfig& gameConfig, GameDataModule& gameDataModule,
+	     Wind::INIParser& iniParser);
 	~Game();
 	void Run();
-
-	static int ParseConfig(void* game, const char* section, const char* name, const char* value);
 
 private:
 	void Draw(float dt);
@@ -29,7 +28,7 @@ private:
 
 private:
 	Wind::Engine&                     mEngine;
-	const GameConfig&                 mGameConfig;
+	const AppConfig&                  mGameConfig;
 	GameDataModule&                   mGameDataModule;
 	GameSettings                      mGameSettings;
 	Wind::GlFrameBuffer               mFrameBuffer;

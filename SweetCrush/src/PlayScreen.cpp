@@ -1,8 +1,8 @@
 #include "PlayScreen.h"
 #include "Actions.h"
+#include "AppConfig.h"
 #include "AssetDefs.h"
 #include "Constants.h"
-#include "GameConfig.h"
 #include "GameDataModule.h"
 #include "GameDrawOrder.h"
 #include "GameRenderer.h"
@@ -63,6 +63,7 @@ const UIBitmapDesc boosterButtonBitmapDesc {
 	.fileName = "button.png",
 	.pos = UIZeroPos,
 	.size = UIParentSize,
+	.color = yellowColor,
 	._9patch = { 16, 0.f, 0.f, 0.f },
 };
 
@@ -74,7 +75,7 @@ const UIBitmapDesc optionButtonBitmapDesc {
 
 constexpr UIPanelDesc BoosterPanelDesc {
 	{ 0.f, -20.f, 0.f, 0.f },   // pos
-	{ 400.f, 100.f, 0.f, 0.f }, // size
+	{ 320.f, 100.f, 0.f, 0.f }, // size
 	UIHorizAlignment::center,
 	UIVertAlignment::bottom,
 };
@@ -87,7 +88,7 @@ CellVisual& GetVisual(const Cell& cell) {
 
 } // namespace
 
-PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const GameConfig& gameConfig, const GameSettings& gameSettings,
+PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& gameConfig, const GameSettings& gameSettings,
                        ActionMgr& renderActionMgr, MatchStats& matchStats, const GameDataModule& gameDataModule)
     : mEngine(engine)
     , mGameRenderer(gameRenderer)
@@ -434,13 +435,12 @@ void PlayScreen::CheckLevelCompletion() {
 }
 
 void PlayScreen::DrawUI() const {
-	const TextRenderer&   textRenderer = mEngine.GetTextRenderer();
-	const BitmapRenderer& bitmapRender = mEngine.GetBitmapRenderer();
-	const TextStyle       textStyle { whiteColor, blackColor };
-	const TextStyle       textStyle1 { redColor, blackColor };
-	const Level&          level = *mGameDataModule.GetLevel(mMatchStats.level);
-	char                  tmp[256];
-	const float           y = 60.f;
+	const TextRenderer& textRenderer = mEngine.GetTextRenderer();
+	const TextStyle     textStyle { whiteColor, blackColor };
+	const TextStyle     textStyle1 { redColor, blackColor };
+	const Level&        level = *mGameDataModule.GetLevel(mMatchStats.level);
+	char                tmp[256];
+	const float         y = 60.f;
 
 	snprintf(tmp, sizeof(tmp), "%04d", mMatchStats.score);
 	textRenderer.Write(*mFonts[2], tmp, Vec2 { 60, y }, textStyle, DrawOrder::UI);
@@ -449,18 +449,11 @@ void PlayScreen::DrawUI() const {
 	snprintf(tmp, sizeof(tmp), "%d:%02d", time / 60, time % 60);
 	textRenderer.Write(*mFonts[2], tmp, Vec2 { 500, y }, mMatchTime < criticalTime ? textStyle1 : textStyle, DrawOrder::UI);
 
-	BitmapExtParams prm;
-	prm.pivot = BitmapPivot::center;
-	prm.blending = true;
-	prm.orientation = 0.f;
-	prm.drawOrder = static_cast<DrawOrder>(GameDrawOrder::overBackground);
-	prm.blending = true;
-
 	if (level.goal.id == GoalId::collectMatches) {
 		Vec2 pos = mGameConfig.ui.goalStartCoord;
 		for (int i = 0; i < 3; ++i) {
-			const auto& def = pieceIcons[level.pieceIds[i]];
-			bitmapRender.DrawBitmapEx(*sprites[def], pos, prm);
+			const int icon = pieceIcons[level.pieceIds[i]];
+			mGameRenderer.DrawIcon(icon, pos, 0.f);
 			snprintf(tmp, sizeof(tmp), "%d/%d", mMatchStats.targetPieceCount[i], level.goal.collectMatches.count[i]);
 			textRenderer.Write(*mFonts[2], tmp, pos + Vec2 { 40.f, -20.f }, textStyle, DrawOrder::UI);
 			pos.x += 180.f;
@@ -469,7 +462,7 @@ void PlayScreen::DrawUI() const {
 	else if (level.goal.id == GoalId::breakIce) {
 		Vec2 pos = mGameConfig.ui.goalStartCoord;
 		for (int i = 0; i < mMatchStats.layerCount; ++i) {
-			bitmapRender.DrawBitmapEx(*sprites[iceSprite], pos, prm);
+			mGameRenderer.DrawIcon(iceSprite, pos, 0.f);
 			pos.x += sprites[iceSprite]->Width() + 12;
 		}
 	}
