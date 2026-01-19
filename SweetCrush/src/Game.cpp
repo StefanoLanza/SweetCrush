@@ -6,6 +6,7 @@
 #include "GameCompleteScreen.h"
 #include "AppConfig.h"
 #include "GameOverScreen.h"
+#include "GameDrawOrder.h"
 #include "GraphicsSettingsScreen.h"
 #include "LevelCompleteScreen.h"
 #include "Localization.h"
@@ -78,7 +79,7 @@ void Game::Draw(float dt) {
 	Graphics&           graphics = mEngine.GetGraphics();
 
 	graphics.SetFrameBuffer(mFrameBuffer);
-	mCanvas.Draw(RefWindowWidth, RefWindowHeight, mUIRenderer, textRenderer, input.GetMappedMouseCoord());
+	mCanvas.Draw(RefWindowWidth, RefWindowHeight, mUIRenderer, textRenderer, input.GetMappedMouseCoord(), GameDrawOrder::UI);
 	for (const auto& screen : mScreens) {
 		screen->Draw(mScreenId);
 	}

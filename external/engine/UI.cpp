@@ -282,18 +282,18 @@ void UICanvas::LoadGraphics(Graphics& graphics) {
 	mPanel.LoadGraphics(graphics);
 }
 
-void UICanvas::Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords) {
+void UICanvas::Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords, unsigned drawOrder) {
 	const UIRect parentRect { { 0.f, 0.f }, (float)canvasWidth, (float)canvasHeight };
 	mPanel.UpdateRect(parentRect);
 
 	if (mBackground) {
 		UIDrawParams prms;
 		prms.blending = false;
-		prms.priority = DrawOrder::background;
+		prms.priority = drawOrder;
 		renderer.DrawRect(parentRect, *mBackground, prms);
 	}
 
-	mPanel.Draw(renderer, textRender, DrawOrder::UI);
+	mPanel.Draw(renderer, textRender, drawOrder + 1);
 
 	if (mMousePointer) {
 		const UIDrawParams prm {

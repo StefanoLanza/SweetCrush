@@ -2,11 +2,11 @@
 
 #include <engine/DrawOrder.h>
 
-enum class GameDrawOrder : Wind::DrawOrderType {
-	overBackground = Wind::DrawOrder::background + 1,
-	backgroundTile = Wind::DrawOrder::user,
+enum GameDrawOrder : Wind::DrawOrderType {
+	UI = 0,
+	overUI = UI + 32,
+	backgroundTile,
 	boardPiece,
 	ice,
 	overlays,
-	overUI = Wind::DrawOrder::UI + 50,
 };

@@ -166,7 +166,7 @@ public:
 	void     SetMousePointer(const char* fileName, Graphics& graphics);
 	UIPanel& GetPanel();
 	void     LoadGraphics(Graphics& graphics);
-	void     Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords);
+	void     Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords, unsigned drawOrder);
 
 private:
 	UIPanel    mPanel;

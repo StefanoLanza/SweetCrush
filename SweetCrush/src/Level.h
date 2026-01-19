@@ -34,10 +34,12 @@ struct Goal {
 };
 
 struct Level {
-	int             pieceIds[MaxPieceTypes];
+	int             pieceIds[MaxPieceTypesPerLevel];
 	Goal            goal;
-	uint32_t        seed;
-	float           availableTime; // seconds
-	const BoardDef* boardDef;  // null for random boards
-	const char*     boardMask; // can be null
+	uint32_t        seed = 1224;
+	float           availableTime = 60.f; // seconds
+	const BoardDef* boardDef = nullptr;      // null for random boards
+	const char*     boardMask = nullptr;     // can be null
+	uint8_t         boosterIds[MaxBoosterTypesPerLevel];
+	uint8_t         boosterCount[MaxBoosterTypesPerLevel];
 };

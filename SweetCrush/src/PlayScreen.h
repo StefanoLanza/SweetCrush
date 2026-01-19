@@ -4,6 +4,7 @@
 #include "Board.h"
 #include "BoardGenerator.h"
 #include "EffectInfoPanel.h"
+#include "Level.h"
 #include "Match3.h"
 #include <engine/FwdDecl.h>
 #include <engine/GameScreen.h>
@@ -73,4 +74,7 @@ private:
 	Wind::FontPtr                 mFonts[3];
 	Wind::MusicPtr                mMusic;
 	Wind::SoundPtr                mSounds[2];
+	int                           mBoosterCount[MaxBoosterTypesPerLevel] {};
+	int                           mSelectedBooster = -1;
+	Wind::Vec2                    mSelectedBoosterCoord {};
 };

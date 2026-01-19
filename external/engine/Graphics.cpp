@@ -96,8 +96,8 @@ Mesh BuildMesh(GLuint numVertices, GLsizei numIndices, const GLfloat vertexData[
 }
 
 Mesh BuildQuad() {
-	constexpr GLfloat  vertexData[] = { 0.f, 0.f, 1.f, 0.f, 1.f, 1.f, 0.f, 1.f };
-	constexpr GLushort indexData[] = { 0, 1, 2, 3 };
+	constexpr GLfloat  vertexData[] = { 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 1.f, 1.f };
+	constexpr GLushort indexData[] = { 0, 1, 3, 2 };
 	return BuildMesh(4, 4, vertexData, indexData);
 }
 

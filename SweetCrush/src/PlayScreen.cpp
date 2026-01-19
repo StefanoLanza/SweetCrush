@@ -156,6 +156,17 @@ GameScreenId PlayScreen::Tick(float dt, const Input& input) {
 	if (mPauseButton.IsPressed(input)) {
 		return ScreenId::pauseGame;
 	}
+	if (input.GetMouseButtonPressed() && mSelectedBooster >= 0) {
+		mSelectedBooster = -1;
+	}
+	for (int i = 0; i < MaxBoosterTypesPerLevel; ++i) {
+		if (mBoosterButtons[i].IsPressed(input)) {
+			mSelectedBooster = i;
+		}
+	}
+	if (mSelectedBooster >= 0) {
+		mSelectedBoosterCoord = input.GetMouseCoord();
+	}
 #if defined(__ANDROID__) || defined(__OHOS__)
 	if (input.GetKeyPressed(SDLK_AC_BACK)) {
 #elif defined(_WIN32) || defined(__linux__)
@@ -212,12 +223,10 @@ void PlayScreen::Draw(GameScreenId topScreen) const {
 	}
 	mGameRenderer.DrawBoard(mBoard, mCellSelector->GetSelectedTile(), mGameConfig, mTime);
 	DrawUI();
-	mGameRenderer.DrawIcon(boosterIcons[0], mBoosterButtons[0].GetRect().pos + mBoosterButtons[0].GetRect().size * 0.5f, 0.f, whiteColor,
-	                       static_cast<unsigned>(GameDrawOrder::overUI));
 
 	// FIXME
-	// mGameRenderer.DrawLaser({ 0.f, 300.f }, { mGameConfig.board.bottomRightCoord.x, 300.f }, 64, 0.5 + 0.5 * sinf(mMatchTime * 5.0));
-	// mGameRenderer.DrawLaser({ 100.f, 0.f }, { 100.f, mGameConfig.board.bottomRightCoord.y }, 64, 0.5 + 0.5 * sinf(mMatchTime * 5.0));
+	//mGameRenderer.DrawLaser({ 0.f, 300.f }, { mGameConfig.board.bottomRightCoord.x, 300.f }, 64, 0.5 + 0.5 * sinf(mMatchTime * 5.0));
+	//mGameRenderer.DrawLaser({ 100.f, 0.f }, { 100.f, mGameConfig.board.bottomRightCoord.y }, 64, 0.5 + 0.5 * sinf(mMatchTime * 5.0));
 }
 
 void PlayScreen::Enter(GameScreenId prevScreen) {
@@ -395,11 +404,13 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		Vec2 startCoords = event.effect.mainCell->coords + Vec2 { mGameConfig.board.cellWidth, mGameConfig.board.cellHeight } * 0.5f;
 		if (event.effect.type == EffectType::hrocket) {
 			mRenderActionMgr.AddTimedAction(DrawLaser(startCoords, { 0.f, startCoords.y }, mGameRenderer), mGameConfig.glowTrailTime);
-			mRenderActionMgr.AddTimedAction(DrawLaser(startCoords, { mGameConfig.board.bottomRightCoord.x, startCoords.y }, mGameRenderer),
+			mRenderActionMgr.AddTimedAction(DrawLaser(startCoords, { RefWindowWidth, startCoords.y }, mGameRenderer),
 			                                mGameConfig.glowTrailTime);
 		}
 		else if (event.effect.type == EffectType::vrocket) {
-			// TODO
+			mRenderActionMgr.AddTimedAction(DrawLaser(startCoords, { startCoords.x, 0.f }, mGameRenderer), mGameConfig.glowTrailTime);
+			mRenderActionMgr.AddTimedAction(DrawLaser(startCoords, { startCoords.x, RefWindowHeight }, mGameRenderer),
+			                                mGameConfig.glowTrailTime);
 		}
 		else {
 			//		mRenderActionMgr.AddTimedAction(DrawExplosion(cell, mEngine.GetBitmapRenderer(), mGameConfig), mGameConfig.bombExplosionTime, 0.f,
@@ -434,6 +445,14 @@ void PlayScreen::CheckLevelCompletion() {
 			res = (mMatchStats.targetPieceCount[i] >= level.goal.collectMatches.count[i]) && res;
 		}
 		break;
+	case GoalId::removeJellies:
+		// TODO
+		res = false;
+		break;
+	case GoalId::collectAllStars:
+		// TODO
+		res = false;
+		break;
 	default:
 		break;
 	}
@@ -456,11 +475,11 @@ void PlayScreen::DrawUI() const {
 	const float         y = 60.f;
 
 	snprintf(tmp, sizeof(tmp), "%04d", mMatchStats.score);
-	textRenderer.Write(*mFonts[2], tmp, Vec2 { 60, y }, textStyle, DrawOrder::UI);
+	textRenderer.Write(*mFonts[2], tmp, Vec2 { 60, y }, textStyle, GameDrawOrder::overlays);
 
 	const int time = static_cast<int>(mMatchTime);
 	snprintf(tmp, sizeof(tmp), "%d:%02d", time / 60, time % 60);
-	textRenderer.Write(*mFonts[2], tmp, Vec2 { 500, y }, mMatchTime < criticalTime ? textStyle1 : textStyle, DrawOrder::UI);
+	textRenderer.Write(*mFonts[2], tmp, Vec2 { 500, y }, mMatchTime < criticalTime ? textStyle1 : textStyle, GameDrawOrder::overlays);
 
 	if (level.goal.id == GoalId::collectMatches) {
 		Vec2 pos = mGameConfig.ui.goalStartCoord;
@@ -468,7 +487,7 @@ void PlayScreen::DrawUI() const {
 			const int icon = pieceIcons[level.pieceIds[i]];
 			mGameRenderer.DrawIcon(icon, pos, 0.f, whiteColor, static_cast<unsigned>(GameDrawOrder::overlays));
 			snprintf(tmp, sizeof(tmp), "%d/%d", mMatchStats.targetPieceCount[i], level.goal.collectMatches.count[i]);
-			textRenderer.Write(*mFonts[2], tmp, pos + Vec2 { 40.f, -20.f }, textStyle, DrawOrder::UI);
+			textRenderer.Write(*mFonts[2], tmp, pos + Vec2 { 40.f, -20.f }, textStyle, GameDrawOrder::overlays);
 			pos.x += 180.f;
 		}
 	}
@@ -477,6 +496,19 @@ void PlayScreen::DrawUI() const {
 		for (int i = 0; i < mMatchStats.layerCount; ++i) {
 			mGameRenderer.DrawIcon(iceSprites[0], pos, 0.f, whiteColor, static_cast<unsigned>(GameDrawOrder::overlays));
 			pos.x += gameTextures[iceSprites[0]]->Width() + 12;
+		}
+	}
+
+	for (int i = 0; i < MaxBoosterTypesPerLevel; ++i) {
+		if (level.boosterCount[i] > 0) {
+			Vec2 coords;
+			if (mSelectedBooster == i) {
+				coords = mSelectedBoosterCoord;
+			}
+			else {
+				coords = mBoosterButtons[i].GetRect().pos + mBoosterButtons[i].GetRect().size * 0.5f;
+			}
+			mGameRenderer.DrawIcon(boosterIcons[level.boosterIds[i]], coords, 0.f, whiteColor, static_cast<unsigned>(GameDrawOrder::overlays));
 		}
 	}
 }
@@ -501,7 +533,7 @@ void PlayScreen::SetupNewBoardAnimation() {
 		visual.scale = 0.f;
 		visual.rotation = 0.f;
 		visual.bkgAlpha = 0.f;
-		float delay = rnd.NextF(0.f, 0.5f); //(mBoard.GetRows() - 1 - cell.row + cell.col) * 0.05f;
+		float delay = rnd.NextF(0.f, 0.5f);
 		mActionMgr.AddTimedAction(FadeInAlpha(visual), mGameConfig.newPieceDuration, delay);
 		mActionMgr.AddTimedAction(ScalePiece(visual, 0.f, 1.f), mGameConfig.newPieceDuration, delay);
 	}

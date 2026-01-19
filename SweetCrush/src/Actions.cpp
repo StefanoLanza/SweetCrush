@@ -79,7 +79,7 @@ ActionFunc DrawMatchScore(int score, const Cell& cell, const TextRenderer& textR
 		char tmp[64];
 		snprintf(tmp, sizeof(tmp), "%d", score);
 		float y = xy.y - t * scrollSpeed;
-		textRenderer.Write(font, tmp, Vec2 { xy.x, y }, defaultTextStyle, DrawOrder::UI - 1); // below UI
+		textRenderer.Write(font, tmp, Vec2 { xy.x, y }, defaultTextStyle, GameDrawOrder::overlays);
 		return false;
 	};
 }
@@ -101,7 +101,7 @@ ActionFunc DrawBrokenIce(const Cell& cell, const BitmapRenderer& bitmapRenderer,
 
 ActionFunc DrawLaser(Vec2 startCoords, Vec2 endCoords, const GameRenderer& gameRenderer) {
 	return [&gameRenderer, startCoords, endCoords](float /*dt*/, float t01) {
-		gameRenderer.DrawLaser(startCoords, endCoords, 64.f, EaseInQuint(t01));
+		gameRenderer.DrawLaser(startCoords, endCoords, 64.f, EaseOutQuint(t01));
 		return false;
 	};
 }

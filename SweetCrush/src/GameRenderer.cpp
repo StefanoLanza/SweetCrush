@@ -157,7 +157,8 @@ public:
 			mGraphics.Draw(drawCall);
 
 			if (cell.layers > 0) {
-				DrawIcon(cell.coords + Vec2{cellWidth,cellHeight} * 0.5f, iceSprites[0], 0.f, whiteColor, static_cast<unsigned>(GameDrawOrder::ice));
+				DrawIcon(cell.coords + Vec2 { cellWidth, cellHeight } * 0.5f, iceSprites[0], 0.f, whiteColor,
+				         static_cast<unsigned>(GameDrawOrder::ice));
 			}
 		}
 	}
@@ -170,9 +171,8 @@ public:
 		Vec2 dir = Normalize(end - start);
 		Vec2 perp = Ortho(dir) * w;
 
-		const float th = 0.1f;
-		Vec2        trailStart = start;
-		Vec2        trailEnd = Lerp(start, end, th + (1.f - th) * t01);
+		Vec2 trailStart = start;
+		Vec2 trailEnd = Lerp(start, end, t01);
 
 		mGraphics.SetPipeline(mPipelineAdditive);
 
@@ -285,7 +285,8 @@ void GameRenderer::DrawBoard(const Board& board, int selectedCell, const AppConf
 	mPimpl->DrawPieces(board, gameConfig, time);
 	if (selectedCell >= 0) {
 		const Cell& cell = board.GetCell(selectedCell);
-		mPimpl->DrawIcon(cell.coords + Vec2 { TileWidth, TileHeight } * 0.5f, selectionSprite, 0.f, whiteColor, static_cast<unsigned>(GameDrawOrder::overlays));
+		mPimpl->DrawIcon(cell.coords + Vec2 { TileWidth, TileHeight } * 0.5f, selectionSprite, 0.f, whiteColor,
+		                 static_cast<unsigned>(GameDrawOrder::overlays));
 	}
 }
 

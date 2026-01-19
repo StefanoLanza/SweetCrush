@@ -19,7 +19,11 @@ inline float EaseInCubic(float x) {
 }
 
 inline float EaseInQuint(float x) {
-	return x * x * x * x * x;
+	return std::pow(x, 5.f);
+}
+
+inline float EaseOutQuint(float x) {
+	return 1.f - std::pow(1.f - x, 5.f);
 }
 
 inline float EaseInElastic(float x) {

@@ -7,6 +7,8 @@ constexpr int RefWindowHeight = 1136;
 constexpr int MaxPieceTypes = 8;
 constexpr float TileWidth = 64.f;
 constexpr float TileHeight = 72.f;
+constexpr int MaxPieceTypesPerLevel = 5;
+constexpr int MaxBoosterTypesPerLevel = 3;
 
 using CellID = unsigned char;
 
