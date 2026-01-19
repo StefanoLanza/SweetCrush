@@ -1,4 +1,3 @@
-in vec2 inputPosition;
 uniform   vec4 orthoMatrix;
 uniform   vec4 posRect;
 uniform   vec4 uvRect;
@@ -11,9 +10,10 @@ vec2 rotate(vec2 v, vec2 r) {
 }
  
 void main() {
-	vec2 pos = posRect.xy + posRect.zw * inputPosition.xy;
+	vec2 quad = vec2(float(gl_VertexID & 1), float((gl_VertexID >> 1) & 1));
+	vec2 pos = posRect.xy + posRect.zw * quad;
 	pos = rotate(pos, rotation.xy);
 	pos = vec2(-1. + pos.x * orthoMatrix.x, 1. - pos.y * orthoMatrix.y);
     gl_Position = vec4(pos, 0., 1.);
-	textureCoordinate = (uvRect.xy + inputPosition.xy) * uvRect.zw; // atlas UVs
+	textureCoordinate = (uvRect.xy + quad) * uvRect.zw; // atlas UVs
 }

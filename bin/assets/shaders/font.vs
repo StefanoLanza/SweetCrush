@@ -1,8 +1,8 @@
 precision highp float;
 
 // Per-instance attributes
-layout (location = 1) in vec4 posRect;
-layout (location = 2) in vec4 uvRect;
+layout (location = 0) in vec4 posRect;
+layout (location = 1) in vec4 uvRect;
 
 uniform vec4 orthoMatrix;
 out vec2 textureCoordinate;

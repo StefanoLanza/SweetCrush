@@ -72,20 +72,24 @@ Mesh BuildMesh(GLuint numVertices, GLsizei numIndices, const GLfloat vertexData[
 	glGenVertexArrays(1, &mesh.VAO);
 	glBindVertexArray(mesh.VAO);
 
-	// Generate VBO and store it in the VAO
-	glGenBuffers(1, &mesh.VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, numComponents, GL_FLOAT, GL_FALSE, numComponents * sizeof(GLfloat), NULL);
-	glBufferData(GL_ARRAY_BUFFER, numVertices * numComponents * sizeof(GLfloat), vertexData, GL_STATIC_DRAW);
-	if (auto err = glGetError(); err != GL_NO_ERROR) {
-		SDL_LogError(0, "GL Error. Code: %d", err);
+	if (numVertices > 0) {
+		// Generate VBO and store it in the VAO
+		glGenBuffers(1, &mesh.VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, numComponents, GL_FLOAT, GL_FALSE, numComponents * sizeof(GLfloat), NULL);
+		glBufferData(GL_ARRAY_BUFFER, numVertices * numComponents * sizeof(GLfloat), vertexData, GL_STATIC_DRAW);
+		if (auto err = glGetError(); err != GL_NO_ERROR) {
+			SDL_LogError(0, "GL Error. Code: %d", err);
+		}
 	}
 
-	// Generate IBO and store it in the VAO
-	glGenBuffers(1, &mesh.IBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(GLushort), indexData, GL_STATIC_DRAW);
+	if (numIndices > 0) {
+		// Generate IBO and store it in the VAO
+		glGenBuffers(1, &mesh.IBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(GLushort), indexData, GL_STATIC_DRAW);
+	}
 
 	if (auto err = glGetError(); err != GL_NO_ERROR) {
 		SDL_LogError(0, "GL Error. Code: %d", err);
@@ -96,15 +100,14 @@ Mesh BuildMesh(GLuint numVertices, GLsizei numIndices, const GLfloat vertexData[
 }
 
 Mesh BuildQuad() {
-	constexpr GLfloat  vertexData[] = { 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 1.f, 1.f };
 	constexpr GLushort indexData[] = { 0, 1, 3, 2 };
-	return BuildMesh(4, 4, vertexData, indexData);
+	return BuildMesh(0, 4, nullptr, indexData);
 }
 
 Mesh BuildTriangle() {
 	constexpr GLfloat  vertexData[] = { 0.f, 0.f, 1.f, 0.f, 0.f, 1.f };
-	constexpr GLushort indexData[] = { 0, 1, 2 };
-	return BuildMesh(3, 3, vertexData, indexData);
+	constexpr GLushort indexData[] = { 0, 2, 1 };
+	return BuildMesh(0, 3, vertexData, indexData);
 }
 
 } // namespace

@@ -20,8 +20,6 @@ private:
 private:
 	struct BlitProgram {
 		ProgramHandle mHandle = nullProgram;
-		// Attributes
-		GLint mVertexPos = -1;
 		// Uniforms
 		GLint mPosRect = -1;
 		GLint mTexture = -1;
@@ -57,11 +55,10 @@ void Blitter::Impl::InitProgram(BlitProgram& blitProgram, Graphics& graphics, co
 
 	if (blitProgram.mHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(blitProgram.mHandle);
-		blitProgram.mVertexPos = program.GetAttribLocation("inputPosition");
 		blitProgram.mPosRect = program.GetUniformLocation("posRect");
 		blitProgram.mTexture = program.GetUniformLocation("inputTexture");
 		blitProgram.mSrcTexelSize = program.GetUniformLocation("srcTexelSize");
-		blitProgram.mValid = (blitProgram.mVertexPos != -1 && blitProgram.mPosRect != -1 && blitProgram.mTexture != -1); // && mSrcTexelSize != -1);
+		blitProgram.mValid = (blitProgram.mPosRect != -1 && blitProgram.mTexture != -1); // && mSrcTexelSize != -1);
 	}
 }
 

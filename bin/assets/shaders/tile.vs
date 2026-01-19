@@ -1,6 +1,6 @@
 // Per-instance attributes
-layout (location = 1) in vec4 tileCoords;
-layout (location = 2) in vec4 tileColor;
+layout (location = 0) in vec4 tileCoords;
+layout (location = 1) in vec4 tileColor;
 
 out vec2 textureCoordinate;
 out vec4 color;
