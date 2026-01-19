@@ -8,7 +8,7 @@ const UIBitmapDesc buttonBitmapDesc {
 	.fileName = "button.png",
 	.pos = UIZeroPos,
 	.size = UIAutoSize,
-	.color = { 96.f, 194.f, 180.f, 255.f },
+	.color = { 131.f, 255.f, 255.f, 255.f },
 };
 
 constexpr TextStyle titleTextStyle {

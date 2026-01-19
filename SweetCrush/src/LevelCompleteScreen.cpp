@@ -75,7 +75,7 @@ void LevelCompleteScreen::Draw([[maybe_unused]] Wind::GameScreenId topScreen) co
 	// TODO show collected pastries?
 }
 
-void LevelCompleteScreen::Enter([[maybe_unused]] Wind::GameScreenId prevScreen) {
+void LevelCompleteScreen::Enter([[maybe_unused]] Wind::GameScreenId prevScreen, const void* payload) {
 	mPanel.SetVisible(true);
 }
 

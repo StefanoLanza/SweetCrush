@@ -27,7 +27,7 @@ public:
 	void               BuildUI(Wind::UICanvas& canvas) override;
 	Wind::GameScreenId Tick(float dt, const Wind::Input& input) override;
 	void               Draw(Wind::GameScreenId topScreen) const override;
-	void               Enter(Wind::GameScreenId prevScreen) override;
+	void               Enter(Wind::GameScreenId prevScreen, const void* payload) override;
 	void               Exit() override;
 	void               ParseConfig(const char* varName, const char* varValue) override;
 
@@ -77,4 +77,6 @@ private:
 	int                           mBoosterCount[MaxBoosterTypesPerLevel] {};
 	int                           mSelectedBooster = -1;
 	Wind::Vec2                    mSelectedBoosterCoord {};
+	bool                          mGameComplete = false;
+	bool                          mLevelComplete = false;
 };

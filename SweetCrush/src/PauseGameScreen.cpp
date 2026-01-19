@@ -4,6 +4,7 @@
 #include "ScreenIds.h"
 #include "UIDefs.h"
 #include <engine/Engine.h>
+#include <engine/Input.h>
 #include <engine/TextRender.h>
 #include <engine/UI.h>
 
@@ -73,9 +74,8 @@ const UITextDesc textDescs[] {
 
 } // namespace
 
-PauseGameScreen::PauseGameScreen(Engine& engine, MatchStats& matchStats)
+PauseGameScreen::PauseGameScreen(Engine& engine)
     : mEngine(engine)
-    , mMatchStats(matchStats)
     , mTitle(textDescs[0], engine)
     , mContinueButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
     , mRestartLevelButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2], engine))
@@ -99,15 +99,22 @@ void PauseGameScreen::BuildUI(UICanvas& canvas) {
 }
 
 Wind::GameScreenId PauseGameScreen::Tick(float /*dt*/, const Wind::Input& input) {
+#if defined(__ANDROID__) || defined(__OHOS__)
+	if (input.GetKeyPressed(SDLK_AC_BACK)) {
+#elif defined(_WIN32) || defined(__linux__)
+	if (input.GetKeyPressed(SDLK_ESCAPE)) {
+#endif
+		return ScreenId::play;
+	}
 	if (mExitGameButton.IsPressed(input)) {
 		return ScreenId::mainMenu;
 	}
 	else if (mRestartLevelButton.IsPressed(input)) {
-		mMatchStats.restartLevel = true;
+		//TODO mRestartLevel = true; // FIXME Return as generic data
 		return ScreenId::play;
 	}
 	else if (mContinueButton.IsPressed(input)) {
-		mMatchStats.restartLevel = false;
+		//TODO mRestartLevel = false;
 		return ScreenId::play;
 	}
 	return ScreenId::pauseGame;
@@ -116,7 +123,7 @@ Wind::GameScreenId PauseGameScreen::Tick(float /*dt*/, const Wind::Input& input)
 void PauseGameScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
 }
 
-void PauseGameScreen::Enter([[maybe_unused]] GameScreenId prevScreen) {
+void PauseGameScreen::Enter([[maybe_unused]] GameScreenId prevScreen, const void* payload) {
 	mPanel.SetVisible(true);
 }
 

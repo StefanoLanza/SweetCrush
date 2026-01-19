@@ -14,7 +14,7 @@ public:
 	virtual void         LoadAssets() = 0;
 	virtual void         BuildUI(UICanvas& canvas) = 0;
 	virtual void         Draw(GameScreenId topScreen) const = 0;
-	virtual void         Enter(GameScreenId prevScreen) = 0;
+	virtual void         Enter(GameScreenId prevScreen, const void* payload) = 0;
 	virtual void         Exit() = 0;
 	virtual void         ParseConfig(const char* varName, const char* varValue) = 0;
 };

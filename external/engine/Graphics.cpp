@@ -107,7 +107,7 @@ Mesh BuildQuad() {
 Mesh BuildTriangle() {
 	constexpr GLfloat  vertexData[] = { 0.f, 0.f, 1.f, 0.f, 0.f, 1.f };
 	constexpr GLushort indexData[] = { 0, 2, 1 };
-	return BuildMesh(0, 3, vertexData, indexData);
+	return BuildMesh(3, 3, vertexData, indexData);
 }
 
 } // namespace

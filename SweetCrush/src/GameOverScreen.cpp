@@ -110,7 +110,7 @@ void GameOverScreen::Draw(GameScreenId topScreen) const {
 	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 530 }, TextAlignment::center, textStyle, (DrawOrder)GameDrawOrder::overUI);
 }
 
-void GameOverScreen::Enter(GameScreenId /*prevScreen*/) {
+void GameOverScreen::Enter(GameScreenId /*prevScreen*/, const void* payload) {
 	mPanel.SetVisible(true);
 }
 

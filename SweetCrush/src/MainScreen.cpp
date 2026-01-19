@@ -8,6 +8,7 @@
 #include "UIDefs.h"
 
 #include <engine/Engine.h>
+#include <engine/Input.h>
 #include <engine/TextRender.h>
 #include <engine/UI.h>
 
@@ -45,7 +46,7 @@ const UITextDesc textDescs[5] {
 
 MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
     : mEngine(engine)
-	, mGameRenderer(gameRenderer)
+    , mGameRenderer(gameRenderer)
     , mTitle(textDescs[0], engine)
     , mStartButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
     , mSettingsButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2], engine))
@@ -86,11 +87,15 @@ GameScreenId MainScreen::Tick(float dt, const Wind::Input& input) {
 	else if (mCreditsButton.IsPressed(input)) {
 		return ScreenId::credits;
 	}
-#if ! defined(__ANDROID__) && ! defined(__OHOS__)
-	else if (mQuitButton.IsPressed(input)) {
+
+#if defined(__ANDROID__) || defined(__OHOS__)
+	if (input.GetKeyPressed(SDLK_AC_BACK)) {
+		mEngine.Quit();
+#elif defined(_WIN32) || defined(__linux__)
+	if (input.GetKeyPressed(SDLK_ESCAPE) || mQuitButton.IsPressed(input)) {
+#endif
 		mEngine.Quit();
 	}
-#endif
 	return ScreenId::mainMenu;
 }
 
@@ -104,13 +109,14 @@ void MainScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
 
 	for (int i = 0; i < NumPieceTypes; ++i) {
 		float rotation = std::sin(phase * .25f + (float)i) * 0.5f;
-		mGameRenderer.DrawIcon(pieceIcons[i], { x, 380.f + std::cos(phase) * 4.f }, rotation, whiteColor, static_cast<unsigned>(GameDrawOrder::overlays));
+		mGameRenderer.DrawIcon(pieceIcons[i], { x, 380.f + std::cos(phase) * 4.f }, rotation, whiteColor,
+		                       static_cast<unsigned>(GameDrawOrder::overlays));
 		x += dx;
 		phase += 6.28f / static_cast<float>(NumPieceTypes);
 	}
 }
 
-void MainScreen::Enter([[maybe_unused]] GameScreenId prevScreen) {
+void MainScreen::Enter([[maybe_unused]] GameScreenId prevScreen, const void* payload) {
 	mPanel.SetVisible(true);
 }
 

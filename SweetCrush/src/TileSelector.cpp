@@ -1,6 +1,6 @@
 #include "TileSelector.h"
-#include "Board.h"
 #include "AppConfig.h"
+#include "Board.h"
 
 #include <engine/Input.h>
 
@@ -12,17 +12,16 @@ namespace {
 
 constexpr int invalidIndex = -1;
 
-std::pair<bool, int> GetCellAtCoordinates(const Board& board, const BoardConfig& boardConfig, float x, float y) {
-	const int col = static_cast<int>(std::floor((x - boardConfig.topLeftCoord.x) / boardConfig.cellWidthWithSpacing));
-	const int row = static_cast<int>(std::floor((y - boardConfig.topLeftCoord.y) / boardConfig.cellHeightWithSpacing));
-	if (col < 0 || col >= board.GetCols() || row < 0 || row >= board.GetRows()) {
+std::pair<bool, int> GetCellAtCoordinates(const Board& board, Wind::Vec2 coords) {
+	int cellIdx = board.GetCellAtCoords(coords);
+	if (cellIdx < 0) {
 		return { false, invalidIndex };
 	}
-	const Cell& cell = board.GetCell(col, row);
+	const Cell& cell = board.GetCell(cellIdx);
 	if (! IsSelectable(cell)) {
 		return { false, invalidIndex };
 	}
-	return { true, board.GetCellIndex(col, row) };
+	return { true, cellIdx };
 }
 
 } // namespace
@@ -73,7 +72,7 @@ std::tuple<bool, int, int> TileSelector::SelectTiles(const Wind::Input& input) {
 	if (mState == State::empty) {
 		// Wait for user to click on a cell
 		if (mouseButtonPressed) {
-			if (auto [hit, cellIdx] = GetCellAtCoordinates(mBoard, mGameConfig.board, mouseCoord.x, mouseCoord.y); hit) {
+			if (auto [hit, cellIdx] = GetCellAtCoordinates(mBoard, mouseCoord); hit) {
 				mFirstCellIdx = cellIdx;
 				StartDrag(mouseCoord.x, mouseCoord.y);
 				mState = State::firstSelected;
@@ -137,7 +136,7 @@ std::tuple<bool, int, int> TileSelector::SelectTiles(const Wind::Input& input) {
 		// Wait for user to click on a second tile
 		assert(mSelectedCellIdx != invalidIndex);
 		if (mouseButtonPressed) {
-			if (auto [hit, cellIdx] = GetCellAtCoordinates(mBoard, mGameConfig.board, mouseCoord.x, mouseCoord.y); hit) {
+			if (auto [hit, cellIdx] = GetCellAtCoordinates(mBoard, mouseCoord); hit) {
 				if (cellIdx == mSelectedCellIdx) {
 					SelectFirstCell(invalidIndex);
 					mState = State::empty;
@@ -159,7 +158,7 @@ void TileSelector::StartDrag(float mouseX, float mouseY) {
 }
 
 void TileSelector::SelectFirstCell(int idx) {
-#if  0
+#if 0
 	if (mSelectedCellIdx != invalidIndex) {
 		TileSelectionEvent event;
 		event.id = TileSelectionEvent::Id::deselect;
@@ -185,7 +184,8 @@ bool TileSelector::DragTileX(const Cell& cell, float deltaX, float threshold) co
 		return false;
 	}
 
-	float xCoord = cell.coords.x + std::clamp(deltaX, -mGameConfig.board.cellWidth, mGameConfig.board.cellWidth);;
+	float xCoord = cell.coords.x + std::clamp(deltaX, -mGameConfig.board.cellWidth, mGameConfig.board.cellWidth);
+	;
 	xCoord = cell.coords.x + std::clamp(deltaX, -mGameConfig.board.cellWidth, mGameConfig.board.cellWidth);
 
 	TileSelectionEvent event;

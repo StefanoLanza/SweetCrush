@@ -2,7 +2,9 @@
 #include "Localization.h"
 #include "ScreenIds.h"
 #include "UIDefs.h"
+
 #include <engine/Engine.h>
+#include <engine/Input.h>
 #include <engine/TextRender.h>
 #include <engine/UI.h>
 
@@ -53,7 +55,12 @@ const char* CreditsScreen::GetName() const {
 }
 
 GameScreenId CreditsScreen::Tick(float /*dt*/, const Wind::Input& input) {
-	if (mBackButton.IsPressed(input)) {
+#if defined(__ANDROID__) || defined(__OHOS__)
+	if (input.GetKeyPressed(SDLK_AC_BACK) ||
+#elif defined(_WIN32) || defined(__linux__)
+	if (input.GetKeyPressed(SDLK_ESCAPE) ||
+#endif
+	    mBackButton.IsPressed(input)) {
 		return ScreenId::mainMenu;
 	}
 	return ScreenId::credits;
@@ -62,7 +69,7 @@ GameScreenId CreditsScreen::Tick(float /*dt*/, const Wind::Input& input) {
 void CreditsScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
 }
 
-void CreditsScreen::Enter([[maybe_unused]] GameScreenId prevScreen) {
+void CreditsScreen::Enter([[maybe_unused]] GameScreenId prevScreen, const void* payload) {
 	mPanel.SetVisible(true);
 }
 

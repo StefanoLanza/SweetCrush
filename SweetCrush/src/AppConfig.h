@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameSettings.h"
+#include "Board.h"
 #include <engine/Maths.h>
 
 struct Match3Config {};
@@ -13,15 +14,6 @@ struct UIConfig {
 	Wind::Vec2 goalStartCoord;
 };
 
-struct BoardConfig {
-	Wind::Vec2 topLeftCoord;
-	Wind::Vec2 bottomRightCoord;
-	float      cellWidth;
-	float      cellHeight;
-	float      cellSpacing;
-	float      cellWidthWithSpacing;
-	float      cellHeightWithSpacing;
-};
 
 // Configurable settings
 struct AppConfig {

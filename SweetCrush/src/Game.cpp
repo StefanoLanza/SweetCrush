@@ -41,7 +41,7 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
 	mScreens[3] = std::make_unique<PlayScreen>(mEngine, gameRenderer, mGameConfig, mGameSettings, mRenderActionMgr, mMatchStats, mGameDataModule);
 	mScreens[4] = std::make_unique<GameOverScreen>(mEngine, mMatchStats);
 	mScreens[5] = std::make_unique<GameCompleteScreen>(mEngine, mMatchStats);
-	mScreens[6] = std::make_unique<PauseGameScreen>(mEngine, mMatchStats);
+	mScreens[6] = std::make_unique<PauseGameScreen>(mEngine);
 	mScreens[7] = std::make_unique<LevelCompleteScreen>(mEngine, mMatchStats);
 	mScreens[8] = std::make_unique<GraphicsSettingsScreen>(mEngine, mGameSettings);
 	mScreens[9] = std::make_unique<AudioSettingsScreen>(mEngine, mGameSettings);
@@ -69,7 +69,7 @@ void Game::Run() {
 	}
 	mCanvas.LoadGraphics(mEngine.GetGraphics());
 
-	mScreens[0]->Enter(ScreenId::empty);
+	mScreens[0]->Enter(ScreenId::empty, nullptr);
 	mEngine.Start([this](float dt) { Draw(dt); }, [this](float dt) { Tick(dt); });
 }
 
@@ -104,7 +104,7 @@ void Game::Tick(float dt) {
 	const GameScreenId nextScreen = currScreen.Tick(dt, input);
 	if (nextScreen != mScreenId) {
 		currScreen.Exit();
-		mScreens[(int)nextScreen]->Enter(mScreenId);
+		mScreens[(int)nextScreen]->Enter(mScreenId, nullptr); // TODO
 		mScreenId = nextScreen;
 	}
 }

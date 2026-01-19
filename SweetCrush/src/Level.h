@@ -12,6 +12,7 @@ enum class GoalId {
 	collectAllStars,
 };
 
+// Collect a target number of matches for 3 piece types
 struct GoalCollectMatches {
 	int count[3]; // values <= 0 are ignored
 };
@@ -24,12 +25,17 @@ struct GoalBreakIce {
 	int iceBlocksCount; // if procedurally generated
 };
 
+// Remove all pieces
+struct GoalRemoveAllPieces {
+};
+
 struct Goal {
 	GoalId id;
 	union {
 		GoalCollectMatches  collectMatches;
 		GoalCollectAllStars collectAllStars;
 		GoalBreakIce        breakIce;
+		GoalRemoveAllPieces removeAllPieces;
 	};
 };
 

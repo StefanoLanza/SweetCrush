@@ -4,24 +4,21 @@
 #include <engine/GameScreen.h>
 #include <engine/UI.h>
 
-struct MatchStats;
-
 class PauseGameScreen final : public Wind::GameScreen {
 public:
-	PauseGameScreen(Wind::Engine& engine, MatchStats& matchStats);
+	explicit PauseGameScreen(Wind::Engine& engine);
 
 	const char*        GetName() const override;
 	void               LoadAssets() override;
 	void               BuildUI(Wind::UICanvas& canvas) override;
 	Wind::GameScreenId Tick(float dt, const Wind::Input& input) override;
 	void               Draw(Wind::GameScreenId topScreen) const override;
-	void               Enter(Wind::GameScreenId prevScreen) override;
+	void               Enter(Wind::GameScreenId prevScreen, const void* payload) override;
 	void               Exit() override;
 	void               ParseConfig(const char* varName, const char* varValue) override;
 
 public:
 	Wind::Engine&  mEngine;
-	MatchStats&    mMatchStats;
 	Wind::UIText   mTitle;
 	Wind::UIButton mContinueButton;
 	Wind::UIButton mRestartLevelButton;

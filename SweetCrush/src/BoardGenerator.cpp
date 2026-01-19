@@ -1,17 +1,16 @@
 #include "BoardGenerator.h"
 
+#include "AppConfig.h"
 #include "Board.h"
 #include "Constants.h"
-#include "AppConfig.h"
 #include "MatchChecker.h"
 #include <engine/Random.h>
 
 #include <cassert>
 
-void BoardGenerator::GenRandomBoard(Board& board, uint32_t seed, const char* mask, const int pieceIds[], int numPieceIds,
-                                    const BoardConfig& boardCfg) {
+void BoardGenerator::GenRandomBoard(Board& board, uint32_t seed, const char* mask, const int pieceIds[], int numPieceIds) {
 	mRandomEngine.Seed(seed);
-	ResetBoard(board, boardCfg);
+	ResetBoard(board);
 
 	assert((int)std::size(mPieceIds) >= numPieceIds);
 	std::memcpy(mPieceIds, pieceIds, numPieceIds * sizeof pieceIds[0]);
@@ -35,10 +34,9 @@ void BoardGenerator::GenRandomBoard(Board& board, uint32_t seed, const char* mas
 	}
 }
 
-void BoardGenerator::InitBoard(Board& board, const char* boardDef, uint32_t seed, const int pieceIds[], int numPieceIds,
-                               const BoardConfig& boardCfg) {
+void BoardGenerator::InitBoard(Board& board, const char* boardDef, uint32_t seed, const int pieceIds[], int numPieceIds) {
 	mRandomEngine.Seed(seed);
-	ResetBoard(board, boardCfg);
+	ResetBoard(board);
 
 	assert((int)std::size(mPieceIds) >= numPieceIds);
 	std::memcpy(mPieceIds, pieceIds, numPieceIds * sizeof pieceIds[0]);
@@ -76,20 +74,17 @@ void BoardGenerator::InitBoard(Board& board, const char* boardDef, uint32_t seed
 	}
 }
 
-void BoardGenerator::ResetBoard(Board& board, const BoardConfig& boardCfg) {
+void BoardGenerator::ResetBoard(Board& board) {
 	for (int row = 0; row < board.GetRows(); ++row) {
-		float y = row * boardCfg.cellHeightWithSpacing + boardCfg.topLeftCoord.y;
 		for (int col = 0; col < board.GetCols(); ++col) {
-			float x = col * boardCfg.cellWidthWithSpacing + boardCfg.topLeftCoord.x;
-			Cell&  cell = board.GetCell(col, row);
-			cell.coords = { x, y };
+			Cell& cell = board.GetCell(col, row);
 			cell.col = col;
 			cell.row = row;
 			cell.category = CellCategory::piece;
 			cell.pieceId = 0;
 			cell.layers = 0;
 			cell.hasEffect = false;
-			//board.ReplaceCell(col, row, cell, cell.ud);
+			// board.ReplaceCell(col, row, cell, cell.ud);
 		}
 	}
 }

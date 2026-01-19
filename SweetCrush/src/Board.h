@@ -41,10 +41,20 @@ struct Cell {
 
 bool IsSelectable(const Cell& cell);
 
+struct BoardConfig {
+	Wind::Vec2 topLeftCoord;
+	Wind::Vec2 bottomRightCoord;
+	float      cellWidth;
+	float      cellHeight;
+	float      cellSpacing;
+	float      cellWidthWithSpacing;
+	float      cellHeightWithSpacing;
+};
+
 // Container of cells
 class Board final {
 public:
-	Board(int cols, int rows);
+	Board(int cols, int rows, const BoardConfig& cfg);
 
 	int                    GetCols() const;
 	int                    GetRows() const;
@@ -53,16 +63,16 @@ public:
 	int                    GetCellCount() const;
 	int                    GetCellIndex(int col, int row) const;
 	Cell&                  GetCell(int index); // TODO Remove
-	//void                   ReplaceCell(int index, const Cell& cell, void* ud);
-	//void                   ReplaceCell(int col, int row, const Cell& cell, void* ud);
 	const Cell&            GetCell(int index) const;
 	Cell&                  GetCell(int col, int row); // TODO Remove
 	const Cell&            GetCell(int col, int row) const;
 	bool                   IsInside(int col, int row) const;
 	int                    TotalLayerCount() const;
+	int                    GetCellAtCoords(Wind::Vec2 coords) const;
 
 private:
 	std::vector<Cell> mCells;
+	BoardConfig       mCfg;
 	int               mCols;
 	int               mRows;
 	// Stats

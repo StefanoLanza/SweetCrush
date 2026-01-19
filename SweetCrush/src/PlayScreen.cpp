@@ -106,7 +106,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
     , mRenderActionMgr(renderActionMgr)
     , mMatchStats(matchStats)
     , mGameDataModule(gameDataModule)
-    , mBoard { NumCols, NumRows }
+    , mBoard { NumCols, NumRows, mGameConfig.board }
     , mCellSelector { std::make_unique<TileSelector>(mBoard, gameConfig) }
     , mEffectInfoPanel(engine)
     , mPanel(UIDefaultPanelDesc)
@@ -156,8 +156,18 @@ GameScreenId PlayScreen::Tick(float dt, const Input& input) {
 	if (mPauseButton.IsPressed(input)) {
 		return ScreenId::pauseGame;
 	}
-	if (input.GetMouseButtonPressed() && mSelectedBooster >= 0) {
-		mSelectedBooster = -1;
+
+	if (mSelectedBooster >= 0) {
+		int cellIdx = mBoard.GetCellAtCoords(input.GetMouseCoord());
+		if (input.GetMouseButtonPressed() && mMatch3.IsWaitingForUser()) {
+			if (cellIdx >= 0) {
+				mMatch3.UseBooster(cellIdx);
+			}
+			mSelectedBooster = -1; // release
+		}
+		else {
+			// TODO highlight cell
+		}
 	}
 	for (int i = 0; i < MaxBoosterTypesPerLevel; ++i) {
 		if (mBoosterButtons[i].IsPressed(input)) {
@@ -174,13 +184,13 @@ GameScreenId PlayScreen::Tick(float dt, const Input& input) {
 #endif
 		return ScreenId::pauseGame;
 	}
-	if (mMatchStats.gameComplete) {
+	if (mGameComplete) {
 		if (mRenderActionMgr.AnyRunning()) {
 			return ScreenId::play; // wait until all animations are over
 		}
 		return ScreenId::gameComplete;
 	}
-	else if (mMatchStats.levelComplete) {
+	else if (mLevelComplete) {
 		if (mRenderActionMgr.AnyRunning()) {
 			return ScreenId::play; // wait until all animations are over
 		}
@@ -229,13 +239,15 @@ void PlayScreen::Draw(GameScreenId topScreen) const {
 	//mGameRenderer.DrawLaser({ 100.f, 0.f }, { 100.f, mGameConfig.board.bottomRightCoord.y }, 64, 0.5 + 0.5 * sinf(mMatchTime * 5.0));
 }
 
-void PlayScreen::Enter(GameScreenId prevScreen) {
+void PlayScreen::Enter(GameScreenId prevScreen, const void* payload) {
+	bool restartLevel = false;
 	if (prevScreen == levelComplete) {
 		NextLevel();
 	}
 	else if (prevScreen == ScreenId::pauseGame) {
 		// resume game
-		if (mMatchStats.restartLevel) {
+		// TODO Receive restartLevel as generic arg of Enter
+		if (restartLevel) {
 			ReplayLevel();
 		}
 	}
@@ -245,7 +257,7 @@ void PlayScreen::Enter(GameScreenId prevScreen) {
 	else {
 		NewGame();
 	}
-	if (prevScreen == ScreenId::pauseGame && ! mMatchStats.restartLevel) {
+	if (prevScreen == ScreenId::pauseGame && ! restartLevel) {
 		ResumeMusic();
 	}
 	else {
@@ -265,7 +277,8 @@ void PlayScreen::Exit() {
 void PlayScreen::NewGame() {
 	mMatchStats.level = 0;
 	mMatchStats.score = 0;
-	mMatchStats.gameComplete = false;
+	mLevelComplete = false;
+	mGameComplete = false;
 	StartLevel();
 }
 
@@ -278,17 +291,17 @@ void PlayScreen::NextLevel() {
 
 void PlayScreen::ReplayLevel() {
 	mMatchStats.score = 0;
-	mMatchStats.gameComplete = false;
+	mGameComplete = false;
 	StartLevel();
 }
 
 void PlayScreen::StartLevel() {
 	const Level& level = *mGameDataModule.GetLevel(mMatchStats.level);
 	if (level.boardDef) {
-		mBoardGenerator.InitBoard(mBoard, *level.boardDef, level.seed, level.pieceIds, 5, mGameConfig.board);
+		mBoardGenerator.InitBoard(mBoard, *level.boardDef, level.seed, level.pieceIds, 5);
 	}
 	else {
-		mBoardGenerator.GenRandomBoard(mBoard, level.seed, level.boardMask, level.pieceIds, 5, mGameConfig.board);
+		mBoardGenerator.GenRandomBoard(mBoard, level.seed, level.boardMask, level.pieceIds, 5);
 	}
 	for (int i = 0; i < mBoard.GetCellCount(); ++i) {
 		mBoard.GetCell(i).ud = &mCellGraphics[i];
@@ -298,7 +311,7 @@ void PlayScreen::StartLevel() {
 		c = 0;
 	}
 	mMatchStats.layerCount = mBoard.TotalLayerCount();
-	mMatchStats.levelComplete = false;
+	mLevelComplete = false;
 	mActionMgr.Clear();
 	SetupNewBoardAnimation();
 	mMatch3.Run();
@@ -458,10 +471,10 @@ void PlayScreen::CheckLevelCompletion() {
 	}
 	if (res) {
 		if (mMatchStats.level + 1 == mGameDataModule.GetNumLevels()) {
-			mMatchStats.gameComplete = true;
+			mGameComplete = true;
 		}
 		else {
-			mMatchStats.levelComplete = true;
+			mLevelComplete = true;
 		}
 	}
 }

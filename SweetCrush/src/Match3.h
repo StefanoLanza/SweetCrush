@@ -91,6 +91,7 @@ public:
 
 	void SetCallback(Match3Callback&& cbk);
 	void Run();
+	void UseBooster(int cellIdx);
 	void Update(const Wind::Input& input);
 	bool IsWaitingForUser() const;
 	int  GetNumUserSwaps() const;

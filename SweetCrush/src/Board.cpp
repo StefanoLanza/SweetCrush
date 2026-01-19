@@ -1,14 +1,24 @@
 #include "Board.h"
 #include <cassert>
 
-Board::Board(int cols, int rows)
+Board::Board(int cols, int rows, const BoardConfig& cfg)
     : mCells { static_cast<size_t>(cols * rows) }
+    , mCfg { cfg }
     , mCols { cols }
     , mRows { rows }
     , mPieceCount {}
     , mTotalLayerCount { 0 } {
 	assert(cols >= 1);
 	assert(rows >= 1);
+
+	for (int row = 0; row < rows; ++row) {
+		float y = row * cfg.cellHeightWithSpacing + cfg.topLeftCoord.y;
+		for (int col = 0; col < cols; ++col) {
+			float x = col * cfg.cellWidthWithSpacing + cfg.topLeftCoord.x;
+			Cell& cell = GetCell(col, row);
+			cell.coords = { x, y };
+		}
+	}
 }
 
 int Board::GetCols() const {
@@ -40,12 +50,12 @@ Cell& Board::GetCell(int index) {
 }
 
 /*void Board::ReplaceCell(int index, const Cell& cell, void* ud) {
-	mCells[index] = cell;
-	mCells[index].ud = ud;
+    mCells[index] = cell;
+    mCells[index].ud = ud;
 }
 
 void Board::ReplaceCell(int col, int row, const Cell& cell, void* ud) {
-	ReplaceCell(GetCellIndex(col,row), cell, ud);
+    ReplaceCell(GetCellIndex(col,row), cell, ud);
 }*/
 
 const Cell& Board::GetCell(int index) const {
@@ -78,4 +88,13 @@ int Board::TotalLayerCount() const {
 		count += cell.layers;
 	}
 	return count;
+}
+
+int Board::GetCellAtCoords(Wind::Vec2 coords) const {
+	const int col = static_cast<int>(std::floor((coords.x - mCfg.topLeftCoord.x) / mCfg.cellWidthWithSpacing));
+	const int row = static_cast<int>(std::floor((coords.y - mCfg.topLeftCoord.y) / mCfg.cellHeightWithSpacing));
+	if (col < 0 || col >= GetCols() || row < 0 || row >= GetRows()) {
+		return -1;
+	}
+	return GetCellIndex(col, row);
 }

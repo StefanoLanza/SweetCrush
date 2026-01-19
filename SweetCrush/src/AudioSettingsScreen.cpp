@@ -4,7 +4,9 @@
 #include "Localization.h"
 #include "ScreenIds.h"
 #include "UIDefs.h"
+
 #include <engine/Engine.h>
+#include <engine/Input.h>
 #include <engine/UI.h>
 
 using namespace Wind;
@@ -63,7 +65,13 @@ GameScreenId AudioSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::In
 		mGameConfig.sfxOn = ! mGameConfig.sfxOn;
 		RefreshSfxButton();
 	}
-	else if (mBackButton.IsPressed(input)) {
+
+#if defined(__ANDROID__) || defined(__OHOS__)
+	if (input.GetKeyPressed(SDLK_AC_BACK) ||
+#elif defined(_WIN32) || defined(__linux__)
+	if (input.GetKeyPressed(SDLK_ESCAPE) ||
+#endif
+	    mBackButton.IsPressed(input)) {
 		return ScreenId::settings;
 	}
 	return ScreenId::audioSettings;
@@ -72,7 +80,7 @@ GameScreenId AudioSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::In
 void AudioSettingsScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
 }
 
-void AudioSettingsScreen::Enter([[maybe_unused]] GameScreenId prevScreen) {
+void AudioSettingsScreen::Enter([[maybe_unused]] GameScreenId prevScreen, const void* payload) {
 	mPanel.SetVisible(true);
 }
 

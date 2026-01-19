@@ -127,6 +127,13 @@ void Match3::Run() {
 	mCascadeCount = 0;
 }
 
+void Match3::UseBooster(int cellIdx) {
+	assert(mState == State::selectAndSwapPieces);
+	// TODO handle more booster types
+	KillCell(cellIdx, -1);
+	mState = State::collapseColumns;
+}
+
 void Match3::Update(const Wind::Input& input) {
 	switch (mState) {
 	case State::selectAndSwapPieces:
@@ -146,9 +153,9 @@ void Match3::Update(const Wind::Input& input) {
 			event.id = Match3Event::Id::swap;
 			event.pair = mUserSwap;
 			mCbk(event);
-			mState = State::selectAndSwapPieces;
 
 			SwapCells(mBoard, mUserSwap.first, mUserSwap.second);
+			mState = State::selectAndSwapPieces;
 		}
 		break;
 	case State::collapseColumns:
@@ -315,7 +322,7 @@ bool Match3::CheckCellCombos(int cellIdx) {
 }
 
 bool Match3::CheckMatchesAfterSwap() {
-	// Execute both !
+	// Execute both checks !
 	bool res = CheckCellCombos(mUserSwap.second);
 	res = CheckCellCombos(mUserSwap.first) || res;
 	return res;
@@ -474,6 +481,12 @@ int Match3::CollapseColumn(int col, CellPairEvent* collapseList) {
 			break;
 		case CellCategory::hole:
 			// skip it
+			break;
+		case CellCategory::star:
+			// skip it
+			break;
+		default:
+			assert(false);
 			break;
 		}
 	}
