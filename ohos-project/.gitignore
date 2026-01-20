@@ -1,0 +1,25 @@
+# HarmonyOS Build Artifacts
+/build
+**/.cxx
+/.preview
+/.test
+oh_modules/
+node_modules/
+.ohpm/
+
+# IDE - DevEco Studio / IntelliJ
+/.idea
+/*.iml
+/local.properties
+.DS_Store
+
+# C++ / CMake local files
+CMakeSettings.json
+cpp/out
+cpp/build
+
+/.hvigor
+entry/.preview
+
+# Resources
+/entry/src/main/resources/rawfile

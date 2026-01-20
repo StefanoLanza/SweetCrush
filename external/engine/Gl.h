@@ -2,7 +2,7 @@
 
 #if defined(_WIN32)
 #include <glew/glew.h>
-#elif defined(__ANDROID__) || defined(ANDROID)
+#elif defined(__ANDROID__) || defined(ANDROID) || defined(__OHOS__)
 #define GL_GLEXT_PROTOTYPES
 #include <GLES3/gl32.h>
 #include <GLES2/gl2ext.h>

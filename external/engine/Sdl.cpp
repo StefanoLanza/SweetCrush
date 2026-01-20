@@ -10,7 +10,7 @@ Sdl::Sdl(unsigned int flags) {
 		SDL_LogError(0, "%s", SDL_GetError());
 		throw std::runtime_error("Failed to init SDL");
 	}
-#if defined(__ANDROID__)
+#if defined(__ANDROID__) || defined(__OHOS__)
 	/*SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);*/
