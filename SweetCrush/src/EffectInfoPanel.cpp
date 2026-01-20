@@ -4,6 +4,7 @@
 #include "UIDefs.h"
 
 #include <engine/Engine.h>
+#include <engine/Input.h>
 
 using namespace Wind;
 
@@ -18,35 +19,32 @@ const UIButtonDesc buttonDesc {
 
 const UITextDesc textDesc[] {
 	{
-	    "mediumFont",
-	    (StringId)GameStringId::empty,
-	    UIAbsolutePos(0, 60),
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::top,
-	    defaultTextStyle,
+	    .pos = UIAbsolutePos(0, 60),
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::top,
+	    .font = "mediumFont",
+	    .stringId = (StringId)GameStringId::empty,
 	},
 	{
-	    "smallFont",
-	    (StringId)GameStringId::empty,
-	    UIAbsolutePos(0, 160),
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::top,
-	    defaultTextStyle,
+	    .pos = UIAbsolutePos(0, 160),
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::top,
+	    .font = "smallFont",
+	    .stringId = (StringId)GameStringId::empty,
 	},
 	{
-	    "mediumFont",
-	    (StringId)GameStringId::ok,
-	    UIZeroPos,
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::center,
-	    defaultTextStyle,
+	    .pos = UIZeroPos,
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::center,
+	    .font = "mediumFont",
+	    .stringId = (StringId)GameStringId::ok,
 	},
 };
 
-const UIBitmapDesc boosterIconDesc {
+const UIBitmapDesc effectIconDesc {
 	"null.png", UIAbsolutePos(540, 50), UIAbsoluteSize(64, 72), UIHorizAlignment::left, UIVertAlignment::top, whiteColor, UIBlending::on, 1,
 };
 
@@ -65,7 +63,7 @@ EffectInfoPanel::EffectInfoPanel(Engine& engine)
     : mTitle(textDesc[0], engine)
     , mText(textDesc[1], engine)
     , mOKButton(MakeButton(buttonDesc, buttonBitmapDesc, textDesc[2], engine))
-    , mEffectIcon(boosterIconDesc, engine.GetGraphics())
+    , mEffectIcon(effectIconDesc, engine.GetGraphics())
     , mPanelBitmap(panelBitmapDesc, engine.GetGraphics())
     , mPanel(panelDesc)
     , mShowHelp {} {
@@ -126,7 +124,13 @@ bool EffectInfoPanel::IsVisible() const {
 
 bool EffectInfoPanel::Wait(const Input& input) {
 	if (mPanel.IsVisible()) {
-		if (mOKButton.IsPressed(input)) {
+		if (mOKButton.IsPressed(input) ||
+#if defined(_WIN32) || defined(__linux__)
+		    input.GetKeyPressed(SDLK_ESCAPE)) {
+#else
+			0
+	}
+#endif
 			Hide();
 			return false;
 		}

@@ -25,22 +25,21 @@ const UIButtonDesc buttonDescs[] {
 
 const UITextDesc textDescs[] {
 	{
-	    "bigFont",
-	    (StringId)GameStringId::gameComplete,
-	    UIAbsolutePos(0, titleY),
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::top,
-	    titleTextStyle,
+	    .pos = UIAbsolutePos(0, titleY),
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::top,
+	    .font = "bigFont",
+	    .stringId=(StringId)GameStringId::gameComplete,
+	    .textStyle=titleTextStyle,
 	},
 	{
-	    "mediumFont",
-	    (StringId)GameStringId::continueGame,
-	    UIZeroPos,
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::center,
-	    defaultTextStyle,
+	    .pos = UIZeroPos,
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::center,
+	    .font = "mediumFont",
+	    .stringId=(StringId)GameStringId::continueGame,
 	},
 };
 

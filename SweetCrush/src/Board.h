@@ -25,6 +25,8 @@ struct CellVisual {
 	float      bkgAlpha;
 	float      rotation;
 	uint8_t    priority;
+	bool       selected;
+	bool       highlighted;
 };
 
 struct Cell {

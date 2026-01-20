@@ -18,15 +18,42 @@ const UIButtonDesc sfxButtonDesc { { 0, 680, 0, 0 }, UIAutoSize, UIHorizAlignmen
 const UIButtonDesc backButtonDesc { { 0, 920, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
 
 const UITextDesc titleTextDesc {
-	"bigFont", (StringId)GameStringId::audioSettings, { 0, titleY, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, titleTextStyle
+	.pos = { 0, titleY, 0, 0 },
+	.size = UIAutoSize,
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::top,
+	.font = "bigFont",
+	.stringId = (StringId)GameStringId::audioSettings,
+	.textStyle = titleTextStyle,
 };
 
-const UITextDesc musicButtonTextDesc { "mediumFont", (StringId)GameStringId::musicOn, { 0, 0, 0, 0 },
-	                                   UIAutoSize,   UIHorizAlignment::center,        UIVertAlignment::center };
-const UITextDesc sfxButtonTextDesc { "mediumFont", (StringId)GameStringId::sfxOn, { 0, 0, 0, 0 },
-	                                 UIAutoSize,   UIHorizAlignment::center,      UIVertAlignment::center };
-const UITextDesc backTextDesc { "mediumFont", (StringId)GameStringId::back, { 0, 0, 0, 0 },
-	                            UIAutoSize,   UIHorizAlignment::center,     UIVertAlignment::center };
+const UITextDesc musicButtonTextDesc {
+
+	.pos = { 0, 0, 0, 0 },
+	.size = UIAutoSize,
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::center,
+	.font = "mediumFont",
+	.stringId = (StringId)GameStringId::musicOn,
+};
+
+const UITextDesc sfxButtonTextDesc {
+	.pos = { 0, 0, 0, 0 },
+	.size = UIAutoSize,
+	.horizontalAlignment =  UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::center,
+	.font = "mediumFont",
+	.stringId = (StringId)GameStringId::sfxOn,
+};
+
+const UITextDesc backTextDesc {
+	.pos = { 0, 0, 0, 0 },
+	.size = UIAutoSize,
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::center,
+	.font = "mediumFont",
+	.stringId = (StringId)GameStringId::back,
+};
 
 } // namespace
 

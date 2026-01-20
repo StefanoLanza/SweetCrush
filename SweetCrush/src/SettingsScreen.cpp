@@ -18,11 +18,47 @@ const UIButtonDesc languageButtonDesc { { 0, 800, 0, 0 }, UIAutoSize, UIHorizAli
 const UIButtonDesc backButtonDesc { { 0, 920, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
 
 const UITextDesc textDescs[] {
-	{ "bigFont", (StringId)GameStringId::settings, { 0, titleY, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, titleTextStyle },
-	{ "mediumFont", (StringId)GameStringId::graphicsSettings, { 0, 0, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
-	{ "mediumFont", (StringId)GameStringId::audioSettings, { 0, 0, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
-	{ "mediumFont", (StringId)GameStringId::nextLanguage, { 0, 0, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
-	{ "mediumFont", (StringId)GameStringId::back, { 0, 0, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
+	{
+	    .pos = { 0, titleY, 0, 0 },
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::top,
+	    .font = "bigFont",
+	    .stringId = (StringId)GameStringId::settings,
+	    .textStyle = titleTextStyle,
+	},
+	{
+	    .pos = { 0, 0, 0, 0 },
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::center,
+	    .font = "mediumFont",
+	    .stringId = (StringId)GameStringId::graphicsSettings,
+	},
+	{
+	    .pos = { 0, 0, 0, 0 },
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::center,
+	    .font = "mediumFont",
+	    .stringId = (StringId)GameStringId::audioSettings,
+	},
+	{
+	    .pos = { 0, 0, 0, 0 },
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::center,
+	    .font = "mediumFont",
+	    .stringId = (StringId)GameStringId::nextLanguage,
+	},
+	{
+	    .pos = { 0, 0, 0, 0 },
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::center,
+	    .font = "mediumFont",
+	    .stringId = (StringId)GameStringId::back,
+	},
 };
 
 } // namespace

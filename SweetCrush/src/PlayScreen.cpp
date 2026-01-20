@@ -166,6 +166,9 @@ GameScreenId PlayScreen::Tick(float dt, const Input& input) {
 			mSelectedBooster = -1; // release
 		}
 		else {
+			if (cellIdx >= 0) {
+				GetVisual(mBoard.GetCell(cellIdx)).highlighted = true;
+			}
 			// TODO highlight cell
 		}
 	}

@@ -15,27 +15,61 @@ namespace {
 const UIButtonDesc backButtonDesc { UIAbsolutePos(0, 920), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
 
 const UITextDesc titleText {
-	"bigFont", (StringId)GameStringId::credits, { 0, titleY, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, titleTextStyle,
+
+	.pos = { 0, titleY, 0, 0 },
+	.size = UIAutoSize,
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::top,
+	.font = "bigFont",
+	.stringId = (StringId)GameStringId::credits,
+	.textStyle = titleTextStyle,
 };
 
 const UITextDesc codeByText {
-	"smallFont", (StringId)GameStringId::codeBy, { 0, 360, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, defaultTextStyle,
+
+	.pos = { 0, 360, 0, 0 },
+	.size = UIAutoSize,
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::top,
+	.font = "smallFont",
+	.stringId = (StringId)GameStringId::codeBy,
 };
 
 const UITextDesc graphicsByText {
-	"smallFont", (StringId)GameStringId::graphicsBy, { 0, 420, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, defaultTextStyle,
+	.pos = { 0, 420, 0, 0 },
+	.size = UIAutoSize,
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::top,
+	.font = "smallFont",
+	.stringId = (StringId)GameStringId::graphicsBy,
 };
 
 const UITextDesc musicByText {
-	"smallFont", (StringId)GameStringId::musicBy, { 0, 480, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, defaultTextStyle,
+
+	.pos = { 0, 480, 0, 0 },
+	.size=UIAutoSize,
+	.horizontalAlignment=UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::top,
+	.font = "smallFont",
+	.stringId = (StringId)GameStringId::musicBy,
 };
 
 const UITextDesc versionText {
-	"smallFont", (StringId)GameStringId::version, { 0, 640, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, defaultTextStyle,
+	.pos = { 0, 640, 0, 0 },
+	.size=UIAutoSize,
+	.horizontalAlignment=UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::top,
+	.font = "smallFont",
+	.stringId = (StringId)GameStringId::version,
 };
 
 const UITextDesc backText {
-	"mediumFont", (StringId)GameStringId::back, UIZeroPos, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center, defaultTextStyle,
+	.pos = UIZeroPos,
+	.size=UIAutoSize,
+	.horizontalAlignment=UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::center,
+	.font = "mediumFont",
+	.stringId = (StringId)GameStringId::back,
 };
 
 } // namespace

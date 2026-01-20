@@ -43,19 +43,26 @@ struct UISize {
 };
 
 struct UIRect {
-	Vec2  pos;
-	Vec2  size;
+	Vec2 pos;
+	Vec2 size;
 };
 
+#define UIBaseDesc \
+	UIPos            pos; \
+	UISize           size; \
+	UIHorizAlignment horizontalAlignment = UIHorizAlignment::center; \
+	UIVertAlignment  verticalAlignment = UIVertAlignment::center; \
+	float            padding = 0.f; \
+	float            borderWidth = 0.f;
+
 struct UITextDesc {
-	const char*      font;
-	StringId         stringId;
-	UIPos            pos;
-	UISize           size;
-	UIHorizAlignment horizontalAlignment = UIHorizAlignment::center;
-	UIVertAlignment  verticalAlignment = UIVertAlignment::center;
-	TextStyle        textStyle = defaultTextStyle;
+	UIBaseDesc
+	const char* font = nullptr;
+	StringId    stringId;
+	TextStyle   textStyle = defaultTextStyle;
 };
+
+#undef UIBaseDesc
 
 struct UIBitmapDesc {
 	const char*      fileName;
@@ -118,11 +125,11 @@ class UIButton final {
 public:
 	UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text);
 
-	bool      IsPressed(const Input& input) const;
-	void      Draw(const UIRenderer& renderer, const TextRenderer& textRender, DrawOrderType drawOrder) const;
-	void      UpdateRect(const UIRect& parentRect);
-	UIBitmap* GetBitmap() const;
-	UIText*   GetText() const;
+	bool          IsPressed(const Input& input) const;
+	void          Draw(const UIRenderer& renderer, const TextRenderer& textRender, DrawOrderType drawOrder) const;
+	void          UpdateRect(const UIRect& parentRect);
+	UIBitmap*     GetBitmap() const;
+	UIText*       GetText() const;
 	const UIRect& GetRect() const;
 
 private:
@@ -166,7 +173,8 @@ public:
 	void     SetMousePointer(const char* fileName, Graphics& graphics);
 	UIPanel& GetPanel();
 	void     LoadGraphics(Graphics& graphics);
-	void     Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords, unsigned drawOrder);
+	void     Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords,
+	              unsigned drawOrder);
 
 private:
 	UIPanel    mPanel;

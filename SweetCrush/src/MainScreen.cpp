@@ -34,12 +34,45 @@ const UIButtonDesc buttonDescs[] {
 };
 #endif
 const UITextDesc textDescs[5] {
-	{ "bigFont", (StringId)GameStringId::title, UIAbsolutePos(0, titleY), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top,
-	  titleTextStyle },
-	{ "mediumFont", (StringId)GameStringId::start, UIZeroPos, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
-	{ "mediumFont", (StringId)GameStringId::settings, UIZeroPos, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
-	{ "mediumFont", (StringId)GameStringId::credits, UIZeroPos, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
-	{ "mediumFont", (StringId)GameStringId::quit, UIZeroPos, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
+	{ .pos = UIAbsolutePos(0, titleY),
+	  .size = UIAutoSize,
+	  .horizontalAlignment = UIHorizAlignment::center,
+	  .verticalAlignment = UIVertAlignment::top,
+	  .font = "bigFont",
+	  .stringId = (StringId)GameStringId::title,
+	  .textStyle = titleTextStyle },
+	{
+	    .pos = UIZeroPos,
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::center,
+	    .font = "mediumFont",
+	    .stringId = (StringId)GameStringId::start,
+	},
+	{
+	    .pos = UIZeroPos,
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::center,
+	    .font = "mediumFont",
+	    .stringId = (StringId)GameStringId::settings,
+	},
+	{
+	    .pos = UIZeroPos,
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::center,
+	    .font = "mediumFont",
+	    .stringId = (StringId)GameStringId::credits,
+	},
+	{
+	    .pos = UIZeroPos,
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::center,
+	    .font = "mediumFont",
+	    .stringId = (StringId)GameStringId::quit,
+	},
 };
 
 } // namespace
