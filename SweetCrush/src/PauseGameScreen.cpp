@@ -14,22 +14,22 @@ namespace {
 
 const UIButtonDesc buttonDescs[] {
 	{
-	    UIAbsolutePos(0, 440),
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::top,
+	    .pos = UIAbsolutePos(0, 440),
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::top,
 	},
 	{
-	    UIAbsolutePos(0, 560),
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::top,
+	    .pos = UIAbsolutePos(0, 560),
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::top,
 	},
 	{
-	    UIAbsolutePos(0, 680),
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::top,
+	    .pos = UIAbsolutePos(0, 680),
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::top,
 	},
 };
 
@@ -37,34 +37,35 @@ const UITextDesc textDescs[] {
 	{
 	    .pos = UIAbsolutePos(0, titleY),
 	    .size = UIAutoSize,
-	    .horizontalAlignment= UIHorizAlignment::center,
-	    .verticalAlignment= UIVertAlignment::top,
-	    .font="bigFont",
-	    .stringId=(StringId)GameStringId::pauseGame,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::top,
+	    .font = "bigFont",
+	    .stringId = (StringId)GameStringId::pauseGame,
+	    .textStyle = titleTextStyle,
 	},
 	{
 	    .pos = UIZeroPos,
 	    .size = UIAutoSize,
-	    .horizontalAlignment=UIHorizAlignment::center,
-	    .verticalAlignment=UIVertAlignment::center,
-	    .font="mediumFont",
-	    .stringId=(StringId)GameStringId::continueGame,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::center,
+	    .font = "mediumFont",
+	    .stringId = (StringId)GameStringId::continueGame,
 	},
 	{
 	    .pos = UIZeroPos,
 	    .size = UIAutoSize,
-	    .horizontalAlignment=UIHorizAlignment::center,
-	    .verticalAlignment=UIVertAlignment::center,
-	    .font="mediumFont",
-	    .stringId=(StringId)GameStringId::restartLevel,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::center,
+	    .font = "mediumFont",
+	    .stringId = (StringId)GameStringId::restartLevel,
 	},
 	{
 	    .pos = UIZeroPos,
 	    .size = UIAutoSize,
-	    .horizontalAlignment=UIHorizAlignment::center,
-	    .verticalAlignment=UIVertAlignment::center,
-	    .font="mediumFont",
-	    .stringId=(StringId)GameStringId::exitGame,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::center,
+	    .font = "mediumFont",
+	    .stringId = (StringId)GameStringId::exitGame,
 	},
 };
 
@@ -98,7 +99,7 @@ Wind::GameScreenId PauseGameScreen::Tick(float /*dt*/, const Wind::Input& input)
 #if defined(__ANDROID__) || defined(__OHOS__)
 	if (input.GetKeyPressed(SDLK_AC_BACK)) {
 #elif defined(_WIN32) || defined(__linux__)
-	if (input.GetKeyPressed(SDLK_ESCAPE)) {
+	if (input.GetKeyJustPressed(SDLK_ESCAPE)) {
 #endif
 		return ScreenId::play;
 	}
@@ -106,11 +107,11 @@ Wind::GameScreenId PauseGameScreen::Tick(float /*dt*/, const Wind::Input& input)
 		return ScreenId::mainMenu;
 	}
 	else if (mRestartLevelButton.IsPressed(input)) {
-		//TODO mRestartLevel = true; // FIXME Return as generic data
+		// TODO mRestartLevel = true; // FIXME Return as generic data
 		return ScreenId::play;
 	}
 	else if (mContinueButton.IsPressed(input)) {
-		//TODO mRestartLevel = false;
+		// TODO mRestartLevel = false;
 		return ScreenId::play;
 	}
 	return ScreenId::pauseGame;

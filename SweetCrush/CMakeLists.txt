@@ -11,7 +11,8 @@ find_library(
 )
 
 # Collect Source Files
-file(GLOB_RECURSE APP_SOURCES "src/*.cpp" "gameData/*.cpp")
+# CONFIGURE_DEPENDS tells CMake to try and check the directory at build time
+file(GLOB_RECURSE APP_SOURCES CONFIGURE_DEPENDS "src/*.cpp" "gameData/*.cpp")
 
 # Create the Shared Library
 add_library(App SHARED ${APP_SOURCES})

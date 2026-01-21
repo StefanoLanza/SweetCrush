@@ -203,7 +203,27 @@ struct Index {
         .id('mainView')
     }
     .onKeyEvent((keyevent) => {
-      SDL.sdlKeyEvent(keyevent.keyCode, keyevent.type);
+      //FIXME SDL.sdlKeyEvent(keyevent.keyCode, keyevent.type);
+    })
+    .onMouse((event: MouseEvent) => {
+     // SDL.sdlMouseEvent(event.action, event.x, event.y);
+      /*
+      switch (event.action) {
+        case MouseAction.Move:
+          this.message = `Moving at: X=${event.x}, Y=${event.y}`;
+          break;
+        case MouseAction.Press:
+          this.boxColor = Color.Red;
+          this.message = 'Mouse Pressed!';
+          break;
+        case MouseAction.Release:
+          this.boxColor = Color.Blue;
+          this.message = 'Mouse Released!';
+          break;
+        case MouseAction.Hover:
+          // Note: For simple hover, .onHover() is often more convenient
+          break;
+      }*/
     })
   }
 }

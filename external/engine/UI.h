@@ -47,50 +47,42 @@ struct UIRect {
 	Vec2 size;
 };
 
-#define UIBaseDesc \
-	UIPos            pos; \
-	UISize           size; \
+// Use a macro instead of inheritance, to allow designated initializers in C++ 20
+#define UIBaseDesc                                                   \
+	UIPos            pos;                                            \
+	UISize           size;                                           \
 	UIHorizAlignment horizontalAlignment = UIHorizAlignment::center; \
-	UIVertAlignment  verticalAlignment = UIVertAlignment::center; \
-	float            padding = 0.f; \
+	UIVertAlignment  verticalAlignment = UIVertAlignment::center;    \
+	float            padding = 0.f;                                  \
 	float            borderWidth = 0.f;
 
 struct UITextDesc {
-	UIBaseDesc
+	UIBaseDesc;
 	const char* font = nullptr;
 	StringId    stringId;
 	TextStyle   textStyle = defaultTextStyle;
 };
 
-#undef UIBaseDesc
-
 struct UIBitmapDesc {
-	const char*      fileName;
-	UIPos            pos;
-	UISize           size;
-	UIHorizAlignment horizontalAlignment = UIHorizAlignment::center;
-	UIVertAlignment  verticalAlignment = UIVertAlignment::center;
-	Color            color = whiteColor;
-	UIBlending       blending = UIBlending::on;
-	unsigned int     relDrawOrder = 0;
-	Rect             _9patch = { 0.f, 0.f, 0.f, 0.f }; // pixels
+	const char* fileName;
+	UIBaseDesc;
+	Color      color = whiteColor;
+	UIBlending blending = UIBlending::on;
+	Rect       _9patch = { 0.f, 0.f, 0.f, 0.f }; // pixels
 };
 
 struct UIButtonDesc {
-	UIPos            pos;
-	UISize           size;
-	UIHorizAlignment horizontalAlignment = UIHorizAlignment::center;
-	UIVertAlignment  verticalAlignment = UIVertAlignment::center;
+	UIBaseDesc;
 };
 
 struct UIPanelDesc {
-	UIPos            pos;
-	UISize           size;
-	UIHorizAlignment horizontalAlignment = UIHorizAlignment::center;
-	UIVertAlignment  verticalAlignment = UIVertAlignment::center;
-	const char*      background = nullptr;
-	Color            backgroundColor = whiteColor;
+	UIBaseDesc;
+	const char*   background = nullptr;
+	Color         backgroundColor = whiteColor;
+	DrawOrderType drawOrder = 0;
 };
+
+#undef UIBaseDesc
 
 class UIText final {
 public:
@@ -173,8 +165,7 @@ public:
 	void     SetMousePointer(const char* fileName, Graphics& graphics);
 	UIPanel& GetPanel();
 	void     LoadGraphics(Graphics& graphics);
-	void     Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords,
-	              unsigned drawOrder);
+	void     Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords);
 
 private:
 	UIPanel    mPanel;

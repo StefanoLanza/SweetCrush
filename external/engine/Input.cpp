@@ -18,7 +18,7 @@ Input::Input()
     , mNumKeyPressed { 0 } {
 }
 
-bool Input::GetKeyPressed(KeyCode key) const {
+bool Input::GetKeyJustPressed(KeyCode key) const {
 	for (int i = 0; i < mNumKeyPressed; ++i) {
 		if (mKeyPressed[i] == key) {
 			return true;

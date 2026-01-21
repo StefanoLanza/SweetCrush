@@ -402,8 +402,7 @@ void Graphics::Impl::Flush() {
 					// glUniform1i(su.texture, textureUnit);
 					currTexture[textureUnit] = su.texture.texture;
 				}
-				if (batch.firstUniform)
-					++textureUnit;
+				++textureUnit;
 			}
 		}
 

@@ -79,7 +79,7 @@ void Game::Draw(float dt) {
 	Graphics&           graphics = mEngine.GetGraphics();
 
 	graphics.SetFrameBuffer(mFrameBuffer);
-	mCanvas.Draw(RefWindowWidth, RefWindowHeight, mUIRenderer, textRenderer, input.GetMappedMouseCoord(), GameDrawOrder::UI);
+	mCanvas.Draw(RefWindowWidth, RefWindowHeight, mUIRenderer, textRenderer, input.GetMappedMouseCoord());
 	for (const auto& screen : mScreens) {
 		screen->Draw(mScreenId);
 	}

@@ -5,7 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Collect Source Files
-file(GLOB ENGINE_SOURCES "*.cpp")
+# CONFIGURE_DEPENDS tells CMake to try and check the directory at build time
+file(GLOB ENGINE_SOURCES CONFIGURE_DEPENDS "*.cpp")
 
 # Exclude Windows and Linux folders
 list(FILTER ENGINE_SOURCES EXCLUDE REGEX "/(linux|windows)/")

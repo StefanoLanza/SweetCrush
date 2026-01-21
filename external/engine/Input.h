@@ -12,7 +12,7 @@ class Input final {
 public:
 	Input();
 
-	bool  GetKeyPressed(KeyCode key) const;
+	bool  GetKeyJustPressed(KeyCode key) const;
 	bool  GetKeyDown(KeyCode key) const;
 	Vec2  GetMouseCoord() const;
 	void  SetMappedMouseCoord(Vec2 mouseCoord);

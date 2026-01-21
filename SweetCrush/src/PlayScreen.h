@@ -32,6 +32,7 @@ public:
 	void               ParseConfig(const char* varName, const char* varValue) override;
 
 private:
+	void SelectBooster(const Wind::Input& input);
 	void NewGame();
 	void NextLevel();
 	void ReplayLevel();
@@ -63,7 +64,6 @@ private:
 	std::unique_ptr<TileSelector> mCellSelector;
 	EffectInfoPanel               mEffectInfoPanel;
 	Wind::UIPanel                 mPanel;
-	Wind::UIPanel                 mGoalPanel;
 	Wind::UIButton                mPauseButton;
 	Wind::UIPanel                 mBoostersPanel;
 	Wind::UIButton                mBoosterButtons[3];

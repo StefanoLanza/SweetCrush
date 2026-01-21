@@ -21,7 +21,6 @@ private:
 	Wind::UIText   mText;
 	Wind::UIButton mOKButton;
 	Wind::UIBitmap mEffectIcon;
-	Wind::UIBitmap mPanelBitmap;
 	Wind::UIPanel  mPanel;
 	bool           mShowHelp[NumEffects];
 };

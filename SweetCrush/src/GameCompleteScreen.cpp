@@ -30,8 +30,8 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "bigFont",
-	    .stringId=(StringId)GameStringId::gameComplete,
-	    .textStyle=titleTextStyle,
+	    .stringId = (StringId)GameStringId::gameComplete,
+	    .textStyle = titleTextStyle,
 	},
 	{
 	    .pos = UIZeroPos,
@@ -39,12 +39,18 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId=(StringId)GameStringId::continueGame,
+	    .stringId = (StringId)GameStringId::continueGame,
 	},
 };
 
 const UIBitmapDesc panelBitmapDesc {
-	"null.png", UIZeroPos, UIParentSize, UIHorizAlignment::center, UIVertAlignment::center, Color { 0, 0, 0, 200 }, UIBlending::on, 0,
+	.fileName = "null.png",
+	.pos = UIZeroPos,
+	.size = UIParentSize,
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::center,
+	.color = Color { 0, 0, 0, 200 },
+	.blending = UIBlending::on,
 };
 
 } // namespace

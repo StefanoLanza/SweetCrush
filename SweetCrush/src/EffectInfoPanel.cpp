@@ -1,5 +1,6 @@
 #include "EffectInfoPanel.h"
 #include "AssetDefs.h"
+#include "GameDrawOrder.h"
 #include "Localization.h"
 #include "UIDefs.h"
 
@@ -11,10 +12,10 @@ using namespace Wind;
 namespace {
 
 const UIButtonDesc buttonDesc {
-	UIAbsolutePos(0, 260),
-	UIAutoSize,
-	UIHorizAlignment::center,
-	UIVertAlignment::top,
+	.pos = UIAbsolutePos(0, 260),
+	.size = UIAutoSize,
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::top,
 };
 
 const UITextDesc textDesc[] {
@@ -45,16 +46,21 @@ const UITextDesc textDesc[] {
 };
 
 const UIBitmapDesc effectIconDesc {
-	"null.png", UIAbsolutePos(540, 50), UIAbsoluteSize(64, 72), UIHorizAlignment::left, UIVertAlignment::top, whiteColor, UIBlending::on, 1,
-};
-
-const UIBitmapDesc panelBitmapDesc {
-	"null.png", UIZeroPos, UIParentSize, UIHorizAlignment::center, UIVertAlignment::center, Color { 0, 0, 0, 200 }, UIBlending::on, 0,
+	.fileName = "null.png",
+	.pos = UIAbsolutePos(540, 50),
+	.size = UIAbsoluteSize(64, 72),
+	.horizontalAlignment = UIHorizAlignment::left,
+	.verticalAlignment = UIVertAlignment::top,
+	.color = whiteColor,
+	.blending = UIBlending::on,
 };
 
 const UIPanelDesc panelDesc {
-	UIZeroPos,
-	UIAbsoluteSize(800, 400),
+	.pos = UIZeroPos,
+	.size = UIAbsoluteSize(800, 400),
+	.background = "null.png",
+	.backgroundColor = Color { 0, 0, 0, 200 },
+	.drawOrder = GameDrawOrder::UI,
 };
 
 } // namespace
@@ -64,7 +70,6 @@ EffectInfoPanel::EffectInfoPanel(Engine& engine)
     , mText(textDesc[1], engine)
     , mOKButton(MakeButton(buttonDesc, buttonBitmapDesc, textDesc[2], engine))
     , mEffectIcon(effectIconDesc, engine.GetGraphics())
-    , mPanelBitmap(panelBitmapDesc, engine.GetGraphics())
     , mPanel(panelDesc)
     , mShowHelp {} {
 	for (bool& b : mShowHelp) {
@@ -74,7 +79,6 @@ EffectInfoPanel::EffectInfoPanel(Engine& engine)
 
 void EffectInfoPanel::BuildUI(UICanvas& canvas) {
 	mPanel.SetVisible(false);
-	mPanel.AddBitmap(mPanelBitmap);
 	mPanel.AddBitmap(mEffectIcon);
 	mPanel.AddButton(mOKButton);
 	mPanel.AddText(mTitle);
@@ -126,7 +130,7 @@ bool EffectInfoPanel::Wait(const Input& input) {
 	if (mPanel.IsVisible()) {
 		if (mOKButton.IsPressed(input) ||
 #if defined(_WIN32) || defined(__linux__)
-		    input.GetKeyPressed(SDLK_ESCAPE)) {
+		    input.GetKeyJustPressed(SDLK_ESCAPE)) {
 #else
 			0
 	}

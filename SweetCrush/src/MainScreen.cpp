@@ -125,7 +125,7 @@ GameScreenId MainScreen::Tick(float dt, const Wind::Input& input) {
 	if (input.GetKeyPressed(SDLK_AC_BACK)) {
 		mEngine.Quit();
 #elif defined(_WIN32) || defined(__linux__)
-	if (input.GetKeyPressed(SDLK_ESCAPE) || mQuitButton.IsPressed(input)) {
+	if (input.GetKeyJustPressed(SDLK_ESCAPE) || mQuitButton.IsPressed(input)) {
 #endif
 		mEngine.Quit();
 	}

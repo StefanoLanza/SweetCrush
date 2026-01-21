@@ -32,38 +32,38 @@ using namespace Wind;
 namespace {
 
 const UIButtonDesc pauseButtonDesc {
-	UIAbsolutePos(-60, -60),
-	UIAutoSize,
-	UIHorizAlignment::right,
-	UIVertAlignment::bottom,
+	.pos = UIAbsolutePos(-60, -60),
+	.size = UIAutoSize,
+	.horizontalAlignment = UIHorizAlignment::right,
+	.verticalAlignment = UIVertAlignment::bottom,
 };
 
 const UIButtonDesc booster0ButtonDesc {
-	UIAbsolutePos(10, -10),
-	{ 100.f, 100.f, 0.f, 0.f },
-	UIHorizAlignment::left,
-	UIVertAlignment::bottom,
+	.pos = UIAbsolutePos(10, -10),
+	.size = { 100.f, 100.f, 0.f, 0.f },
+	.horizontalAlignment = UIHorizAlignment::left,
+	.verticalAlignment = UIVertAlignment::bottom,
 };
 
 const UIButtonDesc booster1ButtonDesc {
-	UIAbsolutePos(0, -10),
-	{ 100.f, 100.f, 0.f, 0.f },
-	UIHorizAlignment::center,
-	UIVertAlignment::bottom,
+	.pos = UIAbsolutePos(0, -10),
+	.size = { 100.f, 100.f, 0.f, 0.f },
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::bottom,
 };
 
 const UIButtonDesc booster2ButtonDesc {
-	UIAbsolutePos(-10, -10),
-	{ 100.f, 100.f, 0.f, 0.f },
-	UIHorizAlignment::right,
-	UIVertAlignment::bottom,
+	.pos = UIAbsolutePos(-10, -10),
+	.size = { 100.f, 100.f, 0.f, 0.f },
+	.horizontalAlignment = UIHorizAlignment::right,
+	.verticalAlignment = UIVertAlignment::bottom,
 };
 
 const UIBitmapDesc boosterButtonBitmapDesc {
 	.fileName = "button.png",
 	.pos = UIZeroPos,
 	.size = UIParentSize,
-	.color = yellowColor,
+	.color = Color { 255, 229, 102, 255 },
 	._9patch = { 16, 0.f, 0.f, 0.f },
 };
 
@@ -73,16 +73,7 @@ const UIBitmapDesc optionButtonBitmapDesc {
 	UIAutoSize,
 };
 
-constexpr UIPanelDesc GoalPanelDesc {
-	.pos = { 0.f, 120.f, 0.f, 0.f },
-	.size = { 340.f, 100.f, 0.f, 0.f },
-	.horizontalAlignment = UIHorizAlignment::center,
-	.verticalAlignment = UIVertAlignment::top,
-	.background = "button.png",
-	.backgroundColor = whiteColor,
-};
-
-constexpr UIPanelDesc BoosterPanelDesc {
+constexpr UIPanelDesc boosterPanelDesc {
 	.pos = { 0.f, -20.f, 0.f, 0.f },
 	.size = { 340.f, 100.f, 0.f, 0.f },
 	.horizontalAlignment = UIHorizAlignment::center,
@@ -110,8 +101,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
     , mCellSelector { std::make_unique<TileSelector>(mBoard, gameConfig) }
     , mEffectInfoPanel(engine)
     , mPanel(UIDefaultPanelDesc)
-    , mGoalPanel(GoalPanelDesc)
-    , mBoostersPanel(BoosterPanelDesc)
+    , mBoostersPanel(boosterPanelDesc)
     , mPauseButton(MakeButton(pauseButtonDesc, optionButtonBitmapDesc, engine))
     , mBoosterButtons { MakeButton(booster0ButtonDesc, boosterButtonBitmapDesc, engine),
 	                    MakeButton(booster1ButtonDesc, boosterButtonBitmapDesc, engine),
@@ -141,9 +131,7 @@ void PlayScreen::BuildUI(UICanvas& canvas) {
 	mFonts[0] = mEngine.GetTextRenderer().AddFont("mediumFont");
 	mFonts[1] = mEngine.GetTextRenderer().AddFont("tiny");
 	mFonts[2] = mEngine.GetTextRenderer().AddFont("smallFont");
-	// mPanel.AddPanel(mGoalPanel);
 	mPanel.AddPanel(mBoostersPanel);
-	mGoalPanel.SetVisible(true);
 	mBoostersPanel.SetVisible(true);
 	mBoostersPanel.AddButton(mBoosterButtons[0]);
 	mBoostersPanel.AddButton(mBoosterButtons[1]);
@@ -153,40 +141,29 @@ void PlayScreen::BuildUI(UICanvas& canvas) {
 }
 
 GameScreenId PlayScreen::Tick(float dt, const Input& input) {
+	if (mEffectInfoPanel.IsVisible()) {
+		if (mEffectInfoPanel.Wait(input)) {
+			return ScreenId::play;
+		}
+	}
+	else {
+#if defined(__ANDROID__) || defined(__OHOS__)
+		if (input.GetKeyPressed(SDLK_AC_BACK)) {
+#elif defined(_WIN32) || defined(__linux__)
+		if (input.GetKeyJustPressed(SDLK_ESCAPE)) {
+#endif
+			return ScreenId::pauseGame;
+		}
+	}
+
 	if (mPauseButton.IsPressed(input)) {
 		return ScreenId::pauseGame;
 	}
 
-	if (mSelectedBooster >= 0) {
-		int cellIdx = mBoard.GetCellAtCoords(input.GetMouseCoord());
-		if (input.GetMouseButtonPressed() && mMatch3.IsWaitingForUser()) {
-			if (cellIdx >= 0) {
-				mMatch3.UseBooster(cellIdx);
-			}
-			mSelectedBooster = -1; // release
-		}
-		else {
-			if (cellIdx >= 0) {
-				GetVisual(mBoard.GetCell(cellIdx)).highlighted = true;
-			}
-			// TODO highlight cell
-		}
+	if (mMatch3.IsWaitingForUser()) {
+		SelectBooster(input);
 	}
-	for (int i = 0; i < MaxBoosterTypesPerLevel; ++i) {
-		if (mBoosterButtons[i].IsPressed(input)) {
-			mSelectedBooster = i;
-		}
-	}
-	if (mSelectedBooster >= 0) {
-		mSelectedBoosterCoord = input.GetMouseCoord();
-	}
-#if defined(__ANDROID__) || defined(__OHOS__)
-	if (input.GetKeyPressed(SDLK_AC_BACK)) {
-#elif defined(_WIN32) || defined(__linux__)
-	if (input.GetKeyPressed(SDLK_ESCAPE)) {
-#endif
-		return ScreenId::pauseGame;
-	}
+
 	if (mGameComplete) {
 		if (mRenderActionMgr.AnyRunning()) {
 			return ScreenId::play; // wait until all animations are over
@@ -198,10 +175,6 @@ GameScreenId PlayScreen::Tick(float dt, const Input& input) {
 			return ScreenId::play; // wait until all animations are over
 		}
 		return ScreenId::levelComplete;
-	}
-
-	if (mEffectInfoPanel.Wait(input)) {
-		return ScreenId::play;
 	}
 
 	if (mMatch3.IsWaitingForUser()) {
@@ -230,6 +203,41 @@ GameScreenId PlayScreen::Tick(float dt, const Input& input) {
 	return ScreenId::play;
 }
 
+void PlayScreen::SelectBooster(const Input& input) {
+	bool handled = false;
+
+	// Check buttons
+	for (int i = 0; i < MaxBoosterTypesPerLevel; ++i) {
+		if (mBoosterButtons[i].IsPressed(input)) {
+			// Unselect if pressing again on same button
+			mSelectedBooster = mSelectedBooster == i ? -1 : i;
+			handled = true;
+			break;
+		}
+	}
+
+	if (! handled && mSelectedBooster >= 0) {
+		// Check click on board
+		int cellIdx = mBoard.GetCellAtCoords(input.GetMouseCoord());
+		if (input.GetMouseButtonPressed()) {
+			if (cellIdx >= 0) {
+				mMatch3.UseBooster(cellIdx);
+			}
+			mSelectedBooster = -1; // release
+		}
+		else {
+			if (cellIdx >= 0) {
+				GetVisual(mBoard.GetCell(cellIdx)).highlighted = true;
+			}
+			// TODO highlight cell
+		}
+	}
+
+	if (mSelectedBooster >= 0) {
+		mSelectedBoosterCoord = input.GetMouseCoord();
+	}
+}
+
 void PlayScreen::Draw(GameScreenId topScreen) const {
 	if (topScreen != ScreenId::play) {
 		return;
@@ -238,8 +246,8 @@ void PlayScreen::Draw(GameScreenId topScreen) const {
 	DrawUI();
 
 	// FIXME
-	//mGameRenderer.DrawLaser({ 0.f, 300.f }, { mGameConfig.board.bottomRightCoord.x, 300.f }, 64, 0.5 + 0.5 * sinf(mMatchTime * 5.0));
-	//mGameRenderer.DrawLaser({ 100.f, 0.f }, { 100.f, mGameConfig.board.bottomRightCoord.y }, 64, 0.5 + 0.5 * sinf(mMatchTime * 5.0));
+	// mGameRenderer.DrawLaser({ 0.f, 300.f }, { mGameConfig.board.bottomRightCoord.x, 300.f }, 64, 0.5 + 0.5 * sinf(mMatchTime * 5.0));
+	// mGameRenderer.DrawLaser({ 100.f, 0.f }, { 100.f, mGameConfig.board.bottomRightCoord.y }, 64, 0.5 + 0.5 * sinf(mMatchTime * 5.0));
 }
 
 void PlayScreen::Enter(GameScreenId prevScreen, const void* payload) {
@@ -420,13 +428,11 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		Vec2 startCoords = event.effect.mainCell->coords + Vec2 { mGameConfig.board.cellWidth, mGameConfig.board.cellHeight } * 0.5f;
 		if (event.effect.type == EffectType::hrocket) {
 			mRenderActionMgr.AddTimedAction(DrawLaser(startCoords, { 0.f, startCoords.y }, mGameRenderer), mGameConfig.glowTrailTime);
-			mRenderActionMgr.AddTimedAction(DrawLaser(startCoords, { RefWindowWidth, startCoords.y }, mGameRenderer),
-			                                mGameConfig.glowTrailTime);
+			mRenderActionMgr.AddTimedAction(DrawLaser(startCoords, { RefWindowWidth, startCoords.y }, mGameRenderer), mGameConfig.glowTrailTime);
 		}
 		else if (event.effect.type == EffectType::vrocket) {
 			mRenderActionMgr.AddTimedAction(DrawLaser(startCoords, { startCoords.x, 0.f }, mGameRenderer), mGameConfig.glowTrailTime);
-			mRenderActionMgr.AddTimedAction(DrawLaser(startCoords, { startCoords.x, RefWindowHeight }, mGameRenderer),
-			                                mGameConfig.glowTrailTime);
+			mRenderActionMgr.AddTimedAction(DrawLaser(startCoords, { startCoords.x, RefWindowHeight }, mGameRenderer), mGameConfig.glowTrailTime);
 		}
 		else {
 			//		mRenderActionMgr.AddTimedAction(DrawExplosion(cell, mEngine.GetBitmapRenderer(), mGameConfig), mGameConfig.bombExplosionTime, 0.f,
@@ -501,7 +507,7 @@ void PlayScreen::DrawUI() const {
 		Vec2 pos = mGameConfig.ui.goalStartCoord;
 		for (int i = 0; i < 3; ++i) {
 			const int icon = pieceIcons[level.pieceIds[i]];
-			mGameRenderer.DrawIcon(icon, pos, 0.f, whiteColor, static_cast<unsigned>(GameDrawOrder::overlays));
+			mGameRenderer.DrawIcon(icon, pos, 0.f, whiteColor, GameDrawOrder::overlays);
 			snprintf(tmp, sizeof(tmp), "%d/%d", mMatchStats.targetPieceCount[i], level.goal.collectMatches.count[i]);
 			textRenderer.Write(*mFonts[2], tmp, pos + Vec2 { 40.f, -20.f }, textStyle, GameDrawOrder::overlays);
 			pos.x += 180.f;
@@ -510,7 +516,7 @@ void PlayScreen::DrawUI() const {
 	else if (level.goal.id == GoalId::breakIce) {
 		Vec2 pos = mGameConfig.ui.goalStartCoord;
 		for (int i = 0; i < mMatchStats.layerCount; ++i) {
-			mGameRenderer.DrawIcon(iceSprites[0], pos, 0.f, whiteColor, static_cast<unsigned>(GameDrawOrder::overlays));
+			mGameRenderer.DrawIcon(iceSprites[0], pos, 0.f, whiteColor, GameDrawOrder::overlays);
 			pos.x += gameTextures[iceSprites[0]]->Width() + 12;
 		}
 	}
@@ -522,9 +528,12 @@ void PlayScreen::DrawUI() const {
 				coords = mSelectedBoosterCoord;
 			}
 			else {
-				coords = mBoosterButtons[i].GetRect().pos + mBoosterButtons[i].GetRect().size * 0.5f;
+				coords = mBoosterButtons[i].GetRect().pos + mBoosterButtons[i].GetRect().size * 0.5f + Vec2{ 8.f, 0.f};
 			}
-			mGameRenderer.DrawIcon(boosterIcons[level.boosterIds[i]], coords, 0.f, whiteColor, static_cast<unsigned>(GameDrawOrder::overlays));
+			mGameRenderer.DrawIcon(boosterIcons[level.boosterIds[i]], coords, 0.f, whiteColor, GameDrawOrder::overUI);
+			char tmp[64];
+			snprintf(tmp, sizeof(tmp), "%d", level.boosterCount[i]);
+			textRenderer.Write(*mFonts[1], tmp, mBoosterButtons[i].GetRect().pos + Vec2{12.f, 12.f}, defaultTextStyle, GameDrawOrder::overUI);
 		}
 	}
 }

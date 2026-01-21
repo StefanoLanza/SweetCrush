@@ -155,7 +155,7 @@ void UIBitmap::Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const {
 	const UIDrawParams prm {
 		.color = mDesc.color,
 		.blending = mDesc.blending == UIBlending::on,
-		.priority = drawOrder + mDesc.relDrawOrder,
+		.priority = drawOrder,
 		._9patch = mDesc._9patch,
 	};
 	renderer.DrawRect(mAlignedRect, *mBitmap, prm);
@@ -220,6 +220,7 @@ void UIPanel::Draw(const UIRenderer& renderer, const TextRenderer& textRender, D
 	if (! mVisible) {
 		return;
 	}
+	drawOrder += mDesc.drawOrder;
 	if (mBackground) {
 		UIDrawParams prms;
 		prms.blending = (mDesc.backgroundColor.a < 255.f) || mBackground->HasAlpha();
@@ -282,18 +283,18 @@ void UICanvas::LoadGraphics(Graphics& graphics) {
 	mPanel.LoadGraphics(graphics);
 }
 
-void UICanvas::Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords, unsigned drawOrder) {
+void UICanvas::Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords) {
 	const UIRect parentRect { { 0.f, 0.f }, (float)canvasWidth, (float)canvasHeight };
 	mPanel.UpdateRect(parentRect);
 
 	if (mBackground) {
 		UIDrawParams prms;
 		prms.blending = false;
-		prms.priority = drawOrder;
+		prms.priority = DrawOrder::background;
 		renderer.DrawRect(parentRect, *mBackground, prms);
 	}
 
-	mPanel.Draw(renderer, textRender, drawOrder + 1);
+	mPanel.Draw(renderer, textRender, 0);
 
 	if (mMousePointer) {
 		const UIDrawParams prm {
