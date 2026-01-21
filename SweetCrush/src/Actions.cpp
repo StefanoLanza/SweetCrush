@@ -1,8 +1,8 @@
 #include "Actions.h"
+#include "AppConfig.h"
 #include "AssetDefs.h"
 #include "Board.h"
 #include "Constants.h"
-#include "AppConfig.h"
 #include "GameDrawOrder.h"
 #include "GameRenderer.h"
 
@@ -101,7 +101,18 @@ ActionFunc DrawBrokenIce(const Cell& cell, const BitmapRenderer& bitmapRenderer,
 
 ActionFunc DrawLaser(Vec2 startCoords, Vec2 endCoords, const GameRenderer& gameRenderer) {
 	return [&gameRenderer, startCoords, endCoords](float /*dt*/, float t01) {
-		gameRenderer.DrawLaser(startCoords, endCoords, 64.f, EaseOutQuint(t01));
+		if (t01 > 0.0f) {
+			Vec2 interpEndCoords = Lerp(startCoords, endCoords, EaseOutQuint(t01));
+			gameRenderer.DrawLaser(startCoords, interpEndCoords, 64.f);
+		}
+		return false;
+	};
+}
+
+ActionFunc DrawBlast(Vec2 center, float startRadius, float endRadius, const GameRenderer& gameRenderer) {
+	return [&gameRenderer, center, startRadius, endRadius](float /*dt*/, float t01) {
+		float radius = Lerp(startRadius, endRadius, EaseOutQuint(t01));
+		gameRenderer.DrawBlast(center, radius);
 		return false;
 	};
 }

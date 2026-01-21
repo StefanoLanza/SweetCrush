@@ -20,3 +20,4 @@ ActionFunc DrawMovingSprite(const Cell& cell, const Wind::BitmapRenderer& bitmap
 ActionFunc DrawMatchScore(int score, const Cell& cell, const Wind::TextRenderer& textRenderer, const AppConfig& gameConfig, const Wind::Font& font);
 ActionFunc DrawBrokenIce(const Cell& cell, const Wind::BitmapRenderer& bitmapRenderer, const AppConfig& gameConfig);
 ActionFunc DrawLaser(Wind::Vec2 startCoords, Wind::Vec2 endCoords, const GameRenderer& bitmapRenderer);
+ActionFunc DrawBlast(Wind::Vec2 center, float startRadius, float endRadius, const GameRenderer& gameRenderer);

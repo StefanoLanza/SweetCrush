@@ -50,8 +50,8 @@ public:
 			mTrailProgram.mCoords = program.GetUniformLocation("coords");
 			mTrailProgram.mPerp = program.GetUniformLocation("perp");
 			mTrailProgram.mColor = program.GetUniformLocation("color");
-			// mTrailProgram.mTexture = program.GetUniformLocation("inputTexture");
-			mTrailProgram.mValid = (mTrailProgram.mCoords != -1); // && mTrailProgram.mTexture != -1);
+			mTrailProgram.mTexture = program.GetUniformLocation("inputTexture");
+			mTrailProgram.mValid = (mTrailProgram.mCoords != -1 && mTrailProgram.mTexture != -1);
 		}
 
 		for (int i = 0; i < NumGameTextures; ++i) {
@@ -163,7 +163,7 @@ public:
 		}
 	}
 
-	void DrawTrail(Vec2 start, Vec2 end, float w, float t01) const {
+	void DrawTrail(Vec2 start, Vec2 end, float w) const {
 		if (! mTrailProgram.mValid) {
 			return;
 		}
@@ -171,18 +171,15 @@ public:
 		Vec2 dir = Normalize(end - start);
 		Vec2 perp = Ortho(dir) * w;
 
-		Vec2 trailStart = start;
-		Vec2 trailEnd = Lerp(start, end, t01);
-
 		mGraphics.SetPipeline(mPipelineAdditive);
 
 		const Texture& texture = *gameTextures[glowSprite];
 		const int      uniforms[] = { mTrailProgram.mCoords, mTrailProgram.mPerp, mTrailProgram.mColor };
 		unsigned       textureIds[] = { texture.GetTextureId() };
 		const float    uniformData[] = {
-            trailStart.x, trailStart.y, trailEnd.x, trailEnd.y, //
-            perp.x,       perp.y,       0.f,        0.f,        //
-            1.f,          1.f,          1.f,        1.f,        // TODO Remove color ?
+            start.x, start.y, end.x, end.y, //
+            perp.x,  perp.y,  0.f,   0.f,   //
+            1.f,     1.f,     1.f,   1.f,   // TODO Remove color ?
 		};
 
 		DrawCall drawCall;
@@ -196,6 +193,8 @@ public:
 		drawCall.numUniforms = sizeof(uniformData) / 16;
 		mGraphics.Draw(drawCall);
 	}
+
+	void DrawBlast(Vec2 center, float radius) const {}
 
 	void DrawIcon(Vec2 coords, uint32_t iconIdx, float rotation, const Color& color, unsigned drawOrder) const {
 		if (! mPieceProgram.mValid) {
@@ -290,8 +289,13 @@ void GameRenderer::DrawBoard(const Board& board, int selectedCell, const AppConf
 	}
 }
 
-void GameRenderer::DrawLaser(Vec2 start, Vec2 end, float w, float t01) const {
-	mPimpl->DrawTrail(start, end, w, t01);
+void GameRenderer::DrawLaser(Vec2 start, Vec2 end, float w) const {
+	mPimpl->DrawTrail(start, end, w);
+}
+
+void GameRenderer::DrawBlast(Vec2 center, float radius) const
+{
+	mPimpl->DrawBlast(center, radius);
 }
 
 void GameRenderer::DrawIcon(uint32_t iconIdx, Vec2 coords, float rotation, const Color& color, unsigned drawOrder) const {
