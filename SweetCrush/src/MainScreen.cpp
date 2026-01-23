@@ -122,7 +122,7 @@ GameScreenId MainScreen::Tick(float dt, const Wind::Input& input) {
 	}
 
 #if defined(__ANDROID__) || defined(__OHOS__)
-	if (input.GetKeyPressed(SDLK_AC_BACK)) {
+	if (input.GetKeyJustPressed(SDLK_AC_BACK)) {
 		mEngine.Quit();
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) || mQuitButton.IsPressed(input)) {

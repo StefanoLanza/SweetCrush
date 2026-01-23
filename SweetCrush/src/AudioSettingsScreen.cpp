@@ -94,7 +94,7 @@ GameScreenId AudioSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::In
 	}
 
 #if defined(__ANDROID__) || defined(__OHOS__)
-	if (input.GetKeyPressed(SDLK_AC_BACK) ||
+	if (input.GetKeyJustPressed(SDLK_AC_BACK) ||
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif

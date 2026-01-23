@@ -14,9 +14,9 @@ android/*.user
 android/.gradle/*
 android/.idea
 android/app/src/main/jniLibs/
+android/app/.cxx/
 android/build.gradle
 android/build
 android/local.properties
 android/keystore.properties
 android/*.jks
-
