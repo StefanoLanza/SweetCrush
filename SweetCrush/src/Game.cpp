@@ -1,25 +1,29 @@
 #include "Game.h"
 #include "Actions.h"
-#include "AudioSettingsScreen.h"
-#include "Constants.h"
-#include "CreditsScreen.h"
-#include "GameCompleteScreen.h"
 #include "AppConfig.h"
-#include "GameOverScreen.h"
+#include "Constants.h"
+#include "ScreenIds.h"
+
+#include <engine/Blitter.h>
+#include <engine/Engine.h>
+#include <engine/Graphics.h>
+#include <engine/IniParser.h>
+#include <engine/Input.h>
+
+// Game screens
+#include "AudioSettingsScreen.h"
+#include "CreditsScreen.h"
+#include "EffectInfoPanel.h"
+#include "GameCompleteScreen.h"
 #include "GameDrawOrder.h"
+#include "GameOverScreen.h"
 #include "GraphicsSettingsScreen.h"
 #include "LevelCompleteScreen.h"
 #include "Localization.h"
 #include "MainScreen.h"
 #include "PauseGameScreen.h"
 #include "PlayScreen.h"
-#include "ScreenIds.h"
 #include "SettingsScreen.h"
-#include <engine/Blitter.h>
-#include <engine/Engine.h>
-#include <engine/Graphics.h>
-#include <engine/IniParser.h>
-#include <engine/Input.h>
 
 #include <cassert>
 
@@ -45,6 +49,7 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
 	mScreens[7] = std::make_unique<LevelCompleteScreen>(mEngine, mMatchStats);
 	mScreens[8] = std::make_unique<GraphicsSettingsScreen>(mEngine, mGameSettings);
 	mScreens[9] = std::make_unique<AudioSettingsScreen>(mEngine, mGameSettings);
+	mScreens[10] = std::make_unique<EffectInfoPanel>(mEngine);
 
 	for (const auto& screen : mScreens) {
 		iniParser.AddListener(screen->GetName(),
@@ -101,10 +106,11 @@ void Game::Tick(float dt) {
 	}
 
 	GameScreen&        currScreen = *mScreens[(int)mScreenId];
-	const GameScreenId nextScreen = currScreen.Tick(dt, input);
+	char               payload[64];
+	const GameScreenId nextScreen = currScreen.Tick(dt, input); // TODO pass payload
 	if (nextScreen != mScreenId) {
-		currScreen.Exit();
-		mScreens[(int)nextScreen]->Enter(mScreenId, nullptr); // TODO
+		currScreen.Exit(nextScreen);
+		mScreens[(int)nextScreen]->Enter(mScreenId, payload);
 		mScreenId = nextScreen;
 	}
 }

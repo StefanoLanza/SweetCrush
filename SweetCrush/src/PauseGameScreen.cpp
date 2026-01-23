@@ -124,7 +124,7 @@ void PauseGameScreen::Enter([[maybe_unused]] GameScreenId prevScreen, const void
 	mPanel.SetVisible(true);
 }
 
-void PauseGameScreen::Exit() {
+void PauseGameScreen::Exit(GameScreenId newScreen) {
 	mPanel.SetVisible(false);
 }
 

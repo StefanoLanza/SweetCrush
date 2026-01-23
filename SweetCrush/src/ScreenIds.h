@@ -14,4 +14,5 @@ enum ScreenId : Wind::GameScreenId {
 	levelComplete,
 	graphicsSettings,
 	audioSettings,
+	effectInfo,
 };

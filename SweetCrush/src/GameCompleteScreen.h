@@ -16,7 +16,7 @@ public:
 	Wind::GameScreenId Tick(float dt, const Wind::Input& input) override;
 	void               Draw(Wind::GameScreenId topScreen) const override;
 	void               Enter(Wind::GameScreenId prevScreen, const void* payload) override;
-	void               Exit() override;
+	void               Exit(Wind::GameScreenId newScreen) override;
 	void               ParseConfig(const char* varName, const char* varValue) override;
 
 public:

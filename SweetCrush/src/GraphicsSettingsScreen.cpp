@@ -94,7 +94,7 @@ void GraphicsSettingsScreen::Enter([[maybe_unused]] GameScreenId prevScreen, con
 	mPanel.SetVisible(true);
 }
 
-void GraphicsSettingsScreen::Exit() {
+void GraphicsSettingsScreen::Exit(GameScreenId newScreen) {
 	mPanel.SetVisible(false);
 }
 

@@ -121,7 +121,7 @@ void SettingsScreen::Enter([[maybe_unused]] GameScreenId prevScreen, const void*
 	mPanel.SetVisible(true);
 }
 
-void SettingsScreen::Exit() {
+void SettingsScreen::Exit(GameScreenId newScreen) {
 	mPanel.SetVisible(false);
 }
 

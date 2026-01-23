@@ -80,7 +80,7 @@ void LevelCompleteScreen::Enter([[maybe_unused]] Wind::GameScreenId prevScreen, 
 	mPanel.SetVisible(true);
 }
 
-void LevelCompleteScreen::Exit() {
+void LevelCompleteScreen::Exit(GameScreenId newScreen) {
 	mPanel.SetVisible(false);
 }
 

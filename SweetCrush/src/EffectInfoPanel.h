@@ -3,18 +3,24 @@
 #include "Effects.h"
 
 #include <engine/FwdDecl.h>
+#include <engine/GameScreen.h>
 #include <engine/UI.h>
 
-class EffectInfoPanel final {
+class EffectInfoPanel final : public Wind::GameScreen {
 public:
 	explicit EffectInfoPanel(Wind::Engine& engine);
 
-	void BuildUI(Wind::UICanvas& canvas);
+	const char*        GetName() const override;
+	Wind::GameScreenId Tick(float dt, const Wind::Input& input) override;
+	void               LoadAssets() override;
+	void               BuildUI(Wind::UICanvas& canvas) override;
+	void               Draw(Wind::GameScreenId topScreen) const override;
+	void               Enter(Wind::GameScreenId prevScreen, const void* payload) override;
+	void               Exit(Wind::GameScreenId newScreen) override;
+	void               ParseConfig(const char* varName, const char* varValue) override;
+
+private:
 	void ShowHelp(EffectType type);
-	bool IsVisible() const;
-	bool Wait(const Wind::Input& input);
-	void Hide();
-	void ParseConfig(const char* varName, const char* varValue);
 
 private:
 	Wind::UIText   mTitle;

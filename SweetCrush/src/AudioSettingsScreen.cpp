@@ -111,7 +111,7 @@ void AudioSettingsScreen::Enter([[maybe_unused]] GameScreenId prevScreen, const 
 	mPanel.SetVisible(true);
 }
 
-void AudioSettingsScreen::Exit() {
+void AudioSettingsScreen::Exit(GameScreenId newScreen) {
 	mPanel.SetVisible(false);
 }
 

@@ -33,6 +33,7 @@ using SoundPtr = std::shared_ptr<SdlSound>;
 using MusicPtr = std::shared_ptr<SdlMusic>;
 enum class ProgramHandle : uint32_t;
 enum class PipelineHandle : uint32_t;
+class ActionMgr;
 struct Color;
 struct Vec2;
 class INIParser;

@@ -3,6 +3,8 @@
 #include <cassert>
 #include <limits>
 
+namespace Wind {
+
 struct ActionMgr::Action {
 	ActionFunc  func;
 	float       duration;
@@ -49,7 +51,7 @@ void ActionMgr::RunActions(float dt) {
                 res = true;
             }
             if (res && (action.flags & ActionFlags::blocking)) {
-				assert(numBlocking > 0);
+                assert(numBlocking > 0);
                 --numBlocking;
             }
         }
@@ -70,3 +72,5 @@ bool ActionMgr::AnyRunning() const {
 bool ActionMgr::AnyBlocking() const {
 	return mNumBlocking != 0;
 }
+
+} // namespace Wind

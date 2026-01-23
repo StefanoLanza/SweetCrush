@@ -1,13 +1,14 @@
 #pragma once
 
-#include "ActionMgr.h"
 #include "Board.h"
 #include "BoardGenerator.h"
-#include "EffectInfoPanel.h"
 #include "Level.h"
 #include "Match3.h"
+
+#include <engine/ActionMgr.h>
 #include <engine/FwdDecl.h>
 #include <engine/GameScreen.h>
+#include <engine/UI.h>
 
 class TileSelector;
 struct TileSelectionEvent;
@@ -19,7 +20,7 @@ class GameRenderer;
 class PlayScreen final : public Wind::GameScreen {
 public:
 	PlayScreen(Wind::Engine& engine, const GameRenderer& gameRenderer, const AppConfig& gameConfig, const GameSettings& gameSettings,
-	           ActionMgr& renderActionMgr, MatchStats& matchStats, const GameDataModule& gameDataModule);
+	           Wind::ActionMgr& renderActionMgr, MatchStats& matchStats, const GameDataModule& gameDataModule);
 	~PlayScreen();
 
 	const char*        GetName() const override;
@@ -28,7 +29,7 @@ public:
 	Wind::GameScreenId Tick(float dt, const Wind::Input& input) override;
 	void               Draw(Wind::GameScreenId topScreen) const override;
 	void               Enter(Wind::GameScreenId prevScreen, const void* payload) override;
-	void               Exit() override;
+	void               Exit(Wind::GameScreenId newScreen) override;
 	void               ParseConfig(const char* varName, const char* varValue) override;
 
 private:
@@ -55,14 +56,13 @@ private:
 	const GameRenderer&           mGameRenderer;
 	const AppConfig&              mGameConfig;
 	const GameSettings&           mGameSettings;
-	ActionMgr                     mActionMgr;
-	ActionMgr&                    mRenderActionMgr;
+	Wind::ActionMgr               mActionMgr;
+	Wind::ActionMgr&              mRenderActionMgr;
 	MatchStats&                   mMatchStats;
 	const GameDataModule&         mGameDataModule;
 	Board                         mBoard;
 	BoardGenerator                mBoardGenerator;
 	std::unique_ptr<TileSelector> mCellSelector;
-	EffectInfoPanel               mEffectInfoPanel;
 	Wind::UIPanel                 mPanel;
 	Wind::UIButton                mPauseButton;
 	Wind::UIPanel                 mBoostersPanel;

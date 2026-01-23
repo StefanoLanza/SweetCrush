@@ -106,7 +106,7 @@ void GameCompleteScreen::Enter([[maybe_unused]] GameScreenId prevScreen, const v
 	mPanel.SetVisible(true);
 }
 
-void GameCompleteScreen::Exit() {
+void GameCompleteScreen::Exit(GameScreenId newScreen) {
 	mPanel.SetVisible(false);
 }
 

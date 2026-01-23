@@ -107,7 +107,7 @@ void CreditsScreen::Enter([[maybe_unused]] GameScreenId prevScreen, const void* 
 	mPanel.SetVisible(true);
 }
 
-void CreditsScreen::Exit() {
+void CreditsScreen::Exit(GameScreenId newScreen) {
 	mPanel.SetVisible(false);
 }
 

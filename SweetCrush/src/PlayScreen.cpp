@@ -99,7 +99,6 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
     , mGameDataModule(gameDataModule)
     , mBoard { NumCols, NumRows, mGameConfig.board }
     , mCellSelector { std::make_unique<TileSelector>(mBoard, gameConfig) }
-    , mEffectInfoPanel(engine)
     , mPanel(UIDefaultPanelDesc)
     , mBoostersPanel(boosterPanelDesc)
     , mPauseButton(MakeButton(pauseButtonDesc, optionButtonBitmapDesc, engine))
@@ -127,7 +126,6 @@ void PlayScreen::LoadAssets() {
 }
 
 void PlayScreen::BuildUI(UICanvas& canvas) {
-	mEffectInfoPanel.BuildUI(canvas);
 	mFonts[0] = mEngine.GetTextRenderer().AddFont("mediumFont");
 	mFonts[1] = mEngine.GetTextRenderer().AddFont("tiny");
 	mFonts[2] = mEngine.GetTextRenderer().AddFont("smallFont");
@@ -141,14 +139,17 @@ void PlayScreen::BuildUI(UICanvas& canvas) {
 }
 
 GameScreenId PlayScreen::Tick(float dt, const Input& input) {
+#if 0
 	if (mEffectInfoPanel.IsVisible()) {
 		if (mEffectInfoPanel.Wait(input)) {
 			return ScreenId::play;
 		}
 	}
-	else {
+	else
+#endif
+	{
 #if defined(__ANDROID__) || defined(__OHOS__)
-		if (input.GetKeyPressed(SDLK_AC_BACK)) {
+		if (input.GetKeyJustPressed(SDLK_AC_BACK)) {
 #elif defined(_WIN32) || defined(__linux__)
 		if (input.GetKeyJustPressed(SDLK_ESCAPE)) {
 #endif
@@ -227,7 +228,7 @@ void PlayScreen::SelectBooster(const Input& input) {
 		}
 		else {
 			if (cellIdx >= 0) {
-				//TODO GetVisual(mBoard.GetCell(cellIdx)).highlighted = true;
+				// TODO GetVisual(mBoard.GetCell(cellIdx)).highlighted = true;
 			}
 			// TODO highlight cell
 		}
@@ -239,7 +240,7 @@ void PlayScreen::SelectBooster(const Input& input) {
 }
 
 void PlayScreen::Draw(GameScreenId topScreen) const {
-	if (topScreen != ScreenId::play) {
+	if (topScreen != ScreenId::play && topScreen != ScreenId::effectInfo) {
 		return;
 	}
 	mGameRenderer.DrawBoard(mBoard, mCellSelector->GetSelectedTile(), mGameConfig, mTime);
@@ -266,6 +267,9 @@ void PlayScreen::Enter(GameScreenId prevScreen, const void* payload) {
 	else if (prevScreen == ScreenId::gameOver) {
 		ReplayLevel();
 	}
+	else if (prevScreen == ScreenId::effectInfo) {
+		// continue playing
+	}
 	else {
 		NewGame();
 	}
@@ -279,9 +283,10 @@ void PlayScreen::Enter(GameScreenId prevScreen, const void* payload) {
 	mTime = 0.f;
 }
 
-void PlayScreen::Exit() {
+void PlayScreen::Exit(GameScreenId newScreen) {
+	// TODO Only if newScreen != effectsInfo
+
 	mRenderActionMgr.Clear(); // stop showing score and other effects
-	mEffectInfoPanel.Hide();
 	mPanel.SetVisible(false);
 	PauseMusic();
 }
@@ -412,7 +417,7 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 	}
 	case Match3Event::Id::newEffect: {
 		if (mGameConfig.settings.infoOn) {
-			mEffectInfoPanel.ShowHelp(event.specialPiece.type);
+			// TODO mEffectInfoPanel.ShowHelp(event.specialPiece.type);
 		}
 		assert(event.specialPiece.cell->category == CellCategory::piece);
 		assert(event.specialPiece.cell->hasEffect);

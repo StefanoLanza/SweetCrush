@@ -153,7 +153,7 @@ void MainScreen::Enter([[maybe_unused]] GameScreenId prevScreen, const void* pay
 	mPanel.SetVisible(true);
 }
 
-void MainScreen::Exit() {
+void MainScreen::Exit(GameScreenId newScreen) {
 	mPanel.SetVisible(false);
 }
 

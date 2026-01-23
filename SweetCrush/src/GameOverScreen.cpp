@@ -115,7 +115,7 @@ void GameOverScreen::Enter(GameScreenId /*prevScreen*/, const void* payload) {
 	mPanel.SetVisible(true);
 }
 
-void GameOverScreen::Exit() {
+void GameOverScreen::Exit(GameScreenId newScreen) {
 	mPanel.SetVisible(false);
 }
 

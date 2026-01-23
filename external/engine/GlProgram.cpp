@@ -37,9 +37,8 @@ GLuint CompileShaderFromFile(const char* fileName, const char* defines, GLenum t
 	GLuint              program = 0;
 	SDL_IOStream* const f = SDL_IOFromFile(fileName, "rb");
 	if (f) {
-		const Sint64 length = SDL_SeekIO(f, 0, SDL_IO_SEEK_END);
+		const Sint64 length = SDL_GetIOSize(f);
 		if (length > 0) {
-			SDL_SeekIO(f, 0, SDL_IO_SEEK_SET);
 			std::vector<char> fileData(static_cast<size_t>(length) + 1);
 			SDL_ReadIO(f, fileData.data(), fileData.size());
 			fileData.back() = 0; // null terminate

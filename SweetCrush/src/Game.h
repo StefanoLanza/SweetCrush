@@ -1,12 +1,12 @@
 #pragma once
 
+#include <engine/ActionMgr.h>
 #include <engine/FwdDecl.h>
 #include <engine/GameScreen.h>
 #include <engine/GlFrameBuffer.h>
 #include <engine/UI.h>
 #include <engine/UIRenderer.h>
 
-#include "ActionMgr.h"
 #include "GameDataModule.h"
 #include "GameSettings.h"
 #include "MatchStats.h"
@@ -35,7 +35,7 @@ private:
 	Wind::UICanvas                    mCanvas;
 	Wind::UIRenderer                  mUIRenderer;
 	MatchStats                        mMatchStats;
-	ActionMgr                         mRenderActionMgr;
+	Wind::ActionMgr                   mRenderActionMgr;
 	Wind::GameScreenId                mScreenId;
-	std::unique_ptr<Wind::GameScreen> mScreens[10];
+	std::unique_ptr<Wind::GameScreen> mScreens[11];
 };

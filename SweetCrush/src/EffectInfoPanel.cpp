@@ -2,6 +2,7 @@
 #include "AssetDefs.h"
 #include "GameDrawOrder.h"
 #include "Localization.h"
+#include "ScreenIds.h"
 #include "UIDefs.h"
 
 #include <engine/Engine.h>
@@ -77,6 +78,9 @@ EffectInfoPanel::EffectInfoPanel(Engine& engine)
 	}
 }
 
+void EffectInfoPanel::LoadAssets() {
+}
+
 void EffectInfoPanel::BuildUI(UICanvas& canvas) {
 	mPanel.SetVisible(false);
 	mPanel.AddBitmap(mEffectIcon);
@@ -86,8 +90,37 @@ void EffectInfoPanel::BuildUI(UICanvas& canvas) {
 	canvas.GetPanel().AddPanel(mPanel);
 }
 
-void EffectInfoPanel::ShowHelp(EffectType boosterType) {
-	const int typeIdx = static_cast<int>(boosterType);
+const char* EffectInfoPanel::GetName() const {
+	return "EffectInfoPanel";
+}
+
+GameScreenId EffectInfoPanel::Tick(float dt, const Input& input) {
+	if (mOKButton.IsPressed(input) ||
+#if defined(_WIN32) || defined(__linux__)
+	    input.GetKeyJustPressed(SDLK_ESCAPE)) {
+#else
+			0
+}
+#endif
+		return ScreenId::mainMenu;
+	}
+	return ScreenId::effectInfo;
+}
+
+void EffectInfoPanel::Draw(GameScreenId topScreen) const {
+}
+
+void EffectInfoPanel::Enter(GameScreenId prevScreen, const void* payload) {
+	// TODO Parse
+	EffectType effectType = EffectType::hrocket;
+	ShowHelp(effectType);
+}
+
+void EffectInfoPanel::Exit(GameScreenId newScreen) {
+}
+
+void EffectInfoPanel::ShowHelp(EffectType effectType) {
+	const int typeIdx = static_cast<int>(effectType);
 	if (! mShowHelp[typeIdx]) {
 		return;
 	}
@@ -96,7 +129,7 @@ void EffectInfoPanel::ShowHelp(EffectType boosterType) {
 	}
 	GameStringId titleStringId = GameStringId::empty;
 	GameStringId textStringId = GameStringId::empty;
-	switch (boosterType) {
+	switch (effectType) {
 	case EffectType::hrocket:
 		titleStringId = GameStringId::hRocket;
 		textStringId = GameStringId::hRocketDescription;
@@ -120,31 +153,6 @@ void EffectInfoPanel::ShowHelp(EffectType boosterType) {
 	mText.SetText(static_cast<StringId>(textStringId));
 	mEffectIcon.SetBitmap(gameTextures[effectIcons[typeIdx]]);
 	mPanel.SetVisible(true);
-}
-
-bool EffectInfoPanel::IsVisible() const {
-	return mPanel.IsVisible();
-}
-
-bool EffectInfoPanel::Wait(const Input& input) {
-	if (mPanel.IsVisible()) {
-		if (mOKButton.IsPressed(input) ||
-#if defined(_WIN32) || defined(__linux__)
-		    input.GetKeyJustPressed(SDLK_ESCAPE)) {
-#else
-			0
-	}
-#endif
-			Hide();
-			return false;
-		}
-		return true;
-	}
-	return false;
-}
-
-void EffectInfoPanel::Hide() {
-	mPanel.SetVisible(false);
 }
 
 void EffectInfoPanel::ParseConfig(const char* varName, const char* varValue) {

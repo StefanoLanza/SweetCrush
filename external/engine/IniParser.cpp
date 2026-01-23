@@ -12,9 +12,8 @@ int ParseINIFile(const char* fileName, ini_handler handler, void* user) {
 		return -1;
 	}
 	int          res = -1;
-	const Sint64 length = SDL_SeekIO(f, 0, SDL_IO_SEEK_END);
+	const Sint64 length = SDL_GetIOSize(f);
 	if (length > 0) {
-		SDL_SeekIO(f, 0, SDL_IO_SEEK_SET);
 		std::vector<char> fileData(static_cast<size_t>(length) + 1);
 		SDL_ReadIO(f, fileData.data(), fileData.size());
 		fileData[length] = 0; // null terminate
@@ -35,10 +34,9 @@ int INIParser::ParseFile(const char* fileName) const {
 	if (! f) {
 		return -1;
 	}
-	int          res = -1;
-	const Sint64 length = SDL_SeekIO(f, 0, SDL_IO_SEEK_END);
+	int          res = -1;	
+	const Sint64 length = SDL_GetIOSize(f);
 	if (length > 0) {
-		SDL_SeekIO(f, 0, SDL_IO_SEEK_SET);
 		std::vector<char> fileData(static_cast<size_t>(length) + 1);
 		SDL_ReadIO(f, fileData.data(), fileData.size());
 		fileData[length] = 0; // null terminate
