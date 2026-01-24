@@ -36,6 +36,7 @@ private:
 	Wind::UIRenderer                  mUIRenderer;
 	MatchStats                        mMatchStats;
 	Wind::ActionMgr                   mRenderActionMgr;
-	Wind::GameScreenId                mScreenId;
+	Wind::ScreenId                    mScreenStack[2];
+	int                               mScreenStackSize;
 	std::unique_ptr<Wind::GameScreen> mScreens[11];
 };

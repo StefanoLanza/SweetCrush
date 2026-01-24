@@ -109,16 +109,16 @@ void MainScreen::BuildUI(UICanvas& canvas) {
 	canvas.GetPanel().AddPanel(mPanel);
 }
 
-GameScreenId MainScreen::Tick(float dt, const Wind::Input& input) {
+ScreenTransition MainScreen::Tick(float dt, const Wind::Input& input) {
 	mTime += dt;
 	if (mStartButton.IsPressed(input)) {
-		return ScreenId::play;
+		return { ScreenOp::replace, GameScreenIds::play };
 	}
 	else if (mSettingsButton.IsPressed(input)) {
-		return ScreenId::settings;
+		return { ScreenOp::replace, GameScreenIds::settings };
 	}
 	else if (mCreditsButton.IsPressed(input)) {
-		return ScreenId::credits;
+		return { ScreenOp::replace, GameScreenIds::credits };
 	}
 
 #if defined(__ANDROID__) || defined(__OHOS__)
@@ -129,10 +129,10 @@ GameScreenId MainScreen::Tick(float dt, const Wind::Input& input) {
 #endif
 		mEngine.Quit();
 	}
-	return ScreenId::mainMenu;
+	return { ScreenOp::keep };
 }
 
-void MainScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
+void MainScreen::Draw([[maybe_unused]] ScreenId topScreen) const {
 	if (! mPanel.IsVisible()) {
 		return;
 	}
@@ -149,11 +149,11 @@ void MainScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
 	}
 }
 
-void MainScreen::Enter([[maybe_unused]] GameScreenId prevScreen, const void* payload) {
+void MainScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
 	mPanel.SetVisible(true);
 }
 
-void MainScreen::Exit(GameScreenId newScreen) {
+void MainScreen::Exit() {
 	mPanel.SetVisible(false);
 }
 

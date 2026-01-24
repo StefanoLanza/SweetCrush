@@ -599,10 +599,10 @@ index bbd95054c..cdba36021 100644
  // C99 requires that all code modifying floating point environment should
 diff --git a/src/core/ohos/SDL_ohos.c b/src/core/ohos/SDL_ohos.c
 new file mode 100644
-index 000000000..e99c404e4
+index 000000000..65ac76528
 --- /dev/null
 +++ b/src/core/ohos/SDL_ohos.c
-@@ -0,0 +1,1230 @@
+@@ -0,0 +1,1274 @@
 +#include "SDL_internal.h"
 +#include "events/SDL_windowevents_c.h"
 +
@@ -976,6 +976,28 @@ index 000000000..e99c404e4
 +	return true;
 +}
 +
++int OHOS_TS_OpenFileDescriptor(const char *uri, const char *mode) 
++{
++    napiCallbackData *data = (napiCallbackData *)SDL_malloc(sizeof *data);
++    SDL_memset(data, 0, sizeof *data);
++    data->func = "openFileDescriptor";
++    data->argCount = 1;
++    data->arg[0].type = String;
++    data->arg[0].enabled = true;
++    data->arg[0].data.str = uri;
++
++    napi_call_threadsafe_function(napiEnv.func, data, napi_tsfn_nonblocking);
++    while (!data->returned) {}
++    
++    int d = data->ret.data.i;
++    SDL_free(data);
++    return d;
++}
++
++const char *OHOS_TS_GetInternalStoragePath(void) {
++	return ""; // TODO
++}
++
 +void OHOS_TS_HideScreenKeyboard() 
 +{
 +	napiCallbackData *data = (napiCallbackData *)SDL_malloc(sizeof *data);
@@ -1087,6 +1109,26 @@ index 000000000..e99c404e4
 +    int d = data->ret.data.i;
 +    SDL_free(data);
 +    return d;
++}
++
++bool OHOS_TS_SupportsRelativeMouse(void)
++{
++	return false; // TODO
++}
++
++bool OHOS_TS_SetRelativeMouseEnabled(bool enabled)
++{
++	return false; // TODO
++}
++
++bool OHOS_TS_SetCustomCursor(int cursor)
++{
++	return false; // TODO
++}
++
++void OHOS_TS_DestroyCustomCursor(int cursor)
++{
++	// TODO
 +}
 +
 +static bool dialogBoxFinished = false;
@@ -1404,7 +1446,7 @@ index 000000000..e99c404e4
 +    //OH_NativeDisplayManager_DisplayChangeCallback displayChangeCallback, uint32_t *listenerIndex
 +}
 +
-+static void OnSurfaceCreatedCB(OH_NativeXComponent *component, void *nativeWindow)
++static void onSurfaceCreatedCB(OH_NativeXComponent *component, void *nativeWindow)
 +{
 +	g_ohosNativeComponent = component;
 +    g_ohosNativeWindow = (OHNativeWindow *)nativeWindow;
@@ -1426,7 +1468,7 @@ index 000000000..e99c404e4
 +    napi_call_threadsafe_function(napiEnv.func, data, napi_tsfn_nonblocking);
 +}
 +
-+static void OnSurfaceChangedCB(OH_NativeXComponent *component, void *nativeWindow)
++static void onSurfaceChangedCB(OH_NativeXComponent *component, void *nativeWindow)
 +{
 +	g_ohosNativeComponent = component;
 +    g_ohosNativeWindow = (OHNativeWindow *)nativeWindow;
@@ -1458,7 +1500,7 @@ index 000000000..e99c404e4
 +    }	
 +}
 +
-+static void OnSurfaceDestroyedCB(OH_NativeXComponent *component, void *nativeWindow)
++static void onSurfaceDestroyedCB(OH_NativeXComponent *component, void *nativeWindow)
 +{
 +    SDL_assert(g_ohosNativeComponent == component);
 +    SDL_assert(g_ohosNativeWindow == nativeWindow);
@@ -1510,15 +1552,18 @@ index 000000000..e99c404e4
 +static void onNativeTouch(OH_NativeXComponent *component, void *window)
 +{
 +    OH_NativeXComponent_TouchEvent touchEvent;
-+    OH_NativeXComponent_TouchPointToolType toolType = OH_NATIVEXCOMPONENT_TOOL_TYPE_UNKNOWN;
-+
++    //OH_NativeXComponent_TouchPointToolType toolType = OH_NATIVEXCOMPONENT_TOOL_TYPE_UNKNOWN;
 +    uint64_t windowWidth = 0;
 +    uint64_t windowHeight = 0;
 +    OHOS_LockPage();
 +    OH_NativeXComponent_GetXComponentSize(component, window, &windowWidth, &windowHeight);
 +    OH_NativeXComponent_GetTouchEvent(component, window, &touchEvent);
-+    OH_NativeXComponent_GetTouchPointToolType(component, 0, &toolType);
++    //OH_NativeXComponent_GetTouchPointToolType(component, 0, &toolType);
++    OHOS_UnlockPage();
 +
++    SDL_VideoDevice * videoDevice = SDL_GetVideoDevice();
++    SDL_Window *sdlWindow = videoDevice->windows;
++ 
 +    for (int i = 0; i < touchEvent.numPoints; i++) {
 +        SDL_OHOSTouchEvent e;
 +        e.timestamp = touchEvent.timeStamp;
@@ -1546,10 +1591,9 @@ index 000000000..e99c404e4
 +            break;
 +        }
 +        
-+        OHOS_OnTouch(e);
++        OHOS_OnTouch(e, sdlWindow);
 +    }
 +    
-+    OHOS_UnlockPage();
 +}
 +// TODO mouse data
 +static void onNativeMouse(OH_NativeXComponent *component, void *window) {
@@ -1796,9 +1840,9 @@ index 000000000..e99c404e4
 +        return exports;
 +    }
 +
-+    callback.OnSurfaceCreated = OnSurfaceCreatedCB;
-+    callback.OnSurfaceChanged = OnSurfaceChangedCB;
-+    callback.OnSurfaceDestroyed = OnSurfaceDestroyedCB;
++    callback.OnSurfaceCreated = onSurfaceCreatedCB;
++    callback.OnSurfaceChanged = onSurfaceChangedCB;
++    callback.OnSurfaceDestroyed = onSurfaceDestroyedCB;
 +    callback.DispatchTouchEvent = onNativeTouch;
 +    OH_NativeXComponent_RegisterCallback(nativeXComponent, &callback);
 +
@@ -1835,10 +1879,10 @@ index 000000000..e99c404e4
 +#endif
 diff --git a/src/core/ohos/SDL_ohos.h b/src/core/ohos/SDL_ohos.h
 new file mode 100644
-index 000000000..39f3d303a
+index 000000000..a2b154154
 --- /dev/null
 +++ b/src/core/ohos/SDL_ohos.h
-@@ -0,0 +1,73 @@
+@@ -0,0 +1,82 @@
 +/*
 +  Simple DirectMedia Layer
 +  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
@@ -1895,6 +1939,8 @@ index 000000000..39f3d303a
 +size_t OHOS_FileRead(void *userdata, void *buffer, size_t size, SDL_IOStatus *status);
 +size_t OHOS_FileWrite(void *userdata, const void *buffer, size_t size, SDL_IOStatus *status);
 +bool OHOS_FileClose(void *userdata);
++int OHOS_TS_OpenFileDescriptor(const char *uri, const char *mode);
++const char *OHOS_TS_GetInternalStoragePath(void);
 +
 +// Clipboard support
 +void OHOS_SetClipboardText(const char *text);
@@ -1908,6 +1954,13 @@ index 000000000..39f3d303a
 +int OHOS_GetBatteryPercent();
 +//TODO int OHOS_GetPowerInfo(int *plugged, int *charged, int *battery, int *seconds, int *percent);
 +
++// Mouse
++bool OHOS_TS_SupportsRelativeMouse(void);
++bool OHOS_TS_SetRelativeMouseEnabled(bool enabled);
++bool OHOS_TS_SetCustomCursor(int cursor);
++void OHOS_TS_DestroyCustomCursor(int cursor);
++
++// Screen keyboard
 +void OHOS_TS_HideScreenKeyboard();
 +void OHOS_TS_ShowScreenKeyboard(int input_type, SDL_Rect *rect);
 +
@@ -2226,7 +2279,7 @@ index 000000000..8da649b1b
 +
 +#endif // SDL_FILESYSTEM_OHOS
 diff --git a/src/io/SDL_iostream.c b/src/io/SDL_iostream.c
-index 896da57ce..455e6321b 100644
+index 896da57ce..081ada620 100644
 --- a/src/io/SDL_iostream.c
 +++ b/src/io/SDL_iostream.c
 @@ -62,6 +62,11 @@ struct SDL_IOStream
@@ -2241,7 +2294,7 @@ index 896da57ce..455e6321b 100644
  #if defined(SDL_PLATFORM_WINDOWS)
  
  typedef struct IOStreamWindowsData
-@@ -963,6 +968,85 @@ SDL_IOStream *SDL_IOFromFile(const char *file, const char *mode)
+@@ -963,6 +968,78 @@ SDL_IOStream *SDL_IOFromFile(const char *file, const char *mode)
          }
      }
  
@@ -2259,10 +2312,8 @@ index 896da57ce..455e6321b 100644
 +            return SDL_IOFromFP(fp, true);
 +        }
 +    } else if (SDL_strncmp(file, "content://", 10) == 0) {
-+    #if 0
-+    // TODO
 +        // Try opening content:// URI
-+        int fd = Android_JNI_OpenFileDescriptor(file, mode);
++        int fd = OHOS_TS_OpenFileDescriptor(file, mode);
 +        if (fd == -1) {
 +            // SDL error is already set.
 +            return NULL;
@@ -2275,14 +2326,10 @@ index 896da57ce..455e6321b 100644
 +            return NULL;
 +        }
 +        return SDL_IOFromFP(fp, true);
-+#endif
-+        return NULL;
 +    } else {
-+    #if 0
-+    // TODO
 +        // Try opening it from internal storage if it's a relative path
 +        char *path = NULL;
-+        SDL_asprintf(&path, "%s/%s", SDL_GetAndroidInternalStoragePath(), file);
++        SDL_asprintf(&path, "%s/%s", OHOS_TS_GetInternalStoragePath(), file);
 +        if (path) {
 +            FILE *fp = fopen(path, mode);
 +            SDL_free(path);
@@ -2295,7 +2342,6 @@ index 896da57ce..455e6321b 100644
 +                return SDL_IOFromFP(fp, true);
 +            }
 +        }
-+    #endif
 +    }
 +#endif // HAVE_STDIO_H
 +
@@ -2439,10 +2485,21 @@ index 000000000..1a995de3e
 +#endif // SDL_POWER_OHOS
 +#endif // SDL_POWER_DISABLED
 diff --git a/src/render/SDL_render.c b/src/render/SDL_render.c
-index c33a23209..e051fc91b 100644
+index c33a23209..d846bbf06 100644
 --- a/src/render/SDL_render.c
 +++ b/src/render/SDL_render.c
-@@ -1073,6 +1073,11 @@ SDL_Renderer *SDL_CreateRendererWithProperties(SDL_PropertiesID props)
+@@ -34,6 +34,10 @@
+ #include "../video/android/SDL_androidevents.h"
+ #endif
+ 
++#ifdef SDL_PLATFORM_OHOS
++#include "../core/ohos/SDL_ohos.h"
++#endif
++
+ /* as a courtesy to iOS apps, we don't try to draw when in the background, as
+ that will crash the app. However, these apps _should_ have used
+ SDL_AddEventWatch to catch SDL_EVENT_WILL_ENTER_BACKGROUND events and stopped
+@@ -1073,6 +1077,11 @@ SDL_Renderer *SDL_CreateRendererWithProperties(SDL_PropertiesID props)
          return NULL;
      }
  #endif
@@ -6813,33 +6870,158 @@ index 000000000..835394701
 \ No newline at end of file
 diff --git a/src/video/ohos/SDL_ohosmouse.c b/src/video/ohos/SDL_ohosmouse.c
 new file mode 100644
-index 000000000..db215839f
+index 000000000..ebd74cf72
 --- /dev/null
 +++ b/src/video/ohos/SDL_ohosmouse.c
-@@ -0,0 +1,38 @@
+@@ -0,0 +1,162 @@
 +#include "SDL_internal.h"
 +
 +#ifdef SDL_VIDEO_DRIVER_OHOS
 +
-+#include "events/SDL_mouse_c.h"
 +#include "SDL_ohosmouse.h"
++#include "../../events/SDL_mouse_c.h"
++#include "../../core/ohos/SDL_ohos.h"
++
++struct SDL_CursorData
++{
++    int custom_cursor;
++    int system_cursor;
++};
++
++// Last known OHOS mouse button state (includes all buttons)
++static int last_state;
++
++// Blank cursor
++static SDL_Cursor *empty_cursor;
++
++static SDL_Cursor *OHOS_WrapCursor(int custom_cursor, int system_cursor)
++{
++    SDL_Cursor *cursor = SDL_calloc(1, sizeof(*cursor));
++    if (cursor) {
++        SDL_CursorData *data = (SDL_CursorData *)SDL_calloc(1, sizeof(*data));
++        if (data) {
++            data->custom_cursor = custom_cursor;
++            data->system_cursor = system_cursor;
++            cursor->internal = data;
++        } else {
++            SDL_free(cursor);
++            cursor = NULL;
++        }
++    }
++
++    return cursor;
++}
++
++static SDL_Cursor *OHOS_CreateDefaultCursor(void)
++{
++    SDL_SystemCursor id = SDL_GetDefaultSystemCursor();
++    return OHOS_WrapCursor(0, id);
++}
++
++static SDL_Cursor *OHOS_CreateCursor(SDL_Surface *surface, int hot_x, int hot_y)
++{
++    int custom_cursor;
++    SDL_Surface *converted;
++
++    converted = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_ARGB8888);
++    if (!converted) {
++        return NULL;
++    }
++    custom_cursor = 0; //TODO Android_JNI_CreateCustomCursor(converted, hot_x, hot_y);
++    SDL_DestroySurface(converted);
++    if (!custom_cursor) {
++        SDL_Unsupported();
++        return NULL;
++    }
++    return OHOS_WrapCursor(custom_cursor, 0);
++}
++
++static SDL_Cursor *OHOS_CreateSystemCursor(SDL_SystemCursor id)
++{
++    return OHOS_WrapCursor(0, id);
++}
++
++static void OHOS_FreeCursor(SDL_Cursor *cursor)
++{
++    SDL_CursorData *data = cursor->internal;
++    if (data->custom_cursor != 0) {
++        OHOS_TS_DestroyCustomCursor(data->custom_cursor);
++    }
++    SDL_free(cursor->internal);
++    SDL_free(cursor);
++}
++
++static SDL_Cursor *OHOS_CreateEmptyCursor(void)
++{
++    if (!empty_cursor) {
++        SDL_Surface *empty_surface = SDL_CreateSurface(1, 1, SDL_PIXELFORMAT_ARGB8888);
++        if (empty_surface) {
++            SDL_memset(empty_surface->pixels, 0, (size_t)empty_surface->h * empty_surface->pitch);
++            empty_cursor = OHOS_CreateCursor(empty_surface, 0, 0);
++            SDL_DestroySurface(empty_surface);
++        }
++    }
++    return empty_cursor;
++}
++
++static void OHOS_DestroyEmptyCursor(void)
++{
++    if (empty_cursor) {
++        OHOS_FreeCursor(empty_cursor);
++        empty_cursor = NULL;
++    }
++}
++
++static bool OHOS_ShowCursor(SDL_Cursor *cursor)
++{
++    if (!cursor) {
++        cursor = OHOS_CreateEmptyCursor();
++    }
++    if (cursor) {
++        SDL_CursorData *data = cursor->internal;
++        if (data->custom_cursor) {
++            if (!OHOS_TS_SetCustomCursor(data->custom_cursor)) {
++                return SDL_Unsupported();
++            }
++        } else {
++            if (!OHOS_TS_SetCustomCursor(data->system_cursor)) {
++                return SDL_Unsupported();
++            }
++        }
++        return true;
++    } else {
++        // SDL error set inside OHOS_CreateEmptyCursor()
++        return false;
++    }
++}
++
++static bool OHOS_SetRelativeMouseMode(bool enabled)
++{
++    if (!OHOS_TS_SupportsRelativeMouse()) {
++        return SDL_Unsupported();
++    }
++
++    if (!OHOS_TS_SetRelativeMouseEnabled(enabled)) {
++        return SDL_Unsupported();
++    }
++
++    return true;
++}
 +
 +void OHOS_InitMouse(void)
 +{
 +    SDL_Mouse *mouse = SDL_GetMouse();
-+#if 0
-+// TODO
-+    mouse->CreateCursor = Android_CreateCursor;
-+    mouse->CreateSystemCursor = Android_CreateSystemCursor;
-+    mouse->ShowCursor = Android_ShowCursor;
-+    mouse->FreeCursor = Android_FreeCursor;
-+    mouse->SetRelativeMouseMode = Android_SetRelativeMouseMode;
++    mouse->CreateCursor = OHOS_CreateCursor;
++    mouse->CreateSystemCursor = OHOS_CreateSystemCursor;
++    mouse->ShowCursor = OHOS_ShowCursor;
++    mouse->FreeCursor = OHOS_FreeCursor;
++    mouse->SetRelativeMouseMode = OHOS_SetRelativeMouseMode;
 +
-+    SDL_SetDefaultCursor(Android_CreateDefaultCursor());
++    SDL_SetDefaultCursor(OHOS_CreateDefaultCursor());
 +
 +    last_state = 0;
-+#endif
 +}
++
 +void OHOS_OnMouse(SDL_OHOSMouseEvent event)
 +{
 +    SDL_SendMouseMotion(event.timestamp, NULL, SDL_DEFAULT_MOUSE_ID, false, event.x, event.y);
@@ -6850,9 +7032,8 @@ index 000000000..db215839f
 +
 +void OHOS_QuitMouse(void)
 +{
-+	// TODO
++	OHOS_DestroyEmptyCursor();
 +}
-+
 +
 +#endif // SDL_VIDEO_DRIVER_OHOS
 diff --git a/src/video/ohos/SDL_ohosmouse.h b/src/video/ohos/SDL_ohosmouse.h
@@ -6880,52 +7061,67 @@ index 000000000..f7dfee41f
 +#endif
 diff --git a/src/video/ohos/SDL_ohostouch.c b/src/video/ohos/SDL_ohostouch.c
 new file mode 100644
-index 000000000..a7f16bfed
+index 000000000..efeab4bbc
 --- /dev/null
 +++ b/src/video/ohos/SDL_ohostouch.c
-@@ -0,0 +1,34 @@
+@@ -0,0 +1,48 @@
 +#include "SDL_ohostouch.h"
++
++#ifdef SDL_PLATFORM_OHOS
++
 +#include "../../events/SDL_touch_c.h"
 +#include "SDL_internal.h"
 +
-+void OHOS_OnTouch(SDL_OHOSTouchEvent event)
++void OHOS_InitTouch(void)
++{
++	// TODO
++}
++
++void OHOS_OnTouch(SDL_OHOSTouchEvent event, SDL_Window* window)
 +{
 +    if (SDL_AddTouch(event.deviceId, SDL_TOUCH_DEVICE_DIRECT, "") < 0) {
-+        SDL_Log("Cannot add touch");
++        SDL_Log(0, "OHOS_OnTouch: cannot add touch");
 +        return;
 +    }
 +
 +    switch (event.type) {
 +    case SDL_EVENT_FINGER_DOWN:
 +    {
-+        SDL_SendTouch(event.timestamp, event.deviceId, event.fingerId, NULL, SDL_EVENT_FINGER_DOWN, event.x, event.y, event.p);
++        SDL_SendTouch(event.timestamp, event.deviceId, event.fingerId, window, SDL_EVENT_FINGER_DOWN, event.x, event.y, event.p);
 +        break;
 +    }
 +    case SDL_EVENT_FINGER_MOTION:
 +    {
-+        SDL_SendTouchMotion(event.timestamp, event.deviceId, event.fingerId, NULL, event.x, event.y, event.p);
++        SDL_SendTouchMotion(event.timestamp, event.deviceId, event.fingerId, window, event.x, event.y, event.p);
 +        break;
 +    }
 +    case SDL_EVENT_FINGER_UP:
 +    {
-+        SDL_SendTouch(event.timestamp, event.deviceId, event.fingerId, NULL, SDL_EVENT_FINGER_UP, event.x, event.y, event.p);
++        SDL_SendTouch(event.timestamp, event.deviceId, event.fingerId, window, SDL_EVENT_FINGER_UP, event.x, event.y, event.p);
 +        break;
 +    }
 +    case SDL_EVENT_FINGER_CANCELED:
 +    {
-+        SDL_SendTouch(event.timestamp, event.deviceId, event.fingerId, NULL, SDL_EVENT_FINGER_CANCELED, event.x, event.y, event.p);
++        SDL_SendTouch(event.timestamp, event.deviceId, event.fingerId, window, SDL_EVENT_FINGER_CANCELED, event.x, event.y, event.p);
 +        break;
 +    }
 +    }
 +}
++
++void OHOS_QuitTouch() {
++	// todo
++}
++
++#endif /* SDL_PLATFORM_OHOS */
 diff --git a/src/video/ohos/SDL_ohostouch.h b/src/video/ohos/SDL_ohostouch.h
 new file mode 100644
-index 000000000..de33e4531
+index 000000000..a9b84790d
 --- /dev/null
 +++ b/src/video/ohos/SDL_ohostouch.h
-@@ -0,0 +1,17 @@
-+#ifndef SDL_OHOSTOUCH_H
-+#define SDL_OHOSTOUCH_H
+@@ -0,0 +1,20 @@
++#include "SDL_internal.h"
++
++#ifdef SDL_PLATFORM_OHOS
 +
 +typedef struct SDL_OHOSTouchEvent {
 +    long long deviceId;
@@ -6938,15 +7134,17 @@ index 000000000..de33e4531
 +    long long timestamp;
 +} SDL_OHOSTouchEvent;
 +
-+void OHOS_OnTouch(SDL_OHOSTouchEvent event);
++void OHOS_InitTouch(void);
++void OHOS_OnTouch(SDL_OHOSTouchEvent event, SDL_Window* window);
++void OHOS_QuitTouch(void);
 +
-+#endif
++#endif /* SDL_PLATFORM_OHOS */
 diff --git a/src/video/ohos/SDL_ohosvideo.c b/src/video/ohos/SDL_ohosvideo.c
 new file mode 100644
-index 000000000..ec025fded
+index 000000000..1b9170e0b
 --- /dev/null
 +++ b/src/video/ohos/SDL_ohosvideo.c
-@@ -0,0 +1,356 @@
+@@ -0,0 +1,359 @@
 +#include "SDL_internal.h"
 +
 +#ifdef SDL_VIDEO_DRIVER_OHOS
@@ -6964,6 +7162,7 @@ index 000000000..ec025fded
 +#include "SDL_ohoswindow.h"
 +#include "SDL_ohoskeyboard.h"
 +#include "SDL_ohosmouse.h"
++#include "SDL_ohostouch.h"
 +
 +#define OHOS_VID_DRIVER_NAME "ohos"
 +
@@ -7168,14 +7367,16 @@ index 000000000..ec025fded
 +    display->current_orientation = OHOS_CurrentOrientation;
 +    display->content_scale = OHOS_ScreenDensity;
 +
++    OHOS_InitTouch();
++	OHOS_InitMouse();
++
 +    return true;
 +}
 +
 +static void OHOS_VideoQuit(SDL_VideoDevice *_this)
 +{
 +  	OHOS_QuitMouse();
-+	// TODO
-+    //Android_QuitTouch();
++    OHOS_QuitTouch();
 +}
 +
 +static void OHOS_DeviceFree(SDL_VideoDevice *device)
@@ -7306,10 +7507,10 @@ index 000000000..ec025fded
 \ No newline at end of file
 diff --git a/src/video/ohos/SDL_ohosvideo.h b/src/video/ohos/SDL_ohosvideo.h
 new file mode 100644
-index 000000000..6b9df2a1c
+index 000000000..1cee8342f
 --- /dev/null
 +++ b/src/video/ohos/SDL_ohosvideo.h
-@@ -0,0 +1,33 @@
+@@ -0,0 +1,29 @@
 +#include "SDL_internal.h"
 +
 +#ifndef SDL_ohosvideo_h
@@ -7322,10 +7523,6 @@ index 000000000..6b9df2a1c
 +	SDL_DisplayOrientation naturalOrientation, SDL_DisplayOrientation currentOrientation, const SDL_Rect* safeAreaInsets, SDL_PixelFormat pixelFormat);
 +extern void OHOS_SetSurfaceInfo(int surfaceWidth, int surfaceHeight);
 +extern void OHOS_SetDarkMode(bool enabled);
-+/*
-+TODO
-+extern void OHOS_SendResize(SDL_Window *window);
-+*/
 +
 +// Private display data
 +struct SDL_VideoData {

@@ -26,7 +26,7 @@ const UITextDesc textDescs[] {
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "bigFont",
 	    .stringId = (StringId)GameStringId::graphicsSettings,
-	    .textStyle=titleTextStyle,
+	    .textStyle = titleTextStyle,
 	},
 	{
 
@@ -40,7 +40,7 @@ const UITextDesc textDescs[] {
 	{
 	    .pos = { 0, 0, 0, 0 },
 	    .size = UIAutoSize,
-	    .horizontalAlignment=UIHorizAlignment::center,
+	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
 	    .stringId = (StringId)GameStringId::back,
@@ -72,8 +72,9 @@ void GraphicsSettingsScreen::BuildUI(UICanvas& canvas) {
 	//	RefreshLanguageButton();
 }
 
-GameScreenId GraphicsSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
+ScreenTransition GraphicsSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
 	if (mFilterButton.IsPressed(input)) {
+		// TODO
 	}
 
 #if defined(__ANDROID__) || defined(__OHOS__)
@@ -82,19 +83,19 @@ GameScreenId GraphicsSettingsScreen::Tick([[maybe_unused]] float dt, const Wind:
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
 	    mBackButton.IsPressed(input)) {
-		return ScreenId::settings;
+		return { ScreenOp::replace, GameScreenIds::settings };
 	}
-	return ScreenId::graphicsSettings;
+	return { ScreenOp::keep };
 }
 
-void GraphicsSettingsScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
+void GraphicsSettingsScreen::Draw([[maybe_unused]] ScreenId topScreen) const {
 }
 
-void GraphicsSettingsScreen::Enter([[maybe_unused]] GameScreenId prevScreen, const void* payload) {
+void GraphicsSettingsScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
 	mPanel.SetVisible(true);
 }
 
-void GraphicsSettingsScreen::Exit(GameScreenId newScreen) {
+void GraphicsSettingsScreen::Exit() {
 	mPanel.SetVisible(false);
 }
 

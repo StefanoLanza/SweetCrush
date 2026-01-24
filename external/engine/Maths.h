@@ -71,6 +71,14 @@ float LerpEase(float a, float b, float t, Curve&& curve) {
 	return a + (b - a) * curve(t);
 }
 
+inline float Interpolate(float p0, float p1, float p2, float t) {
+	// Simplified Lagrange coefficients
+	float a = 2.0f * p0 - 4.0f * p1 + 2.0f * p2;
+	float b = -3.0f * p0 + 4.0f * p1 - p2;
+	float c = p0;
+	return (a * t * t) + (b * t) + c;
+}
+
 constexpr float pi = 3.14159265359f;
 constexpr float half_pi = pi * 0.5f;
 constexpr float two_pi = pi * 2.f;

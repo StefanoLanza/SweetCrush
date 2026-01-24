@@ -37,8 +37,9 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
     , mFrameBuffer { RefWindowWidth, RefWindowHeight, FBOFlags::color }
     , mUIRenderer { engine.GetGraphics() }
     , mMatchStats {}
-    , mScreenId { ScreenId::mainMenu } {
-	// Note: match order of ScreenId
+    , mScreenStack { GameScreenIds::mainMenu, GameScreenIds::mainMenu }
+    , mScreenStackSize { 1 } {
+	// Note: match order of GameScreenId
 	mScreens[0] = std::make_unique<MainScreen>(mEngine, gameRenderer);
 	mScreens[1] = std::make_unique<CreditsScreen>(mEngine);
 	mScreens[2] = std::make_unique<SettingsScreen>(mEngine, mGameSettings);
@@ -74,7 +75,7 @@ void Game::Run() {
 	}
 	mCanvas.LoadGraphics(mEngine.GetGraphics());
 
-	mScreens[0]->Enter(ScreenId::empty, nullptr);
+	mScreens[0]->Enter(GameScreenIds::mainMenu, nullptr);
 	mEngine.Start([this](float dt) { Draw(dt); }, [this](float dt) { Tick(dt); });
 }
 
@@ -85,8 +86,9 @@ void Game::Draw(float dt) {
 
 	graphics.SetFrameBuffer(mFrameBuffer);
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, mUIRenderer, textRenderer, input.GetMappedMouseCoord());
-	for (const auto& screen : mScreens) {
-		screen->Draw(mScreenId);
+
+	for (size_t i = 0; i < mScreenStackSize; ++i) {
+		mScreens[mScreenStack[i].Get()]->Draw(mScreenStack[mScreenStackSize - 1]);
 	}
 	mRenderActionMgr.RunActions(dt);
 
@@ -105,12 +107,30 @@ void Game::Tick(float dt) {
 		return;
 	}
 
-	GameScreen&        currScreen = *mScreens[(int)mScreenId];
-	char               payload[64];
-	const GameScreenId nextScreen = currScreen.Tick(dt, input); // TODO pass payload
-	if (nextScreen != mScreenId) {
-		currScreen.Exit(nextScreen);
-		mScreens[(int)nextScreen]->Enter(mScreenId, payload);
-		mScreenId = nextScreen;
-	}
+	const ScreenId         topScreenId = mScreenStack[mScreenStackSize - 1];
+	GameScreen&            topScreen = *mScreens[topScreenId.Get()];
+	const ScreenTransition transition = topScreen.Tick(dt, input);
+	switch (transition.mOp) {
+	case ScreenOp::keep:
+		break;
+	case ScreenOp::pop:
+		assert(mScreenStackSize == 2);
+		topScreen.Exit();
+		mScreenStackSize--;
+		break;
+	case ScreenOp::replace:
+		for (size_t i = 0; i < mScreenStackSize; ++i) {
+			mScreens[mScreenStack[i].Get()]->Exit();
+		}
+		mScreens[transition.mNext.Get()]->Enter(topScreenId, transition.mPayload);
+		mScreenStack[0] = transition.mNext;
+		mScreenStackSize = 1;
+		break;
+	case ScreenOp::push:
+		assert(mScreenStackSize == 1);
+		mScreens[transition.mNext.Get()]->Enter(topScreenId, transition.mPayload);
+		mScreenStack[1] = transition.mNext;
+		mScreenStackSize++;
+		break;
+	};
 }

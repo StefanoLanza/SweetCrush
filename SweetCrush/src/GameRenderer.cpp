@@ -34,24 +34,33 @@ public:
 			mTileProgram.mValid = (mTileProgram.mCoords != -1 && mTileProgram.mTexture != -1);
 		}
 
-		mPieceProgram.mProgramHandle = graphics.NewProgram(SHADERS_FOLDER "piece.vs", SHADERS_FOLDER "piece.fs");
-		if (mPieceProgram.mProgramHandle != nullProgram) {
-			const GlProgram& program = graphics.GetProgram(mPieceProgram.mProgramHandle);
-			mPieceProgram.mTransform = program.GetUniformLocation("transform");
-			mPieceProgram.mTileSize = program.GetUniformLocation("tileSize");
-			mPieceProgram.mColor = program.GetUniformLocation("pieceColor");
-			mPieceProgram.mTexture = program.GetUniformLocation("colorTexture");
-			mPieceProgram.mValid = (mPieceProgram.mTransform != -1 && mPieceProgram.mTileSize != -1 && mPieceProgram.mTexture != -1);
+		mIconProgram.mProgramHandle = graphics.NewProgram(SHADERS_FOLDER "piece.vs", SHADERS_FOLDER "piece.fs");
+		if (mIconProgram.mProgramHandle != nullProgram) {
+			const GlProgram& program = graphics.GetProgram(mIconProgram.mProgramHandle);
+			mIconProgram.mTransform = program.GetUniformLocation("transform");
+			mIconProgram.mTileSize = program.GetUniformLocation("tileSize");
+			mIconProgram.mColor = program.GetUniformLocation("pieceColor");
+			mIconProgram.mTexture = program.GetUniformLocation("colorTexture");
+			mIconProgram.mValid = (mIconProgram.mTransform != -1 && mIconProgram.mTileSize != -1 && mIconProgram.mTexture != -1);
 		}
 
 		mTrailProgram.mProgramHandle = graphics.NewProgram(SHADERS_FOLDER "trail.vs", SHADERS_FOLDER "trail.fs");
 		if (mTrailProgram.mProgramHandle != nullProgram) {
 			const GlProgram& program = graphics.GetProgram(mTrailProgram.mProgramHandle);
 			mTrailProgram.mCoords = program.GetUniformLocation("coords");
-			mTrailProgram.mPerp = program.GetUniformLocation("perp");
+			mTrailProgram.mWidth = program.GetUniformLocation("width");
 			mTrailProgram.mColor = program.GetUniformLocation("color");
 			mTrailProgram.mTexture = program.GetUniformLocation("inputTexture");
 			mTrailProgram.mValid = (mTrailProgram.mCoords != -1 && mTrailProgram.mTexture != -1);
+		}
+
+		mBlastProgram.mProgramHandle = graphics.NewProgram(SHADERS_FOLDER "blast.vs", SHADERS_FOLDER "blast.fs");
+		if (mBlastProgram.mProgramHandle != nullProgram) {
+			const GlProgram& program = graphics.GetProgram(mBlastProgram.mProgramHandle);
+			mBlastProgram.mCoords = program.GetUniformLocation("coords");
+			mBlastProgram.mColor = program.GetUniformLocation("color");
+			mBlastProgram.mTexture = program.GetUniformLocation("inputTexture");
+			mBlastProgram.mValid = (mBlastProgram.mCoords != -1 && mBlastProgram.mTexture != -1);
 		}
 
 		for (int i = 0; i < NumGameTextures; ++i) {
@@ -105,7 +114,7 @@ public:
 	}
 
 	void DrawPieces(const Board& board, const AppConfig& gameConfig, float time) const {
-		if (! mPieceProgram.mValid) {
+		if (! mIconProgram.mValid) {
 			return;
 		}
 		const float dynScale = 1.15f + 0.15f * std::sin(time * 8.f);
@@ -114,9 +123,9 @@ public:
 		mGraphics.SetPipeline(mPipelineBlending);
 
 		const int uniforms[] = {
-			mPieceProgram.mTransform,
-			mPieceProgram.mTileSize,
-			mPieceProgram.mColor,
+			mIconProgram.mTransform,
+			mIconProgram.mTileSize,
+			mIconProgram.mColor,
 		};
 
 		for (const Cell& cell : board.GetCells()) {
@@ -145,7 +154,7 @@ public:
 			const unsigned textureIds[] = { gameTextures[visual->bitmapIdx]->GetTextureId(), 0 };
 
 			DrawCall drawCall;
-			drawCall.program = mPieceProgram.mProgramHandle;
+			drawCall.program = mIconProgram.mProgramHandle;
 			drawCall.mesh = quadMesh;
 			drawCall.drawOrder = static_cast<DrawOrder>(GameDrawOrder::boardPiece);
 			drawCall.sortKey = textureIds[0]; // sort by main texture
@@ -163,49 +172,69 @@ public:
 		}
 	}
 
-	void DrawTrail(Vec2 start, Vec2 end, float w) const {
+	void DrawTrail(Vec2 start, Vec2 end, float w, const Color& color) const {
 		if (! mTrailProgram.mValid) {
 			return;
 		}
 
-		Vec2 dir = Normalize(end - start);
-		Vec2 perp = Ortho(dir) * w;
+		mGraphics.SetPipeline(mPipelineAdditive);
+
+		const Texture& texture = *gameTextures[glowSprite];
+		const int      uniforms[] = { mTrailProgram.mCoords, mTrailProgram.mWidth, mTrailProgram.mColor };
+		unsigned       textureIds[] = { texture.GetTextureId() };
+		const float    uniformData[] = {
+            start.x, start.y, end.x, end.y, w, 0.f, 0.f, 0.f, color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f,
+		};
+		const DrawCall drawCall {
+			.uniforms = uniforms,
+			.uniformData = uniformData,
+			.numUniforms = std::size(uniforms),
+			.textures = textureIds,
+			.numTextures = 1,
+			.program = mTrailProgram.mProgramHandle,
+			.mesh = quadMesh,
+			.drawOrder = static_cast<DrawOrder>(GameDrawOrder::overlays),
+		};
+		mGraphics.Draw(drawCall);
+	}
+
+	void DrawBlast(Vec2 center, float radius, float width, const Color& color) const {
+		if (! mBlastProgram.mValid) {
+			return;
+		}
 
 		mGraphics.SetPipeline(mPipelineAdditive);
 
 		const Texture& texture = *gameTextures[glowSprite];
-		const int      uniforms[] = { mTrailProgram.mCoords, mTrailProgram.mPerp, mTrailProgram.mColor };
+		const int      uniforms[] = { mBlastProgram.mCoords, mBlastProgram.mColor };
 		unsigned       textureIds[] = { texture.GetTextureId() };
 		const float    uniformData[] = {
-            start.x, start.y, end.x, end.y, //
-            perp.x,  perp.y,  0.f,   0.f,   //
-            1.f,     1.f,     1.f,   1.f,   // TODO Remove color ?
+            center.x,        center.y,        radius,          width, //
+            color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f,
 		};
-
-		DrawCall drawCall;
-		drawCall.program = mTrailProgram.mProgramHandle;
-		drawCall.mesh = quadMesh;
-		drawCall.drawOrder = static_cast<DrawOrder>(GameDrawOrder::overlays);
-		drawCall.textures = textureIds;
-		drawCall.numTextures = 1;
-		drawCall.uniforms = uniforms;
-		drawCall.uniformData = uniformData;
-		drawCall.numUniforms = sizeof(uniformData) / 16;
+		const DrawCall drawCall {
+			.uniforms = uniforms,
+			.uniformData = uniformData,
+			.numUniforms = std::size(uniforms),
+			.textures = textureIds,
+			.numTextures = 1,
+			.program = mBlastProgram.mProgramHandle,
+			.mesh = quadMesh,
+			.drawOrder = static_cast<DrawOrder>(GameDrawOrder::overlays),
+		};
 		mGraphics.Draw(drawCall);
 	}
 
-	void DrawBlast(Vec2 center, float radius) const {}
-
 	void DrawIcon(Vec2 coords, uint32_t iconIdx, float rotation, const Color& color, unsigned drawOrder) const {
-		if (! mPieceProgram.mValid) {
+		if (! mIconProgram.mValid) {
 			return;
 		}
 		mGraphics.SetPipeline(mPipelineBlending);
 
 		const int uniforms[] = {
-			mPieceProgram.mTransform,
-			mPieceProgram.mTileSize,
-			mPieceProgram.mColor,
+			mIconProgram.mTransform,
+			mIconProgram.mTileSize,
+			mIconProgram.mColor,
 		};
 
 		const TexturePtr& texture = gameTextures[iconIdx];
@@ -223,17 +252,17 @@ public:
 			                             color.b / 255.f,
 			                             color.a / 255.f };
 		const unsigned textureIds[] = { texture->GetTextureId(), 0 };
-
-		DrawCall drawCall;
-		drawCall.program = mPieceProgram.mProgramHandle;
-		drawCall.mesh = quadMesh;
-		drawCall.drawOrder = drawOrder;
-		drawCall.sortKey = textureIds[0]; // sort by main texture
-		drawCall.textures = textureIds;
-		drawCall.numTextures = 1;
-		drawCall.uniforms = uniforms;
-		drawCall.uniformData = uniformData;
-		drawCall.numUniforms = std::size(uniforms);
+		const DrawCall drawCall {
+			.uniforms = uniforms,
+			.uniformData = uniformData,
+			.numUniforms = std::size(uniforms),
+			.textures = textureIds,
+			.numTextures = 1,
+			.program = mIconProgram.mProgramHandle,
+			.mesh = quadMesh,
+			.drawOrder = drawOrder,
+			.sortKey = textureIds[0], // sort by main texture
+		};
 		mGraphics.Draw(drawCall);
 	}
 
@@ -259,7 +288,15 @@ private:
 	struct TrailProgram {
 		ProgramHandle mProgramHandle = nullProgram;
 		GLint         mCoords = 0;
-		GLint         mPerp = 0;
+		GLint         mWidth = 0;
+		GLint         mTexture = 0;
+		GLint         mColor = 0;
+		bool          mValid = false;
+	};
+
+	struct BlastProgram {
+		ProgramHandle mProgramHandle = nullProgram;
+		GLint         mCoords = 0;
 		GLint         mTexture = 0;
 		GLint         mColor = 0;
 		bool          mValid = false;
@@ -269,8 +306,9 @@ private:
 	PipelineHandle mPipelineBlending;
 	PipelineHandle mPipelineAdditive;
 	TileProgram    mTileProgram;
-	PieceProgram   mPieceProgram;
+	PieceProgram   mIconProgram;
 	TrailProgram   mTrailProgram;
+	BlastProgram   mBlastProgram;
 };
 
 GameRenderer::GameRenderer(Engine& engine)
@@ -289,13 +327,12 @@ void GameRenderer::DrawBoard(const Board& board, int selectedCell, const AppConf
 	}
 }
 
-void GameRenderer::DrawLaser(Vec2 start, Vec2 end, float w) const {
-	mPimpl->DrawTrail(start, end, w);
+void GameRenderer::DrawLaser(Vec2 start, Vec2 end, float w, const Color& color) const {
+	mPimpl->DrawTrail(start, end, w, color);
 }
 
-void GameRenderer::DrawBlast(Vec2 center, float radius) const
-{
-	mPimpl->DrawBlast(center, radius);
+void GameRenderer::DrawBlast(Vec2 center, float radius, float width, const Color& color) const {
+	mPimpl->DrawBlast(center, radius, width, color);
 }
 
 void GameRenderer::DrawIcon(uint32_t iconIdx, Vec2 coords, float rotation, const Color& color, unsigned drawOrder) const {

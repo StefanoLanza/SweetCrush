@@ -10,7 +10,6 @@ struct ActionMgr::Action {
 	float       duration;
 	float       delay;
 	float       t;
-	ActionFlags flags;
 };
 
 ActionMgr::ActionMgr()
@@ -19,22 +18,19 @@ ActionMgr::ActionMgr()
 
 ActionMgr::~ActionMgr() = default;
 
-ActionId ActionMgr::AddAction(ActionFunc&& func, float delay, ActionFlags flags) {
-	return AddTimedAction(std::move(func), std::numeric_limits<float>::max(), delay, flags);
+ActionId ActionMgr::AddAction(ActionFunc&& func, float delay) {
+	return AddTimedAction(std::move(func), std::numeric_limits<float>::max(), delay);
 }
 
-ActionId ActionMgr::AddTimedAction(ActionFunc&& func, float duration, float delay, ActionFlags flags) {
+ActionId ActionMgr::AddTimedAction(ActionFunc&& func, float duration, float delay) {
 	assert(duration >= 0.f);
 	mActions.push_back({
 	    std::move(func),
 	    duration,
 	    delay,
 	    0.f,
-	    flags,
 	});
-	if (flags & ActionFlags::blocking) {
-		++mNumBlocking;
-	}
+	++mNumBlocking;
 	return static_cast<ActionId>(mActions.size());
 }
 
@@ -50,7 +46,7 @@ void ActionMgr::RunActions(float dt) {
             if (t01 >= 1.f) {
                 res = true;
             }
-            if (res && (action.flags & ActionFlags::blocking)) {
+            if (res) {
                 assert(numBlocking > 0);
                 --numBlocking;
             }

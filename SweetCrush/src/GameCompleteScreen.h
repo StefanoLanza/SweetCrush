@@ -13,10 +13,10 @@ public:
 	const char*        GetName() const override;
 	void               LoadAssets() override;
 	void               BuildUI(Wind::UICanvas& canvas) override;
-	Wind::GameScreenId Tick(float dt, const Wind::Input& input) override;
-	void               Draw(Wind::GameScreenId topScreen) const override;
-	void               Enter(Wind::GameScreenId prevScreen, const void* payload) override;
-	void               Exit(Wind::GameScreenId newScreen) override;
+	Wind::ScreenTransition Tick(float dt, const Wind::Input& input) override;
+	void               Draw(Wind::ScreenId topScreen) const override;
+	void               Enter(Wind::ScreenId prevScreen, const void* payload) override;
+	void               Exit() override;
 	void               ParseConfig(const char* varName, const char* varValue) override;
 
 public:

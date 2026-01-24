@@ -138,27 +138,19 @@ void PlayScreen::BuildUI(UICanvas& canvas) {
 	canvas.GetPanel().AddPanel(mPanel);
 }
 
-GameScreenId PlayScreen::Tick(float dt, const Input& input) {
-#if 0
-	if (mEffectInfoPanel.IsVisible()) {
-		if (mEffectInfoPanel.Wait(input)) {
-			return ScreenId::play;
-		}
-	}
-	else
-#endif
+ScreenTransition PlayScreen::Tick(float dt, const Input& input) {
 	{
 #if defined(__ANDROID__) || defined(__OHOS__)
 		if (input.GetKeyJustPressed(SDLK_AC_BACK)) {
 #elif defined(_WIN32) || defined(__linux__)
 		if (input.GetKeyJustPressed(SDLK_ESCAPE)) {
 #endif
-			return ScreenId::pauseGame;
+			return { ScreenOp::push, GameScreenIds::pauseGame };
 		}
 	}
 
 	if (mPauseButton.IsPressed(input)) {
-		return ScreenId::pauseGame;
+		return { ScreenOp::push, GameScreenIds::pauseGame };
 	}
 
 	if (mMatch3.IsWaitingForUser()) {
@@ -167,15 +159,15 @@ GameScreenId PlayScreen::Tick(float dt, const Input& input) {
 
 	if (mGameComplete) {
 		if (mRenderActionMgr.AnyRunning()) {
-			return ScreenId::play; // wait until all animations are over
+			return { ScreenOp::keep }; // wait until all animations are over
 		}
-		return ScreenId::gameComplete;
+		return { ScreenOp::replace, GameScreenIds::gameComplete };
 	}
 	else if (mLevelComplete) {
 		if (mRenderActionMgr.AnyRunning()) {
-			return ScreenId::play; // wait until all animations are over
+			return { ScreenOp::keep }; // wait until all animations are over
 		}
-		return ScreenId::levelComplete;
+		return { ScreenOp::replace, GameScreenIds::levelComplete };
 	}
 
 	if (mMatch3.IsWaitingForUser()) {
@@ -197,11 +189,11 @@ GameScreenId PlayScreen::Tick(float dt, const Input& input) {
 		}
 	}
 	else {
-		return ScreenId::gameOver;
+		return { ScreenOp::replace, GameScreenIds::gameOver };
 	}
 	mActionMgr.RunActions(dt);
 
-	return ScreenId::play;
+	return { ScreenOp::keep };
 }
 
 void PlayScreen::SelectBooster(const Input& input) {
@@ -239,41 +231,40 @@ void PlayScreen::SelectBooster(const Input& input) {
 	}
 }
 
-void PlayScreen::Draw(GameScreenId topScreen) const {
-	if (topScreen != ScreenId::play && topScreen != ScreenId::effectInfo) {
-		return;
-	}
+void PlayScreen::Draw(ScreenId topScreen) const {
 	mGameRenderer.DrawBoard(mBoard, mCellSelector->GetSelectedTile(), mGameConfig, mTime);
 	DrawUI();
 
-	mGameRenderer.DrawBlast({ 300.f, 300.f }, 128.f * (0.5f + 0.5f * sinf(mMatchTime * 5.0f)));
-	// FIXME
-	// mGameRenderer.DrawLaser({ 0.f, 300.f }, { mGameConfig.board.bottomRightCoord.x, 300.f }, 64, 0.5f + 0.5f * sinf(mMatchTime * 5.0f));
+	float t01 = (0.5f + 0.5f * sinf(mMatchTime * 5.0f));
+	Color c = whiteColor;
+	c.a = 255.f * t01;
+	//mGameRenderer.DrawBlast({ 300.f, 300.f }, 256.f * t01, 64, c);
+	//mGameRenderer.DrawLaser({ 0.f, 300.f }, { RefWindowWidth, 300.f }, 64);
 	// mGameRenderer.DrawLaser({ 100.f, 0.f }, { 100.f, mGameConfig.board.bottomRightCoord.y }, 64, 0.5f + 0.5f * sinf(mMatchTime * 5.0f));
 }
 
-void PlayScreen::Enter(GameScreenId prevScreen, const void* payload) {
+void PlayScreen::Enter(ScreenId prevScreen, const void* payload) {
 	bool restartLevel = false;
-	if (prevScreen == levelComplete) {
+	if (prevScreen == GameScreenIds::levelComplete) {
 		NextLevel();
 	}
-	else if (prevScreen == ScreenId::pauseGame) {
+	else if (prevScreen == GameScreenIds::pauseGame) {
 		// resume game
 		// TODO Receive restartLevel as generic arg of Enter
 		if (restartLevel) {
 			ReplayLevel();
 		}
 	}
-	else if (prevScreen == ScreenId::gameOver) {
+	else if (prevScreen == GameScreenIds::gameOver) {
 		ReplayLevel();
 	}
-	else if (prevScreen == ScreenId::effectInfo) {
+	else if (prevScreen == GameScreenIds::effectInfo) {
 		// continue playing
 	}
 	else {
 		NewGame();
 	}
-	if (prevScreen == ScreenId::pauseGame && ! restartLevel) {
+	if (prevScreen == GameScreenIds::pauseGame && ! restartLevel) {
 		ResumeMusic();
 	}
 	else {
@@ -283,9 +274,7 @@ void PlayScreen::Enter(GameScreenId prevScreen, const void* payload) {
 	mTime = 0.f;
 }
 
-void PlayScreen::Exit(GameScreenId newScreen) {
-	// TODO Only if newScreen != effectsInfo
-
+void PlayScreen::Exit() {
 	mRenderActionMgr.Clear(); // stop showing score and other effects
 	mPanel.SetVisible(false);
 	PauseMusic();
@@ -440,8 +429,11 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 			mRenderActionMgr.AddTimedAction(DrawLaser(startCoords, { startCoords.x, 0.f }, mGameRenderer), mGameConfig.glowTrailTime);
 			mRenderActionMgr.AddTimedAction(DrawLaser(startCoords, { startCoords.x, RefWindowHeight }, mGameRenderer), mGameConfig.glowTrailTime);
 		}
+		else if (event.effect.type == EffectType::miniBomb) {
+			mRenderActionMgr.AddTimedAction(DrawBlast(startCoords, 32.f, 128.f, mGameRenderer), mGameConfig.glowTrailTime);
+		}
 		else if (event.effect.type == EffectType::bomb) {
-			mRenderActionMgr.AddTimedAction(DrawBlast(startCoords, 32.f, 256.f, mGameRenderer), mGameConfig.glowTrailTime); // FIXME
+			mRenderActionMgr.AddTimedAction(DrawBlast(startCoords, 32.f, 256.f, mGameRenderer), mGameConfig.glowTrailTime);
 		}
 		mActionMgr.AddTimedAction(ScalePiece(GetVisual(*event.effect.mainCell), 1.f, 0.f), mGameConfig.removePieceDuration);
 		OnPieceRemoved(*event.effect.mainCell);

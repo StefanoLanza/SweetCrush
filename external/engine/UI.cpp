@@ -207,6 +207,22 @@ void UIPanel::AddText(UIText& text) {
 	mTexts.push_back(&text);
 }
 
+void UIPanel::RemovePanel(const UIPanel& panel) {
+	std::erase(mPanels, &panel);
+}
+
+void UIPanel::RemoveButton(const UIButton& button) {
+	std::erase(mButtons, &button);
+}
+
+void UIPanel::RemoveBitmap(const UIBitmap& bitmap) {
+	std::erase(mBitmaps, &bitmap);
+}
+
+void UIPanel::RemoveText(const UIText& text) {
+	std::erase(mTexts, &text);
+}
+
 void UIPanel::LoadGraphics(Graphics& graphics) {
 	if (! mBackground && mDesc.background) {
 		mBackground = graphics.LoadTexture(mDesc.background);

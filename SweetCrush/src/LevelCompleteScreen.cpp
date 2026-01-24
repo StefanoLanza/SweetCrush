@@ -65,22 +65,22 @@ void LevelCompleteScreen::BuildUI(UICanvas& canvas) {
 	canvas.GetPanel().AddPanel(mPanel);
 }
 
-Wind::GameScreenId LevelCompleteScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
+Wind::ScreenTransition LevelCompleteScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
 	if (mNextLevelButton.IsPressed(input)) {
-		return ScreenId::play;
+		return { ScreenOp::replace, GameScreenIds::play };
 	}
-	return ScreenId::levelComplete;
+	return { ScreenOp::keep };
 }
 
-void LevelCompleteScreen::Draw([[maybe_unused]] Wind::GameScreenId topScreen) const {
+void LevelCompleteScreen::Draw([[maybe_unused]] Wind::ScreenId topScreen) const {
 	// TODO show collected pastries?
 }
 
-void LevelCompleteScreen::Enter([[maybe_unused]] Wind::GameScreenId prevScreen, const void* payload) {
+void LevelCompleteScreen::Enter([[maybe_unused]] Wind::ScreenId prevScreen, const void* payload) {
 	mPanel.SetVisible(true);
 }
 
-void LevelCompleteScreen::Exit(GameScreenId newScreen) {
+void LevelCompleteScreen::Exit() {
 	mPanel.SetVisible(false);
 }
 

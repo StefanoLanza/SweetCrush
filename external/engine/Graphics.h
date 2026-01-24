@@ -42,9 +42,9 @@ struct DrawCall {
 	int             numTextures = 0;
 	ProgramHandle   program = nullProgram;
 	MeshHandle      mesh = nullMesh;
+	InstanceData    instances {};
 	uint32_t        drawOrder = 0;
 	uint32_t        sortKey = 0;
-	InstanceData    instances {};
 };
 
 class PipelineState {

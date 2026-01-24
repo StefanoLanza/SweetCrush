@@ -92,15 +92,15 @@ void SettingsScreen::BuildUI(UICanvas& canvas) {
 	RefreshLanguageButton();
 }
 
-GameScreenId SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
+ScreenTransition SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
 	if (mGraphicsButton.IsPressed(input)) {
-		return ScreenId::graphicsSettings;
+		return { ScreenOp::replace, GameScreenIds::graphicsSettings };
 	}
 	else if (mLanguageButton.IsPressed(input)) {
 		SetNextLanguage();
 	}
 	else if (mAudioButton.IsPressed(input)) {
-		return ScreenId::audioSettings;
+		return { ScreenOp::replace, GameScreenIds::audioSettings };
 	}
 
 #if defined(__ANDROID__) || defined(__OHOS__)
@@ -109,19 +109,19 @@ GameScreenId SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& 
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
 	    mBackButton.IsPressed(input)) {
-		return ScreenId::mainMenu;
+		return { ScreenOp::replace, GameScreenIds::mainMenu };
 	}
-	return ScreenId::settings;
+	return { ScreenOp::keep };
 }
 
-void SettingsScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
+void SettingsScreen::Draw([[maybe_unused]] ScreenId topScreen) const {
 }
 
-void SettingsScreen::Enter([[maybe_unused]] GameScreenId prevScreen, const void* payload) {
+void SettingsScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
 	mPanel.SetVisible(true);
 }
 
-void SettingsScreen::Exit(GameScreenId newScreen) {
+void SettingsScreen::Exit() {
 	mPanel.SetVisible(false);
 }
 

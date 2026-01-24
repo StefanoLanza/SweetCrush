@@ -85,18 +85,18 @@ void GameOverScreen::BuildUI(UICanvas& canvas) {
 	canvas.GetPanel().AddPanel(mPanel);
 }
 
-GameScreenId GameOverScreen::Tick(float /*dt*/, const Wind::Input& input) {
+ScreenTransition GameOverScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	if (mContinueButton.IsPressed(input)) {
-		return ScreenId::mainMenu;
+		return { ScreenOp::replace, GameScreenIds::mainMenu };
 	}
 	else if (mReplayLevelButton.IsPressed(input)) {
-		return ScreenId::play;
+		return { ScreenOp::replace, GameScreenIds::play };
 	}
-	return ScreenId::gameOver;
+	return { ScreenOp::keep };
 }
 
-void GameOverScreen::Draw(GameScreenId topScreen) const {
-	if (topScreen != ScreenId::gameOver) {
+void GameOverScreen::Draw(ScreenId topScreen) const {
+	if (topScreen != GameScreenIds::gameOver) {
 		return;
 	}
 	if (! mFont) {
@@ -111,11 +111,11 @@ void GameOverScreen::Draw(GameScreenId topScreen) const {
 	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 530 }, TextAlignment::center, textStyle, (DrawOrder)GameDrawOrder::overUI);
 }
 
-void GameOverScreen::Enter(GameScreenId /*prevScreen*/, const void* payload) {
+void GameOverScreen::Enter(ScreenId /*prevScreen*/, const void* payload) {
 	mPanel.SetVisible(true);
 }
 
-void GameOverScreen::Exit(GameScreenId newScreen) {
+void GameOverScreen::Exit() {
 	mPanel.SetVisible(false);
 }
 

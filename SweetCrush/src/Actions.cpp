@@ -102,8 +102,10 @@ ActionFunc DrawBrokenIce(const Cell& cell, const BitmapRenderer& bitmapRenderer,
 ActionFunc DrawLaser(Vec2 startCoords, Vec2 endCoords, const GameRenderer& gameRenderer) {
 	return [&gameRenderer, startCoords, endCoords](float /*dt*/, float t01) {
 		if (t01 > 0.0f) {
-			Vec2 interpEndCoords = Lerp(startCoords, endCoords, EaseOutQuint(t01));
-			gameRenderer.DrawLaser(startCoords, interpEndCoords, 64.f);
+			t01 = EaseOutQuint(t01);
+			Vec2  interpEndCoords = Lerp(startCoords, endCoords, t01);
+			Color color = Lerp(yellowColor, whiteColor, t01);
+			gameRenderer.DrawLaser(startCoords, interpEndCoords, 64.f, color);
 		}
 		return false;
 	};
@@ -111,8 +113,12 @@ ActionFunc DrawLaser(Vec2 startCoords, Vec2 endCoords, const GameRenderer& gameR
 
 ActionFunc DrawBlast(Vec2 center, float startRadius, float endRadius, const GameRenderer& gameRenderer) {
 	return [&gameRenderer, center, startRadius, endRadius](float /*dt*/, float t01) {
-		float radius = Lerp(startRadius, endRadius, EaseOutQuint(t01));
-		gameRenderer.DrawBlast(center, radius);
+		t01 = EaseOutQuint(t01);
+		float radius = Lerp(startRadius, endRadius, t01);
+		Color color = whiteColor;
+		color.a = 255.f * t01;
+		float width = radius * 0.5f;
+		gameRenderer.DrawBlast(center, radius, width, color);
 		return false;
 	};
 }

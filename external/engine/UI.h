@@ -140,8 +140,12 @@ public:
 	const UIRect& Rect() const;
 	void          AddPanel(UIPanel& panel);
 	void          AddButton(UIButton& button);
-	void          AddText(UIText& text);
 	void          AddBitmap(UIBitmap& bitmap);
+	void          AddText(UIText& text);
+	void          RemovePanel(const UIPanel& panel);
+	void          RemoveButton(const UIButton& button);
+	void          RemoveBitmap(const UIBitmap& bitmap);
+	void          RemoveText(const UIText& text);
 	void          LoadGraphics(Graphics& graphics);
 	void          Draw(const UIRenderer& renderer, const TextRenderer& textRender, DrawOrderType drawOrder) const;
 	void          UpdateRect(const UIRect& parentRect);

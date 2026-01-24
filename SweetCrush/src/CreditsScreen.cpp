@@ -47,8 +47,8 @@ const UITextDesc graphicsByText {
 const UITextDesc musicByText {
 
 	.pos = { 0, 480, 0, 0 },
-	.size=UIAutoSize,
-	.horizontalAlignment=UIHorizAlignment::center,
+	.size = UIAutoSize,
+	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "smallFont",
 	.stringId = (StringId)GameStringId::musicBy,
@@ -56,8 +56,8 @@ const UITextDesc musicByText {
 
 const UITextDesc versionText {
 	.pos = { 0, 640, 0, 0 },
-	.size=UIAutoSize,
-	.horizontalAlignment=UIHorizAlignment::center,
+	.size = UIAutoSize,
+	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "smallFont",
 	.stringId = (StringId)GameStringId::version,
@@ -65,8 +65,8 @@ const UITextDesc versionText {
 
 const UITextDesc backText {
 	.pos = UIZeroPos,
-	.size=UIAutoSize,
-	.horizontalAlignment=UIHorizAlignment::center,
+	.size = UIAutoSize,
+	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::center,
 	.font = "mediumFont",
 	.stringId = (StringId)GameStringId::back,
@@ -88,26 +88,26 @@ const char* CreditsScreen::GetName() const {
 	return "CreditsScreen";
 }
 
-GameScreenId CreditsScreen::Tick(float /*dt*/, const Wind::Input& input) {
+ScreenTransition CreditsScreen::Tick(float /*dt*/, const Wind::Input& input) {
 #if defined(__ANDROID__) || defined(__OHOS__)
 	if (input.GetKeyJustPressed(SDLK_AC_BACK) ||
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
 	    mBackButton.IsPressed(input)) {
-		return ScreenId::mainMenu;
+		return { ScreenOp::replace, GameScreenIds::mainMenu };
 	}
-	return ScreenId::credits;
+	return { ScreenOp::keep };
 }
 
-void CreditsScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
+void CreditsScreen::Draw([[maybe_unused]] ScreenId topScreen) const {
 }
 
-void CreditsScreen::Enter([[maybe_unused]] GameScreenId prevScreen, const void* payload) {
+void CreditsScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
 	mPanel.SetVisible(true);
 }
 
-void CreditsScreen::Exit(GameScreenId newScreen) {
+void CreditsScreen::Exit() {
 	mPanel.SetVisible(false);
 }
 

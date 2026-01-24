@@ -95,36 +95,36 @@ void PauseGameScreen::BuildUI(UICanvas& canvas) {
 	canvas.GetPanel().AddPanel(mPanel);
 }
 
-Wind::GameScreenId PauseGameScreen::Tick(float /*dt*/, const Wind::Input& input) {
+ScreenTransition PauseGameScreen::Tick(float /*dt*/, const Wind::Input& input) {
 #if defined(__ANDROID__) || defined(__OHOS__)
 	if (input.GetKeyJustPressed(SDLK_AC_BACK)) {
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE)) {
 #endif
-		return ScreenId::play;
+		return { ScreenOp::pop };
 	}
 	if (mExitGameButton.IsPressed(input)) {
-		return ScreenId::mainMenu;
+		return { ScreenOp::replace, GameScreenIds::mainMenu };
 	}
 	else if (mRestartLevelButton.IsPressed(input)) {
 		// TODO mRestartLevel = true; // FIXME Return as generic data
-		return ScreenId::play;
+		return { ScreenOp::pop };
 	}
 	else if (mContinueButton.IsPressed(input)) {
 		// TODO mRestartLevel = false;
-		return ScreenId::play;
+		return { ScreenOp::pop };
 	}
-	return ScreenId::pauseGame;
+	return { ScreenOp::keep };
 }
 
-void PauseGameScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
+void PauseGameScreen::Draw([[maybe_unused]] ScreenId topScreen) const {
 }
 
-void PauseGameScreen::Enter([[maybe_unused]] GameScreenId prevScreen, const void* payload) {
+void PauseGameScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
 	mPanel.SetVisible(true);
 }
 
-void PauseGameScreen::Exit(GameScreenId newScreen) {
+void PauseGameScreen::Exit() {
 	mPanel.SetVisible(false);
 }
 

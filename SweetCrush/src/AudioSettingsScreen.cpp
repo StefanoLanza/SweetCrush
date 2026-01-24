@@ -40,7 +40,7 @@ const UITextDesc musicButtonTextDesc {
 const UITextDesc sfxButtonTextDesc {
 	.pos = { 0, 0, 0, 0 },
 	.size = UIAutoSize,
-	.horizontalAlignment =  UIHorizAlignment::center,
+	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::center,
 	.font = "mediumFont",
 	.stringId = (StringId)GameStringId::sfxOn,
@@ -83,7 +83,7 @@ void AudioSettingsScreen::BuildUI(UICanvas& canvas) {
 	RefreshSfxButton();
 }
 
-GameScreenId AudioSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
+ScreenTransition AudioSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
 	if (mMusicButton.IsPressed(input)) {
 		mGameConfig.musicOn = ! mGameConfig.musicOn;
 		RefreshMusicButton();
@@ -99,19 +99,19 @@ GameScreenId AudioSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::In
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
 	    mBackButton.IsPressed(input)) {
-		return ScreenId::settings;
+		return { ScreenOp::replace, GameScreenIds::settings };
 	}
-	return ScreenId::audioSettings;
+	return { ScreenOp::keep };
 }
 
-void AudioSettingsScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
+void AudioSettingsScreen::Draw([[maybe_unused]] ScreenId topScreen) const {
 }
 
-void AudioSettingsScreen::Enter([[maybe_unused]] GameScreenId prevScreen, const void* payload) {
+void AudioSettingsScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
 	mPanel.SetVisible(true);
 }
 
-void AudioSettingsScreen::Exit(GameScreenId newScreen) {
+void AudioSettingsScreen::Exit() {
 	mPanel.SetVisible(false);
 }
 

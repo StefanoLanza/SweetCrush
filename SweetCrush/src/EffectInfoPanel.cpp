@@ -94,7 +94,7 @@ const char* EffectInfoPanel::GetName() const {
 	return "EffectInfoPanel";
 }
 
-GameScreenId EffectInfoPanel::Tick(float dt, const Input& input) {
+ScreenTransition EffectInfoPanel::Tick(float dt, const Input& input) {
 	if (mOKButton.IsPressed(input) ||
 #if defined(_WIN32) || defined(__linux__)
 	    input.GetKeyJustPressed(SDLK_ESCAPE)) {
@@ -102,21 +102,21 @@ GameScreenId EffectInfoPanel::Tick(float dt, const Input& input) {
 			0
 }
 #endif
-		return ScreenId::mainMenu;
+		return { ScreenOp::pop };
 	}
-	return ScreenId::effectInfo;
+	return { ScreenOp::keep };
 }
 
-void EffectInfoPanel::Draw(GameScreenId topScreen) const {
+void EffectInfoPanel::Draw(ScreenId topScreen) const {
 }
 
-void EffectInfoPanel::Enter(GameScreenId prevScreen, const void* payload) {
+void EffectInfoPanel::Enter(ScreenId prevScreen, const void* payload) {
 	// TODO Parse
 	EffectType effectType = EffectType::hrocket;
 	ShowHelp(effectType);
 }
 
-void EffectInfoPanel::Exit(GameScreenId newScreen) {
+void EffectInfoPanel::Exit() {
 }
 
 void EffectInfoPanel::ShowHelp(EffectType effectType) {

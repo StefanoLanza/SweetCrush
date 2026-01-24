@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Maths.h"
+#include <cassert>
+
 namespace Wind {
 
 // Channels in the 0, 255 range
@@ -19,5 +22,33 @@ constexpr Color yellowColor = { 255.f, 255.f, 0.f, 255.f };
 constexpr Color darkGreenColor = { 34.f, 87.f, 0.f, 255.f };
 constexpr Color purpleColor = { 240.f, 91.f, 241.f, 255.f };
 constexpr Color lightBlueColor = { 56.f, 105.f, 255.f, 255.f };
+
+inline Color Lerp(const Color& a, const Color& b, float t) {
+	assert(t >= 0.f && t <= 1.f);
+	return {
+		a.r + (b.r - a.r) * t,
+		a.g + (b.g - a.g) * t,
+		a.b + (b.b - a.b) * t,
+		a.a + (b.a - a.a) * t,
+	};
+}
+
+inline Color Interpolate(const Color& first, const Color& second, const Color& third, float t) {
+	return {
+		Interpolate(first.r, second.r, third.r, t),
+		Interpolate(first.g, second.g, third.g, t),
+		Interpolate(first.b, second.b, third.b, t),
+		Interpolate(first.a, second.a, third.a, t),
+	};
+}
+
+inline Color operator*(const Color& color, float s) {
+	return {
+		color.r * s,
+		color.g * s,
+		color.b * s,
+		color.a * s,
+	};
+}
 
 } // namespace Wind
