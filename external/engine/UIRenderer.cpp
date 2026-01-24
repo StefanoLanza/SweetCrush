@@ -1,9 +1,9 @@
 #include "UIRenderer.h"
-#include "UI.h"
 #include "Config.h"
 #include "GlProgram.h"
 #include "Graphics.h"
 #include "Texture.h"
+#include "UI.h"
 #include <SDL3/SDL.h>
 #include <cmath>
 
@@ -11,12 +11,13 @@ namespace Wind {
 
 class UIRenderer::Impl {
 public:
-	explicit Impl(Graphics& graphics);
+	explicit Impl(Graphics& graphics, TextRenderer& textRenderer);
 
 	void DrawRect(const UIRect& rect, const Texture& surface, const UIDrawParams& prms) const;
 
-private:
+public:
 	Graphics&      mGraphics;
+	TextRenderer&  mTextRenderer;
 	PipelineHandle mPipelineBlending;
 	ProgramHandle  mProgramHandle;
 	bool           mValidPrograms;
@@ -28,8 +29,9 @@ private:
 	GLint m9Patch = 0;
 };
 
-UIRenderer::Impl::Impl(Graphics& graphics)
+UIRenderer::Impl::Impl(Graphics& graphics, TextRenderer& textRenderer)
     : mGraphics { graphics }
+    , mTextRenderer { textRenderer }
     , mProgramHandle { graphics.NewProgram(SHADERS_FOLDER "uiQuad.vs", SHADERS_FOLDER "uiQuad.fs") }
     , mValidPrograms { false } {
 
@@ -91,11 +93,15 @@ void UIRenderer::Impl::DrawRect(const UIRect& rect, const Texture& texture, cons
 	mGraphics.Draw(drawCall);
 }
 
-UIRenderer::UIRenderer(Graphics& graphics)
-    : mPimpl { std::make_unique<Impl>(graphics) } {
+UIRenderer::UIRenderer(Graphics& graphics, TextRenderer& textRenderer)
+    : mPimpl { std::make_unique<Impl>(graphics, textRenderer) } {
 }
 
 UIRenderer::~UIRenderer() = default;
+
+const TextRenderer& UIRenderer::GetTextRenderer() const {
+	return mPimpl->mTextRenderer;
+}
 
 void UIRenderer::DrawRect(const UIRect& rect, const Texture& texture, const UIDrawParams& prms) const {
 	mPimpl->DrawRect(rect, texture, prms);

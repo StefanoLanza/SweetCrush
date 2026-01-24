@@ -47,6 +47,10 @@ const UITextDesc textDescs[] {
 	},
 };
 
+constexpr UICanvasDesc canvasDesc {
+	.background = "gameartguppy/background.png",
+};
+
 } // namespace
 
 GraphicsSettingsScreen::GraphicsSettingsScreen(Engine& engine, GameSettings& gameSettings)
@@ -54,21 +58,23 @@ GraphicsSettingsScreen::GraphicsSettingsScreen(Engine& engine, GameSettings& gam
     , mTitle(textDescs[0], engine)
     , mFilterButton(MakeButton(filterButtonDesc, buttonBitmapDesc, textDescs[1], engine))
     , mBackButton(MakeButton(backButtonDesc, buttonBitmapDesc, textDescs[2], engine))
-    , mPanel(UIDefaultPanelDesc) {
+    , mCanvas(canvasDesc) {
+	// Setup UI
+	Wind::UIPanel& panel = mCanvas.GetPanel();
+	panel.AddText(mTitle);
+	panel.AddButton(mFilterButton);
+	panel.AddButton(mBackButton);
 }
 
 const char* GraphicsSettingsScreen::GetName() const {
 	return "GraphicsSettingsScreen";
 }
 
-void GraphicsSettingsScreen::LoadAssets() {
+void GraphicsSettingsScreen::LoadAssets(Engine& engine) {
+	mCanvas.LoadGraphics(engine.GetGraphics());
 }
 
 void GraphicsSettingsScreen::BuildUI(UICanvas& canvas) {
-	mPanel.AddText(mTitle);
-	mPanel.AddButton(mFilterButton);
-	mPanel.AddButton(mBackButton);
-	canvas.GetPanel().AddPanel(mPanel);
 	//	RefreshLanguageButton();
 }
 
@@ -88,15 +94,14 @@ ScreenTransition GraphicsSettingsScreen::Tick([[maybe_unused]] float dt, const W
 	return { ScreenOp::keep };
 }
 
-void GraphicsSettingsScreen::Draw([[maybe_unused]] ScreenId topScreen) const {
+void GraphicsSettingsScreen::Draw(Wind::UIRenderer& uiRenderer) {
+	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 }
 
 void GraphicsSettingsScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
-	mPanel.SetVisible(true);
 }
 
 void GraphicsSettingsScreen::Exit() {
-	mPanel.SetVisible(false);
 }
 
 #if 0

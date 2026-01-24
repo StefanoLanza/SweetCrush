@@ -30,6 +30,7 @@ const char* gameTexturePath[NumGameTextures] {
 	"gameartguppy/candy_05_candycane_100.png",
 	"gameartguppy/candy_04_lollipop_100.png",
 	"gameartguppy/candy_09_gummibear_100.png",
+	"blast.png",
 };
 
 const SpriteID pieceIcons[NumPieceTypes] { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -52,3 +53,4 @@ const SpriteID iceSprites[3] = { 13, 14, 15 };
 const SpriteID selectionSprite = 16;
 const int      glowSprite = 17;
 const int      starSprite = 0; // FIXME
+const int      blastSprite = 23;

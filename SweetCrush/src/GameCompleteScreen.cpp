@@ -68,8 +68,8 @@ const char* GameCompleteScreen::GetName() const {
 	return "GameCompleteScreen";
 }
 
-void GameCompleteScreen::LoadAssets() {
-	mFont = mEngine.GetTextRenderer().AddFont("smallFont");
+void GameCompleteScreen::LoadAssets(Engine& engine) {
+	mFont = engine.GetTextRenderer().AddFont("smallFont");
 }
 
 void GameCompleteScreen::BuildUI(UICanvas& canvas) {
@@ -86,10 +86,7 @@ ScreenTransition GameCompleteScreen::Tick(float /*dt*/, const Wind::Input& input
 	return { ScreenOp::keep };
 }
 
-void GameCompleteScreen::Draw(ScreenId topScreen) const {
-	if (topScreen != GameScreenIds::gameComplete) {
-		return;
-	}
+void GameCompleteScreen::Draw(Wind::UIRenderer& uiRenderer) {
 	if (! mFont) {
 		return;
 	}

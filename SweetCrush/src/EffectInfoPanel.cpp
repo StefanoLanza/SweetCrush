@@ -61,7 +61,6 @@ const UIPanelDesc panelDesc {
 	.size = UIAbsoluteSize(800, 400),
 	.background = "null.png",
 	.backgroundColor = Color { 0, 0, 0, 200 },
-	.drawOrder = GameDrawOrder::UI,
 };
 
 } // namespace
@@ -78,7 +77,7 @@ EffectInfoPanel::EffectInfoPanel(Engine& engine)
 	}
 }
 
-void EffectInfoPanel::LoadAssets() {
+void EffectInfoPanel::LoadAssets(Wind::Engine& engine) {
 }
 
 void EffectInfoPanel::BuildUI(UICanvas& canvas) {
@@ -107,7 +106,7 @@ ScreenTransition EffectInfoPanel::Tick(float dt, const Input& input) {
 	return { ScreenOp::keep };
 }
 
-void EffectInfoPanel::Draw(ScreenId topScreen) const {
+void EffectInfoPanel::Draw(Wind::UIRenderer& uiRenderer) {
 }
 
 void EffectInfoPanel::Enter(ScreenId prevScreen, const void* payload) {

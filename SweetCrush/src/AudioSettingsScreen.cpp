@@ -55,6 +55,10 @@ const UITextDesc backTextDesc {
 	.stringId = (StringId)GameStringId::back,
 };
 
+constexpr UICanvasDesc canvasDesc {
+	.background = "gameartguppy/background.png",
+};
+
 } // namespace
 
 AudioSettingsScreen::AudioSettingsScreen(Engine& engine, GameSettings& gameSettings)
@@ -63,22 +67,23 @@ AudioSettingsScreen::AudioSettingsScreen(Engine& engine, GameSettings& gameSetti
     , mMusicButton(MakeButton(musicButtonDesc, buttonBitmapDesc, musicButtonTextDesc, engine))
     , mSfxButton(MakeButton(sfxButtonDesc, buttonBitmapDesc, sfxButtonTextDesc, engine))
     , mBackButton(MakeButton(backButtonDesc, buttonBitmapDesc, backTextDesc, engine))
-    , mPanel(UIDefaultPanelDesc) {
+    , mCanvas(canvasDesc) {
 }
 
 const char* AudioSettingsScreen::GetName() const {
 	return "AudioSettingsScreen";
 }
 
-void AudioSettingsScreen::LoadAssets() {
+void AudioSettingsScreen::LoadAssets(Engine& engine) {
+	mCanvas.LoadGraphics(engine.GetGraphics());
 }
 
 void AudioSettingsScreen::BuildUI(UICanvas& canvas) {
-	mPanel.AddText(mTitle);
-	mPanel.AddButton(mMusicButton);
-	mPanel.AddButton(mSfxButton);
-	mPanel.AddButton(mBackButton);
-	canvas.GetPanel().AddPanel(mPanel);
+	Wind::UIPanel& panel = mCanvas.GetPanel();
+	panel.AddText(mTitle);
+	panel.AddButton(mMusicButton);
+	panel.AddButton(mSfxButton);
+	panel.AddButton(mBackButton);
 	RefreshMusicButton();
 	RefreshSfxButton();
 }
@@ -104,15 +109,14 @@ ScreenTransition AudioSettingsScreen::Tick([[maybe_unused]] float dt, const Wind
 	return { ScreenOp::keep };
 }
 
-void AudioSettingsScreen::Draw([[maybe_unused]] ScreenId topScreen) const {
+void AudioSettingsScreen::Draw(Wind::UIRenderer& uiRenderer) {
+	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 }
 
 void AudioSettingsScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
-	mPanel.SetVisible(true);
 }
 
 void AudioSettingsScreen::Exit() {
-	mPanel.SetVisible(false);
 }
 
 void AudioSettingsScreen::RefreshMusicButton() {

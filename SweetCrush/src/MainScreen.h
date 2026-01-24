@@ -10,18 +10,19 @@ class MainScreen final : public Wind::GameScreen {
 public:
 	explicit MainScreen(Wind::Engine& engine, const GameRenderer& gameRenderer);
 
-	const char*        GetName() const override;
-	void               LoadAssets() override;
-	void               BuildUI(Wind::UICanvas& canvas) override;
+	const char*            GetName() const override;
+	void                   LoadAssets(Wind::Engine& engine) override;
+	void                   BuildUI(Wind::UICanvas& canvas) override;
 	Wind::ScreenTransition Tick(float dt, const Wind::Input& input) override;
-	void               Draw(Wind::ScreenId topScreen) const override;
-	void               Enter(Wind::ScreenId prevScreen, const void* payload) override;
-	void               Exit() override;
-	void               ParseConfig(const char* varName, const char* varValue) override;
+	void                   Draw(Wind::UIRenderer& uiRenderer) override;
+	void                   Enter(Wind::ScreenId prevScreen, const void* payload) override;
+	void                   Exit() override;
+	void                   ParseConfig(const char* varName, const char* varValue) override;
 
 private:
 	Wind::Engine&       mEngine;
 	const GameRenderer& mGameRenderer;
+	Wind::UICanvas      mCanvas;
 	Wind::UIText        mTitle;
 	Wind::UIButton      mStartButton;
 	Wind::UIButton      mSettingsButton;
@@ -29,6 +30,5 @@ private:
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
 	Wind::UIButton mQuitButton;
 #endif
-	Wind::UIPanel mPanel;
 	float         mTime;
 };

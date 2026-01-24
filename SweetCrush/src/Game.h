@@ -33,6 +33,7 @@ private:
 	GameSettings                      mGameSettings;
 	Wind::GlFrameBuffer               mFrameBuffer;
 	Wind::UICanvas                    mCanvas;
+	Wind::UIMouseCursor               mMouseCursor;
 	Wind::UIRenderer                  mUIRenderer;
 	MatchStats                        mMatchStats;
 	Wind::ActionMgr                   mRenderActionMgr;

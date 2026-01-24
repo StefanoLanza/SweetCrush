@@ -5,7 +5,7 @@
 
 using SpriteID = uint8_t;
 
-constexpr int NumGameTextures = 23;
+constexpr int NumGameTextures = 24;
 constexpr int NumPieceTypes = 9;
 constexpr int NumBoardTiles = 1;
 constexpr int NumObstacleTypes = 1;
@@ -22,6 +22,7 @@ extern const SpriteID   boosterIcons[NumBoosters];
 extern const SpriteID iceSprites[3];
 extern const SpriteID selectionSprite;
 extern const int glowSprite;
+extern const int blastSprite;
 extern const int starSprite;
 extern const int hrzStripesSprite;
 extern const int vrtStripesSprite;

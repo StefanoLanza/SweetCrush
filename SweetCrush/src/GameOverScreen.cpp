@@ -74,7 +74,7 @@ const char* GameOverScreen::GetName() const {
 	return "GameOverScreen";
 }
 
-void GameOverScreen::LoadAssets() {
+void GameOverScreen::LoadAssets(Engine& engine) {
 	mFont = mEngine.GetTextRenderer().AddFont("smallFont");
 }
 
@@ -95,10 +95,7 @@ ScreenTransition GameOverScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	return { ScreenOp::keep };
 }
 
-void GameOverScreen::Draw(ScreenId topScreen) const {
-	if (topScreen != GameScreenIds::gameOver) {
-		return;
-	}
+void GameOverScreen::Draw(Wind::UIRenderer& uiRenderer) {
 	if (! mFont) {
 		return;
 	}

@@ -21,15 +21,16 @@ struct ScreenTransition {
 };
 
 class UICanvas;
+class UIRenderer;
 
 class GameScreen {
 public:
 	virtual ~GameScreen() = default;
 	virtual const char*      GetName() const = 0;
 	virtual ScreenTransition Tick(float dt, const Input& input) = 0;
-	virtual void             LoadAssets() = 0;
+	virtual void             LoadAssets(Wind::Engine& engine) = 0;
 	virtual void             BuildUI(UICanvas& canvas) = 0;
-	virtual void             Draw(ScreenId topScreen) const = 0;
+	virtual void             Draw(UIRenderer& uiRenderer) = 0;
 	virtual void             Enter(ScreenId prevScreen, const void* payload) = 0;
 	virtual void             Exit() = 0;
 	virtual void             ParseConfig(const char* varName, const char* varValue) = 0;

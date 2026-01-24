@@ -75,6 +75,10 @@ const UITextDesc textDescs[5] {
 	},
 };
 
+constexpr UICanvasDesc canvasDesc {
+	.background = "gameartguppy/background.png",
+};
+
 } // namespace
 
 MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
@@ -87,7 +91,7 @@ MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
     , mQuitButton(MakeButton(buttonDescs[3], buttonBitmapDesc, textDescs[4], engine))
 #endif
-    , mPanel(UIDefaultPanelDesc)
+    , mCanvas(canvasDesc)
     , mTime(0) {
 }
 
@@ -95,18 +99,19 @@ const char* MainScreen::GetName() const {
 	return "MainScreen";
 }
 
-void MainScreen::LoadAssets() {
+void MainScreen::LoadAssets(Engine& engine) {
+	mCanvas.LoadGraphics(engine.GetGraphics());
 }
 
 void MainScreen::BuildUI(UICanvas& canvas) {
-	mPanel.AddText(mTitle);
-	mPanel.AddButton(mStartButton);
-	mPanel.AddButton(mSettingsButton);
-	mPanel.AddButton(mCreditsButton);
+	Wind::UIPanel& panel = mCanvas.GetPanel();
+	panel.AddText(mTitle);
+	panel.AddButton(mStartButton);
+	panel.AddButton(mSettingsButton);
+	panel.AddButton(mCreditsButton);
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
-	mPanel.AddButton(mQuitButton);
+	panel.AddButton(mQuitButton);
 #endif
-	canvas.GetPanel().AddPanel(mPanel);
 }
 
 ScreenTransition MainScreen::Tick(float dt, const Wind::Input& input) {
@@ -132,10 +137,9 @@ ScreenTransition MainScreen::Tick(float dt, const Wind::Input& input) {
 	return { ScreenOp::keep };
 }
 
-void MainScreen::Draw([[maybe_unused]] ScreenId topScreen) const {
-	if (! mPanel.IsVisible()) {
-		return;
-	}
+void MainScreen::Draw(UIRenderer& uiRenderer)  {
+	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
+
 	constexpr float dx = TileWidth + 2;
 	float           phase = mTime * 4.f;
 	float           x = (RefWindowWidth - (NumPieceTypes - 1) * dx) * 0.5f;
@@ -150,11 +154,9 @@ void MainScreen::Draw([[maybe_unused]] ScreenId topScreen) const {
 }
 
 void MainScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
-	mPanel.SetVisible(true);
 }
 
 void MainScreen::Exit() {
-	mPanel.SetVisible(false);
 }
 
 void MainScreen::ParseConfig(const char* varName, const char* varValue) {

@@ -119,8 +119,8 @@ const char* PlayScreen::GetName() const {
 	return "PlayScreen";
 }
 
-void PlayScreen::LoadAssets() {
-	Audio& audio = mEngine.GetAudio();
+void PlayScreen::LoadAssets(Engine& engine) {
+	Audio& audio = engine.GetAudio();
 	mMusic = audio.LoadMusic("audio/music.ogg");
 	mSounds[0] = audio.LoadSound("audio/match.wav");
 }
@@ -231,7 +231,7 @@ void PlayScreen::SelectBooster(const Input& input) {
 	}
 }
 
-void PlayScreen::Draw(ScreenId topScreen) const {
+void PlayScreen::Draw(Wind::UIRenderer& uiRenderer) {
 	mGameRenderer.DrawBoard(mBoard, mCellSelector->GetSelectedTile(), mGameConfig, mTime);
 	DrawUI();
 

@@ -100,7 +100,7 @@ ScreenTransition CreditsScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	return { ScreenOp::keep };
 }
 
-void CreditsScreen::Draw([[maybe_unused]] ScreenId topScreen) const {
+void CreditsScreen::Draw(Wind::UIRenderer& uiRenderer) {
 }
 
 void CreditsScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
@@ -111,7 +111,7 @@ void CreditsScreen::Exit() {
 	mPanel.SetVisible(false);
 }
 
-void CreditsScreen::LoadAssets() {
+void CreditsScreen::LoadAssets(Engine& engine) {
 }
 
 void CreditsScreen::BuildUI(UICanvas& canvas) {

@@ -84,7 +84,7 @@ const char* PauseGameScreen::GetName() const {
 	return "PauseGameScreen";
 }
 
-void PauseGameScreen::LoadAssets() {
+void PauseGameScreen::LoadAssets(Engine& engine) {
 }
 
 void PauseGameScreen::BuildUI(UICanvas& canvas) {
@@ -117,7 +117,7 @@ ScreenTransition PauseGameScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	return { ScreenOp::keep };
 }
 
-void PauseGameScreen::Draw([[maybe_unused]] ScreenId topScreen) const {
+void PauseGameScreen::Draw(Wind::UIRenderer& uiRenderer) {
 }
 
 void PauseGameScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {

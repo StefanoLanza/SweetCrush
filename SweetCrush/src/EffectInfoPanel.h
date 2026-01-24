@@ -12,9 +12,9 @@ public:
 
 	const char*        GetName() const override;
 	Wind::ScreenTransition Tick(float dt, const Wind::Input& input) override;
-	void               LoadAssets() override;
+	void               LoadAssets(Wind::Engine& engine) override;
 	void               BuildUI(Wind::UICanvas& canvas) override;
-	void               Draw(Wind::ScreenId topScreen) const override;
+	void               Draw(Wind::UIRenderer& uiRenderer) override;
 	void               Enter(Wind::ScreenId prevScreen, const void* payload) override;
 	void               Exit() override;
 	void               ParseConfig(const char* varName, const char* varValue) override;

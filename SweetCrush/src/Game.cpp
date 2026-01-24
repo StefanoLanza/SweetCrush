@@ -35,7 +35,7 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
     , mGameDataModule { gameDataModule }
     , mGameSettings {}
     , mFrameBuffer { RefWindowWidth, RefWindowHeight, FBOFlags::color }
-    , mUIRenderer { engine.GetGraphics() }
+    , mUIRenderer { engine.GetGraphics(), engine.GetTextRenderer() }
     , mMatchStats {}
     , mScreenStack { GameScreenIds::mainMenu, GameScreenIds::mainMenu }
     , mScreenStackSize { 1 } {
@@ -65,15 +65,15 @@ void Game::Run() {
 
 	mGameSettings = mGameConfig.settings;
 
-	mCanvas.SetBackground("gameartguppy/background.png", mEngine.GetGraphics());
-#if ! defined(__ANDROID__) && ! defined(__OHOS__) && ((defined(_WIN32) || defined(__linux__)))
-	mCanvas.SetMousePointer("cursor.png", mEngine.GetGraphics());
+#if ! defined(__ANDROID__) && ! defined(__OHOS__)
+	mMouseCursor.SetCursor("cursor.png", mEngine.GetGraphics());
 #endif
 	for (const auto& screen : mScreens) {
-		screen->LoadAssets();
+		screen->LoadAssets(mEngine);
 		screen->BuildUI(mCanvas);
 	}
-	mCanvas.LoadGraphics(mEngine.GetGraphics());
+	//mCanvas.SetBackground("gameartguppy/background.png", mEngine.GetGraphics());
+	//mCanvas.LoadGraphics(mEngine.GetGraphics());
 
 	mScreens[0]->Enter(GameScreenIds::mainMenu, nullptr);
 	mEngine.Start([this](float dt) { Draw(dt); }, [this](float dt) { Tick(dt); });
@@ -81,14 +81,16 @@ void Game::Run() {
 
 void Game::Draw(float dt) {
 	const Input&        input = mEngine.GetInput();
-	const TextRenderer& textRenderer = mEngine.GetTextRenderer();
 	Graphics&           graphics = mEngine.GetGraphics();
 
 	graphics.SetFrameBuffer(mFrameBuffer);
-	mCanvas.Draw(RefWindowWidth, RefWindowHeight, mUIRenderer, textRenderer, input.GetMappedMouseCoord());
+	//mCanvas.Draw(RefWindowWidth, RefWindowHeight, mUIRenderer, textRenderer);
+#if ! defined(__ANDROID__) && ! defined(__OHOS__)
+	mMouseCursor.Draw(mUIRenderer, input.GetMappedMouseCoord());
+#endif
 
 	for (size_t i = 0; i < mScreenStackSize; ++i) {
-		mScreens[mScreenStack[i].Get()]->Draw(mScreenStack[mScreenStackSize - 1]);
+		mScreens[mScreenStack[i].Get()]->Draw(mUIRenderer);
 	}
 	mRenderActionMgr.RunActions(dt);
 

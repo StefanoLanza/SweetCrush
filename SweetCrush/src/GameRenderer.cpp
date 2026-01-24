@@ -205,7 +205,7 @@ public:
 
 		mGraphics.SetPipeline(mPipelineAdditive);
 
-		const Texture& texture = *gameTextures[glowSprite];
+		const Texture& texture = *gameTextures[blastSprite];
 		const int      uniforms[] = { mBlastProgram.mCoords, mBlastProgram.mColor };
 		unsigned       textureIds[] = { texture.GetTextureId() };
 		const float    uniformData[] = {

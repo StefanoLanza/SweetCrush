@@ -77,9 +77,13 @@ struct UIButtonDesc {
 
 struct UIPanelDesc {
 	UIBaseDesc;
-	const char*   background = nullptr;
-	Color         backgroundColor = whiteColor;
-	DrawOrderType drawOrder = 0;
+	const char* background = nullptr;
+	Color       backgroundColor = whiteColor;
+};
+
+struct UICanvasDesc {
+	const char* background = nullptr;
+	Color       backgroundColor = whiteColor;
 };
 
 #undef UIBaseDesc
@@ -118,7 +122,7 @@ public:
 	UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text);
 
 	bool          IsPressed(const Input& input) const;
-	void          Draw(const UIRenderer& renderer, const TextRenderer& textRender, DrawOrderType drawOrder) const;
+	void          Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const;
 	void          UpdateRect(const UIRect& parentRect);
 	UIBitmap*     GetBitmap() const;
 	UIText*       GetText() const;
@@ -147,7 +151,7 @@ public:
 	void          RemoveBitmap(const UIBitmap& bitmap);
 	void          RemoveText(const UIText& text);
 	void          LoadGraphics(Graphics& graphics);
-	void          Draw(const UIRenderer& renderer, const TextRenderer& textRender, DrawOrderType drawOrder) const;
+	void          Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const;
 	void          UpdateRect(const UIRect& parentRect);
 
 private:
@@ -164,16 +168,22 @@ private:
 class UICanvas final {
 public:
 	UICanvas();
+	explicit UICanvas(const UICanvasDesc& desc);
 
-	void     SetBackground(const char* fileName, Graphics& graphics);
-	void     SetMousePointer(const char* fileName, Graphics& graphics);
 	UIPanel& GetPanel();
 	void     LoadGraphics(Graphics& graphics);
-	void     Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, const TextRenderer& textRender, const Vec2& mouseCoords);
+	void     Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder);
 
 private:
-	UIPanel    mPanel;
-	TexturePtr mBackground;
+	UIPanel mPanel;
+};
+
+class UIMouseCursor final {
+public:
+	void SetCursor(const char* fileName, Graphics& graphics);
+	void Draw(const UIRenderer& renderer, const Vec2& mouseCoords);
+
+private:
 	TexturePtr mMousePointer;
 };
 

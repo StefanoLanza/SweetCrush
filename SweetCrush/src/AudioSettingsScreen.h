@@ -10,17 +10,17 @@ class AudioSettingsScreen final : public Wind::GameScreen {
 public:
 	AudioSettingsScreen(Wind::Engine& engine, GameSettings& gameSettings);
 
-	const char*        GetName() const override;
-	void               LoadAssets() override;
-	void               BuildUI(Wind::UICanvas& canvas) override;
+	const char*            GetName() const override;
+	void                   LoadAssets(Wind::Engine& engine) override;
+	void                   BuildUI(Wind::UICanvas& canvas) override;
 	Wind::ScreenTransition Tick(float dt, const Wind::Input& input) override;
-	void               Draw(Wind::ScreenId topScreen) const override;
-	void               Enter(Wind::ScreenId prevScreen, const void* payload) override;
-	void               Exit() override;
-	void               ParseConfig(const char* varName, const char* varValue) override;
+	void                   Draw(Wind::UIRenderer& uiRenderer) override;
+	void                   Enter(Wind::ScreenId prevScreen, const void* payload) override;
+	void                   Exit() override;
+	void                   ParseConfig(const char* varName, const char* varValue) override;
 
 private:
-//	void RefreshLanguageButton();
+	//	void RefreshLanguageButton();
 	void RefreshMusicButton();
 	void RefreshSfxButton();
 
@@ -30,5 +30,5 @@ private:
 	Wind::UIButton mMusicButton;
 	Wind::UIButton mSfxButton;
 	Wind::UIButton mBackButton;
-	Wind::UIPanel  mPanel;
+	Wind::UICanvas mCanvas;
 };

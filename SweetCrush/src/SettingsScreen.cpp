@@ -61,35 +61,42 @@ const UITextDesc textDescs[] {
 	},
 };
 
+constexpr UICanvasDesc canvasDesc {
+	.background = "gameartguppy/background.png",
+};
+
 } // namespace
 
 // TODO LanguageScreen, AudioScreen
 
 SettingsScreen::SettingsScreen(Engine& engine, GameSettings& gameSettings)
-    : mGameConfig(gameSettings)
+    : mEngine(engine)
+    , mGameConfig(gameSettings)
     , mTitle(textDescs[0], engine)
     , mGraphicsButton(MakeButton(graphicsButtonDesc, buttonBitmapDesc, textDescs[1], engine))
     , mAudioButton(MakeButton(audioButtonDesc, buttonBitmapDesc, textDescs[2], engine))
     , mLanguageButton(MakeButton(languageButtonDesc, buttonBitmapDesc, textDescs[3], engine))
     , mBackButton(MakeButton(backButtonDesc, buttonBitmapDesc, textDescs[4], engine))
-    , mPanel(UIDefaultPanelDesc) {
+    , mCanvas(canvasDesc) {
+	// Build UI
+	Wind::UIPanel& panel = mCanvas.GetPanel();
+	panel.AddText(mTitle);
+	panel.AddButton(mGraphicsButton);
+	panel.AddButton(mLanguageButton);
+	panel.AddButton(mAudioButton);
+	panel.AddButton(mBackButton);
+	RefreshLanguageButton();
 }
 
 const char* SettingsScreen::GetName() const {
 	return "SettingsScreen";
 }
 
-void SettingsScreen::LoadAssets() {
+void SettingsScreen::LoadAssets(Engine& engine) {
+	mCanvas.LoadGraphics(engine.GetGraphics());
 }
 
 void SettingsScreen::BuildUI(UICanvas& canvas) {
-	mPanel.AddText(mTitle);
-	mPanel.AddButton(mGraphicsButton);
-	mPanel.AddButton(mLanguageButton);
-	mPanel.AddButton(mAudioButton);
-	mPanel.AddButton(mBackButton);
-	canvas.GetPanel().AddPanel(mPanel);
-	RefreshLanguageButton();
 }
 
 ScreenTransition SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
@@ -114,15 +121,14 @@ ScreenTransition SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Inp
 	return { ScreenOp::keep };
 }
 
-void SettingsScreen::Draw([[maybe_unused]] ScreenId topScreen) const {
+void SettingsScreen::Draw(Wind::UIRenderer& uiRenderer) {
+	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 }
 
 void SettingsScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
-	mPanel.SetVisible(true);
 }
 
 void SettingsScreen::Exit() {
-	mPanel.SetVisible(false);
 }
 
 void SettingsScreen::RefreshLanguageButton() {

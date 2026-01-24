@@ -16,9 +16,10 @@ struct UIDrawParams {
 
 class UIRenderer final {
 public:
-	explicit UIRenderer(Graphics& graphics);
+	explicit UIRenderer(Graphics& graphics, TextRenderer& textRenderer);
 	~UIRenderer();
 
+	const TextRenderer& GetTextRenderer() const;
 	void DrawRect(const UIRect& rect, const Texture& texture, const UIDrawParams& prms) const;
 
 private:

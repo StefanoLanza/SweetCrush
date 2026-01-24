@@ -56,7 +56,7 @@ const char* LevelCompleteScreen::GetName() const {
 	return "LevelCompleteScreen";
 }
 
-void LevelCompleteScreen::LoadAssets() {
+void LevelCompleteScreen::LoadAssets(Engine& engine) {
 }
 
 void LevelCompleteScreen::BuildUI(UICanvas& canvas) {
@@ -72,7 +72,7 @@ Wind::ScreenTransition LevelCompleteScreen::Tick([[maybe_unused]] float dt, cons
 	return { ScreenOp::keep };
 }
 
-void LevelCompleteScreen::Draw([[maybe_unused]] Wind::ScreenId topScreen) const {
+void LevelCompleteScreen::Draw(Wind::UIRenderer& uiRenderer) {
 	// TODO show collected pastries?
 }
 
