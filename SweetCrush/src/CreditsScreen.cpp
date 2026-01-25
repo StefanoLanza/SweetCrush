@@ -2,6 +2,7 @@
 #include "Localization.h"
 #include "ScreenIds.h"
 #include "UIDefs.h"
+#include "Constants.h"
 
 #include <engine/Engine.h>
 #include <engine/Input.h>
@@ -72,16 +73,26 @@ const UITextDesc backText {
 	.stringId = (StringId)GameStringId::back,
 };
 
+constexpr UICanvasDesc canvasDesc {
+	.background = "gameartguppy/background.png",
+};
+
 } // namespace
 
 CreditsScreen::CreditsScreen(Engine& engine)
-    : mTitle(titleText, engine)
-    , mCodeBy(codeByText, engine)
-    , mGraphicsBy(graphicsByText, engine)
-    , mMusicBy(musicByText, engine)
-    , mVersion(versionText, engine)
+    : mTitle(titleText, engine.GetTextRenderer())
+    , mCodeBy(codeByText, engine.GetTextRenderer())
+    , mGraphicsBy(graphicsByText, engine.GetTextRenderer())
+    , mMusicBy(musicByText, engine.GetTextRenderer())
+    , mVersion(versionText, engine.GetTextRenderer())
     , mBackButton(MakeButton(backButtonDesc, buttonBitmapDesc, backText, engine))
-    , mPanel(UIDefaultPanelDesc) {
+    , mCanvas(canvasDesc) {
+	mCanvas.AddText(mTitle);
+	mCanvas.AddText(mCodeBy);
+	mCanvas.AddText(mGraphicsBy);
+	mCanvas.AddText(mMusicBy);
+	mCanvas.AddText(mVersion);
+	mCanvas.AddButton(mBackButton);
 }
 
 const char* CreditsScreen::GetName() const {
@@ -101,27 +112,17 @@ ScreenTransition CreditsScreen::Tick(float /*dt*/, const Wind::Input& input) {
 }
 
 void CreditsScreen::Draw(Wind::UIRenderer& uiRenderer) {
+	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 }
 
 void CreditsScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
-	mPanel.SetVisible(true);
 }
 
 void CreditsScreen::Exit() {
-	mPanel.SetVisible(false);
 }
 
 void CreditsScreen::LoadAssets(Engine& engine) {
-}
-
-void CreditsScreen::BuildUI(UICanvas& canvas) {
-	mPanel.AddText(mTitle);
-	mPanel.AddText(mCodeBy);
-	mPanel.AddText(mGraphicsBy);
-	mPanel.AddText(mMusicBy);
-	mPanel.AddText(mVersion);
-	mPanel.AddButton(mBackButton);
-	canvas.GetPanel().AddPanel(mPanel);
+	mCanvas.LoadGraphics(engine.GetGraphics());
 }
 
 void CreditsScreen::ParseConfig(const char* varName, const char* varValue) {

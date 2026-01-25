@@ -80,6 +80,10 @@ constexpr UIPanelDesc boosterPanelDesc {
 	.verticalAlignment = UIVertAlignment::bottom,
 };
 
+constexpr UICanvasDesc canvasDesc {
+	.background = "gameartguppy/background.png",
+};
+
 constexpr float criticalTime = 10.f;
 
 CellVisual& GetVisual(const Cell& cell) {
@@ -99,7 +103,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
     , mGameDataModule(gameDataModule)
     , mBoard { NumCols, NumRows, mGameConfig.board }
     , mCellSelector { std::make_unique<TileSelector>(mBoard, gameConfig) }
-    , mPanel(UIDefaultPanelDesc)
+    , mCanvas(canvasDesc)
     , mBoostersPanel(boosterPanelDesc)
     , mPauseButton(MakeButton(pauseButtonDesc, optionButtonBitmapDesc, engine))
     , mBoosterButtons { MakeButton(booster0ButtonDesc, boosterButtonBitmapDesc, engine),
@@ -111,6 +115,13 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
 	mCellSelector->SetCallback([this](const TileSelectionEvent& event) { OnTileSelectionEvent(event); });
 	mMatch3.SetCallback([this](const Match3Event& event) { OnMatch3Event(event); });
 	mCellGraphics.resize(NumCols * NumRows);
+	// Build UI
+	mCanvas.AddPanel(mBoostersPanel);
+	mBoostersPanel.SetVisible(true);
+	mBoostersPanel.AddButton(mBoosterButtons[0]);
+	mBoostersPanel.AddButton(mBoosterButtons[1]);
+	mBoostersPanel.AddButton(mBoosterButtons[2]);
+	// TODO ? mPanel.AddButton(mPauseButton);
 }
 
 PlayScreen::~PlayScreen() = default;
@@ -120,22 +131,13 @@ const char* PlayScreen::GetName() const {
 }
 
 void PlayScreen::LoadAssets(Engine& engine) {
+	mCanvas.LoadGraphics(engine.GetGraphics());
 	Audio& audio = engine.GetAudio();
 	mMusic = audio.LoadMusic("audio/music.ogg");
 	mSounds[0] = audio.LoadSound("audio/match.wav");
-}
-
-void PlayScreen::BuildUI(UICanvas& canvas) {
 	mFonts[0] = mEngine.GetTextRenderer().AddFont("mediumFont");
 	mFonts[1] = mEngine.GetTextRenderer().AddFont("tiny");
 	mFonts[2] = mEngine.GetTextRenderer().AddFont("smallFont");
-	mPanel.AddPanel(mBoostersPanel);
-	mBoostersPanel.SetVisible(true);
-	mBoostersPanel.AddButton(mBoosterButtons[0]);
-	mBoostersPanel.AddButton(mBoosterButtons[1]);
-	mBoostersPanel.AddButton(mBoosterButtons[2]);
-	// TODO ? mPanel.AddButton(mPauseButton);
-	canvas.GetPanel().AddPanel(mPanel);
 }
 
 ScreenTransition PlayScreen::Tick(float dt, const Input& input) {
@@ -233,14 +235,14 @@ void PlayScreen::SelectBooster(const Input& input) {
 
 void PlayScreen::Draw(Wind::UIRenderer& uiRenderer) {
 	mGameRenderer.DrawBoard(mBoard, mCellSelector->GetSelectedTile(), mGameConfig, mTime);
-	DrawUI();
+	DrawUI(uiRenderer);
 
 	float t01 = (0.5f + 0.5f * sinf(mMatchTime * 5.0f));
 	Color c = whiteColor;
 	c.a = 255.f * t01;
-	//mGameRenderer.DrawBlast({ 300.f, 300.f }, 256.f * t01, 64, c);
-	//mGameRenderer.DrawLaser({ 0.f, 300.f }, { RefWindowWidth, 300.f }, 64);
-	// mGameRenderer.DrawLaser({ 100.f, 0.f }, { 100.f, mGameConfig.board.bottomRightCoord.y }, 64, 0.5f + 0.5f * sinf(mMatchTime * 5.0f));
+	// mGameRenderer.DrawBlast({ 300.f, 300.f }, 256.f * t01, 64, c);
+	// mGameRenderer.DrawLaser({ 0.f, 300.f }, { RefWindowWidth, 300.f }, 64);
+	//  mGameRenderer.DrawLaser({ 100.f, 0.f }, { 100.f, mGameConfig.board.bottomRightCoord.y }, 64, 0.5f + 0.5f * sinf(mMatchTime * 5.0f));
 }
 
 void PlayScreen::Enter(ScreenId prevScreen, const void* payload) {
@@ -270,13 +272,11 @@ void PlayScreen::Enter(ScreenId prevScreen, const void* payload) {
 	else {
 		PlayMusic();
 	}
-	mPanel.SetVisible(true);
 	mTime = 0.f;
 }
 
 void PlayScreen::Exit() {
 	mRenderActionMgr.Clear(); // stop showing score and other effects
-	mPanel.SetVisible(false);
 	PauseMusic();
 }
 
@@ -485,13 +485,15 @@ void PlayScreen::CheckLevelCompletion() {
 	}
 }
 
-void PlayScreen::DrawUI() const {
+void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 	const TextRenderer& textRenderer = mEngine.GetTextRenderer();
 	const TextStyle     textStyle { whiteColor, blackColor };
 	const TextStyle     textStyle1 { redColor, blackColor };
 	const Level&        level = *mGameDataModule.GetLevel(mMatchStats.level);
 	char                tmp[256];
 	const float         y = 60.f;
+
+	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 
 	snprintf(tmp, sizeof(tmp), "%04d", mMatchStats.score);
 	textRenderer.Write(*mFonts[2], tmp, Vec2 { 60, y }, textStyle, GameDrawOrder::overlays);

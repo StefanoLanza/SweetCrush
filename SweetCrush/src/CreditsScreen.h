@@ -4,13 +4,12 @@
 #include <engine/GameScreen.h>
 #include <engine/UI.h>
 
-class CreditsScreen final : public Wind::GameScreen {
+class CreditsScreen final : public Wind::Screen {
 public:
 	explicit CreditsScreen(Wind::Engine& engine);
 
 	const char*            GetName() const override;
 	void                   LoadAssets(Wind::Engine& engine) override;
-	void                   BuildUI(Wind::UICanvas& canvas) override;
 	Wind::ScreenTransition Tick(float dt, const Wind::Input& input) override;
 	void                   Draw(Wind::UIRenderer& uiRenderer) override;
 	void                   Enter(Wind::ScreenId prevScreen, const void* payload) override;
@@ -24,5 +23,5 @@ private:
 	Wind::UIText   mMusicBy;
 	Wind::UIText   mVersion;
 	Wind::UIButton mBackButton;
-	Wind::UIPanel  mPanel;
+	Wind::UICanvas mCanvas;
 };

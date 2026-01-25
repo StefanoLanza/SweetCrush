@@ -3,6 +3,7 @@
 #include "Localization.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
+#include "Constants.h"
 #include "UIDefs.h"
 
 #include <engine/Engine.h>
@@ -59,15 +60,22 @@ const UITextDesc textDescs[] {
 	},
 };
 
+constexpr UICanvasDesc canvasDesc {
+	.background = "gameartguppy/background.png",
+};
+
 } // namespace
 
 GameOverScreen::GameOverScreen(Engine& engine, const MatchStats& matchStats)
     : mEngine(engine)
     , mMatchStats(matchStats)
-    , mTitle(textDescs[0], engine)
+    , mTitle(textDescs[0], engine.GetTextRenderer())
     , mReplayLevelButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
     , mContinueButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2], engine))
-    , mPanel(UIDefaultPanelDesc) {
+    , mCanvas(canvasDesc) {
+	mCanvas.AddText(mTitle);
+	mCanvas.AddButton(mReplayLevelButton);
+	mCanvas.AddButton(mContinueButton);
 }
 
 const char* GameOverScreen::GetName() const {
@@ -75,14 +83,8 @@ const char* GameOverScreen::GetName() const {
 }
 
 void GameOverScreen::LoadAssets(Engine& engine) {
-	mFont = mEngine.GetTextRenderer().AddFont("smallFont");
-}
-
-void GameOverScreen::BuildUI(UICanvas& canvas) {
-	mPanel.AddText(mTitle);
-	mPanel.AddButton(mReplayLevelButton);
-	mPanel.AddButton(mContinueButton);
-	canvas.GetPanel().AddPanel(mPanel);
+	mFont = engine.GetTextRenderer().AddFont("smallFont");
+	mCanvas.LoadGraphics(engine.GetGraphics());
 }
 
 ScreenTransition GameOverScreen::Tick(float /*dt*/, const Wind::Input& input) {
@@ -96,6 +98,7 @@ ScreenTransition GameOverScreen::Tick(float /*dt*/, const Wind::Input& input) {
 }
 
 void GameOverScreen::Draw(Wind::UIRenderer& uiRenderer) {
+	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 	if (! mFont) {
 		return;
 	}
@@ -109,11 +112,9 @@ void GameOverScreen::Draw(Wind::UIRenderer& uiRenderer) {
 }
 
 void GameOverScreen::Enter(ScreenId /*prevScreen*/, const void* payload) {
-	mPanel.SetVisible(true);
 }
 
 void GameOverScreen::Exit() {
-	mPanel.SetVisible(false);
 }
 
 void GameOverScreen::ParseConfig(const char* varName, const char* varValue) {

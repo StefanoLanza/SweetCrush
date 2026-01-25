@@ -66,27 +66,24 @@ const UIPanelDesc panelDesc {
 } // namespace
 
 EffectInfoPanel::EffectInfoPanel(Engine& engine)
-    : mTitle(textDesc[0], engine)
-    , mText(textDesc[1], engine)
+    : mTitle(textDesc[0], engine.GetTextRenderer())
+    , mText(textDesc[1], engine.GetTextRenderer())
     , mOKButton(MakeButton(buttonDesc, buttonBitmapDesc, textDesc[2], engine))
-    , mEffectIcon(effectIconDesc, engine.GetGraphics())
+    , mEffectIcon(effectIconDesc)
     , mPanel(panelDesc)
     , mShowHelp {} {
 	for (bool& b : mShowHelp) {
 		b = true;
 	}
-}
 
-void EffectInfoPanel::LoadAssets(Wind::Engine& engine) {
-}
-
-void EffectInfoPanel::BuildUI(UICanvas& canvas) {
-	mPanel.SetVisible(false);
 	mPanel.AddBitmap(mEffectIcon);
 	mPanel.AddButton(mOKButton);
 	mPanel.AddText(mTitle);
 	mPanel.AddText(mText);
-	canvas.GetPanel().AddPanel(mPanel);
+}
+
+void EffectInfoPanel::LoadAssets(Wind::Engine& engine) {
+	mPanel.LoadGraphics(engine.GetGraphics());
 }
 
 const char* EffectInfoPanel::GetName() const {
@@ -107,6 +104,7 @@ ScreenTransition EffectInfoPanel::Tick(float dt, const Input& input) {
 }
 
 void EffectInfoPanel::Draw(Wind::UIRenderer& uiRenderer) {
+	mPanel.Draw(uiRenderer, 0); // TODO Rect
 }
 
 void EffectInfoPanel::Enter(ScreenId prevScreen, const void* payload) {

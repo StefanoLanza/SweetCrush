@@ -1,8 +1,10 @@
 #include "LevelCompleteScreen.h"
+#include "Constants.h"
 #include "Localization.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
 #include "UIDefs.h"
+
 #include <engine/Engine.h>
 #include <engine/TextRender.h>
 #include <engine/UI.h>
@@ -42,14 +44,21 @@ const UITextDesc textDescs[] {
 	},
 };
 
+constexpr UICanvasDesc canvasDesc {
+	.background = "gameartguppy/background.png",
+};
+
 } // namespace
 
 LevelCompleteScreen::LevelCompleteScreen(Engine& engine, const MatchStats& matchStats)
     : mEngine(engine)
     , mMatchStats(matchStats)
-    , mTitle(textDescs[0], engine)
+    , mTitle(textDescs[0], engine.GetTextRenderer())
     , mNextLevelButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
-    , mPanel(UIDefaultPanelDesc) {
+    , mCanvas(canvasDesc) {
+	// Setup UI
+	mCanvas.AddText(mTitle);
+	mCanvas.AddButton(mNextLevelButton);
 }
 
 const char* LevelCompleteScreen::GetName() const {
@@ -57,12 +66,7 @@ const char* LevelCompleteScreen::GetName() const {
 }
 
 void LevelCompleteScreen::LoadAssets(Engine& engine) {
-}
-
-void LevelCompleteScreen::BuildUI(UICanvas& canvas) {
-	mPanel.AddText(mTitle);
-	mPanel.AddButton(mNextLevelButton);
-	canvas.GetPanel().AddPanel(mPanel);
+	mCanvas.LoadGraphics(engine.GetGraphics());
 }
 
 Wind::ScreenTransition LevelCompleteScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
@@ -74,14 +78,13 @@ Wind::ScreenTransition LevelCompleteScreen::Tick([[maybe_unused]] float dt, cons
 
 void LevelCompleteScreen::Draw(Wind::UIRenderer& uiRenderer) {
 	// TODO show collected pastries?
+	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 }
 
 void LevelCompleteScreen::Enter([[maybe_unused]] Wind::ScreenId prevScreen, const void* payload) {
-	mPanel.SetVisible(true);
 }
 
 void LevelCompleteScreen::Exit() {
-	mPanel.SetVisible(false);
 }
 
 void LevelCompleteScreen::ParseConfig(const char* varName, const char* varValue) {

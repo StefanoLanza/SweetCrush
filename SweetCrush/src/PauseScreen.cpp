@@ -1,8 +1,10 @@
-#include "PauseGameScreen.h"
+#include "PauseScreen.h"
+#include "Constants.h"
 #include "Localization.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
 #include "UIDefs.h"
+
 #include <engine/Engine.h>
 #include <engine/Input.h>
 #include <engine/TextRender.h>
@@ -69,33 +71,34 @@ const UITextDesc textDescs[] {
 	},
 };
 
+constexpr UICanvasDesc canvasDesc {
+	.background = "gameartguppy/background.png",
+};
+
 } // namespace
 
-PauseGameScreen::PauseGameScreen(Engine& engine)
+PauseScreen::PauseScreen(Engine& engine)
     : mEngine(engine)
-    , mTitle(textDescs[0], engine)
+    , mTitle(textDescs[0], engine.GetTextRenderer())
     , mContinueButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
     , mRestartLevelButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2], engine))
     , mExitGameButton(MakeButton(buttonDescs[2], buttonBitmapDesc, textDescs[3], engine))
-    , mPanel(UIDefaultPanelDesc) {
+    , mCanvas(canvasDesc) {
+	mCanvas.AddText(mTitle);
+	mCanvas.AddButton(mContinueButton);
+	mCanvas.AddButton(mRestartLevelButton);
+	mCanvas.AddButton(mExitGameButton);
 }
 
-const char* PauseGameScreen::GetName() const {
+const char* PauseScreen::GetName() const {
 	return "PauseGameScreen";
 }
 
-void PauseGameScreen::LoadAssets(Engine& engine) {
+void PauseScreen::LoadAssets(Engine& engine) {
+	mCanvas.LoadGraphics(engine.GetGraphics());
 }
 
-void PauseGameScreen::BuildUI(UICanvas& canvas) {
-	mPanel.AddText(mTitle);
-	mPanel.AddButton(mContinueButton);
-	mPanel.AddButton(mRestartLevelButton);
-	mPanel.AddButton(mExitGameButton);
-	canvas.GetPanel().AddPanel(mPanel);
-}
-
-ScreenTransition PauseGameScreen::Tick(float /*dt*/, const Wind::Input& input) {
+ScreenTransition PauseScreen::Tick(float /*dt*/, const Wind::Input& input) {
 #if defined(__ANDROID__) || defined(__OHOS__)
 	if (input.GetKeyJustPressed(SDLK_AC_BACK)) {
 #elif defined(_WIN32) || defined(__linux__)
@@ -117,16 +120,15 @@ ScreenTransition PauseGameScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	return { ScreenOp::keep };
 }
 
-void PauseGameScreen::Draw(Wind::UIRenderer& uiRenderer) {
+void PauseScreen::Draw(Wind::UIRenderer& uiRenderer) {
+	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 }
 
-void PauseGameScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
-	mPanel.SetVisible(true);
+void PauseScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
 }
 
-void PauseGameScreen::Exit() {
-	mPanel.SetVisible(false);
+void PauseScreen::Exit() {
 }
 
-void PauseGameScreen::ParseConfig(const char* varName, const char* varValue) {
+void PauseScreen::ParseConfig(const char* varName, const char* varValue) {
 }

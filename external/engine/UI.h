@@ -90,7 +90,7 @@ struct UICanvasDesc {
 
 class UIText final {
 public:
-	UIText(const UITextDesc& desc, Engine& engine);
+	UIText(const UITextDesc& desc, TextRenderer& textRenderer);
 
 	void Draw(const TextRenderer& textRender, DrawOrderType drawOrder) const;
 	void UpdateRect(const UIRect& parentRect);
@@ -104,12 +104,13 @@ private:
 
 class UIBitmap {
 public:
-	UIBitmap(const UIBitmapDesc& desc, Graphics& graphics);
+	explicit UIBitmap(const UIBitmapDesc& desc);
 
+	void           LoadGraphics(Graphics& graphics);
 	void           Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const;
 	void           UpdateRect(const UIRect& parentRect);
 	void           SetBitmap(const TexturePtr& bitmap);
-	const Texture& GetBitmap() const;
+	const Texture* GetBitmap() const;
 
 private:
 	UIBitmapDesc mDesc;
@@ -122,6 +123,7 @@ public:
 	UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text);
 
 	bool          IsPressed(const Input& input) const;
+	void          LoadGraphics(Graphics& graphics);
 	void          Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const;
 	void          UpdateRect(const UIRect& parentRect);
 	UIBitmap*     GetBitmap() const;
@@ -146,12 +148,8 @@ public:
 	void          AddButton(UIButton& button);
 	void          AddBitmap(UIBitmap& bitmap);
 	void          AddText(UIText& text);
-	void          RemovePanel(const UIPanel& panel);
-	void          RemoveButton(const UIButton& button);
-	void          RemoveBitmap(const UIBitmap& bitmap);
-	void          RemoveText(const UIText& text);
 	void          LoadGraphics(Graphics& graphics);
-	void          Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const;
+	void          Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	void          UpdateRect(const UIRect& parentRect);
 
 private:
@@ -170,9 +168,12 @@ public:
 	UICanvas();
 	explicit UICanvas(const UICanvasDesc& desc);
 
-	UIPanel& GetPanel();
-	void     LoadGraphics(Graphics& graphics);
-	void     Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder);
+	void AddPanel(UIPanel& panel);
+	void AddButton(UIButton& button);
+	void AddBitmap(UIBitmap& bitmap);
+	void AddText(UIText& text);
+	void LoadGraphics(Graphics& graphics);
+	void Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder);
 
 private:
 	UIPanel mPanel;

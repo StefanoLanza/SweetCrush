@@ -55,15 +55,14 @@ constexpr UICanvasDesc canvasDesc {
 
 GraphicsSettingsScreen::GraphicsSettingsScreen(Engine& engine, GameSettings& gameSettings)
     : mGameConfig(gameSettings)
-    , mTitle(textDescs[0], engine)
+    , mTitle(textDescs[0], engine.GetTextRenderer())
     , mFilterButton(MakeButton(filterButtonDesc, buttonBitmapDesc, textDescs[1], engine))
     , mBackButton(MakeButton(backButtonDesc, buttonBitmapDesc, textDescs[2], engine))
     , mCanvas(canvasDesc) {
 	// Setup UI
-	Wind::UIPanel& panel = mCanvas.GetPanel();
-	panel.AddText(mTitle);
-	panel.AddButton(mFilterButton);
-	panel.AddButton(mBackButton);
+	mCanvas.AddText(mTitle);
+	mCanvas.AddButton(mFilterButton);
+	mCanvas.AddButton(mBackButton);
 }
 
 const char* GraphicsSettingsScreen::GetName() const {
@@ -72,10 +71,6 @@ const char* GraphicsSettingsScreen::GetName() const {
 
 void GraphicsSettingsScreen::LoadAssets(Engine& engine) {
 	mCanvas.LoadGraphics(engine.GetGraphics());
-}
-
-void GraphicsSettingsScreen::BuildUI(UICanvas& canvas) {
-	//	RefreshLanguageButton();
 }
 
 ScreenTransition GraphicsSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {

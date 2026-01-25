@@ -63,11 +63,18 @@ constexpr UICanvasDesc canvasDesc {
 
 AudioSettingsScreen::AudioSettingsScreen(Engine& engine, GameSettings& gameSettings)
     : mGameConfig(gameSettings)
-    , mTitle(titleTextDesc, engine)
+    , mTitle(titleTextDesc, engine.GetTextRenderer())
     , mMusicButton(MakeButton(musicButtonDesc, buttonBitmapDesc, musicButtonTextDesc, engine))
     , mSfxButton(MakeButton(sfxButtonDesc, buttonBitmapDesc, sfxButtonTextDesc, engine))
     , mBackButton(MakeButton(backButtonDesc, buttonBitmapDesc, backTextDesc, engine))
     , mCanvas(canvasDesc) {
+	// Build UI
+	mCanvas.AddText(mTitle);
+	mCanvas.AddButton(mMusicButton);
+	mCanvas.AddButton(mSfxButton);
+	mCanvas.AddButton(mBackButton);
+	RefreshMusicButton();
+	RefreshSfxButton();
 }
 
 const char* AudioSettingsScreen::GetName() const {
@@ -76,16 +83,6 @@ const char* AudioSettingsScreen::GetName() const {
 
 void AudioSettingsScreen::LoadAssets(Engine& engine) {
 	mCanvas.LoadGraphics(engine.GetGraphics());
-}
-
-void AudioSettingsScreen::BuildUI(UICanvas& canvas) {
-	Wind::UIPanel& panel = mCanvas.GetPanel();
-	panel.AddText(mTitle);
-	panel.AddButton(mMusicButton);
-	panel.AddButton(mSfxButton);
-	panel.AddButton(mBackButton);
-	RefreshMusicButton();
-	RefreshSfxButton();
 }
 
 ScreenTransition AudioSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {

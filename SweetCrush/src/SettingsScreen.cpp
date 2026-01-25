@@ -72,19 +72,18 @@ constexpr UICanvasDesc canvasDesc {
 SettingsScreen::SettingsScreen(Engine& engine, GameSettings& gameSettings)
     : mEngine(engine)
     , mGameConfig(gameSettings)
-    , mTitle(textDescs[0], engine)
+    , mTitle(textDescs[0], engine.GetTextRenderer())
     , mGraphicsButton(MakeButton(graphicsButtonDesc, buttonBitmapDesc, textDescs[1], engine))
     , mAudioButton(MakeButton(audioButtonDesc, buttonBitmapDesc, textDescs[2], engine))
     , mLanguageButton(MakeButton(languageButtonDesc, buttonBitmapDesc, textDescs[3], engine))
     , mBackButton(MakeButton(backButtonDesc, buttonBitmapDesc, textDescs[4], engine))
     , mCanvas(canvasDesc) {
 	// Build UI
-	Wind::UIPanel& panel = mCanvas.GetPanel();
-	panel.AddText(mTitle);
-	panel.AddButton(mGraphicsButton);
-	panel.AddButton(mLanguageButton);
-	panel.AddButton(mAudioButton);
-	panel.AddButton(mBackButton);
+	mCanvas.AddText(mTitle);
+	mCanvas.AddButton(mGraphicsButton);
+	mCanvas.AddButton(mLanguageButton);
+	mCanvas.AddButton(mAudioButton);
+	mCanvas.AddButton(mBackButton);
 	RefreshLanguageButton();
 }
 
@@ -94,9 +93,6 @@ const char* SettingsScreen::GetName() const {
 
 void SettingsScreen::LoadAssets(Engine& engine) {
 	mCanvas.LoadGraphics(engine.GetGraphics());
-}
-
-void SettingsScreen::BuildUI(UICanvas& canvas) {
 }
 
 ScreenTransition SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {

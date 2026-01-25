@@ -6,13 +6,12 @@
 
 class GameRenderer;
 
-class MainScreen final : public Wind::GameScreen {
+class MainScreen final : public Wind::Screen {
 public:
 	explicit MainScreen(Wind::Engine& engine, const GameRenderer& gameRenderer);
 
 	const char*            GetName() const override;
 	void                   LoadAssets(Wind::Engine& engine) override;
-	void                   BuildUI(Wind::UICanvas& canvas) override;
 	Wind::ScreenTransition Tick(float dt, const Wind::Input& input) override;
 	void                   Draw(Wind::UIRenderer& uiRenderer) override;
 	void                   Enter(Wind::ScreenId prevScreen, const void* payload) override;
@@ -30,5 +29,5 @@ private:
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
 	Wind::UIButton mQuitButton;
 #endif
-	float         mTime;
+	float mTime;
 };

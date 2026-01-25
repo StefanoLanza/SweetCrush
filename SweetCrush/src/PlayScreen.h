@@ -17,20 +17,19 @@ struct MatchStats;
 class GameDataModule;
 class GameRenderer;
 
-class PlayScreen final : public Wind::GameScreen {
+class PlayScreen final : public Wind::Screen {
 public:
 	PlayScreen(Wind::Engine& engine, const GameRenderer& gameRenderer, const AppConfig& gameConfig, const GameSettings& gameSettings,
 	           Wind::ActionMgr& renderActionMgr, MatchStats& matchStats, const GameDataModule& gameDataModule);
 	~PlayScreen();
 
-	const char*        GetName() const override;
-	void               LoadAssets(Wind::Engine& engine) override;
-	void               BuildUI(Wind::UICanvas& canvas) override;
+	const char*            GetName() const override;
+	void                   LoadAssets(Wind::Engine& engine) override;
 	Wind::ScreenTransition Tick(float dt, const Wind::Input& input) override;
-	void               Draw(Wind::UIRenderer& uiRenderer) override;
-	void               Enter(Wind::ScreenId prevScreen, const void* payload) override;
-	void               Exit() override;
-	void               ParseConfig(const char* varName, const char* varValue) override;
+	void                   Draw(Wind::UIRenderer& uiRenderer) override;
+	void                   Enter(Wind::ScreenId prevScreen, const void* payload) override;
+	void                   Exit() override;
+	void                   ParseConfig(const char* varName, const char* varValue) override;
 
 private:
 	void SelectBooster(const Wind::Input& input);
@@ -43,7 +42,7 @@ private:
 	void OnPieceRemoved(const Cell& cell);
 	void OnMatch3Event(const Match3Event& event);
 	void CheckLevelCompletion();
-	void DrawUI() const;
+	void DrawUI(Wind::UIRenderer& uiRenderer);
 	int  IncreaseScore(const MatchEvent& match);
 	void PlayMusic() const;
 	void StopMusic() const;
@@ -63,7 +62,7 @@ private:
 	Board                         mBoard;
 	BoardGenerator                mBoardGenerator;
 	std::unique_ptr<TileSelector> mCellSelector;
-	Wind::UIPanel                 mPanel;
+	Wind::UICanvas                mCanvas;
 	Wind::UIButton                mPauseButton;
 	Wind::UIPanel                 mBoostersPanel;
 	Wind::UIButton                mBoosterButtons[3];

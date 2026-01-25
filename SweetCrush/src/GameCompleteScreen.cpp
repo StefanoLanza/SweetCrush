@@ -1,12 +1,15 @@
 #include "GameCompleteScreen.h"
+#include "Constants.h"
 #include "GameDrawOrder.h"
 #include "Localization.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
 #include "UIDefs.h"
+
 #include <engine/Engine.h>
 #include <engine/TextRender.h>
 #include <engine/UI.h>
+#include <engine/UIRenderer.h>
 
 #include <cstdio>
 
@@ -53,15 +56,22 @@ const UIBitmapDesc panelBitmapDesc {
 	.blending = UIBlending::on,
 };
 
+constexpr UICanvasDesc canvasDesc {
+	.background = "gameartguppy/background.png",
+};
+
 } // namespace
 
 GameCompleteScreen::GameCompleteScreen(Engine& engine, const MatchStats& matchStats)
     : mEngine(engine)
     , mMatchStats(matchStats)
-    , mTitle(textDescs[0], engine)
+    , mTitle(textDescs[0], engine.GetTextRenderer())
     , mContinueButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
-    , mPanelBitmap(panelBitmapDesc, engine.GetGraphics())
-    , mPanel(UIDefaultPanelDesc) {
+    , mPanelBitmap(panelBitmapDesc)
+    , mCanvas(canvasDesc) {
+	mCanvas.AddText(mTitle);
+	mCanvas.AddButton(mContinueButton);
+	// mmCanvas.AddBitmap(mPanelBitmap);
 }
 
 const char* GameCompleteScreen::GetName() const {
@@ -72,13 +82,6 @@ void GameCompleteScreen::LoadAssets(Engine& engine) {
 	mFont = engine.GetTextRenderer().AddFont("smallFont");
 }
 
-void GameCompleteScreen::BuildUI(UICanvas& canvas) {
-	mPanel.AddText(mTitle);
-	mPanel.AddButton(mContinueButton);
-	// mPanel.AddBitmap(mPanelBitmap);
-	canvas.GetPanel().AddPanel(mPanel);
-}
-
 ScreenTransition GameCompleteScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	if (mContinueButton.IsPressed(input)) {
 		return { ScreenOp::replace, GameScreenIds::mainMenu };
@@ -87,10 +90,11 @@ ScreenTransition GameCompleteScreen::Tick(float /*dt*/, const Wind::Input& input
 }
 
 void GameCompleteScreen::Draw(Wind::UIRenderer& uiRenderer) {
+	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 	if (! mFont) {
 		return;
 	}
-	const auto&     textRenderer = mEngine.GetTextRenderer();
+	const auto&     textRenderer = uiRenderer.GetTextRenderer();
 	char            tmp[256];
 	const TextStyle textStyle { whiteColor, blackColor };
 	snprintf(tmp, sizeof(tmp), "%s", GetLocalizedString(GameStringId::youCompletedAllLevels));
@@ -100,11 +104,9 @@ void GameCompleteScreen::Draw(Wind::UIRenderer& uiRenderer) {
 }
 
 void GameCompleteScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
-	mPanel.SetVisible(true);
 }
 
 void GameCompleteScreen::Exit() {
-	mPanel.SetVisible(false);
 }
 
 void GameCompleteScreen::ParseConfig(const char* varName, const char* varValue) {

@@ -4,8 +4,8 @@
 
 namespace Wind {
 
-class GameScreen;
-using ScreenId = Id<GameScreen>;
+class Screen;
+using ScreenId = Id<Screen>;
 
 enum class ScreenOp {
 	keep,
@@ -23,13 +23,12 @@ struct ScreenTransition {
 class UICanvas;
 class UIRenderer;
 
-class GameScreen {
+class Screen {
 public:
-	virtual ~GameScreen() = default;
+	virtual ~Screen() = default;
 	virtual const char*      GetName() const = 0;
 	virtual ScreenTransition Tick(float dt, const Input& input) = 0;
 	virtual void             LoadAssets(Wind::Engine& engine) = 0;
-	virtual void             BuildUI(UICanvas& canvas) = 0;
 	virtual void             Draw(UIRenderer& uiRenderer) = 0;
 	virtual void             Enter(ScreenId prevScreen, const void* payload) = 0;
 	virtual void             Exit() = 0;

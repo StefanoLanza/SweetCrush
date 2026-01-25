@@ -32,12 +32,11 @@ private:
 	GameDataModule&                   mGameDataModule;
 	GameSettings                      mGameSettings;
 	Wind::GlFrameBuffer               mFrameBuffer;
-	Wind::UICanvas                    mCanvas;
 	Wind::UIMouseCursor               mMouseCursor;
 	Wind::UIRenderer                  mUIRenderer;
 	MatchStats                        mMatchStats;
 	Wind::ActionMgr                   mRenderActionMgr;
 	Wind::ScreenId                    mScreenStack[2];
 	int                               mScreenStackSize;
-	std::unique_ptr<Wind::GameScreen> mScreens[11];
+	std::unique_ptr<Wind::Screen> mScreens[11];
 };

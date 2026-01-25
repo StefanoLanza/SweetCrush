@@ -56,6 +56,12 @@ bool UIButton::IsPressed(const Input& input) const {
 	return res;
 }
 
+void UIButton::LoadGraphics(Graphics& graphics) {
+	if (mBitmap) {
+		mBitmap->LoadGraphics(graphics);
+	}
+}
+
 void UIButton::Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const {
 	if (mBitmap) {
 		mBitmap->Draw(renderer, drawOrder);
@@ -67,13 +73,13 @@ void UIButton::Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const {
 
 void UIButton::UpdateRect(const UIRect& parentRect) {
 	UISize size = mDesc.size;
-	if (mBitmap) {
+	if (mBitmap && mBitmap->GetBitmap()) {
 		if (size.rWidth < 0.f && size.aWidth < 0.0f) {
-			size.aWidth = static_cast<float>(mBitmap->GetBitmap().Width());
+			size.aWidth = static_cast<float>(mBitmap->GetBitmap()->Width());
 			size.rWidth = 0.f;
 		}
 		if (size.rHeight < 0.f && size.aHeight < 0.0f) {
-			size.aHeight = static_cast<float>(mBitmap->GetBitmap().Height());
+			size.aHeight = static_cast<float>(mBitmap->GetBitmap()->Height());
 			size.rHeight = 0.f;
 		}
 	}
@@ -99,9 +105,9 @@ const UIRect& UIButton::GetRect() const {
 	return mRect;
 }
 
-UIText::UIText(const UITextDesc& desc, Engine& engine)
+UIText::UIText(const UITextDesc& desc, TextRenderer& textRenderer)
     : mDesc(desc)
-    , mFont(engine.GetTextRenderer().AddFont(desc.font))
+    , mFont(textRenderer.AddFont(desc.font))
     , mAlignedRect {} {
 }
 
@@ -135,42 +141,51 @@ void UIText::SetText(StringId stringId) {
 	mDesc.stringId = stringId;
 }
 
-UIBitmap::UIBitmap(const UIBitmapDesc& desc, Graphics& graphics)
+UIBitmap::UIBitmap(const UIBitmapDesc& desc)
     : mDesc(desc)
-    , mBitmap(graphics.LoadTexture(desc.fileName))
     , mAlignedRect {} {
-	UISize size = mDesc.size;
-	if (size.rWidth <= -1.f) {
-		size.aWidth = static_cast<float>(mBitmap->Width());
-		size.rWidth = 0.f;
-	}
-	if (size.rHeight <= -1.f) {
-		size.aHeight = static_cast<float>(mBitmap->Height());
-		size.rHeight = 0.f;
-	}
-	mDesc.size = size;
+}
+
+void UIBitmap::LoadGraphics(Graphics& graphics) {
+	mBitmap = graphics.LoadTexture(mDesc.fileName);
 }
 
 void UIBitmap::Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const {
-	const UIDrawParams prm {
-		.color = mDesc.color,
-		.blending = mDesc.blending == UIBlending::on,
-		.priority = drawOrder,
-		._9patch = mDesc._9patch,
-	};
-	renderer.DrawRect(mAlignedRect, *mBitmap, prm);
+	if (mBitmap) {
+		const UIDrawParams prm {
+			.color = mDesc.color,
+			.blending = mDesc.blending == UIBlending::on,
+			.priority = drawOrder,
+			._9patch = mDesc._9patch,
+		};
+		renderer.DrawRect(mAlignedRect, *mBitmap, prm);
+	}
 }
 
 void UIBitmap::UpdateRect(const UIRect& parentRect) {
-	mAlignedRect = AlignRect(mDesc.pos, mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
+	if (mBitmap) {
+		UISize size = mDesc.size;
+		if (size.rWidth <= -1.f) {
+			size.aWidth = static_cast<float>(mBitmap->Width());
+			size.rWidth = 0.f;
+		}
+		if (size.rHeight <= -1.f) {
+			size.aHeight = static_cast<float>(mBitmap->Height());
+			size.rHeight = 0.f;
+		}
+		mAlignedRect = AlignRect(mDesc.pos, size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
+	}
+	else {
+		mAlignedRect = {};
+	}
 }
 
 void UIBitmap::SetBitmap(const TexturePtr& bitmap) {
 	mBitmap = bitmap;
 }
 
-const Texture& UIBitmap::GetBitmap() const {
-	return *mBitmap;
+const Texture* UIBitmap::GetBitmap() const {
+	return mBitmap.get();
 }
 
 UIPanel::UIPanel(const UIPanelDesc& desc)
@@ -207,32 +222,22 @@ void UIPanel::AddText(UIText& text) {
 	mTexts.push_back(&text);
 }
 
-void UIPanel::RemovePanel(const UIPanel& panel) {
-	std::erase(mPanels, &panel);
-}
-
-void UIPanel::RemoveButton(const UIButton& button) {
-	std::erase(mButtons, &button);
-}
-
-void UIPanel::RemoveBitmap(const UIBitmap& bitmap) {
-	std::erase(mBitmaps, &bitmap);
-}
-
-void UIPanel::RemoveText(const UIText& text) {
-	std::erase(mTexts, &text);
-}
-
 void UIPanel::LoadGraphics(Graphics& graphics) {
-	if (! mBackground && mDesc.background) {
+	if (mDesc.background) {
 		mBackground = graphics.LoadTexture(mDesc.background);
 	}
 	for (auto& panel : mPanels) {
 		panel->LoadGraphics(graphics);
 	}
+	for (auto& bitmap : mBitmaps) {
+		bitmap->LoadGraphics(graphics);
+	}
+	for (auto& button : mButtons) {
+		button->LoadGraphics(graphics);
+	}
 }
 
-void UIPanel::Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const {
+void UIPanel::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	if (! mVisible) {
 		return;
 	}
@@ -286,12 +291,24 @@ UICanvas::UICanvas(const UICanvasDesc& desc)
     : mPanel(UIPanelDesc { .pos = UIZeroPos, .size = UIParentSize, .background = desc.background, .backgroundColor = desc.backgroundColor }) {
 }
 
-UIPanel& UICanvas::GetPanel() {
-	return mPanel;
-}
-
 void UICanvas::LoadGraphics(Graphics& graphics) {
 	mPanel.LoadGraphics(graphics);
+}
+
+void UICanvas::AddPanel(UIPanel& panel) {
+	mPanel.AddPanel(panel);
+}
+
+void UICanvas::AddButton(UIButton& button) {
+	mPanel.AddButton(button);
+}
+
+void UICanvas::AddBitmap(UIBitmap& bitmap) {
+	mPanel.AddBitmap(bitmap);
+}
+
+void UICanvas::AddText(UIText& text) {
+	mPanel.AddText(text);
 }
 
 void UICanvas::Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder) {
@@ -315,14 +332,11 @@ void UIMouseCursor::Draw(const UIRenderer& renderer, const Vec2& mouseCoords) {
 }
 
 UIButton MakeButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, const UITextDesc& textDesc, Engine& engine) {
-	auto bitmap = std::make_unique<UIBitmap>(bitmapDesc, engine.GetGraphics());
-	auto text = std::make_unique<UIText>(textDesc, engine);
-	return UIButton(desc, std::move(bitmap), std::move(text));
+	return UIButton { desc, std::make_unique<UIBitmap>(bitmapDesc), std::make_unique<UIText>(textDesc, engine.GetTextRenderer()) };
 }
 
 UIButton MakeButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, Engine& engine) {
-	auto bitmap = std::make_unique<UIBitmap>(bitmapDesc, engine.GetGraphics());
-	return UIButton(desc, std::move(bitmap), nullptr);
+	return UIButton { desc, std::make_unique<UIBitmap>(bitmapDesc), nullptr };
 }
 
 } // namespace Wind

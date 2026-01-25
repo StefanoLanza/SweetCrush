@@ -21,7 +21,7 @@
 #include "LevelCompleteScreen.h"
 #include "Localization.h"
 #include "MainScreen.h"
-#include "PauseGameScreen.h"
+#include "PauseScreen.h"
 #include "PlayScreen.h"
 #include "SettingsScreen.h"
 
@@ -46,7 +46,7 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
 	mScreens[3] = std::make_unique<PlayScreen>(mEngine, gameRenderer, mGameConfig, mGameSettings, mRenderActionMgr, mMatchStats, mGameDataModule);
 	mScreens[4] = std::make_unique<GameOverScreen>(mEngine, mMatchStats);
 	mScreens[5] = std::make_unique<GameCompleteScreen>(mEngine, mMatchStats);
-	mScreens[6] = std::make_unique<PauseGameScreen>(mEngine);
+	mScreens[6] = std::make_unique<PauseScreen>(mEngine);
 	mScreens[7] = std::make_unique<LevelCompleteScreen>(mEngine, mMatchStats);
 	mScreens[8] = std::make_unique<GraphicsSettingsScreen>(mEngine, mGameSettings);
 	mScreens[9] = std::make_unique<AudioSettingsScreen>(mEngine, mGameSettings);
@@ -70,21 +70,18 @@ void Game::Run() {
 #endif
 	for (const auto& screen : mScreens) {
 		screen->LoadAssets(mEngine);
-		screen->BuildUI(mCanvas);
 	}
-	//mCanvas.SetBackground("gameartguppy/background.png", mEngine.GetGraphics());
-	//mCanvas.LoadGraphics(mEngine.GetGraphics());
 
 	mScreens[0]->Enter(GameScreenIds::mainMenu, nullptr);
 	mEngine.Start([this](float dt) { Draw(dt); }, [this](float dt) { Tick(dt); });
 }
 
 void Game::Draw(float dt) {
-	const Input&        input = mEngine.GetInput();
-	Graphics&           graphics = mEngine.GetGraphics();
+	const Input& input = mEngine.GetInput();
+	Graphics&    graphics = mEngine.GetGraphics();
 
 	graphics.SetFrameBuffer(mFrameBuffer);
-	//mCanvas.Draw(RefWindowWidth, RefWindowHeight, mUIRenderer, textRenderer);
+	// mCanvas.Draw(RefWindowWidth, RefWindowHeight, mUIRenderer, textRenderer);
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
 	mMouseCursor.Draw(mUIRenderer, input.GetMappedMouseCoord());
 #endif
@@ -110,7 +107,7 @@ void Game::Tick(float dt) {
 	}
 
 	const ScreenId         topScreenId = mScreenStack[mScreenStackSize - 1];
-	GameScreen&            topScreen = *mScreens[topScreenId.Get()];
+	Screen&                topScreen = *mScreens[topScreenId.Get()];
 	const ScreenTransition transition = topScreen.Tick(dt, input);
 	switch (transition.mOp) {
 	case ScreenOp::keep:

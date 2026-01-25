@@ -6,13 +6,12 @@
 
 struct GameSettings;
 
-class SettingsScreen final : public Wind::GameScreen {
+class SettingsScreen final : public Wind::Screen {
 public:
 	SettingsScreen(Wind::Engine& engine, GameSettings& gameSettings);
 
 	const char*            GetName() const override;
 	void                   LoadAssets(Wind::Engine& engine) override;
-	void                   BuildUI(Wind::UICanvas& canvas) override;
 	Wind::ScreenTransition Tick(float dt, const Wind::Input& input) override;
 	void                   Draw(Wind::UIRenderer& uiRenderer) override;
 	void                   Enter(Wind::ScreenId prevScreen, const void* payload) override;
