@@ -1,14 +1,14 @@
 #pragma once
 
 #include <engine/FwdDecl.h>
-#include <engine/GameScreen.h>
+#include <engine/Screen.h>
 #include <engine/UI.h>
 
 struct MatchStats;
 
 class GameOverScreen final : public Wind::Screen {
 public:
-	GameOverScreen(Wind::Engine& engine, const MatchStats& matchStats);
+	explicit GameOverScreen(const MatchStats& matchStats);
 
 	const char*            GetName() const override;
 	void                   LoadAssets(Wind::Engine& engine) override;
@@ -19,7 +19,6 @@ public:
 	void                   ParseConfig(const char* varName, const char* varValue) override;
 
 private:
-	Wind::Engine&     mEngine;
 	const MatchStats& mMatchStats;
 	Wind::UIText      mTitle;
 	Wind::UIButton    mReplayLevelButton;

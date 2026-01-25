@@ -1,14 +1,14 @@
 #pragma once
 
 #include <engine/FwdDecl.h>
-#include <engine/GameScreen.h>
+#include <engine/Screen.h>
 #include <engine/UI.h>
 
 struct GameSettings;
 
 class GraphicsSettingsScreen final : public Wind::Screen {
 public:
-	GraphicsSettingsScreen(Wind::Engine& engine, GameSettings& gameSettings);
+	explicit GraphicsSettingsScreen(GameSettings& gameSettings);
 
 	const char*        GetName() const override;
 	void               LoadAssets(Wind::Engine& engine) override;

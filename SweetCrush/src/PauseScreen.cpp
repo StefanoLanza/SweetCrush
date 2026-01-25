@@ -77,12 +77,11 @@ constexpr UICanvasDesc canvasDesc {
 
 } // namespace
 
-PauseScreen::PauseScreen(Engine& engine)
-    : mEngine(engine)
-    , mTitle(textDescs[0], engine.GetTextRenderer())
-    , mContinueButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
-    , mRestartLevelButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2], engine))
-    , mExitGameButton(MakeButton(buttonDescs[2], buttonBitmapDesc, textDescs[3], engine))
+PauseScreen::PauseScreen()
+    : mTitle(textDescs[0])
+    , mContinueButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1]))
+    , mRestartLevelButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2]))
+    , mExitGameButton(MakeButton(buttonDescs[2], buttonBitmapDesc, textDescs[3]))
     , mCanvas(canvasDesc) {
 	mCanvas.AddText(mTitle);
 	mCanvas.AddButton(mContinueButton);
@@ -95,7 +94,7 @@ const char* PauseScreen::GetName() const {
 }
 
 void PauseScreen::LoadAssets(Engine& engine) {
-	mCanvas.LoadGraphics(engine.GetGraphics());
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
 }
 
 ScreenTransition PauseScreen::Tick(float /*dt*/, const Wind::Input& input) {
@@ -110,17 +109,21 @@ ScreenTransition PauseScreen::Tick(float /*dt*/, const Wind::Input& input) {
 		return { ScreenOp::replace, GameScreenIds::mainMenu };
 	}
 	else if (mRestartLevelButton.IsPressed(input)) {
-		// TODO mRestartLevel = true; // FIXME Return as generic data
-		return { ScreenOp::pop };
+		bool restartLevel = true;
+		ScreenTransition res { ScreenOp::pop };
+		std::memcpy(res.mPayload, &restartLevel, sizeof restartLevel);
+		return res;
 	}
 	else if (mContinueButton.IsPressed(input)) {
-		// TODO mRestartLevel = false;
-		return { ScreenOp::pop };
+		bool restartLevel = false;
+		ScreenTransition res { ScreenOp::pop };
+		std::memcpy(res.mPayload, &restartLevel, sizeof restartLevel);
+		return res;
 	}
 	return { ScreenOp::keep };
 }
 
-void PauseScreen::Draw(Wind::UIRenderer& uiRenderer) {
+void PauseScreen::Draw(UIRenderer& uiRenderer) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 }
 

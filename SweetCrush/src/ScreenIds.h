@@ -1,6 +1,6 @@
 #pragma once
 
-#include <engine/GameScreen.h>
+#include <engine/Screen.h>
 
 namespace GameScreenIds {
 

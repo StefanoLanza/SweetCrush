@@ -3,12 +3,12 @@
 #include "Effects.h"
 
 #include <engine/FwdDecl.h>
-#include <engine/GameScreen.h>
+#include <engine/Screen.h>
 #include <engine/UI.h>
 
 class EffectInfoPanel final : public Wind::Screen {
 public:
-	explicit EffectInfoPanel(Wind::Engine& engine);
+	explicit EffectInfoPanel();
 
 	const char*            GetName() const override;
 	Wind::ScreenTransition Tick(float dt, const Wind::Input& input) override;

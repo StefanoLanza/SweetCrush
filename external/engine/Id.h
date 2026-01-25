@@ -9,6 +9,10 @@ class Id {
 public:
 	using value_type = T;
 
+	Id()
+	    : mValue(0) {
+	}
+
 	constexpr explicit Id(T v)
 	    : mValue(v) {
 	}

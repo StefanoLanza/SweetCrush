@@ -7,7 +7,7 @@
 
 #include <engine/ActionMgr.h>
 #include <engine/FwdDecl.h>
-#include <engine/GameScreen.h>
+#include <engine/Screen.h>
 #include <engine/UI.h>
 
 class TileSelector;

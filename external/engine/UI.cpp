@@ -56,9 +56,12 @@ bool UIButton::IsPressed(const Input& input) const {
 	return res;
 }
 
-void UIButton::LoadGraphics(Graphics& graphics) {
+void UIButton::LoadAssets(Graphics& graphics, TextRenderer& textRenderer) {
 	if (mBitmap) {
 		mBitmap->LoadGraphics(graphics);
+	}
+	if (mText) {
+		mText->Load(textRenderer);
 	}
 }
 
@@ -105,17 +108,20 @@ const UIRect& UIButton::GetRect() const {
 	return mRect;
 }
 
-UIText::UIText(const UITextDesc& desc, TextRenderer& textRenderer)
+UIText::UIText(const UITextDesc& desc)
     : mDesc(desc)
-    , mFont(textRenderer.AddFont(desc.font))
     , mAlignedRect {} {
 }
 
-void UIText::Draw(const TextRenderer& textRender, DrawOrderType drawOrder) const {
+void UIText::Load(TextRenderer& textRenderer) {
+	mFont = textRenderer.AddFont(mDesc.font);
+}
+
+void UIText::Draw(const TextRenderer& textRenderer, DrawOrderType drawOrder) const {
 	if (mFont) {
 		const char* str = GetString(mDesc.stringId);
 		if (str) {
-			textRender.Write(*mFont, str, mAlignedRect.pos, mDesc.textStyle, drawOrder);
+			textRenderer.Write(*mFont, str, mAlignedRect.pos, mDesc.textStyle, drawOrder);
 		}
 	}
 }
@@ -222,18 +228,21 @@ void UIPanel::AddText(UIText& text) {
 	mTexts.push_back(&text);
 }
 
-void UIPanel::LoadGraphics(Graphics& graphics) {
+void UIPanel::LoadAssets(Graphics& graphics, TextRenderer& textRenderer) {
 	if (mDesc.background) {
 		mBackground = graphics.LoadTexture(mDesc.background);
 	}
 	for (auto& panel : mPanels) {
-		panel->LoadGraphics(graphics);
+		panel->LoadAssets(graphics, textRenderer);
 	}
 	for (auto& bitmap : mBitmaps) {
 		bitmap->LoadGraphics(graphics);
 	}
 	for (auto& button : mButtons) {
-		button->LoadGraphics(graphics);
+		button->LoadAssets(graphics, textRenderer);
+	}
+	for (auto& text : mTexts) {
+		text->Load(textRenderer);
 	}
 }
 
@@ -291,8 +300,8 @@ UICanvas::UICanvas(const UICanvasDesc& desc)
     : mPanel(UIPanelDesc { .pos = UIZeroPos, .size = UIParentSize, .background = desc.background, .backgroundColor = desc.backgroundColor }) {
 }
 
-void UICanvas::LoadGraphics(Graphics& graphics) {
-	mPanel.LoadGraphics(graphics);
+void UICanvas::LoadAssets(Graphics& graphics, TextRenderer& textRenderer) {
+	mPanel.LoadAssets(graphics, textRenderer);
 }
 
 void UICanvas::AddPanel(UIPanel& panel) {
@@ -331,11 +340,11 @@ void UIMouseCursor::Draw(const UIRenderer& renderer, const Vec2& mouseCoords) {
 	}
 }
 
-UIButton MakeButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, const UITextDesc& textDesc, Engine& engine) {
-	return UIButton { desc, std::make_unique<UIBitmap>(bitmapDesc), std::make_unique<UIText>(textDesc, engine.GetTextRenderer()) };
+UIButton MakeButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, const UITextDesc& textDesc) {
+	return UIButton { desc, std::make_unique<UIBitmap>(bitmapDesc), std::make_unique<UIText>(textDesc) };
 }
 
-UIButton MakeButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, Engine& engine) {
+UIButton MakeButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc) {
 	return UIButton { desc, std::make_unique<UIBitmap>(bitmapDesc), nullptr };
 }
 

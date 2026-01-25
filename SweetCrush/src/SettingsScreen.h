@@ -1,14 +1,14 @@
 #pragma once
 
 #include <engine/FwdDecl.h>
-#include <engine/GameScreen.h>
+#include <engine/Screen.h>
 #include <engine/UI.h>
 
 struct GameSettings;
 
 class SettingsScreen final : public Wind::Screen {
 public:
-	SettingsScreen(Wind::Engine& engine, GameSettings& gameSettings);
+	explicit SettingsScreen(GameSettings& gameSettings);
 
 	const char*            GetName() const override;
 	void                   LoadAssets(Wind::Engine& engine) override;
@@ -22,7 +22,6 @@ private:
 	void RefreshLanguageButton();
 
 private:
-	Wind::Engine&  mEngine;
 	GameSettings&  mGameConfig;
 	Wind::UIText   mTitle;
 	Wind::UIButton mGraphicsButton;

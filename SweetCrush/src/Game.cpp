@@ -36,21 +36,19 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
     , mGameSettings {}
     , mFrameBuffer { RefWindowWidth, RefWindowHeight, FBOFlags::color }
     , mUIRenderer { engine.GetGraphics(), engine.GetTextRenderer() }
-    , mMatchStats {}
-    , mScreenStack { GameScreenIds::mainMenu, GameScreenIds::mainMenu }
-    , mScreenStackSize { 1 } {
+    , mMatchStats {} {
 	// Note: match order of GameScreenId
 	mScreens[0] = std::make_unique<MainScreen>(mEngine, gameRenderer);
-	mScreens[1] = std::make_unique<CreditsScreen>(mEngine);
-	mScreens[2] = std::make_unique<SettingsScreen>(mEngine, mGameSettings);
+	mScreens[1] = std::make_unique<CreditsScreen>();
+	mScreens[2] = std::make_unique<SettingsScreen>(mGameSettings);
 	mScreens[3] = std::make_unique<PlayScreen>(mEngine, gameRenderer, mGameConfig, mGameSettings, mRenderActionMgr, mMatchStats, mGameDataModule);
-	mScreens[4] = std::make_unique<GameOverScreen>(mEngine, mMatchStats);
-	mScreens[5] = std::make_unique<GameCompleteScreen>(mEngine, mMatchStats);
-	mScreens[6] = std::make_unique<PauseScreen>(mEngine);
-	mScreens[7] = std::make_unique<LevelCompleteScreen>(mEngine, mMatchStats);
-	mScreens[8] = std::make_unique<GraphicsSettingsScreen>(mEngine, mGameSettings);
-	mScreens[9] = std::make_unique<AudioSettingsScreen>(mEngine, mGameSettings);
-	mScreens[10] = std::make_unique<EffectInfoPanel>(mEngine);
+	mScreens[4] = std::make_unique<GameOverScreen>(mMatchStats);
+	mScreens[5] = std::make_unique<GameCompleteScreen>(mMatchStats);
+	mScreens[6] = std::make_unique<PauseScreen>();
+	mScreens[7] = std::make_unique<LevelCompleteScreen>(mMatchStats);
+	mScreens[8] = std::make_unique<GraphicsSettingsScreen>(mGameSettings);
+	mScreens[9] = std::make_unique<AudioSettingsScreen>(mGameSettings);
+	mScreens[10] = std::make_unique<EffectInfoPanel>();
 
 	for (const auto& screen : mScreens) {
 		iniParser.AddListener(screen->GetName(),
@@ -70,9 +68,10 @@ void Game::Run() {
 #endif
 	for (const auto& screen : mScreens) {
 		screen->LoadAssets(mEngine);
+		mScreenMgr.Register(screen.get());
 	}
 
-	mScreens[0]->Enter(GameScreenIds::mainMenu, nullptr);
+	mScreenMgr.SetMain(GameScreenIds::mainMenu);
 	mEngine.Start([this](float dt) { Draw(dt); }, [this](float dt) { Tick(dt); });
 }
 
@@ -86,9 +85,7 @@ void Game::Draw(float dt) {
 	mMouseCursor.Draw(mUIRenderer, input.GetMappedMouseCoord());
 #endif
 
-	for (size_t i = 0; i < mScreenStackSize; ++i) {
-		mScreens[mScreenStack[i].Get()]->Draw(mUIRenderer);
-	}
+	mScreenMgr.Draw(mUIRenderer);
 	mRenderActionMgr.RunActions(dt);
 
 	graphics.SetDefaultFrameBuffer();
@@ -105,31 +102,5 @@ void Game::Tick(float dt) {
 	if (! mGameDataModule.IsValid()) {
 		return;
 	}
-
-	const ScreenId         topScreenId = mScreenStack[mScreenStackSize - 1];
-	Screen&                topScreen = *mScreens[topScreenId.Get()];
-	const ScreenTransition transition = topScreen.Tick(dt, input);
-	switch (transition.mOp) {
-	case ScreenOp::keep:
-		break;
-	case ScreenOp::pop:
-		assert(mScreenStackSize == 2);
-		topScreen.Exit();
-		mScreenStackSize--;
-		break;
-	case ScreenOp::replace:
-		for (size_t i = 0; i < mScreenStackSize; ++i) {
-			mScreens[mScreenStack[i].Get()]->Exit();
-		}
-		mScreens[transition.mNext.Get()]->Enter(topScreenId, transition.mPayload);
-		mScreenStack[0] = transition.mNext;
-		mScreenStackSize = 1;
-		break;
-	case ScreenOp::push:
-		assert(mScreenStackSize == 1);
-		mScreens[transition.mNext.Get()]->Enter(topScreenId, transition.mPayload);
-		mScreenStack[1] = transition.mNext;
-		mScreenStackSize++;
-		break;
-	};
+	mScreenMgr.Tick(dt, input);
 }

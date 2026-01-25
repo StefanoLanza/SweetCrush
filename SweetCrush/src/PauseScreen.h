@@ -1,12 +1,12 @@
 #pragma once
 
 #include <engine/FwdDecl.h>
-#include <engine/GameScreen.h>
+#include <engine/Screen.h>
 #include <engine/UI.h>
 
 class PauseScreen final : public Wind::Screen {
 public:
-	explicit PauseScreen(Wind::Engine& engine);
+	explicit PauseScreen();
 
 	const char*            GetName() const override;
 	void                   LoadAssets(Wind::Engine& engine) override;
@@ -17,7 +17,6 @@ public:
 	void                   ParseConfig(const char* varName, const char* varValue) override;
 
 public:
-	Wind::Engine&  mEngine;
 	Wind::UIText   mTitle;
 	Wind::UIButton mContinueButton;
 	Wind::UIButton mRestartLevelButton;

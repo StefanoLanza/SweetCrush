@@ -12,6 +12,7 @@ enum class ScreenOp {
 	replace,
 	push,
 	pop,
+	back,
 };
 
 struct ScreenTransition {
@@ -22,6 +23,8 @@ struct ScreenTransition {
 
 class UICanvas;
 class UIRenderer;
+class Input;
+class Engine;
 
 class Screen {
 public:

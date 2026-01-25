@@ -2,8 +2,9 @@
 
 #include <engine/ActionMgr.h>
 #include <engine/FwdDecl.h>
-#include <engine/GameScreen.h>
 #include <engine/GlFrameBuffer.h>
+#include <engine/Screen.h>
+#include <engine/ScreenManager.h>
 #include <engine/UI.h>
 #include <engine/UIRenderer.h>
 
@@ -27,16 +28,15 @@ private:
 	void Tick(float dt);
 
 private:
-	Wind::Engine&                     mEngine;
-	const AppConfig&                  mGameConfig;
-	GameDataModule&                   mGameDataModule;
-	GameSettings                      mGameSettings;
-	Wind::GlFrameBuffer               mFrameBuffer;
-	Wind::UIMouseCursor               mMouseCursor;
-	Wind::UIRenderer                  mUIRenderer;
-	MatchStats                        mMatchStats;
-	Wind::ActionMgr                   mRenderActionMgr;
-	Wind::ScreenId                    mScreenStack[2];
-	int                               mScreenStackSize;
+	Wind::Engine&                 mEngine;
+	const AppConfig&              mGameConfig;
+	GameDataModule&               mGameDataModule;
+	GameSettings                  mGameSettings;
+	Wind::GlFrameBuffer           mFrameBuffer;
+	Wind::UIMouseCursor           mMouseCursor;
+	Wind::UIRenderer              mUIRenderer;
+	MatchStats                    mMatchStats;
+	Wind::ActionMgr               mRenderActionMgr;
+	Wind::ScreenManager           mScreenMgr;
 	std::unique_ptr<Wind::Screen> mScreens[11];
 };

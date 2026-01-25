@@ -1,14 +1,15 @@
 #include "GameOverScreen.h"
+#include "Constants.h"
 #include "GameDrawOrder.h"
 #include "Localization.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
-#include "Constants.h"
 #include "UIDefs.h"
 
 #include <engine/Engine.h>
 #include <engine/TextRender.h>
 #include <engine/UI.h>
+#include <engine/UIRenderer.h>
 
 #include <cstdio>
 
@@ -16,18 +17,18 @@ using namespace Wind;
 
 namespace {
 
-const UIButtonDesc buttonDescs[] {
+constexpr UIButtonDesc buttonDescs[] {
 	{
-	    UIAbsolutePos(0, 680),
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::top,
+	    .pos = UIAbsolutePos(0, 680),
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::top,
 	},
 	{
-	    UIAbsolutePos(0, 800),
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::top,
+	    .pos = UIAbsolutePos(0, 800),
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::top,
 	},
 };
 
@@ -66,12 +67,11 @@ constexpr UICanvasDesc canvasDesc {
 
 } // namespace
 
-GameOverScreen::GameOverScreen(Engine& engine, const MatchStats& matchStats)
-    : mEngine(engine)
-    , mMatchStats(matchStats)
-    , mTitle(textDescs[0], engine.GetTextRenderer())
-    , mReplayLevelButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
-    , mContinueButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2], engine))
+GameOverScreen::GameOverScreen(const MatchStats& matchStats)
+    : mMatchStats(matchStats)
+    , mTitle(textDescs[0])
+    , mReplayLevelButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1]))
+    , mContinueButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2]))
     , mCanvas(canvasDesc) {
 	mCanvas.AddText(mTitle);
 	mCanvas.AddButton(mReplayLevelButton);
@@ -84,7 +84,7 @@ const char* GameOverScreen::GetName() const {
 
 void GameOverScreen::LoadAssets(Engine& engine) {
 	mFont = engine.GetTextRenderer().AddFont("smallFont");
-	mCanvas.LoadGraphics(engine.GetGraphics());
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
 }
 
 ScreenTransition GameOverScreen::Tick(float /*dt*/, const Wind::Input& input) {
@@ -102,7 +102,7 @@ void GameOverScreen::Draw(Wind::UIRenderer& uiRenderer) {
 	if (! mFont) {
 		return;
 	}
-	const auto&     textRenderer = mEngine.GetTextRenderer();
+	const auto&     textRenderer = uiRenderer.GetTextRenderer();
 	char            tmp[256];
 	const TextStyle textStyle { whiteColor, blackColor };
 	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourReachedLevel), mMatchStats.level + 1);

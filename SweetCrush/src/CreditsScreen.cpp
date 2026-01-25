@@ -79,13 +79,13 @@ constexpr UICanvasDesc canvasDesc {
 
 } // namespace
 
-CreditsScreen::CreditsScreen(Engine& engine)
-    : mTitle(titleText, engine.GetTextRenderer())
-    , mCodeBy(codeByText, engine.GetTextRenderer())
-    , mGraphicsBy(graphicsByText, engine.GetTextRenderer())
-    , mMusicBy(musicByText, engine.GetTextRenderer())
-    , mVersion(versionText, engine.GetTextRenderer())
-    , mBackButton(MakeButton(backButtonDesc, buttonBitmapDesc, backText, engine))
+CreditsScreen::CreditsScreen()
+    : mTitle(titleText)
+    , mCodeBy(codeByText)
+    , mGraphicsBy(graphicsByText)
+    , mMusicBy(musicByText)
+    , mVersion(versionText)
+    , mBackButton(MakeButton(backButtonDesc, buttonBitmapDesc, backText))
     , mCanvas(canvasDesc) {
 	mCanvas.AddText(mTitle);
 	mCanvas.AddText(mCodeBy);
@@ -122,7 +122,7 @@ void CreditsScreen::Exit() {
 }
 
 void CreditsScreen::LoadAssets(Engine& engine) {
-	mCanvas.LoadGraphics(engine.GetGraphics());
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
 }
 
 void CreditsScreen::ParseConfig(const char* varName, const char* varValue) {

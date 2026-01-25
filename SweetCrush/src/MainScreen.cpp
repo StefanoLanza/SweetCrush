@@ -84,16 +84,16 @@ constexpr UICanvasDesc canvasDesc {
 MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
     : mEngine(engine)
     , mGameRenderer(gameRenderer)
-    , mTitle(textDescs[0], engine.GetTextRenderer())
-    , mStartButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
-    , mSettingsButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2], engine))
-    , mCreditsButton(MakeButton(buttonDescs[2], buttonBitmapDesc, textDescs[3], engine))
+    , mTitle(textDescs[0])
+    , mStartButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1]))
+    , mSettingsButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2]))
+    , mCreditsButton(MakeButton(buttonDescs[2], buttonBitmapDesc, textDescs[3]))
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
-    , mQuitButton(MakeButton(buttonDescs[3], buttonBitmapDesc, textDescs[4], engine))
+    , mQuitButton(MakeButton(buttonDescs[3], buttonBitmapDesc, textDescs[4]))
 #endif
     , mCanvas(canvasDesc)
     , mTime(0) {
-	// 
+	//
 	mCanvas.AddText(mTitle);
 	mCanvas.AddButton(mStartButton);
 	mCanvas.AddButton(mSettingsButton);
@@ -108,7 +108,7 @@ const char* MainScreen::GetName() const {
 }
 
 void MainScreen::LoadAssets(Engine& engine) {
-	mCanvas.LoadGraphics(engine.GetGraphics());
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
 }
 
 ScreenTransition MainScreen::Tick(float dt, const Wind::Input& input) {
@@ -134,7 +134,7 @@ ScreenTransition MainScreen::Tick(float dt, const Wind::Input& input) {
 	return { ScreenOp::keep };
 }
 
-void MainScreen::Draw(UIRenderer& uiRenderer)  {
+void MainScreen::Draw(UIRenderer& uiRenderer) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 
 	constexpr float dx = TileWidth + 2;

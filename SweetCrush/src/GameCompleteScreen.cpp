@@ -62,11 +62,10 @@ constexpr UICanvasDesc canvasDesc {
 
 } // namespace
 
-GameCompleteScreen::GameCompleteScreen(Engine& engine, const MatchStats& matchStats)
-    : mEngine(engine)
-    , mMatchStats(matchStats)
-    , mTitle(textDescs[0], engine.GetTextRenderer())
-    , mContinueButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
+GameCompleteScreen::GameCompleteScreen(const MatchStats& matchStats)
+    : mMatchStats(matchStats)
+    , mTitle(textDescs[0])
+    , mContinueButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1]))
     , mPanelBitmap(panelBitmapDesc)
     , mCanvas(canvasDesc) {
 	mCanvas.AddText(mTitle);

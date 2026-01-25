@@ -65,10 +65,10 @@ const UIPanelDesc panelDesc {
 
 } // namespace
 
-EffectInfoPanel::EffectInfoPanel(Engine& engine)
-    : mTitle(textDesc[0], engine.GetTextRenderer())
-    , mText(textDesc[1], engine.GetTextRenderer())
-    , mOKButton(MakeButton(buttonDesc, buttonBitmapDesc, textDesc[2], engine))
+EffectInfoPanel::EffectInfoPanel()
+    : mTitle(textDesc[0])
+    , mText(textDesc[1])
+    , mOKButton(MakeButton(buttonDesc, buttonBitmapDesc, textDesc[2]))
     , mEffectIcon(effectIconDesc)
     , mPanel(panelDesc)
     , mShowHelp {} {
@@ -82,8 +82,8 @@ EffectInfoPanel::EffectInfoPanel(Engine& engine)
 	mPanel.AddText(mText);
 }
 
-void EffectInfoPanel::LoadAssets(Wind::Engine& engine) {
-	mPanel.LoadGraphics(engine.GetGraphics());
+void EffectInfoPanel::LoadAssets(Engine& engine) {
+	mPanel.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
 }
 
 const char* EffectInfoPanel::GetName() const {

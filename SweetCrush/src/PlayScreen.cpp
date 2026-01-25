@@ -105,10 +105,10 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
     , mCellSelector { std::make_unique<TileSelector>(mBoard, gameConfig) }
     , mCanvas(canvasDesc)
     , mBoostersPanel(boosterPanelDesc)
-    , mPauseButton(MakeButton(pauseButtonDesc, optionButtonBitmapDesc, engine))
-    , mBoosterButtons { MakeButton(booster0ButtonDesc, boosterButtonBitmapDesc, engine),
-	                    MakeButton(booster1ButtonDesc, boosterButtonBitmapDesc, engine),
-	                    MakeButton(booster2ButtonDesc, boosterButtonBitmapDesc, engine) }
+    , mPauseButton(MakeButton(pauseButtonDesc, optionButtonBitmapDesc))
+    , mBoosterButtons { MakeButton(booster0ButtonDesc, boosterButtonBitmapDesc),
+	                    MakeButton(booster1ButtonDesc, boosterButtonBitmapDesc),
+	                    MakeButton(booster2ButtonDesc, boosterButtonBitmapDesc) }
     , mMatch3 { mBoard, mBoardGenerator, *mCellSelector }
     , mTime { 0.f }
     , mMatchTime { 0 } {
@@ -131,7 +131,7 @@ const char* PlayScreen::GetName() const {
 }
 
 void PlayScreen::LoadAssets(Engine& engine) {
-	mCanvas.LoadGraphics(engine.GetGraphics());
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
 	Audio& audio = engine.GetAudio();
 	mMusic = audio.LoadMusic("audio/music.ogg");
 	mSounds[0] = audio.LoadSound("audio/match.wav");
@@ -430,10 +430,10 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 			mRenderActionMgr.AddTimedAction(DrawLaser(startCoords, { startCoords.x, RefWindowHeight }, mGameRenderer), mGameConfig.glowTrailTime);
 		}
 		else if (event.effect.type == EffectType::miniBomb) {
-			mRenderActionMgr.AddTimedAction(DrawBlast(startCoords, 32.f, 128.f, mGameRenderer), mGameConfig.glowTrailTime);
+			mRenderActionMgr.AddTimedAction(DrawBlast(startCoords, 8.f, 128.f, mGameRenderer), mGameConfig.glowTrailTime);
 		}
 		else if (event.effect.type == EffectType::bomb) {
-			mRenderActionMgr.AddTimedAction(DrawBlast(startCoords, 32.f, 256.f, mGameRenderer), mGameConfig.glowTrailTime);
+			mRenderActionMgr.AddTimedAction(DrawBlast(startCoords, 8.f, 256.f, mGameRenderer), mGameConfig.glowTrailTime);
 		}
 		mActionMgr.AddTimedAction(ScalePiece(GetVisual(*event.effect.mainCell), 1.f, 0.f), mGameConfig.removePieceDuration);
 		OnPieceRemoved(*event.effect.mainCell);

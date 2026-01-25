@@ -61,12 +61,12 @@ constexpr UICanvasDesc canvasDesc {
 
 } // namespace
 
-AudioSettingsScreen::AudioSettingsScreen(Engine& engine, GameSettings& gameSettings)
+AudioSettingsScreen::AudioSettingsScreen(GameSettings& gameSettings)
     : mGameConfig(gameSettings)
-    , mTitle(titleTextDesc, engine.GetTextRenderer())
-    , mMusicButton(MakeButton(musicButtonDesc, buttonBitmapDesc, musicButtonTextDesc, engine))
-    , mSfxButton(MakeButton(sfxButtonDesc, buttonBitmapDesc, sfxButtonTextDesc, engine))
-    , mBackButton(MakeButton(backButtonDesc, buttonBitmapDesc, backTextDesc, engine))
+    , mTitle(titleTextDesc)
+    , mMusicButton(MakeButton(musicButtonDesc, buttonBitmapDesc, musicButtonTextDesc))
+    , mSfxButton(MakeButton(sfxButtonDesc, buttonBitmapDesc, sfxButtonTextDesc))
+    , mBackButton(MakeButton(backButtonDesc, buttonBitmapDesc, backTextDesc))
     , mCanvas(canvasDesc) {
 	// Build UI
 	mCanvas.AddText(mTitle);
@@ -82,7 +82,7 @@ const char* AudioSettingsScreen::GetName() const {
 }
 
 void AudioSettingsScreen::LoadAssets(Engine& engine) {
-	mCanvas.LoadGraphics(engine.GetGraphics());
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
 }
 
 ScreenTransition AudioSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
@@ -101,7 +101,7 @@ ScreenTransition AudioSettingsScreen::Tick([[maybe_unused]] float dt, const Wind
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
 	    mBackButton.IsPressed(input)) {
-		return { ScreenOp::replace, GameScreenIds::settings };
+		return { ScreenOp::back };
 	}
 	return { ScreenOp::keep };
 }

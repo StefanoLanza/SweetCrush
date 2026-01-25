@@ -90,9 +90,10 @@ struct UICanvasDesc {
 
 class UIText final {
 public:
-	UIText(const UITextDesc& desc, TextRenderer& textRenderer);
+	explicit UIText(const UITextDesc& desc);
 
-	void Draw(const TextRenderer& textRender, DrawOrderType drawOrder) const;
+	void Load(TextRenderer& textRenderer);
+	void Draw(const TextRenderer& textRenderer, DrawOrderType drawOrder) const;
 	void UpdateRect(const UIRect& parentRect);
 	void SetText(StringId stringId);
 
@@ -123,7 +124,7 @@ public:
 	UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text);
 
 	bool          IsPressed(const Input& input) const;
-	void          LoadGraphics(Graphics& graphics);
+	void          LoadAssets(Graphics& graphics, TextRenderer& textRenderer);
 	void          Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const;
 	void          UpdateRect(const UIRect& parentRect);
 	UIBitmap*     GetBitmap() const;
@@ -148,7 +149,7 @@ public:
 	void          AddButton(UIButton& button);
 	void          AddBitmap(UIBitmap& bitmap);
 	void          AddText(UIText& text);
-	void          LoadGraphics(Graphics& graphics);
+	void          LoadAssets(Graphics& graphics, TextRenderer& textRenderer);
 	void          Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	void          UpdateRect(const UIRect& parentRect);
 
@@ -172,7 +173,7 @@ public:
 	void AddButton(UIButton& button);
 	void AddBitmap(UIBitmap& bitmap);
 	void AddText(UIText& text);
-	void LoadGraphics(Graphics& graphics);
+	void LoadAssets(Graphics& graphics, TextRenderer& textRenderer);
 	void Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder);
 
 private:
@@ -188,8 +189,8 @@ private:
 	TexturePtr mMousePointer;
 };
 
-UIButton MakeButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, const UITextDesc& textDesc, Engine& engine);
-UIButton MakeButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, Engine& engine);
+UIButton MakeButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, const UITextDesc& textDesc);
+UIButton MakeButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc);
 
 constexpr UIPos       UIZeroPos = { 0.f, 0.f, 0.f, 0.f };
 constexpr UISize      UIAutoSize = { -1.f, -1.f, -1.f, -1.f };

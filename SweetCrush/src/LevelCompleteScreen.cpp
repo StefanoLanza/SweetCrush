@@ -50,11 +50,10 @@ constexpr UICanvasDesc canvasDesc {
 
 } // namespace
 
-LevelCompleteScreen::LevelCompleteScreen(Engine& engine, const MatchStats& matchStats)
-    : mEngine(engine)
-    , mMatchStats(matchStats)
-    , mTitle(textDescs[0], engine.GetTextRenderer())
-    , mNextLevelButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
+LevelCompleteScreen::LevelCompleteScreen(const MatchStats& matchStats)
+    : mMatchStats(matchStats)
+    , mTitle(textDescs[0])
+    , mNextLevelButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1]))
     , mCanvas(canvasDesc) {
 	// Setup UI
 	mCanvas.AddText(mTitle);
@@ -66,7 +65,7 @@ const char* LevelCompleteScreen::GetName() const {
 }
 
 void LevelCompleteScreen::LoadAssets(Engine& engine) {
-	mCanvas.LoadGraphics(engine.GetGraphics());
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
 }
 
 Wind::ScreenTransition LevelCompleteScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
