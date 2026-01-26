@@ -73,7 +73,7 @@ void GraphicsSettingsScreen::LoadAssets(Engine& engine) {
 	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
 }
 
-ScreenTransition GraphicsSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
+ScreenEvent GraphicsSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
 	if (mFilterButton.IsPressed(input)) {
 		// TODO
 	}

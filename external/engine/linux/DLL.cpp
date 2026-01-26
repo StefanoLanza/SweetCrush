@@ -1,4 +1,4 @@
-#include "../DLL.h"
+#include "DLL.h"
 
 #include <cassert>
 #include <dlfcn.h>

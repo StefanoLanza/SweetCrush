@@ -8,7 +8,15 @@ file(GLOB INIH_SOURCES "*.c")
 add_library(inih STATIC ${INIH_SOURCES})
 
 # Handle Includes
-target_include_directories(inih PUBLIC .)
+target_include_directories(inih 
+	PUBLIC 
+		# For users of the library (after install)
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+        # For building the library itself (local path)
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+	PRIVATE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/inih>
+)
 
 # Set Linker Flags
 target_link_options(inih PRIVATE "-Wl,--no-undefined")

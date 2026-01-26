@@ -81,9 +81,9 @@ void GameCompleteScreen::LoadAssets(Engine& engine) {
 	mFont = engine.GetTextRenderer().AddFont("smallFont");
 }
 
-ScreenTransition GameCompleteScreen::Tick(float /*dt*/, const Wind::Input& input) {
+ScreenEvent GameCompleteScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	if (mContinueButton.IsPressed(input)) {
-		return { ScreenOp::replace, GameScreenIds::mainMenu };
+		return { ScreenOp::goTo, GameScreenIds::mainMenu };
 	}
 	return { ScreenOp::keep };
 }

@@ -68,9 +68,9 @@ void LevelCompleteScreen::LoadAssets(Engine& engine) {
 	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
 }
 
-Wind::ScreenTransition LevelCompleteScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
+Wind::ScreenEvent LevelCompleteScreen::Tick([[maybe_unused]] float dt, const Input& input) {
 	if (mNextLevelButton.IsPressed(input)) {
-		return { ScreenOp::replace, GameScreenIds::play };
+		return GoTo(GameScreenIds::play);
 	}
 	return { ScreenOp::keep };
 }

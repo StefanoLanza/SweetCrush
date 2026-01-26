@@ -28,7 +28,7 @@ void ScreenManager::Tick(float dt, const Input& input) {
 	}
 	const ScreenId         topScreenId = mStack[mStackSize - 1];
 	Screen&                topScreen = *mScreens[topScreenId.Get()];
-	const ScreenTransition transition = topScreen.Tick(dt, input);
+	const ScreenEvent transition = topScreen.Tick(dt, input);
 	bool                   addToHistory = false;
 	switch (transition.mOp) {
 	case ScreenOp::keep:
@@ -38,18 +38,18 @@ void ScreenManager::Tick(float dt, const Input& input) {
 		topScreen.Exit();
 		mStackSize--;
 		break;
-	case ScreenOp::replace:
+	case ScreenOp::goTo:
 		for (size_t i = 0; i < mStackSize; ++i) {
 			mScreens[mStack[i].Get()]->Exit();
 		}
-		mScreens[transition.mNext.Get()]->Enter(topScreenId, transition.mPayload);
+		mScreens[transition.mNext.Get()]->Enter(topScreenId, transition.mParams);
 		mStack[0] = transition.mNext;
 		mStackSize = 1;
 		addToHistory = true;
 		break;
 	case ScreenOp::push:
 		assert(mStackSize == 1);
-		mScreens[transition.mNext.Get()]->Enter(topScreenId, transition.mPayload);
+		mScreens[transition.mNext.Get()]->Enter(topScreenId, transition.mParams);
 		mStack[1] = transition.mNext;
 		mStackSize++;
 		break;
@@ -60,7 +60,7 @@ void ScreenManager::Tick(float dt, const Input& input) {
 		}
 		ScreenId next = mHistory[mHistorySize - 1];
 		--mHistorySize;
-		mScreens[next.Get()]->Enter(topScreenId, transition.mPayload);
+		mScreens[next.Get()]->Enter(topScreenId, transition.mParams);
 		mStack[0] = next;
 		mStackSize = 1;
 		break;
@@ -78,9 +78,17 @@ void ScreenManager::Tick(float dt, const Input& input) {
 }
 
 void ScreenManager::Draw(UIRenderer& uiRenderer) const {
-	for (size_t i = 0; i < mStackSize; ++i) {
-		mScreens[mStack[i].Get()]->Draw(uiRenderer);
-	}
+	mScreens[mStack[mStackSize - 1].Get()]->Draw(uiRenderer);
+}
+
+bool ScreenManager::CanGoBack() const {
+	return mStackSize > 1;
+}
+
+void ScreenManager::GoBack() {
+}
+
+void ScreenManager::GoForward() {
 }
 
 } // namespace Wind

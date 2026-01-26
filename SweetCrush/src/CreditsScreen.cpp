@@ -99,14 +99,14 @@ const char* CreditsScreen::GetName() const {
 	return "CreditsScreen";
 }
 
-ScreenTransition CreditsScreen::Tick(float /*dt*/, const Wind::Input& input) {
+ScreenEvent CreditsScreen::Tick(float /*dt*/, const Wind::Input& input) {
 #if defined(__ANDROID__) || defined(__OHOS__)
 	if (input.GetKeyJustPressed(SDLK_AC_BACK) ||
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
 	    mBackButton.IsPressed(input)) {
-		return { ScreenOp::replace, GameScreenIds::mainMenu };
+		return { ScreenOp::goTo, GameScreenIds::mainMenu };
 	}
 	return { ScreenOp::keep };
 }

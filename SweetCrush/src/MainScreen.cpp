@@ -111,16 +111,16 @@ void MainScreen::LoadAssets(Engine& engine) {
 	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
 }
 
-ScreenTransition MainScreen::Tick(float dt, const Wind::Input& input) {
+ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
 	mTime += dt;
 	if (mStartButton.IsPressed(input)) {
-		return { ScreenOp::replace, GameScreenIds::play };
+		return { ScreenOp::goTo, GameScreenIds::play };
 	}
 	else if (mSettingsButton.IsPressed(input)) {
-		return { ScreenOp::replace, GameScreenIds::settings };
+		return { ScreenOp::goTo, GameScreenIds::settings };
 	}
 	else if (mCreditsButton.IsPressed(input)) {
-		return { ScreenOp::replace, GameScreenIds::credits };
+		return { ScreenOp::goTo, GameScreenIds::credits };
 	}
 
 #if defined(__ANDROID__) || defined(__OHOS__)

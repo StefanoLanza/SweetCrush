@@ -18,13 +18,12 @@ add_library(engine SHARED ${ENGINE_SOURCES})
 target_include_directories(engine 
 	PUBLIC 
 		# For users of the library (after install)
-        $<INSTALL_INTERFACE:include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
         # For building the library itself (local path)
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> # TODO Move public headers here
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>   # TODO Remove
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 	PRIVATE
 		# Internal headers
-		${CMAKE_CURRENT_SOURCE_DIR}
+		${CMAKE_CURRENT_SOURCE_DIR}/include/engine
 )
 
 # Link Dependencies

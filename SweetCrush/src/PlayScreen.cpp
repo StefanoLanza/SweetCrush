@@ -140,19 +140,19 @@ void PlayScreen::LoadAssets(Engine& engine) {
 	mFonts[2] = mEngine.GetTextRenderer().AddFont("smallFont");
 }
 
-ScreenTransition PlayScreen::Tick(float dt, const Input& input) {
+ScreenEvent PlayScreen::Tick(float dt, const Input& input) {
 	{
 #if defined(__ANDROID__) || defined(__OHOS__)
 		if (input.GetKeyJustPressed(SDLK_AC_BACK)) {
 #elif defined(_WIN32) || defined(__linux__)
 		if (input.GetKeyJustPressed(SDLK_ESCAPE)) {
 #endif
-			return { ScreenOp::push, GameScreenIds::pauseGame };
+			return GoTo(GameScreenIds::pauseGame);
 		}
 	}
 
 	if (mPauseButton.IsPressed(input)) {
-		return { ScreenOp::push, GameScreenIds::pauseGame };
+		return GoTo(GameScreenIds::pauseGame);
 	}
 
 	if (mMatch3.IsWaitingForUser()) {
@@ -163,13 +163,13 @@ ScreenTransition PlayScreen::Tick(float dt, const Input& input) {
 		if (mRenderActionMgr.AnyRunning()) {
 			return { ScreenOp::keep }; // wait until all animations are over
 		}
-		return { ScreenOp::replace, GameScreenIds::gameComplete };
+		return GoTo(GameScreenIds::gameComplete);
 	}
 	else if (mLevelComplete) {
 		if (mRenderActionMgr.AnyRunning()) {
 			return { ScreenOp::keep }; // wait until all animations are over
 		}
-		return { ScreenOp::replace, GameScreenIds::levelComplete };
+		return GoTo(GameScreenIds::levelComplete);
 	}
 
 	if (mMatch3.IsWaitingForUser()) {
@@ -191,11 +191,11 @@ ScreenTransition PlayScreen::Tick(float dt, const Input& input) {
 		}
 	}
 	else {
-		return { ScreenOp::replace, GameScreenIds::gameOver };
+		return GoTo(GameScreenIds::gameOver);
 	}
 	mActionMgr.RunActions(dt);
 
-	return { ScreenOp::keep };
+	return Continue();
 }
 
 void PlayScreen::SelectBooster(const Input& input) {
@@ -252,7 +252,7 @@ void PlayScreen::Enter(ScreenId prevScreen, const void* payload) {
 	}
 	else if (prevScreen == GameScreenIds::pauseGame) {
 		// resume game
-		// TODO Receive restartLevel as generic arg of Enter
+		std::memcpy(&restartLevel, payload, sizeof restartLevel);
 		if (restartLevel) {
 			ReplayLevel();
 		}

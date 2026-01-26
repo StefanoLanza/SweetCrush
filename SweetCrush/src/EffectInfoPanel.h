@@ -11,7 +11,7 @@ public:
 	explicit EffectInfoPanel();
 
 	const char*            GetName() const override;
-	Wind::ScreenTransition Tick(float dt, const Wind::Input& input) override;
+	Wind::ScreenEvent Tick(float dt, const Wind::Input& input) override;
 	void                   LoadAssets(Wind::Engine& engine) override;
 	void                   Draw(Wind::UIRenderer& uiRenderer) override;
 	void                   Enter(Wind::ScreenId prevScreen, const void* payload) override;

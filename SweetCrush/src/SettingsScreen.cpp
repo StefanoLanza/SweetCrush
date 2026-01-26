@@ -94,15 +94,15 @@ void SettingsScreen::LoadAssets(Engine& engine) {
 	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
 }
 
-ScreenTransition SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
+ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
 	if (mGraphicsButton.IsPressed(input)) {
-		return { ScreenOp::replace, GameScreenIds::graphicsSettings };
+		return { ScreenOp::goTo, GameScreenIds::graphicsSettings };
 	}
 	else if (mLanguageButton.IsPressed(input)) {
 		SetNextLanguage();
 	}
 	else if (mAudioButton.IsPressed(input)) {
-		return { ScreenOp::replace, GameScreenIds::audioSettings };
+		return { ScreenOp::goTo, GameScreenIds::audioSettings };
 	}
 
 #if defined(__ANDROID__) || defined(__OHOS__)

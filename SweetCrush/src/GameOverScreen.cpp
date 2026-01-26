@@ -87,12 +87,12 @@ void GameOverScreen::LoadAssets(Engine& engine) {
 	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
 }
 
-ScreenTransition GameOverScreen::Tick(float /*dt*/, const Wind::Input& input) {
+ScreenEvent GameOverScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	if (mContinueButton.IsPressed(input)) {
-		return { ScreenOp::replace, GameScreenIds::mainMenu };
+		return { ScreenOp::goTo, GameScreenIds::mainMenu };
 	}
 	else if (mReplayLevelButton.IsPressed(input)) {
-		return { ScreenOp::replace, GameScreenIds::play };
+		return { ScreenOp::goTo, GameScreenIds::play };
 	}
 	return { ScreenOp::keep };
 }

@@ -97,28 +97,22 @@ void PauseScreen::LoadAssets(Engine& engine) {
 	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
 }
 
-ScreenTransition PauseScreen::Tick(float /*dt*/, const Wind::Input& input) {
+ScreenEvent PauseScreen::Tick(float /*dt*/, const Wind::Input& input) {
 #if defined(__ANDROID__) || defined(__OHOS__)
 	if (input.GetKeyJustPressed(SDLK_AC_BACK)) {
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE)) {
 #endif
-		return { ScreenOp::pop };
+		return GoBack(false);
 	}
 	if (mExitGameButton.IsPressed(input)) {
-		return { ScreenOp::replace, GameScreenIds::mainMenu };
+		return GoTo(GameScreenIds::mainMenu);
 	}
 	else if (mRestartLevelButton.IsPressed(input)) {
-		bool restartLevel = true;
-		ScreenTransition res { ScreenOp::pop };
-		std::memcpy(res.mPayload, &restartLevel, sizeof restartLevel);
-		return res;
+		return GoBack(true);
 	}
 	else if (mContinueButton.IsPressed(input)) {
-		bool restartLevel = false;
-		ScreenTransition res { ScreenOp::pop };
-		std::memcpy(res.mPayload, &restartLevel, sizeof restartLevel);
-		return res;
+		return GoBack(false);
 	}
 	return { ScreenOp::keep };
 }

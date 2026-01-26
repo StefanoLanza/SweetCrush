@@ -85,7 +85,7 @@ void AudioSettingsScreen::LoadAssets(Engine& engine) {
 	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
 }
 
-ScreenTransition AudioSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
+ScreenEvent AudioSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
 	if (mMusicButton.IsPressed(input)) {
 		mGameConfig.musicOn = ! mGameConfig.musicOn;
 		RefreshMusicButton();

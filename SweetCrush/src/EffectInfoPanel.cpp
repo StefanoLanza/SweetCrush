@@ -90,7 +90,7 @@ const char* EffectInfoPanel::GetName() const {
 	return "EffectInfoPanel";
 }
 
-ScreenTransition EffectInfoPanel::Tick(float dt, const Input& input) {
+ScreenEvent EffectInfoPanel::Tick(float dt, const Input& input) {
 	if (mOKButton.IsPressed(input) ||
 #if defined(_WIN32) || defined(__linux__)
 	    input.GetKeyJustPressed(SDLK_ESCAPE)) {
