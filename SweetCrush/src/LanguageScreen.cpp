@@ -1,4 +1,4 @@
-#include "GraphicsSettingsScreen.h"
+#include "LanguageScreen.h"
 #include "AppConfig.h"
 #include "GameSettings.h"
 #include "Localization.h"
@@ -25,7 +25,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "bigFont",
-	    .stringId = (StringId)GameStringId::graphicsSettings,
+	    .stringId = (StringId)GameStringId::languageScreen,
 	    .textStyle = titleTextStyle,
 	},
 	{
@@ -53,58 +53,55 @@ constexpr UICanvasDesc canvasDesc {
 
 } // namespace
 
-GraphicsSettingsScreen::GraphicsSettingsScreen(GameSettings& gameSettings)
-    : mGameConfig(gameSettings)
-    , mTitle(textDescs[0])
-    , mFilterButton(MakeButton(languageButtonDesc, buttonBitmapDesc, textDescs[1]))
+LanguageScreen::LanguageScreen()
+    : mTitle(textDescs[0])
+    , mLanguageButton(MakeButton(languageButtonDesc, buttonBitmapDesc, textDescs[1]))
     , mBackButton(MakeButton(backButtonDesc, buttonBitmapDesc, textDescs[2]))
     , mCanvas(canvasDesc) {
 	// Setup UI
 	mCanvas.AddText(mTitle);
-	mCanvas.AddButton(mFilterButton);
-	mCanvas.AddButton(mBackButton);
+	mCanvas.AddButton(mLanguageButton);
+	mCanvas.AddButton(mBackButton);	
+	RefreshLanguageButton();
 }
 
-const char* GraphicsSettingsScreen::GetName() const {
-	return "GraphicsSettingsScreen";
+const char* LanguageScreen::GetName() const {
+	return "LanguageScreen";
 }
 
-void GraphicsSettingsScreen::LoadAssets(Engine& engine) {
+void LanguageScreen::LoadAssets(Engine& engine) {
 	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
 }
 
-ScreenEvent GraphicsSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
-	if (mFilterButton.IsPressed(input)) {
-		// TODO
-	}
-
+ScreenEvent LanguageScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
 #if defined(__ANDROID__) || defined(__OHOS__)
 	if (input.GetKeyJustPressed(SDLK_AC_BACK) ||
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
 	    mBackButton.IsPressed(input)) {
-			return { ScreenOp::back };
+		return GoBack();
 	}
-	return { ScreenOp::keep };
+	else if (mLanguageButton.IsPressed(input)) {
+		SetNextLanguage();
+	}
+	return Continue();
 }
 
-void GraphicsSettingsScreen::Draw(Wind::UIRenderer& uiRenderer) {
+void LanguageScreen::Draw(Wind::UIRenderer& uiRenderer) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 }
 
-void GraphicsSettingsScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
+void LanguageScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
 }
 
-void GraphicsSettingsScreen::Exit() {
+void LanguageScreen::Exit() {
 }
 
-#if 0
-void GraphicsSettingsScreen::RefreshLanguageButton() {
+void LanguageScreen::ParseConfig(const char* varName, const char* varValue) {
+}
+
+void LanguageScreen::RefreshLanguageButton() {
 	GameStringId stringId = GameStringId::nextLanguage;
 	mLanguageButton.GetText()->SetText(static_cast<StringId>(stringId));
-}
-#endif
-
-void GraphicsSettingsScreen::ParseConfig(const char* varName, const char* varValue) {
 }

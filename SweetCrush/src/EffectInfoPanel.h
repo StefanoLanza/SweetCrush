@@ -6,9 +6,9 @@
 #include <engine/Screen.h>
 #include <engine/UI.h>
 
-class EffectInfoPanel final : public Wind::Screen {
+class EffectInfoScreen final : public Wind::Screen {
 public:
-	explicit EffectInfoPanel();
+	explicit EffectInfoScreen();
 
 	const char*            GetName() const override;
 	Wind::ScreenEvent Tick(float dt, const Wind::Input& input) override;

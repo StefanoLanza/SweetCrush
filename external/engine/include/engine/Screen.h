@@ -3,6 +3,7 @@
 #include "Id.h"
 
 #include <cstring>
+#include <type_traits>
 
 namespace Wind {
 
@@ -12,8 +13,6 @@ using ScreenId = Id<Screen>;
 enum class ScreenOp {
 	keep,
 	goTo,
-	push,
-	pop,
 	back,
 };
 
@@ -43,24 +42,24 @@ inline ScreenEvent GoTo(ScreenId next) {
 
 template <class T>
 inline ScreenEvent GoTo(ScreenId next, T param) {
+	static_assert(std::is_trivially_copyable_v<T>);
 	ScreenEvent ev;
 	ev.mOp = ScreenOp::goTo;
 	std::memcpy(ev.mParams, &param, sizeof param);
 	return ev;
 }
 
-template <class T>
-inline ScreenEvent GoBack(T param) {
+inline ScreenEvent GoBack() {
 	ScreenEvent ev;
 	ev.mOp = ScreenOp::back;
-	std::memcpy(ev.mParams, &param, sizeof param);
 	return ev;
 }
 
 template <class T>
-inline ScreenEvent Pop(T param) {
+inline ScreenEvent GoBack(T param) {
+	static_assert(std::is_trivially_copyable_v<T>);
 	ScreenEvent ev;
-	ev.mOp = ScreenOp::pop;
+	ev.mOp = ScreenOp::back;
 	std::memcpy(ev.mParams, &param, sizeof param);
 	return ev;
 }
@@ -73,13 +72,13 @@ class Engine;
 class Screen {
 public:
 	virtual ~Screen() = default;
-	virtual const char*      GetName() const = 0;
+	virtual const char* GetName() const = 0;
 	virtual ScreenEvent Tick(float dt, const Input& input) = 0;
-	virtual void             LoadAssets(Wind::Engine& engine) = 0;
-	virtual void             Draw(UIRenderer& uiRenderer) = 0;
-	virtual void             Enter(ScreenId prevScreen, const void* payload) = 0; // TODO ScreenNavArgs
-	virtual void             Exit() = 0;
-	virtual void             ParseConfig(const char* varName, const char* varValue) = 0;
+	virtual void        LoadAssets(Wind::Engine& engine) = 0;
+	virtual void        Draw(UIRenderer& uiRenderer) = 0;
+	virtual void        Enter(ScreenId prevScreen, const void* payload) = 0; // TODO ScreenNavArgs
+	virtual void        Exit() = 0;
+	virtual void        ParseConfig(const char* varName, const char* varValue) = 0;
 };
 
 } // namespace Wind

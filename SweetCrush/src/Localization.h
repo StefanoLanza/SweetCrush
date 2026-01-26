@@ -8,6 +8,7 @@ enum class GameStringId : Wind::StringId {
 	score,
 	start,
 	settings,
+	languageScreen,
 	graphicsSettings,
 	audioSettings,
 	musicOn,

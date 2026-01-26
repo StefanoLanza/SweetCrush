@@ -24,6 +24,7 @@
 #include "PauseScreen.h"
 #include "PlayScreen.h"
 #include "SettingsScreen.h"
+#include "LanguageScreen.h"
 
 #include <cassert>
 
@@ -48,7 +49,8 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
 	mScreens[7] = std::make_unique<LevelCompleteScreen>(mMatchStats);
 	mScreens[8] = std::make_unique<GraphicsSettingsScreen>(mGameSettings);
 	mScreens[9] = std::make_unique<AudioSettingsScreen>(mGameSettings);
-	mScreens[10] = std::make_unique<EffectInfoPanel>();
+	mScreens[10] = std::make_unique<EffectInfoScreen>();
+	mScreens[11] = std::make_unique<LanguageScreen>();
 
 	for (const auto& screen : mScreens) {
 		iniParser.AddListener(screen->GetName(),

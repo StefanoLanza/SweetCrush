@@ -33,11 +33,6 @@ void ScreenManager::Tick(float dt, const Input& input) {
 	switch (transition.mOp) {
 	case ScreenOp::keep:
 		break;
-	case ScreenOp::pop:
-		assert(mStackSize == 2);
-		topScreen.Exit();
-		mStackSize--;
-		break;
 	case ScreenOp::goTo:
 		for (size_t i = 0; i < mStackSize; ++i) {
 			mScreens[mStack[i].Get()]->Exit();
@@ -46,12 +41,6 @@ void ScreenManager::Tick(float dt, const Input& input) {
 		mStack[0] = transition.mNext;
 		mStackSize = 1;
 		addToHistory = true;
-		break;
-	case ScreenOp::push:
-		assert(mStackSize == 1);
-		mScreens[transition.mNext.Get()]->Enter(topScreenId, transition.mParams);
-		mStack[1] = transition.mNext;
-		mStackSize++;
 		break;
 	case ScreenOp::back:
 		assert(mHistorySize > 0);

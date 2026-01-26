@@ -38,5 +38,5 @@ private:
 	MatchStats                    mMatchStats;
 	Wind::ActionMgr               mRenderActionMgr;
 	Wind::ScreenManager           mScreenMgr;
-	std::unique_ptr<Wind::Screen> mScreens[11];
+	std::unique_ptr<Wind::Screen> mScreens[12];
 };

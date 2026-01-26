@@ -59,13 +59,12 @@ const UIBitmapDesc effectIconDesc {
 const UIPanelDesc panelDesc {
 	.pos = UIZeroPos,
 	.size = UIAbsoluteSize(800, 400),
-	.background = "null.png",
 	.backgroundColor = Color { 0, 0, 0, 200 },
 };
 
 } // namespace
 
-EffectInfoPanel::EffectInfoPanel()
+EffectInfoScreen::EffectInfoScreen()
     : mTitle(textDesc[0])
     , mText(textDesc[1])
     , mOKButton(MakeButton(buttonDesc, buttonBitmapDesc, textDesc[2]))
@@ -82,15 +81,15 @@ EffectInfoPanel::EffectInfoPanel()
 	mPanel.AddText(mText);
 }
 
-void EffectInfoPanel::LoadAssets(Engine& engine) {
+void EffectInfoScreen::LoadAssets(Engine& engine) {
 	mPanel.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
 }
 
-const char* EffectInfoPanel::GetName() const {
+const char* EffectInfoScreen::GetName() const {
 	return "EffectInfoPanel";
 }
 
-ScreenEvent EffectInfoPanel::Tick(float dt, const Input& input) {
+ScreenEvent EffectInfoScreen::Tick(float dt, const Input& input) {
 	if (mOKButton.IsPressed(input) ||
 #if defined(_WIN32) || defined(__linux__)
 	    input.GetKeyJustPressed(SDLK_ESCAPE)) {
@@ -98,25 +97,25 @@ ScreenEvent EffectInfoPanel::Tick(float dt, const Input& input) {
 			0
 }
 #endif
-		return { ScreenOp::pop };
+		return GoBack();
 	}
-	return { ScreenOp::keep };
+	return Continue();
 }
 
-void EffectInfoPanel::Draw(Wind::UIRenderer& uiRenderer) {
+void EffectInfoScreen::Draw(Wind::UIRenderer& uiRenderer) {
 	mPanel.Draw(uiRenderer, 0); // TODO Rect
 }
 
-void EffectInfoPanel::Enter(ScreenId prevScreen, const void* payload) {
+void EffectInfoScreen::Enter(ScreenId prevScreen, const void* payload) {
 	// TODO Parse
 	EffectType effectType = EffectType::hrocket;
 	ShowHelp(effectType);
 }
 
-void EffectInfoPanel::Exit() {
+void EffectInfoScreen::Exit() {
 }
 
-void EffectInfoPanel::ShowHelp(EffectType effectType) {
+void EffectInfoScreen::ShowHelp(EffectType effectType) {
 	const int typeIdx = static_cast<int>(effectType);
 	if (! mShowHelp[typeIdx]) {
 		return;
@@ -152,5 +151,5 @@ void EffectInfoPanel::ShowHelp(EffectType effectType) {
 	mPanel.SetVisible(true);
 }
 
-void EffectInfoPanel::ParseConfig(const char* varName, const char* varValue) {
+void EffectInfoScreen::ParseConfig(const char* varName, const char* varValue) {
 }

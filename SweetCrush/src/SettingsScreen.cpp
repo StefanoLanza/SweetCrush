@@ -49,7 +49,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::nextLanguage,
+	    .stringId = (StringId)GameStringId::languageScreen,
 	},
 	{
 	    .pos = { 0, 0, 0, 0 },
@@ -67,8 +67,6 @@ constexpr UICanvasDesc canvasDesc {
 
 } // namespace
 
-// TODO LanguageScreen, AudioScreen
-
 SettingsScreen::SettingsScreen(GameSettings& gameSettings)
     : mGameConfig(gameSettings)
     , mTitle(textDescs[0])
@@ -83,7 +81,6 @@ SettingsScreen::SettingsScreen(GameSettings& gameSettings)
 	mCanvas.AddButton(mLanguageButton);
 	mCanvas.AddButton(mAudioButton);
 	mCanvas.AddButton(mBackButton);
-	RefreshLanguageButton();
 }
 
 const char* SettingsScreen::GetName() const {
@@ -96,13 +93,13 @@ void SettingsScreen::LoadAssets(Engine& engine) {
 
 ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
 	if (mGraphicsButton.IsPressed(input)) {
-		return { ScreenOp::goTo, GameScreenIds::graphicsSettings };
+		return GoTo(GameScreenIds::graphicsSettings);
 	}
 	else if (mLanguageButton.IsPressed(input)) {
-		SetNextLanguage();
+		return GoTo(GameScreenIds::language);
 	}
 	else if (mAudioButton.IsPressed(input)) {
-		return { ScreenOp::goTo, GameScreenIds::audioSettings };
+		return GoTo(GameScreenIds::audioSettings);
 	}
 
 #if defined(__ANDROID__) || defined(__OHOS__)
@@ -111,9 +108,9 @@ ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& i
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
 	    mBackButton.IsPressed(input)) {
-		return { ScreenOp::back };
+		return GoBack();
 	}
-	return { ScreenOp::keep };
+	return Continue();
 }
 
 void SettingsScreen::Draw(Wind::UIRenderer& uiRenderer) {
@@ -124,11 +121,6 @@ void SettingsScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* pay
 }
 
 void SettingsScreen::Exit() {
-}
-
-void SettingsScreen::RefreshLanguageButton() {
-	GameStringId stringId = GameStringId::nextLanguage;
-	mLanguageButton.GetText()->SetText(static_cast<StringId>(stringId));
 }
 
 void SettingsScreen::ParseConfig(const char* varName, const char* varValue) {
