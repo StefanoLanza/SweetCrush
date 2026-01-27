@@ -86,6 +86,18 @@ struct UICanvasDesc {
 	Color       backgroundColor = whiteColor;
 };
 
+enum class UIButtonState {
+	hovered,
+	released,
+	pressed,
+};
+
+struct UIButtonProfile {
+	Color backgroundColor = whiteColor;
+	Color textColor = whiteColor;
+	float childScale = 1.f;
+};
+
 #undef UIBaseDesc
 
 class UIText final {
@@ -123,7 +135,7 @@ class UIButton final {
 public:
 	UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text);
 
-	bool          IsPressed(const Input& input) const;
+	bool          IsPressed(const Input& input);
 	void          LoadAssets(Graphics& graphics, TextRenderer& textRenderer);
 	void          Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const;
 	void          UpdateRect(const UIRect& parentRect);
@@ -136,6 +148,7 @@ private:
 	std::unique_ptr<UIBitmap> mBitmap;
 	std::unique_ptr<UIText>   mText;
 	UIRect                    mRect;
+	UIButtonState             mState;
 };
 
 class UIPanel final {

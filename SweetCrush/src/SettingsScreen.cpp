@@ -73,7 +73,7 @@ SettingsScreen::SettingsScreen(GameSettings& gameSettings)
     , mGraphicsButton(MakeButton(graphicsButtonDesc, buttonBitmapDesc, textDescs[1]))
     , mAudioButton(MakeButton(audioButtonDesc, buttonBitmapDesc, textDescs[2]))
     , mLanguageButton(MakeButton(languageButtonDesc, buttonBitmapDesc, textDescs[3]))
-    , mBackButton(MakeButton(backButtonDesc, buttonBitmapDesc, textDescs[4]))
+    , mBackButton(MakeButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc))
     , mCanvas(canvasDesc) {
 	// Build UI
 	mCanvas.AddText(mTitle);

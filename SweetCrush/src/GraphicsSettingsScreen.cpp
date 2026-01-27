@@ -57,7 +57,7 @@ GraphicsSettingsScreen::GraphicsSettingsScreen(GameSettings& gameSettings)
     : mGameConfig(gameSettings)
     , mTitle(textDescs[0])
     , mFilterButton(MakeButton(languageButtonDesc, buttonBitmapDesc, textDescs[1]))
-    , mBackButton(MakeButton(backButtonDesc, buttonBitmapDesc, textDescs[2]))
+    , mBackButton(MakeButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc))
     , mCanvas(canvasDesc) {
 	// Setup UI
 	mCanvas.AddText(mTitle);

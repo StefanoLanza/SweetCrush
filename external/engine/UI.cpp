@@ -34,26 +34,36 @@ UIRect AlignRect(const UIPos& pos, const UISize& size, const UIRect& parentRect,
 	return alignedRect;
 }
 
+UIRect AddPadding(const UIRect& rect, float padding) {
+	return { rect.pos.x + padding, rect.pos.y + padding, rect.size.x - padding * 2.f, rect.size.y - padding * 2.f };
+}
+
 } // namespace
 
 UIButton::UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text)
     : mDesc(desc)
     , mBitmap(std::move(bitmap))
     , mText(std::move(text))
-    , mRect {} {
+    , mRect {}
+    , mState { UIButtonState::released } {
 }
 
-bool UIButton::IsPressed(const Input& input) const {
-	bool res = false;
-	if (input.GetMouseButtonPressed() || input.GetFingerPressed()) {
-		Rect r;
-		r.left = mRect.pos.x;
-		r.right = r.left + mRect.size.x;
-		r.top = mRect.pos.y;
-		r.bottom = r.top + mRect.size.y;
-		res = RectContainsPoint(r, input.GetMappedMouseCoord());
+bool UIButton::IsPressed(const Input& input)  {
+	Rect r {
+		.left = mRect.pos.x,
+		.top = mRect.pos.y,
+		.right = r.left + mRect.size.x,
+		.bottom = r.top + mRect.size.y,
+	};
+	UIButtonState state = UIButtonState::released;
+	if (RectContainsPoint(r, input.GetMappedMouseCoord())) {
+		state = UIButtonState::hovered;
 	}
-	return res;
+	if ((input.GetMouseButtonPressed() || input.GetFingerPressed()) && state == UIButtonState::hovered) {
+		state = UIButtonState::pressed;
+	}
+	mState = state;
+	return state == UIButtonState::pressed;
 }
 
 void UIButton::LoadAssets(Graphics& graphics, TextRenderer& textRenderer) {
@@ -88,11 +98,12 @@ void UIButton::UpdateRect(const UIRect& parentRect) {
 	}
 
 	mRect = AlignRect(mDesc.pos, size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
+	UIRect paddedRect = AddPadding(mRect, mDesc.padding);
 	if (mBitmap) {
-		mBitmap->UpdateRect(mRect);
+		mBitmap->UpdateRect(paddedRect);
 	}
 	if (mText) {
-		mText->UpdateRect(mRect);
+		mText->UpdateRect(paddedRect);
 	}
 }
 
@@ -274,20 +285,22 @@ void UIPanel::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 void UIPanel::UpdateRect(const UIRect& parentRect) {
 	const UIRect rect = AlignRect(mDesc.pos, mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 	mRect = rect;
+	UIRect paddedRect = AddPadding(rect, mDesc.padding);
+
 	// Update children
 	for (auto& panel : mPanels) {
 		if (panel->IsVisible()) {
-			panel->UpdateRect(rect);
+			panel->UpdateRect(paddedRect);
 		}
 	}
 	for (auto& bitmap : mBitmaps) {
-		bitmap->UpdateRect(rect);
+		bitmap->UpdateRect(paddedRect);
 	}
 	for (auto& button : mButtons) {
-		button->UpdateRect(rect);
+		button->UpdateRect(paddedRect);
 	}
 	for (auto& text : mTexts) {
-		text->UpdateRect(rect);
+		text->UpdateRect(paddedRect);
 	}
 }
 

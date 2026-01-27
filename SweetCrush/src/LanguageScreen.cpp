@@ -16,8 +16,6 @@ namespace {
 
 const UIButtonDesc languageButtonDesc { { 0, 560, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
 
-const UIButtonDesc backButtonDesc { { 0, 920, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
-
 const UITextDesc textDescs[] {
 	{
 	    .pos = { 0, titleY, 0, 0 },
@@ -37,14 +35,6 @@ const UITextDesc textDescs[] {
 	    .font = "mediumFont",
 	    .stringId = (StringId)GameStringId::nextLanguage,
 	},
-	{
-	    .pos = { 0, 0, 0, 0 },
-	    .size = UIAutoSize,
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::center,
-	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::back,
-	},
 };
 
 constexpr UICanvasDesc canvasDesc {
@@ -56,7 +46,7 @@ constexpr UICanvasDesc canvasDesc {
 LanguageScreen::LanguageScreen()
     : mTitle(textDescs[0])
     , mLanguageButton(MakeButton(languageButtonDesc, buttonBitmapDesc, textDescs[1]))
-    , mBackButton(MakeButton(backButtonDesc, buttonBitmapDesc, textDescs[2]))
+    , mBackButton(MakeButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc))
     , mCanvas(canvasDesc) {
 	// Setup UI
 	mCanvas.AddText(mTitle);

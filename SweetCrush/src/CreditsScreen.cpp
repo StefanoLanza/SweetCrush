@@ -1,8 +1,8 @@
 #include "CreditsScreen.h"
+#include "Constants.h"
 #include "Localization.h"
 #include "ScreenIds.h"
 #include "UIDefs.h"
-#include "Constants.h"
 
 #include <engine/Engine.h>
 #include <engine/Input.h>
@@ -12,8 +12,6 @@
 using namespace Wind;
 
 namespace {
-
-const UIButtonDesc backButtonDesc { UIAbsolutePos(0, 920), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
 
 const UITextDesc titleText {
 
@@ -85,7 +83,7 @@ CreditsScreen::CreditsScreen()
     , mGraphicsBy(graphicsByText)
     , mMusicBy(musicByText)
     , mVersion(versionText)
-    , mBackButton(MakeButton(backButtonDesc, buttonBitmapDesc, backText))
+    , mBackButton(MakeButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc))
     , mCanvas(canvasDesc) {
 	mCanvas.AddText(mTitle);
 	mCanvas.AddText(mCodeBy);

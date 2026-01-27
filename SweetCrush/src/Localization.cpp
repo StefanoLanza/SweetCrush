@@ -39,7 +39,7 @@ const char* eng[] = {
 	"PAUSE",
 	"CONTINUE",
 	"RESTART LEVEL",
-	"LEAVE MATCH",
+	"END MATCH",
 	"OK",
 	"LEVEL COMPLETE",
 	"NEXT",

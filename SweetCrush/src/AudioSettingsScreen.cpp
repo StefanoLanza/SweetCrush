@@ -46,15 +46,6 @@ const UITextDesc sfxButtonTextDesc {
 	.stringId = (StringId)GameStringId::sfxOn,
 };
 
-const UITextDesc backTextDesc {
-	.pos = { 0, 0, 0, 0 },
-	.size = UIAutoSize,
-	.horizontalAlignment = UIHorizAlignment::center,
-	.verticalAlignment = UIVertAlignment::center,
-	.font = "mediumFont",
-	.stringId = (StringId)GameStringId::back,
-};
-
 constexpr UICanvasDesc canvasDesc {
 	.background = "gameartguppy/background.png",
 };
@@ -66,7 +57,7 @@ AudioSettingsScreen::AudioSettingsScreen(GameSettings& gameSettings)
     , mTitle(titleTextDesc)
     , mMusicButton(MakeButton(musicButtonDesc, buttonBitmapDesc, musicButtonTextDesc))
     , mSfxButton(MakeButton(sfxButtonDesc, buttonBitmapDesc, sfxButtonTextDesc))
-    , mBackButton(MakeButton(backButtonDesc, buttonBitmapDesc, backTextDesc))
+    , mBackButton(MakeButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc))
     , mCanvas(canvasDesc) {
 	// Build UI
 	mCanvas.AddText(mTitle);

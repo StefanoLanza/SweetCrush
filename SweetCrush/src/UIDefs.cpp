@@ -16,4 +16,17 @@ constexpr TextStyle titleTextStyle {
 	blackColor,
 };
 
+const UIButtonDesc defaultBackButtonDesc {
+	.pos = UIAbsolutePos(32, -32),
+	.size = UIAutoSize,
+	.horizontalAlignment = UIHorizAlignment::left,
+	.verticalAlignment = UIVertAlignment::bottom,
+};
+
+const UIBitmapDesc defaultBackButtonBitmapDesc {
+	.fileName = "backButton.png",
+	.pos = UIZeroPos,
+	.size = UIAutoSize,
+	.color = yellowColor,
+};
 constexpr float titleY = 160.f;
