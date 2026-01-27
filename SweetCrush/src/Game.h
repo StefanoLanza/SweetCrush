@@ -32,10 +32,11 @@ private:
 	const AppConfig&              mGameConfig;
 	GameDataModule&               mGameDataModule;
 	GameSettings                  mGameSettings;
-	Wind::GlFrameBuffer           mFrameBuffer;
+	MatchStats                    mMatchStats;
+	Wind::GlFrameBuffer           mFrameBuffer_0;
+	Wind::GlFrameBuffer           mFrameBuffer_1;
 	Wind::UIMouseCursor           mMouseCursor;
 	Wind::UIRenderer              mUIRenderer;
-	MatchStats                    mMatchStats;
 	Wind::ScreenManager           mScreenMgr;
 	std::unique_ptr<Wind::Screen> mScreens[13];
 };

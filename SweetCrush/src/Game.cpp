@@ -36,9 +36,10 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
     , mGameConfig { gameConfig }
     , mGameDataModule { gameDataModule }
     , mGameSettings {}
-    , mFrameBuffer { RefWindowWidth, RefWindowHeight, FBOFlags::color }
-    , mUIRenderer { engine.GetGraphics(), engine.GetTextRenderer() }
-    , mMatchStats {} {
+    , mMatchStats {}
+    , mFrameBuffer_0 { RefWindowWidth, RefWindowHeight, FBOFlags::color }
+    , mFrameBuffer_1 { RefWindowWidth, RefWindowHeight, FBOFlags::color }
+    , mUIRenderer { engine.GetGraphics(), engine.GetTextRenderer() } {
 	// Note: match order of GameScreenId
 	mScreens[0] = std::make_unique<MainScreen>(engine, gameRenderer);
 	mScreens[1] = std::make_unique<CreditsScreen>();
@@ -83,7 +84,7 @@ void Game::Draw(float dt) {
 	const Input& input = mEngine.GetInput();
 	Graphics&    graphics = mEngine.GetGraphics();
 
-	graphics.SetFrameBuffer(mFrameBuffer);
+	graphics.SetFrameBuffer(mFrameBuffer_0);
 
 	mScreenMgr.Draw(mUIRenderer, dt);
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
@@ -92,14 +93,14 @@ void Game::Draw(float dt) {
 
 	graphics.SetDefaultFrameBuffer();
 	// compositor.GetFrameBuffer()
-	mEngine.GetBlitter().Blit(mFrameBuffer, BlitFilter::point);
+	mEngine.GetBlitter().Blit(mFrameBuffer_0, BlitFilter::point);
 
 	graphics.Flush();
 }
 
 void Game::Tick(float dt) {
 	Input&     input = mEngine.GetInput();
-	const Vec2 fbMouseCoord = mEngine.GetBlitter().WindowToFrameBuffer(input.GetMouseCoord(), mFrameBuffer);
+	const Vec2 fbMouseCoord = mEngine.GetBlitter().WindowToFrameBuffer(input.GetMouseCoord(), mFrameBuffer_0);
 	input.SetMappedMouseCoord(fbMouseCoord);
 
 	mGameDataModule.Reload();

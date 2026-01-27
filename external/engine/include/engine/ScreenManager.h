@@ -9,6 +9,9 @@ namespace Wind {
 class Input;
 class UIRenderer;
 
+struct Compositor {
+};
+
 class ScreenManager {
 public:
 	ScreenManager();
@@ -23,9 +26,9 @@ public:
 
 private:
 	std::vector<Screen*> mScreens;
-	ScreenId mCurr;
-	ScreenId mHistory[8];
-	size_t   mHistorySize;
+	ScreenId             mCurr;
+	ScreenId             mHistory[8];
+	size_t               mHistorySize;
 };
 
 } // namespace Wind

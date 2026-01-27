@@ -20,7 +20,7 @@ const UITextDesc titleText {
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "bigFont",
-	.stringId = (StringId)GameStringId::credits,
+	.stringId = GameStringId::credits,
 	.textStyle = titleTextStyle,
 };
 
@@ -31,7 +31,7 @@ const UITextDesc codeByText {
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "smallFont",
-	.stringId = (StringId)GameStringId::codeBy,
+	.stringId = GameStringId::codeBy,
 };
 
 const UITextDesc graphicsByText {
@@ -40,7 +40,7 @@ const UITextDesc graphicsByText {
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "smallFont",
-	.stringId = (StringId)GameStringId::graphicsBy,
+	.stringId = GameStringId::graphicsBy,
 };
 
 const UITextDesc musicByText {
@@ -50,7 +50,7 @@ const UITextDesc musicByText {
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "smallFont",
-	.stringId = (StringId)GameStringId::musicBy,
+	.stringId = GameStringId::musicBy,
 };
 
 const UITextDesc versionText {
@@ -59,7 +59,7 @@ const UITextDesc versionText {
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "smallFont",
-	.stringId = (StringId)GameStringId::version,
+	.stringId = GameStringId::version,
 };
 
 const UITextDesc backText {
@@ -68,7 +68,7 @@ const UITextDesc backText {
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::center,
 	.font = "mediumFont",
-	.stringId = (StringId)GameStringId::back,
+	.stringId = GameStringId::back,
 };
 
 constexpr UICanvasDesc canvasDesc {
@@ -83,7 +83,7 @@ CreditsScreen::CreditsScreen()
     , mGraphicsBy(graphicsByText)
     , mMusicBy(musicByText)
     , mVersion(versionText)
-    , mBackButton(MakeButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc))
+    , mBackButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc)
     , mCanvas(canvasDesc) {
 	mCanvas.AddText(mTitle);
 	mCanvas.AddText(mCodeBy);

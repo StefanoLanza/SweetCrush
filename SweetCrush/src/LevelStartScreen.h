@@ -7,6 +7,7 @@
 struct MatchStats;
 class GameDataModule;
 class GameRenderer;
+struct Level;
 
 class LevelStartScreen final : public Wind::Screen {
 public:
@@ -21,9 +22,13 @@ public:
 	void              ParseConfig(const char* varName, const char* varValue) override;
 
 private:
+	void DrawPieces(const Level& level) const;
+	void DrawIceBlocks(const Level& level) const;
+
+private:
 	const MatchStats&     mMatchStats;
 	const GameDataModule& mGameDataModule;
-	const GameRenderer& mGameRenderer;
+	const GameRenderer&   mGameRenderer;
 	Wind::UIText          mTitle;
 	Wind::UIButton        mPlayButton;
 	Wind::UICanvas        mCanvas;

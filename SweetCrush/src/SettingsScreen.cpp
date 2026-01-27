@@ -24,7 +24,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "bigFont",
-	    .stringId = (StringId)GameStringId::settings,
+	    .stringId = GameStringId::settings,
 	    .textStyle = titleTextStyle,
 	},
 	{
@@ -33,7 +33,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::graphicsSettings,
+	    .stringId = GameStringId::graphicsSettings,
 	},
 	{
 	    .pos = { 0, 0, 0, 0 },
@@ -41,7 +41,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::audioSettings,
+	    .stringId = GameStringId::audioSettings,
 	},
 	{
 	    .pos = { 0, 0, 0, 0 },
@@ -49,7 +49,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::languageScreen,
+	    .stringId = GameStringId::languageScreen,
 	},
 	{
 	    .pos = { 0, 0, 0, 0 },
@@ -57,7 +57,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::back,
+	    .stringId = GameStringId::back,
 	},
 };
 
@@ -70,10 +70,10 @@ constexpr UICanvasDesc canvasDesc {
 SettingsScreen::SettingsScreen(GameSettings& gameSettings)
     : mGameConfig(gameSettings)
     , mTitle(textDescs[0])
-    , mGraphicsButton(MakeButton(graphicsButtonDesc, buttonBitmapDesc, textDescs[1]))
-    , mAudioButton(MakeButton(audioButtonDesc, buttonBitmapDesc, textDescs[2]))
-    , mLanguageButton(MakeButton(languageButtonDesc, buttonBitmapDesc, textDescs[3]))
-    , mBackButton(MakeButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc))
+    , mGraphicsButton(graphicsButtonDesc, buttonBitmapDesc, textDescs[1])
+    , mAudioButton(audioButtonDesc, buttonBitmapDesc, textDescs[2])
+    , mLanguageButton(languageButtonDesc, buttonBitmapDesc, textDescs[3])
+    , mBackButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc)
     , mCanvas(canvasDesc) {
 	// Build UI
 	mCanvas.AddText(mTitle);

@@ -39,7 +39,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "bigFont",
-	    .stringId = (StringId)GameStringId::gameOver,
+	    .stringId = GameStringId::gameOver,
 	    .textStyle = titleTextStyle,
 	},
 	{
@@ -49,7 +49,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::retry,
+	    .stringId = GameStringId::retry,
 	},
 	{
 	    .pos = UIZeroPos,
@@ -57,7 +57,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::toMainMenu,
+	    .stringId = GameStringId::toMainMenu,
 	},
 };
 
@@ -70,8 +70,8 @@ constexpr UICanvasDesc canvasDesc {
 GameOverScreen::GameOverScreen(const MatchStats& matchStats)
     : mMatchStats(matchStats)
     , mTitle(textDescs[0])
-    , mReplayLevelButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1]))
-    , mContinueButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2]))
+    , mReplayLevelButton(buttonDescs[0], buttonBitmapDesc, textDescs[1])
+    , mContinueButton(buttonDescs[1], buttonBitmapDesc, textDescs[2])
     , mCanvas(canvasDesc) {
 	mCanvas.AddText(mTitle);
 	mCanvas.AddButton(mReplayLevelButton);

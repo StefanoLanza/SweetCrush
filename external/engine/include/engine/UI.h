@@ -92,12 +92,6 @@ enum class UIButtonState {
 	pressed,
 };
 
-struct UIButtonProfile {
-	Color backgroundColor = whiteColor;
-	Color textColor = whiteColor;
-	float childScale = 1.f;
-};
-
 #undef UIBaseDesc
 
 class UIText final {
@@ -134,7 +128,12 @@ private:
 class UIButton final {
 public:
 	UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text);
+	UIButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, const UITextDesc& labelDesc);
+	UIButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc);
 
+	void          SetVisible(bool visible);
+	bool          IsVisible() const;
+	UIButtonState RefreshState(const Input& input);
 	bool          IsPressed(const Input& input);
 	void          LoadAssets(Graphics& graphics, TextRenderer& textRenderer);
 	void          Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const;
@@ -142,6 +141,7 @@ public:
 	UIBitmap*     GetBitmap() const;
 	UIText*       GetText() const;
 	const UIRect& GetRect() const;
+	UIButtonState GetState() const;
 
 private:
 	UIButtonDesc              mDesc;
@@ -149,6 +149,7 @@ private:
 	std::unique_ptr<UIText>   mText;
 	UIRect                    mRect;
 	UIButtonState             mState;
+	bool                      mVisible;
 };
 
 class UIPanel final {
@@ -201,9 +202,6 @@ public:
 private:
 	TexturePtr mMousePointer;
 };
-
-UIButton MakeButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, const UITextDesc& textDesc);
-UIButton MakeButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc);
 
 constexpr UIPos       UIZeroPos = { 0.f, 0.f, 0.f, 0.f };
 constexpr UISize      UIAutoSize = { -1.f, -1.f, -1.f, -1.f };

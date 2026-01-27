@@ -23,7 +23,7 @@ const UITextDesc titleTextDesc {
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "bigFont",
-	.stringId = (StringId)GameStringId::audioSettings,
+	.stringId = GameStringId::audioSettings,
 	.textStyle = titleTextStyle,
 };
 
@@ -34,7 +34,7 @@ const UITextDesc musicButtonTextDesc {
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::center,
 	.font = "mediumFont",
-	.stringId = (StringId)GameStringId::musicOn,
+	.stringId = GameStringId::musicOn,
 };
 
 const UITextDesc sfxButtonTextDesc {
@@ -43,7 +43,7 @@ const UITextDesc sfxButtonTextDesc {
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::center,
 	.font = "mediumFont",
-	.stringId = (StringId)GameStringId::sfxOn,
+	.stringId = GameStringId::sfxOn,
 };
 
 constexpr UICanvasDesc canvasDesc {
@@ -55,9 +55,9 @@ constexpr UICanvasDesc canvasDesc {
 AudioSettingsScreen::AudioSettingsScreen(GameSettings& gameSettings)
     : mGameConfig(gameSettings)
     , mTitle(titleTextDesc)
-    , mMusicButton(MakeButton(musicButtonDesc, buttonBitmapDesc, musicButtonTextDesc))
-    , mSfxButton(MakeButton(sfxButtonDesc, buttonBitmapDesc, sfxButtonTextDesc))
-    , mBackButton(MakeButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc))
+    , mMusicButton(musicButtonDesc, buttonBitmapDesc, musicButtonTextDesc)
+    , mSfxButton(sfxButtonDesc, buttonBitmapDesc, sfxButtonTextDesc)
+    , mBackButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc)
     , mCanvas(canvasDesc) {
 	// Build UI
 	mCanvas.AddText(mTitle);

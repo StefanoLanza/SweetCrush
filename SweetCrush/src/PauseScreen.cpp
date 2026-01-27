@@ -42,7 +42,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "bigFont",
-	    .stringId = (StringId)GameStringId::pauseGame,
+	    .stringId = GameStringId::pauseGame,
 	    .textStyle = titleTextStyle,
 	},
 	{
@@ -51,7 +51,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::continueGame,
+	    .stringId = GameStringId::continueGame,
 	},
 	{
 	    .pos = UIZeroPos,
@@ -59,7 +59,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::restartLevel,
+	    .stringId = GameStringId::restartLevel,
 	},
 	{
 	    .pos = UIZeroPos,
@@ -67,7 +67,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::exitGame,
+	    .stringId = GameStringId::exitGame,
 	},
 };
 
@@ -79,9 +79,9 @@ constexpr UICanvasDesc canvasDesc {
 
 PauseScreen::PauseScreen()
     : mTitle(textDescs[0])
-    , mContinueButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1]))
-    , mRestartLevelButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2]))
-    , mExitGameButton(MakeButton(buttonDescs[2], buttonBitmapDesc, textDescs[3]))
+    , mContinueButton(buttonDescs[0], buttonBitmapDesc, textDescs[1])
+    , mRestartLevelButton(buttonDescs[1], buttonBitmapDesc, textDescs[2])
+    , mExitGameButton(buttonDescs[2], buttonBitmapDesc, textDescs[3])
     , mCanvas(canvasDesc) {
 	mCanvas.AddText(mTitle);
 	mCanvas.AddButton(mContinueButton);

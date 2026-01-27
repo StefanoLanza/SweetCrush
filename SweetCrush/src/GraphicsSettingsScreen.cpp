@@ -25,7 +25,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "bigFont",
-	    .stringId = (StringId)GameStringId::graphicsSettings,
+	    .stringId = GameStringId::graphicsSettings,
 	    .textStyle = titleTextStyle,
 	},
 	{
@@ -35,7 +35,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::nextLanguage,
+	    .stringId = GameStringId::nextLanguage,
 	},
 	{
 	    .pos = { 0, 0, 0, 0 },
@@ -43,7 +43,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::back,
+	    .stringId = GameStringId::back,
 	},
 };
 
@@ -56,8 +56,8 @@ constexpr UICanvasDesc canvasDesc {
 GraphicsSettingsScreen::GraphicsSettingsScreen(GameSettings& gameSettings)
     : mGameConfig(gameSettings)
     , mTitle(textDescs[0])
-    , mFilterButton(MakeButton(languageButtonDesc, buttonBitmapDesc, textDescs[1]))
-    , mBackButton(MakeButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc))
+    , mFilterButton(languageButtonDesc, buttonBitmapDesc, textDescs[1])
+    , mBackButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc)
     , mCanvas(canvasDesc) {
 	// Setup UI
 	mCanvas.AddText(mTitle);

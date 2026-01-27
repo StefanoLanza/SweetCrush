@@ -33,7 +33,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "bigFont",
-	    .stringId = (StringId)GameStringId::gameComplete,
+	    .stringId = GameStringId::gameComplete,
 	    .textStyle = titleTextStyle,
 	},
 	{
@@ -42,7 +42,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::continueGame,
+	    .stringId = GameStringId::continueGame,
 	},
 };
 
@@ -65,7 +65,7 @@ constexpr UICanvasDesc canvasDesc {
 GameCompleteScreen::GameCompleteScreen(const MatchStats& matchStats)
     : mMatchStats(matchStats)
     , mTitle(textDescs[0])
-    , mContinueButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1]))
+    , mContinueButton(buttonDescs[0], buttonBitmapDesc, textDescs[1])
     , mPanelBitmap(panelBitmapDesc)
     , mCanvas(canvasDesc) {
 	mCanvas.AddText(mTitle);

@@ -43,7 +43,7 @@ struct NewPieceEvent {
 
 struct RemovePieceEvent {
 	const Cell* cell;
-	int         targetCellIdx; // for suck anims
+	const Cell* targetCell; // for suck anims
 };
 
 struct RemoveLayerEvent {

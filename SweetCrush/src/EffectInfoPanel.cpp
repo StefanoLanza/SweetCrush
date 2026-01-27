@@ -26,7 +26,7 @@ const UITextDesc textDesc[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::empty,
+	    .stringId = GameStringId::empty,
 	},
 	{
 	    .pos = UIAbsolutePos(0, 160),
@@ -34,7 +34,7 @@ const UITextDesc textDesc[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "smallFont",
-	    .stringId = (StringId)GameStringId::empty,
+	    .stringId = GameStringId::empty,
 	},
 	{
 	    .pos = UIZeroPos,
@@ -42,7 +42,7 @@ const UITextDesc textDesc[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::ok,
+	    .stringId = GameStringId::ok,
 	},
 };
 
@@ -67,7 +67,7 @@ const UIPanelDesc panelDesc {
 EffectInfoScreen::EffectInfoScreen()
     : mTitle(textDesc[0])
     , mText(textDesc[1])
-    , mOKButton(MakeButton(buttonDesc, buttonBitmapDesc, textDesc[2]))
+    , mOKButton(buttonDesc, buttonBitmapDesc, textDesc[2])
     , mEffectIcon(effectIconDesc)
     , mPanel(panelDesc)
     , mShowHelp {} {

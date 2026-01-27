@@ -45,10 +45,27 @@ UIButton::UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, s
     , mBitmap(std::move(bitmap))
     , mText(std::move(text))
     , mRect {}
-    , mState { UIButtonState::released } {
+    , mState { UIButtonState::released }
+    , mVisible { true } {
 }
 
-bool UIButton::IsPressed(const Input& input)  {
+UIButton::UIButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, const UITextDesc& labelDesc)
+    : UIButton(desc, std::make_unique<UIBitmap>(bitmapDesc), std::make_unique<UIText>(labelDesc)) {
+}
+
+UIButton::UIButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc)
+    : UIButton(desc, std::make_unique<UIBitmap>(bitmapDesc), nullptr) {
+}
+
+void UIButton::SetVisible(bool visible) {
+	mVisible = visible;
+}
+
+bool UIButton::IsVisible() const {
+	return mVisible;
+}
+
+UIButtonState UIButton::RefreshState(const Input& input) {
 	Rect r {
 		.left = mRect.pos.x,
 		.top = mRect.pos.y,
@@ -59,11 +76,16 @@ bool UIButton::IsPressed(const Input& input)  {
 	if (RectContainsPoint(r, input.GetMappedMouseCoord())) {
 		state = UIButtonState::hovered;
 	}
+	// TODO released ?
 	if ((input.GetMouseButtonPressed() || input.GetFingerPressed()) && state == UIButtonState::hovered) {
 		state = UIButtonState::pressed;
 	}
 	mState = state;
-	return state == UIButtonState::pressed;
+	return state;
+}
+
+bool UIButton::IsPressed(const Input& input) {
+	return RefreshState(input) == UIButtonState::pressed;
 }
 
 void UIButton::LoadAssets(Graphics& graphics, TextRenderer& textRenderer) {
@@ -76,6 +98,9 @@ void UIButton::LoadAssets(Graphics& graphics, TextRenderer& textRenderer) {
 }
 
 void UIButton::Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const {
+	if (! mVisible) {
+		return;
+	}
 	if (mBitmap) {
 		mBitmap->Draw(renderer, drawOrder);
 	}
@@ -117,6 +142,10 @@ UIText* UIButton::GetText() const {
 
 const UIRect& UIButton::GetRect() const {
 	return mRect;
+}
+
+UIButtonState UIButton::GetState() const {
+	return mState;
 }
 
 UIText::UIText(const UITextDesc& desc)
@@ -297,7 +326,9 @@ void UIPanel::UpdateRect(const UIRect& parentRect) {
 		bitmap->UpdateRect(paddedRect);
 	}
 	for (auto& button : mButtons) {
-		button->UpdateRect(paddedRect);
+		if (button->IsVisible()) {
+			button->UpdateRect(paddedRect);
+		}
 	}
 	for (auto& text : mTexts) {
 		text->UpdateRect(paddedRect);
@@ -351,14 +382,6 @@ void UIMouseCursor::Draw(const UIRenderer& renderer, const Vec2& mouseCoords, un
 		};
 		renderer.DrawRect({ mouseCoords.x, mouseCoords.y, (float)mMousePointer->Width(), (float)mMousePointer->Height() }, *mMousePointer, prm);
 	}
-}
-
-UIButton MakeButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, const UITextDesc& textDesc) {
-	return UIButton { desc, std::make_unique<UIBitmap>(bitmapDesc), std::make_unique<UIText>(textDesc) };
-}
-
-UIButton MakeButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc) {
-	return UIButton { desc, std::make_unique<UIBitmap>(bitmapDesc), nullptr };
 }
 
 } // namespace Wind

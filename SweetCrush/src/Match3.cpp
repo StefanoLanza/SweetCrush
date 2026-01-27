@@ -343,7 +343,7 @@ void Match3::KillCell(int cellIdx, int targetCellIdx) {
 				// Inform client
 				Match3Event event {
 					.id = Match3Event::Id::removePiece,
-					.removePiece = { .cell = &cell, .targetCellIdx = targetCellIdx },
+					.removePiece = { .cell = &cell, .targetCell = targetCellIdx >= 0 ? &mBoard.GetCell(targetCellIdx) : nullptr },
 				};
 				mCbk(event);
 

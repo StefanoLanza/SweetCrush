@@ -23,7 +23,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "bigFont",
-	    .stringId = (StringId)GameStringId::languageScreen,
+	    .stringId = GameStringId::languageScreen,
 	    .textStyle = titleTextStyle,
 	},
 	{
@@ -33,7 +33,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::nextLanguage,
+	    .stringId = GameStringId::nextLanguage,
 	},
 };
 
@@ -45,8 +45,8 @@ constexpr UICanvasDesc canvasDesc {
 
 LanguageScreen::LanguageScreen()
     : mTitle(textDescs[0])
-    , mLanguageButton(MakeButton(languageButtonDesc, buttonBitmapDesc, textDescs[1]))
-    , mBackButton(MakeButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc))
+    , mLanguageButton(languageButtonDesc, buttonBitmapDesc, textDescs[1])
+    , mBackButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc)
     , mCanvas(canvasDesc) {
 	// Setup UI
 	mCanvas.AddText(mTitle);

@@ -13,6 +13,7 @@
 #include <engine/BitmapRender.h>
 #include <engine/Engine.h>
 #include <engine/TextRender.h>
+#include <engine/Texture.h>
 #include <engine/UI.h>
 #include <engine/UIRenderer.h>
 
@@ -35,7 +36,7 @@ const UITextDesc textDescs[] {
 	    .verticalAlignment = UIVertAlignment::top,
 
 	    .font = "bigFont",
-	    .stringId = (StringId)GameStringId::level,
+	    .stringId = GameStringId::level,
 	    .textStyle = titleTextStyle,
 	},
 	{
@@ -44,7 +45,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::play,
+	    .stringId = GameStringId::play,
 	    .textStyle = defaultTextStyle,
 	},
 };
@@ -60,7 +61,7 @@ LevelStartScreen::LevelStartScreen(const MatchStats& matchStats, const GameDataM
     , mGameDataModule(gameDataModule)
     , mGameRenderer(gameRenderer)
     , mTitle(textDescs[0])
-    , mPlayButton(MakeButton(playButtonDesc, buttonBitmapDesc, textDescs[1]))
+    , mPlayButton(playButtonDesc, buttonBitmapDesc, textDescs[1])
     , mCanvas(canvasDesc) {
 	// Setup UI
 	mCanvas.AddText(mTitle);
@@ -104,20 +105,14 @@ void LevelStartScreen::Draw(UIRenderer& uiRenderer, float dt) {
 	const Level& level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
 	switch (level.goal.id) {
 	case GoalId::breakIce:
+		snprintf(tmp, sizeof(tmp), "%s", "Break all ice blocks");
+		textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 360 }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
+		DrawIceBlocks(level);
 		break;
 	case GoalId::collectMatches: {
 		snprintf(tmp, sizeof(tmp), "%s", "Match these pieces");
 		textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 360 }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
-		constexpr float dx = TileWidth * 2.f + 2;
-		float           phase = mAccumTime * 4.f;
-		float           x = (RefWindowWidth - (MaxMatchesPerLevel - 1) * dx) * 0.5f;
-		for (int i = 0; i < MaxMatchesPerLevel; ++i) {
-			float rotation = std::sin(phase * .25f + (float)i) * 0.5f;
-			mGameRenderer.DrawIcon(pieceIcons[level.pieceIds[i]], Vec2 { x, 460.f + std::cos(phase) * 4.f }, rotation, whiteColor,
-			                       GameDrawOrder::overlays);
-			x += dx;
-			phase += 6.28f / static_cast<float>(MaxMatchesPerLevel);
-		}
+		DrawPieces(level);
 		break;
 	}
 	case GoalId::removeJellies:
@@ -139,4 +134,28 @@ void LevelStartScreen::Exit() {
 }
 
 void LevelStartScreen::ParseConfig(const char* varName, const char* varValue) {
+}
+
+void LevelStartScreen::DrawPieces(const Level& level) const {
+	constexpr float dx = TileWidth * 2.f + 2;
+	float           phase = mAccumTime * 4.f;
+	float           x = (RefWindowWidth - (MaxMatchesPerLevel - 1) * dx) * 0.5f;
+	for (int i = 0; i < MaxMatchesPerLevel; ++i) {
+		float rotation = std::sin(phase * .25f + (float)i) * 0.5f;
+		mGameRenderer.DrawIcon(pieceIcons[level.pieceIds[i]], Vec2 { x, 460.f + std::cos(phase) * 4.f }, rotation, whiteColor,
+		                       GameDrawOrder::overlays);
+		x += dx;
+		phase += 6.28f / static_cast<float>(MaxMatchesPerLevel);
+	}
+}
+
+void LevelStartScreen::DrawIceBlocks(const Level& level) const {
+	// FIXME Count
+	const int count = 4;
+	const float dx = gameTextures[iceSprites[0]]->Width() + 12 * 2.f + 2;
+	float           x = (RefWindowWidth - (count - 1) * dx) * 0.5f;
+	for (int i = 0; i < count; ++i) {
+		mGameRenderer.DrawIcon(iceSprites[0], Vec2 { x, 460.f }, 0.f, whiteColor, GameDrawOrder::overlays);
+		x += dx;
+	}
 }

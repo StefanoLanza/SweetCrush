@@ -30,7 +30,7 @@ const UITextDesc textDescs[] {
 	    .verticalAlignment = UIVertAlignment::top,
 
 	    .font = "bigFont",
-	    .stringId = (StringId)GameStringId::levelComplete,
+	    .stringId = GameStringId::levelComplete,
 	    .textStyle = titleTextStyle,
 	},
 	{
@@ -39,7 +39,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::nextLevel,
+	    .stringId = GameStringId::nextLevel,
 	    .textStyle = defaultTextStyle,
 	},
 };
@@ -53,7 +53,7 @@ constexpr UICanvasDesc canvasDesc {
 LevelCompleteScreen::LevelCompleteScreen(const MatchStats& matchStats)
     : mMatchStats(matchStats)
     , mTitle(textDescs[0])
-    , mNextLevelButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1]))
+    , mNextLevelButton(buttonDescs[0], buttonBitmapDesc, textDescs[1])
     , mCanvas(canvasDesc) {
 	// Setup UI
 	mCanvas.AddText(mTitle);

@@ -39,7 +39,7 @@ const UITextDesc textDescs[5] {
 	  .horizontalAlignment = UIHorizAlignment::center,
 	  .verticalAlignment = UIVertAlignment::top,
 	  .font = "bigFont",
-	  .stringId = (StringId)GameStringId::title,
+	  .stringId = GameStringId::title,
 	  .textStyle = titleTextStyle },
 	{
 	    .pos = UIZeroPos,
@@ -47,7 +47,7 @@ const UITextDesc textDescs[5] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::start,
+	    .stringId = GameStringId::start,
 	},
 	{
 	    .pos = UIZeroPos,
@@ -55,7 +55,7 @@ const UITextDesc textDescs[5] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::settings,
+	    .stringId = GameStringId::settings,
 	},
 	{
 	    .pos = UIZeroPos,
@@ -63,7 +63,7 @@ const UITextDesc textDescs[5] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::credits,
+	    .stringId = GameStringId::credits,
 	},
 	{
 	    .pos = UIZeroPos,
@@ -71,7 +71,7 @@ const UITextDesc textDescs[5] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::quit,
+	    .stringId = GameStringId::quit,
 	},
 };
 
@@ -85,11 +85,11 @@ MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
     : mEngine(engine)
     , mGameRenderer(gameRenderer)
     , mTitle(textDescs[0])
-    , mStartButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1]))
-    , mSettingsButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2]))
-    , mCreditsButton(MakeButton(buttonDescs[2], buttonBitmapDesc, textDescs[3]))
+    , mStartButton(buttonDescs[0], buttonBitmapDesc, textDescs[1])
+    , mSettingsButton(buttonDescs[1], buttonBitmapDesc, textDescs[2])
+    , mCreditsButton(buttonDescs[2], buttonBitmapDesc, textDescs[3])
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
-    , mQuitButton(MakeButton(buttonDescs[3], buttonBitmapDesc, textDescs[4]))
+    , mQuitButton(buttonDescs[3], buttonBitmapDesc, textDescs[4])
 #endif
     , mCanvas(canvasDesc)
     , mTime(0) {

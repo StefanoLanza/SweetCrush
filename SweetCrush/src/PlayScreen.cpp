@@ -32,9 +32,9 @@ using namespace Wind;
 namespace {
 
 const UIButtonDesc pauseButtonDesc {
-	.pos = UIAbsolutePos(-60, -60),
+	.pos = UIAbsolutePos(32, -32),
 	.size = UIAutoSize,
-	.horizontalAlignment = UIHorizAlignment::right,
+	.horizontalAlignment = UIHorizAlignment::left,
 	.verticalAlignment = UIVertAlignment::bottom,
 };
 
@@ -67,10 +67,11 @@ const UIBitmapDesc boosterButtonBitmapDesc {
 	._9patch = { 16, 0.f, 0.f, 0.f },
 };
 
-const UIBitmapDesc optionButtonBitmapDesc {
-	"menuButton.png",
-	UIZeroPos,
-	UIAutoSize,
+const UIBitmapDesc pauseButtonBitmapDesc {
+	.fileName = "backButton.png",
+	.pos = UIZeroPos,
+	.size = UIAutoSize,
+	.color = yellowColor,
 };
 
 constexpr UIPanelDesc boosterPanelDesc {
@@ -104,9 +105,10 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
     , mCellSelector { std::make_unique<TileSelector>(mBoard, gameConfig) }
     , mCanvas(canvasDesc)
     , mBoostersPanel(boosterPanelDesc)
-    , mPauseButton(MakeButton(pauseButtonDesc, optionButtonBitmapDesc))
-    , mBoosterButtons { MakeButton(booster0ButtonDesc, boosterButtonBitmapDesc), MakeButton(booster1ButtonDesc, boosterButtonBitmapDesc),
-	                    MakeButton(booster2ButtonDesc, boosterButtonBitmapDesc) }
+    , mPauseButton(pauseButtonDesc, pauseButtonBitmapDesc)
+    , mBoosterButtons { { booster0ButtonDesc, boosterButtonBitmapDesc },
+	                    { booster1ButtonDesc, boosterButtonBitmapDesc },
+	                    { booster2ButtonDesc, boosterButtonBitmapDesc } }
     , mMatch3 { mBoard, mBoardGenerator, *mCellSelector }
     , mTime { 0.f }
     , mMatchTime { 0 } {
@@ -115,11 +117,10 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
 	mCellGraphics.resize(NumCols * NumRows);
 	// Build UI
 	mCanvas.AddPanel(mBoostersPanel);
-	mBoostersPanel.SetVisible(true);
+	mCanvas.AddButton(mPauseButton);
 	mBoostersPanel.AddButton(mBoosterButtons[0]);
 	mBoostersPanel.AddButton(mBoosterButtons[1]);
 	mBoostersPanel.AddButton(mBoosterButtons[2]);
-	// TODO ? mPanel.AddButton(mPauseButton);
 }
 
 PlayScreen::~PlayScreen() = default;
@@ -157,8 +158,8 @@ ScreenEvent PlayScreen::Tick(float dt, const Input& input) {
 
 	if (mLevelComplete) {
 		if (mActionMgr.AnyRunning()) {
-			mActionMgr.Execute(dt);
 			// wait for animations
+			mActionMgr.Execute(dt);
 			return Continue();
 		}
 		else if (! mMatch3.IsWaitingForUser()) {
@@ -204,6 +205,8 @@ ScreenEvent PlayScreen::Tick(float dt, const Input& input) {
 	if (! mActionMgr.AnyRunning()) { // do not update match while animations are still running
 		mMatch3.Update(input);
 	}
+
+	// TODO Move to start of Tick, call once only. 
 	mActionMgr.Execute(dt);
 
 	return Continue();
@@ -251,9 +254,9 @@ void PlayScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 	mGameRenderer.DrawBoard(mBoard, mCellSelector->GetSelectedTile(), mGameConfig, mTime);
 	DrawUI(uiRenderer);
 
-	float t01 = (0.5f + 0.5f * sinf(mMatchTime * 5.0f));
-	Color c = whiteColor;
-	c.a = 255.f * t01;
+	//float t01 = (0.5f + 0.5f * sinf(mMatchTime * 5.0f));
+	//Color c = whiteColor;
+	//c.a = 255.f * t01;
 	// mGameRenderer.DrawBlast({ 300.f, 300.f }, 256.f * t01, 64, c);
 	// mGameRenderer.DrawLaser({ 0.f, 300.f }, { RefWindowWidth, 300.f }, 64);
 	//  mGameRenderer.DrawLaser({ 100.f, 0.f }, { 100.f, mAppConfig.board.bottomRightCoord.y }, 64, 0.5f + 0.5f * sinf(mMatchTime * 5.0f));
@@ -380,9 +383,8 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 	case Match3Event::Id::removePiece: {
 		assert(event.removePiece.cell->category == CellCategory::piece);
 		assert(! event.removePiece.cell->hasEffect); // effects are handled in Match3Event::Id::triggerEffect
-		if (event.removePiece.targetCellIdx != -1) {
-			const Cell& dstCell = mBoard.GetCell(event.removePiece.targetCellIdx);
-			mActionMgr.AddTimedAction(MovePieceTo(*static_cast<CellVisual*>(event.removePiece.cell->ud), dstCell.coords),
+		if (event.removePiece.targetCell) {
+			mActionMgr.AddTimedAction(MovePieceTo(*static_cast<CellVisual*>(event.removePiece.cell->ud), event.removePiece.targetCell->coords),
 			                          mGameConfig.suckPieceDuration);
 		}
 		else {
@@ -552,6 +554,10 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 			mGameRenderer.DrawIcon(boosterIcons[level.boosterIds[i]], coords, 0.f, whiteColor, GameDrawOrder::overUI);
 			snprintf(tmp, sizeof(tmp), "%d", mBoosterCount[i]);
 			textRenderer.Write(*mFonts[1], tmp, mBoosterButtons[i].GetRect().pos + Vec2 { 12.f, 12.f }, defaultTextStyle, GameDrawOrder::overUI);
+			mBoosterButtons[i].SetVisible(true);
+		}
+		else {
+			mBoosterButtons[i].SetVisible(false);
 		}
 	}
 }
