@@ -93,12 +93,11 @@ CellVisual& GetVisual(const Cell& cell) {
 } // namespace
 
 PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& gameConfig, const GameSettings& gameSettings,
-                       ActionMgr& renderActionMgr, MatchStats& matchStats, const GameDataModule& gameDataModule)
+                       MatchStats& matchStats, const GameDataModule& gameDataModule)
     : mEngine(engine)
     , mGameRenderer(gameRenderer)
     , mGameConfig(gameConfig)
     , mGameSettings(gameSettings)
-    , mRenderActionMgr(renderActionMgr)
     , mMatchStats(matchStats)
     , mGameDataModule(gameDataModule)
     , mBoard { NumCols, NumRows, mGameConfig.board }
@@ -106,8 +105,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
     , mCanvas(canvasDesc)
     , mBoostersPanel(boosterPanelDesc)
     , mPauseButton(MakeButton(pauseButtonDesc, optionButtonBitmapDesc))
-    , mBoosterButtons { MakeButton(booster0ButtonDesc, boosterButtonBitmapDesc),
-	                    MakeButton(booster1ButtonDesc, boosterButtonBitmapDesc),
+    , mBoosterButtons { MakeButton(booster0ButtonDesc, boosterButtonBitmapDesc), MakeButton(booster1ButtonDesc, boosterButtonBitmapDesc),
 	                    MakeButton(booster2ButtonDesc, boosterButtonBitmapDesc) }
     , mMatch3 { mBoard, mBoardGenerator, *mCellSelector }
     , mTime { 0.f }
@@ -141,40 +139,58 @@ void PlayScreen::LoadAssets(Engine& engine) {
 }
 
 ScreenEvent PlayScreen::Tick(float dt, const Input& input) {
-	{
-#if defined(__ANDROID__) || defined(__OHOS__)
-		if (input.GetKeyJustPressed(SDLK_AC_BACK)) {
-#elif defined(_WIN32) || defined(__linux__)
-		if (input.GetKeyJustPressed(SDLK_ESCAPE)) {
-#endif
-			return GoTo(GameScreenIds::pauseGame);
+	if (mGameComplete) {
+		if (mActionMgr.AnyRunning()) {
+			// wait for animations
+			mActionMgr.Execute(dt);
+			return Continue();
+		}
+		else if (! mMatch3.IsWaitingForUser()) {
+			// wait completion of all cascades
+			mMatch3.Update(input);
+			return Continue();
+		}
+		else {
+			return GoTo(GameScreenIds::gameComplete);
 		}
 	}
 
+	if (mLevelComplete) {
+		if (mActionMgr.AnyRunning()) {
+			mActionMgr.Execute(dt);
+			// wait for animations
+			return Continue();
+		}
+		else if (! mMatch3.IsWaitingForUser()) {
+			// wait completion of all cascades
+			mMatch3.Update(input);
+			return Continue();
+		}
+		else {
+			return GoTo(GameScreenIds::levelComplete);
+		}
+	}
+
+	// Handle pause
+#if defined(__ANDROID__) || defined(__OHOS__)
+	if (input.GetKeyJustPressed(SDLK_AC_BACK)) {
+#elif defined(_WIN32) || defined(__linux__)
+	if (input.GetKeyJustPressed(SDLK_ESCAPE)) {
+#endif
+		return GoTo(GameScreenIds::pauseGame);
+	}
 	if (mPauseButton.IsPressed(input)) {
 		return GoTo(GameScreenIds::pauseGame);
 	}
 
 	if (mMatch3.IsWaitingForUser()) {
 		SelectBooster(input);
-	}
-
-	if (mGameComplete) {
-		if (mRenderActionMgr.AnyRunning()) {
-			return { ScreenOp::keep }; // wait until all animations are over
-		}
-		return GoTo(GameScreenIds::gameComplete);
-	}
-	else if (mLevelComplete) {
-		if (mRenderActionMgr.AnyRunning()) {
-			return { ScreenOp::keep }; // wait until all animations are over
-		}
-		return GoTo(GameScreenIds::levelComplete);
-	}
-
-	if (mMatch3.IsWaitingForUser()) {
 		// Decrease time only when waiting for user selection
 		mMatchTime = std::max(0.f, mMatchTime - dt);
+	}
+
+	if (mMatchTime <= 0.f) {
+		return GoTo(GameScreenIds::gameOver);
 	}
 
 	if (mMatchTime < criticalTime) {
@@ -185,15 +201,10 @@ ScreenEvent PlayScreen::Tick(float dt, const Input& input) {
 	}
 
 	mTime += dt;
-	if (mMatchTime > 0.f) {
-		if (! mActionMgr.AnyRunning()) { // do not update match while animations are still running
-			mMatch3.Update(input);
-		}
+	if (! mActionMgr.AnyRunning()) { // do not update match while animations are still running
+		mMatch3.Update(input);
 	}
-	else {
-		return GoTo(GameScreenIds::gameOver);
-	}
-	mActionMgr.RunActions(dt);
+	mActionMgr.Execute(dt);
 
 	return Continue();
 }
@@ -203,9 +214,10 @@ void PlayScreen::SelectBooster(const Input& input) {
 
 	// Check buttons
 	for (int i = 0; i < MaxBoosterTypesPerLevel; ++i) {
-		if (mBoosterButtons[i].IsPressed(input)) {
+		if (mBoosterCount[i] > 0 && mBoosterButtons[i].IsPressed(input)) {
 			// Unselect if pressing again on same button
 			mSelectedBooster = mSelectedBooster == i ? -1 : i;
+			mMatch3.ClearSelection();
 			handled = true;
 			break;
 		}
@@ -217,6 +229,8 @@ void PlayScreen::SelectBooster(const Input& input) {
 		if (input.GetMouseButtonPressed()) {
 			if (cellIdx >= 0) {
 				mMatch3.UseBooster(cellIdx);
+				assert(mBoosterCount[mSelectedBooster] > 0);
+				--mBoosterCount[mSelectedBooster];
 			}
 			mSelectedBooster = -1; // release
 		}
@@ -233,7 +247,7 @@ void PlayScreen::SelectBooster(const Input& input) {
 	}
 }
 
-void PlayScreen::Draw(Wind::UIRenderer& uiRenderer) {
+void PlayScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 	mGameRenderer.DrawBoard(mBoard, mCellSelector->GetSelectedTile(), mGameConfig, mTime);
 	DrawUI(uiRenderer);
 
@@ -242,31 +256,32 @@ void PlayScreen::Draw(Wind::UIRenderer& uiRenderer) {
 	c.a = 255.f * t01;
 	// mGameRenderer.DrawBlast({ 300.f, 300.f }, 256.f * t01, 64, c);
 	// mGameRenderer.DrawLaser({ 0.f, 300.f }, { RefWindowWidth, 300.f }, 64);
-	//  mGameRenderer.DrawLaser({ 100.f, 0.f }, { 100.f, mGameConfig.board.bottomRightCoord.y }, 64, 0.5f + 0.5f * sinf(mMatchTime * 5.0f));
+	//  mGameRenderer.DrawLaser({ 100.f, 0.f }, { 100.f, mAppConfig.board.bottomRightCoord.y }, 64, 0.5f + 0.5f * sinf(mMatchTime * 5.0f));
+	mRenderActionMgr.Execute(dt);
 }
 
-void PlayScreen::Enter(ScreenId prevScreen, const void* payload) {
+void PlayScreen::Enter(const ScreenNavArgs& args) {
 	bool restartLevel = false;
-	if (prevScreen == GameScreenIds::levelComplete) {
+	if (args.mPrev == GameScreenIds::levelComplete) {
 		NextLevel();
 	}
-	else if (prevScreen == GameScreenIds::pauseGame) {
+	else if (args.mPrev == GameScreenIds::pauseGame) {
 		// resume game
-		std::memcpy(&restartLevel, payload, sizeof restartLevel);
+		std::memcpy(&restartLevel, args.mParams, sizeof restartLevel);
 		if (restartLevel) {
 			ReplayLevel();
 		}
 	}
-	else if (prevScreen == GameScreenIds::gameOver) {
+	else if (args.mPrev == GameScreenIds::gameOver) {
 		ReplayLevel();
 	}
-	else if (prevScreen == GameScreenIds::effectInfo) {
+	else if (args.mPrev == GameScreenIds::effectInfo) {
 		// continue playing
 	}
 	else {
 		NewGame();
 	}
-	if (prevScreen == GameScreenIds::pauseGame && ! restartLevel) {
+	if (args.mPrev == GameScreenIds::pauseGame && ! restartLevel) {
 		ResumeMusic();
 	}
 	else {
@@ -321,6 +336,11 @@ void PlayScreen::StartLevel() {
 	mActionMgr.Clear();
 	SetupNewBoardAnimation();
 	mMatch3.Run();
+	for (int i = 0; i < MaxBoosterTypesPerLevel; ++i) {
+		mBoosterCount[i] = level.boosterCount[i];
+	}
+	mSelectedBooster = -1;
+	mSelectedBoosterCoord = { 0.f, 0.f };
 }
 
 void PlayScreen::OnTileSelectionEvent(const TileSelectionEvent& event) {
@@ -530,7 +550,7 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 				coords = mBoosterButtons[i].GetRect().pos + mBoosterButtons[i].GetRect().size * 0.5f + Vec2 { 8.f, 0.f };
 			}
 			mGameRenderer.DrawIcon(boosterIcons[level.boosterIds[i]], coords, 0.f, whiteColor, GameDrawOrder::overUI);
-			snprintf(tmp, sizeof(tmp), "%d", level.boosterCount[i]);
+			snprintf(tmp, sizeof(tmp), "%d", mBoosterCount[i]);
 			textRenderer.Write(*mFonts[1], tmp, mBoosterButtons[i].GetRect().pos + Vec2 { 12.f, 12.f }, defaultTextStyle, GameDrawOrder::overUI);
 		}
 	}

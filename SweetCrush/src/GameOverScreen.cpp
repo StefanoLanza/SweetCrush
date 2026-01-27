@@ -97,7 +97,7 @@ ScreenEvent GameOverScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	return { ScreenOp::keep };
 }
 
-void GameOverScreen::Draw(Wind::UIRenderer& uiRenderer) {
+void GameOverScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 	if (! mFont) {
 		return;
@@ -106,12 +106,12 @@ void GameOverScreen::Draw(Wind::UIRenderer& uiRenderer) {
 	char            tmp[256];
 	const TextStyle textStyle { whiteColor, blackColor };
 	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourReachedLevel), mMatchStats.level + 1);
-	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 470 }, TextAlignment::center, textStyle, (DrawOrder)GameDrawOrder::overUI);
+	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 470 }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
 	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourScoreIs), mMatchStats.score);
-	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 530 }, TextAlignment::center, textStyle, (DrawOrder)GameDrawOrder::overUI);
+	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 530 }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
 }
 
-void GameOverScreen::Enter(ScreenId /*prevScreen*/, const void* payload) {
+void GameOverScreen::Enter(const ScreenNavArgs& args) {
 }
 
 void GameOverScreen::Exit() {

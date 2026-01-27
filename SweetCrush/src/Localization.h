@@ -26,6 +26,7 @@ enum class GameStringId : Wind::StringId {
 	musicBy,
 	version,
 	back,
+	goal,
 	yourScoreIs,
 	yourFinalScoreIs,
 	yourReachedLevel,

@@ -26,7 +26,7 @@ public:
 	ActionId AddAction(ActionFunc&& func, float delay = 0.f);
 	ActionId AddTimedAction(ActionFunc&& func, float duration, float delay = 0);
 	ActionId AddContinuation(ActionId parentId, ActionFunc&& func);
-	void     RunActions(float dt);
+	void     Execute(float dt);
 	bool     IsFinished(ActionId actionId) const;
 	void     Clear();
 	bool     AnyRunning() const;

@@ -65,7 +65,7 @@ ActionId ActionMgr::AddContinuation(ActionId parentId, ActionFunc&& func) {
 	return actionId;
 }
 
-void ActionMgr::RunActions(float dt) {
+void ActionMgr::Execute(float dt) {
 	auto pred = [dt, this](Action& action) {
 		bool res = false;
 		action.delay -= dt;

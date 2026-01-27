@@ -106,11 +106,11 @@ ScreenEvent AudioSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Inp
 	return { ScreenOp::keep };
 }
 
-void AudioSettingsScreen::Draw(Wind::UIRenderer& uiRenderer) {
+void AudioSettingsScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 }
 
-void AudioSettingsScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
+void AudioSettingsScreen::Enter(const ScreenNavArgs& args) {
 }
 
 void AudioSettingsScreen::Exit() {

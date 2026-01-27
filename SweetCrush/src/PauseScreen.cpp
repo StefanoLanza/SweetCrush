@@ -117,11 +117,11 @@ ScreenEvent PauseScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	return { ScreenOp::keep };
 }
 
-void PauseScreen::Draw(UIRenderer& uiRenderer) {
+void PauseScreen::Draw(UIRenderer& uiRenderer, float dt) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 }
 
-void PauseScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
+void PauseScreen::Enter(const ScreenNavArgs& args) {
 }
 
 void PauseScreen::Exit() {

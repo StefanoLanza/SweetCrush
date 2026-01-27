@@ -29,6 +29,7 @@ const char* eng[] = {
 	"Music by Patrick De Arteaga",
 	"Version 0.1.0",
 	"BACK",
+	"GOAL",
 	"Your score is",
 	"Your final score is",
 	"You reached level",
@@ -76,6 +77,7 @@ const char* esp[] = {
 	"Musica por Patrick De Arteaga",
 	"Version 0.1.0",
 	"VOLVER",
+	"OBJECTIVO",
 	"Tu punctuacion es",
 	"Tu punctuacion final es",
 	"", // TODO
@@ -122,6 +124,7 @@ const char* ita[] = {
 	"Grafica di gameartguppy.com",
 	"Musica di Patrick De Arteaga",
 	"Versione 0.1.0",
+	"OBBIETTIVO",
 	"INDIETRO",
 	"Il tuo punteggio e'",
 	"Il tuo punteggio finale e'",

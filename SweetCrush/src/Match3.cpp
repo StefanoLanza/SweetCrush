@@ -117,6 +117,10 @@ void Match3::SetCallback(Match3Callback&& cbk) {
 	mCbk = std::move(cbk);
 }
 
+void Match3::ClearSelection() {
+	mTileSelector.Reset();
+}
+
 void Match3::Run() {
 	// Clear lists from previous match
 	mNewPieces.clear();

@@ -111,11 +111,11 @@ ScreenEvent CreditsScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	return { ScreenOp::keep };
 }
 
-void CreditsScreen::Draw(Wind::UIRenderer& uiRenderer) {
+void CreditsScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 }
 
-void CreditsScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
+void CreditsScreen::Enter(const ScreenNavArgs& args) {
 }
 
 void CreditsScreen::Exit() {

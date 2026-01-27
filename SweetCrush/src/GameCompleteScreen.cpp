@@ -78,17 +78,19 @@ const char* GameCompleteScreen::GetName() const {
 }
 
 void GameCompleteScreen::LoadAssets(Engine& engine) {
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
 	mFont = engine.GetTextRenderer().AddFont("smallFont");
 }
 
-ScreenEvent GameCompleteScreen::Tick(float /*dt*/, const Wind::Input& input) {
-	if (mContinueButton.IsPressed(input)) {
-		return { ScreenOp::goTo, GameScreenIds::mainMenu };
+ScreenEvent GameCompleteScreen::Tick(float dt, const Wind::Input& input) {
+	mAccumTime += dt;
+	if (mAccumTime > 4.f || mContinueButton.IsPressed(input)) {
+		return GoTo(GameScreenIds::mainMenu);
 	}
-	return { ScreenOp::keep };
+	return Continue();
 }
 
-void GameCompleteScreen::Draw(Wind::UIRenderer& uiRenderer) {
+void GameCompleteScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 	if (! mFont) {
 		return;
@@ -97,12 +99,13 @@ void GameCompleteScreen::Draw(Wind::UIRenderer& uiRenderer) {
 	char            tmp[256];
 	const TextStyle textStyle { whiteColor, blackColor };
 	snprintf(tmp, sizeof(tmp), "%s", GetLocalizedString(GameStringId::youCompletedAllLevels));
-	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 400 }, TextAlignment::center, textStyle, (DrawOrder)GameDrawOrder::overUI);
+	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 400 }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
 	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourFinalScoreIs), mMatchStats.score);
-	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 460 }, TextAlignment::center, textStyle, (DrawOrder)GameDrawOrder::overUI);
+	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 460 }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
 }
 
-void GameCompleteScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
+void GameCompleteScreen::Enter(const ScreenNavArgs& args) {
+	mAccumTime = 0.f;
 }
 
 void GameCompleteScreen::Exit() {

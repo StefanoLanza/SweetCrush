@@ -183,7 +183,7 @@ private:
 class UIMouseCursor final {
 public:
 	void SetCursor(const char* fileName, Graphics& graphics);
-	void Draw(const UIRenderer& renderer, const Vec2& mouseCoords);
+	void Draw(const UIRenderer& renderer, const Vec2& mouseCoords, unsigned drawOrder);
 
 private:
 	TexturePtr mMousePointer;

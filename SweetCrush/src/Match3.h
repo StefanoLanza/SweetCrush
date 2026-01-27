@@ -90,6 +90,7 @@ public:
 	~Match3();
 
 	void SetCallback(Match3Callback&& cbk);
+	void ClearSelection();
 	void Run();
 	void UseBooster(int cellIdx);
 	void Update(const Wind::Input& input);

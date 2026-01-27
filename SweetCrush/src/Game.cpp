@@ -18,13 +18,14 @@
 #include "GameDrawOrder.h"
 #include "GameOverScreen.h"
 #include "GraphicsSettingsScreen.h"
+#include "LanguageScreen.h"
 #include "LevelCompleteScreen.h"
+#include "LevelStartScreen.h"
 #include "Localization.h"
 #include "MainScreen.h"
 #include "PauseScreen.h"
 #include "PlayScreen.h"
 #include "SettingsScreen.h"
-#include "LanguageScreen.h"
 
 #include <cassert>
 
@@ -42,7 +43,7 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
 	mScreens[0] = std::make_unique<MainScreen>(mEngine, gameRenderer);
 	mScreens[1] = std::make_unique<CreditsScreen>();
 	mScreens[2] = std::make_unique<SettingsScreen>(mGameSettings);
-	mScreens[3] = std::make_unique<PlayScreen>(mEngine, gameRenderer, mGameConfig, mGameSettings, mRenderActionMgr, mMatchStats, mGameDataModule);
+	mScreens[3] = std::make_unique<PlayScreen>(mEngine, gameRenderer, mGameConfig, mGameSettings, mMatchStats, mGameDataModule);
 	mScreens[4] = std::make_unique<GameOverScreen>(mMatchStats);
 	mScreens[5] = std::make_unique<GameCompleteScreen>(mMatchStats);
 	mScreens[6] = std::make_unique<PauseScreen>();
@@ -51,6 +52,7 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
 	mScreens[9] = std::make_unique<AudioSettingsScreen>(mGameSettings);
 	mScreens[10] = std::make_unique<EffectInfoScreen>();
 	mScreens[11] = std::make_unique<LanguageScreen>();
+	mScreens[12] = std::make_unique<LevelStartScreen>(mMatchStats);
 
 	for (const auto& screen : mScreens) {
 		iniParser.AddListener(screen->GetName(),
@@ -82,16 +84,15 @@ void Game::Draw(float dt) {
 	Graphics&    graphics = mEngine.GetGraphics();
 
 	graphics.SetFrameBuffer(mFrameBuffer);
-	// mCanvas.Draw(RefWindowWidth, RefWindowHeight, mUIRenderer, textRenderer);
-#if ! defined(__ANDROID__) && ! defined(__OHOS__)
-	mMouseCursor.Draw(mUIRenderer, input.GetMappedMouseCoord());
-#endif
 
-	mScreenMgr.Draw(mUIRenderer);
-	mRenderActionMgr.RunActions(dt);
+	mScreenMgr.Draw(mUIRenderer, dt);
+#if ! defined(__ANDROID__) && ! defined(__OHOS__)
+	mMouseCursor.Draw(mUIRenderer, input.GetMappedMouseCoord(), GameDrawOrder::mousePointer);
+#endif
 
 	graphics.SetDefaultFrameBuffer();
 	mEngine.GetBlitter().Blit(mFrameBuffer, BlitFilter::point);
+
 	graphics.Flush();
 }
 

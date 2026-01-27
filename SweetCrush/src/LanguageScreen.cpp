@@ -88,11 +88,11 @@ ScreenEvent LanguageScreen::Tick([[maybe_unused]] float dt, const Wind::Input& i
 	return Continue();
 }
 
-void LanguageScreen::Draw(Wind::UIRenderer& uiRenderer) {
+void LanguageScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 }
 
-void LanguageScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
+void LanguageScreen::Enter(const ScreenNavArgs& args) {
 }
 
 void LanguageScreen::Exit() {

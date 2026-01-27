@@ -114,13 +114,13 @@ void MainScreen::LoadAssets(Engine& engine) {
 ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
 	mTime += dt;
 	if (mStartButton.IsPressed(input)) {
-		return { ScreenOp::goTo, GameScreenIds::play };
+		return GoTo(GameScreenIds::levelStart);
 	}
 	else if (mSettingsButton.IsPressed(input)) {
-		return { ScreenOp::goTo, GameScreenIds::settings };
+		return GoTo(GameScreenIds::settings);
 	}
 	else if (mCreditsButton.IsPressed(input)) {
-		return { ScreenOp::goTo, GameScreenIds::credits };
+		return GoTo(GameScreenIds::credits);
 	}
 
 #if defined(__ANDROID__) || defined(__OHOS__)
@@ -131,10 +131,10 @@ ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
 #endif
 		mEngine.Quit();
 	}
-	return { ScreenOp::keep };
+	return Continue();
 }
 
-void MainScreen::Draw(UIRenderer& uiRenderer) {
+void MainScreen::Draw(UIRenderer& uiRenderer, float dt) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 
 	constexpr float dx = TileWidth + 2;
@@ -150,7 +150,7 @@ void MainScreen::Draw(UIRenderer& uiRenderer) {
 	}
 }
 
-void MainScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
+void MainScreen::Enter(const ScreenNavArgs& args) {
 }
 
 void MainScreen::Exit() {

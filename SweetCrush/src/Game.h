@@ -36,7 +36,6 @@ private:
 	Wind::UIMouseCursor           mMouseCursor;
 	Wind::UIRenderer              mUIRenderer;
 	MatchStats                    mMatchStats;
-	Wind::ActionMgr               mRenderActionMgr;
 	Wind::ScreenManager           mScreenMgr;
-	std::unique_ptr<Wind::Screen> mScreens[12];
+	std::unique_ptr<Wind::Screen> mScreens[13];
 };

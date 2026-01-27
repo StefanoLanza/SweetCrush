@@ -19,17 +19,17 @@ class GameRenderer;
 
 class PlayScreen final : public Wind::Screen {
 public:
-	PlayScreen(Wind::Engine& engine, const GameRenderer& gameRenderer, const AppConfig& gameConfig, const GameSettings& gameSettings,
-	           Wind::ActionMgr& renderActionMgr, MatchStats& matchStats, const GameDataModule& gameDataModule);
+	PlayScreen(Wind::Engine& engine, const GameRenderer& gameRenderer, const AppConfig& appConfig, const GameSettings& gameSettings,
+	           MatchStats& matchStats, const GameDataModule& gameDataModule);
 	~PlayScreen();
 
-	const char*            GetName() const override;
-	void                   LoadAssets(Wind::Engine& engine) override;
+	const char*       GetName() const override;
+	void              LoadAssets(Wind::Engine& engine) override;
 	Wind::ScreenEvent Tick(float dt, const Wind::Input& input) override;
-	void                   Draw(Wind::UIRenderer& uiRenderer) override;
-	void                   Enter(Wind::ScreenId prevScreen, const void* payload) override;
-	void                   Exit() override;
-	void                   ParseConfig(const char* varName, const char* varValue) override;
+	void              Draw(Wind::UIRenderer& uiRenderer, float dt) override;
+	void              Enter(const Wind::ScreenNavArgs& args) override;
+	void              Exit() override;
+	void              ParseConfig(const char* varName, const char* varValue) override;
 
 private:
 	void SelectBooster(const Wind::Input& input);
@@ -56,7 +56,7 @@ private:
 	const AppConfig&              mGameConfig;
 	const GameSettings&           mGameSettings;
 	Wind::ActionMgr               mActionMgr;
-	Wind::ActionMgr&              mRenderActionMgr;
+	Wind::ActionMgr               mRenderActionMgr;
 	MatchStats&                   mMatchStats;
 	const GameDataModule&         mGameDataModule;
 	Board                         mBoard;

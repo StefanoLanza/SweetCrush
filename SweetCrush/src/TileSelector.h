@@ -29,7 +29,7 @@ private:
 	enum class DragDirection;
 
 	const Board&          mBoard;
-	const AppConfig&     mGameConfig;
+	const AppConfig&      mAppConfig;
 	TileSelectionCallback mCbk;
 	State                 mState;
 	int                   mFirstCellIdx;

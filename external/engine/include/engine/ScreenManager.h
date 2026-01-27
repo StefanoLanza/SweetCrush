@@ -15,16 +15,15 @@ public:
 	void Register(Screen* screen);
 	void SetMain(ScreenId id);
 	void Tick(float dt, const Input& input);
-	void Draw(UIRenderer& uiRenderer) const;
+	void Draw(UIRenderer& uiRenderer, float dt) const;
 	bool CanGoBack() const;
 	void GoBack();
 	void GoForward();
-	void AddEvent(const ScreenEvent& event);
+	void AddEvent(const ScreenEvent& event); // TODO
 
 private:
 	std::vector<Screen*> mScreens;
-	ScreenId mStack[4];
-	size_t   mStackSize;
+	ScreenId mCurr;
 	ScreenId mHistory[8];
 	size_t   mHistorySize;
 };

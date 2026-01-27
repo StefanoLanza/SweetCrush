@@ -113,11 +113,11 @@ ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& i
 	return Continue();
 }
 
-void SettingsScreen::Draw(Wind::UIRenderer& uiRenderer) {
+void SettingsScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 }
 
-void SettingsScreen::Enter([[maybe_unused]] ScreenId prevScreen, const void* payload) {
+void SettingsScreen::Enter(const ScreenNavArgs& args) {
 }
 
 void SettingsScreen::Exit() {

@@ -40,7 +40,7 @@ enum class TileSelector::State {
 
 TileSelector::TileSelector(const Board& board, const AppConfig& gameConfig)
     : mBoard { board }
-    , mGameConfig { gameConfig }
+    , mAppConfig { gameConfig }
     , mState { State::empty }
     , mFirstCellIdx { invalidIndex }
     , mSelectedCellIdx { invalidIndex }
@@ -89,7 +89,7 @@ std::tuple<bool, int, int> TileSelector::SelectTiles(const Wind::Input& input) {
 			if (mDragDirection == DragDirection::empty) {
 				const float absDeltaX = std::abs(deltaX);
 				const float absDeltaY = std::abs(deltaY);
-				if (absDeltaX > mGameConfig.ui.startDragThreshold || absDeltaY > mGameConfig.ui.startDragThreshold) {
+				if (absDeltaX > mAppConfig.ui.startDragThreshold || absDeltaY > mAppConfig.ui.startDragThreshold) {
 					mDragDirection = (absDeltaX > absDeltaY) ? DragDirection::horizontal : DragDirection::vertical;
 				}
 			}
@@ -107,12 +107,12 @@ std::tuple<bool, int, int> TileSelector::SelectTiles(const Wind::Input& input) {
 			int colDelta = 0;
 			int rowDelta = 0;
 			if (mDragDirection == DragDirection::horizontal) {
-				if (DragTileX(cell, deltaX, mGameConfig.ui.swapThreshold)) {
+				if (DragTileX(cell, deltaX, mAppConfig.ui.swapThreshold)) {
 					colDelta = (deltaX > 0) ? 1 : -1;
 				}
 			}
 			else if (mDragDirection == DragDirection::vertical) {
-				if (DragTileY(cell, deltaY, mGameConfig.ui.swapThreshold)) {
+				if (DragTileY(cell, deltaY, mAppConfig.ui.swapThreshold)) {
 					rowDelta = (deltaY > 0) ? 1 : -1;
 				}
 			}
@@ -184,9 +184,9 @@ bool TileSelector::DragTileX(const Cell& cell, float deltaX, float threshold) co
 		return false;
 	}
 
-	float xCoord = cell.coords.x + std::clamp(deltaX, -mGameConfig.board.cellWidth, mGameConfig.board.cellWidth);
+	float xCoord = cell.coords.x + std::clamp(deltaX, -mAppConfig.board.cellWidth, mAppConfig.board.cellWidth);
 	;
-	xCoord = cell.coords.x + std::clamp(deltaX, -mGameConfig.board.cellWidth, mGameConfig.board.cellWidth);
+	xCoord = cell.coords.x + std::clamp(deltaX, -mAppConfig.board.cellWidth, mAppConfig.board.cellWidth);
 
 	TileSelectionEvent event;
 	event.id = TileSelectionEvent::Id::drag;
@@ -194,7 +194,7 @@ bool TileSelector::DragTileX(const Cell& cell, float deltaX, float threshold) co
 	event.draggedCoord = { xCoord, cell.coords.y };
 	mCbk(event);
 
-	return std::abs(xCoord - cell.coords.x) > (threshold * mGameConfig.board.cellWidth);
+	return std::abs(xCoord - cell.coords.x) > (threshold * mAppConfig.board.cellWidth);
 }
 
 bool TileSelector::DragTileY(const Cell& cell, float deltaY, float threshold) const {
@@ -205,7 +205,7 @@ bool TileSelector::DragTileY(const Cell& cell, float deltaY, float threshold) co
 	if (deltaY < 0 && ((cell.row == 0 || ! IsSelectable(mBoard.GetCell(cell.col, cell.row - 1))))) {
 		return false;
 	}
-	float yCoord = cell.coords.y + std::clamp(deltaY, -mGameConfig.board.cellHeight, mGameConfig.board.cellHeight);
+	float yCoord = cell.coords.y + std::clamp(deltaY, -mAppConfig.board.cellHeight, mAppConfig.board.cellHeight);
 
 	TileSelectionEvent event;
 	event.id = TileSelectionEvent::Id::drag;
@@ -213,7 +213,7 @@ bool TileSelector::DragTileY(const Cell& cell, float deltaY, float threshold) co
 	event.draggedCoord = { cell.coords.x, yCoord };
 	mCbk(event);
 
-	return std::abs(yCoord - cell.coords.y) > (threshold * mGameConfig.board.cellHeight);
+	return std::abs(yCoord - cell.coords.y) > (threshold * mAppConfig.board.cellHeight);
 }
 
 void TileSelector::UndoDrag() {

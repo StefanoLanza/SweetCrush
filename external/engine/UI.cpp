@@ -330,11 +330,11 @@ void UIMouseCursor::SetCursor(const char* fileName, Graphics& graphics) {
 	mMousePointer = graphics.LoadTexture(fileName);
 }
 
-void UIMouseCursor::Draw(const UIRenderer& renderer, const Vec2& mouseCoords) {
+void UIMouseCursor::Draw(const UIRenderer& renderer, const Vec2& mouseCoords, unsigned drawOrder) {
 	if (mMousePointer) {
 		const UIDrawParams prm {
 			.blending = true,
-			.priority = DrawOrder::mousePointer,
+			.priority = drawOrder,
 		};
 		renderer.DrawRect({ mouseCoords.x, mouseCoords.y, (float)mMousePointer->Width(), (float)mMousePointer->Height() }, *mMousePointer, prm);
 	}

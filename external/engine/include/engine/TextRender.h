@@ -26,6 +26,22 @@ constexpr TextStyle defaultTextStyle = {
 	blackColor,
 };
 
+enum class FontId : uint32_t {
+};
+
+class FontManager final {
+public:
+	FontManager();
+
+	FontId      AddFont(const char* fontName);
+	bool        IsValid(FontId fontId) const;
+	const Font& GetFont(FontId fontId) const;
+	const Font* TryGetFont(FontId fontId) const;
+
+private:
+	std::vector<FontPtr> mFonts;
+};
+
 class TextRenderer final {
 public:
 	explicit TextRenderer(Graphics& graphics);

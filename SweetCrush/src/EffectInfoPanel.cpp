@@ -102,11 +102,11 @@ ScreenEvent EffectInfoScreen::Tick(float dt, const Input& input) {
 	return Continue();
 }
 
-void EffectInfoScreen::Draw(Wind::UIRenderer& uiRenderer) {
+void EffectInfoScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 	mPanel.Draw(uiRenderer, 0); // TODO Rect
 }
 
-void EffectInfoScreen::Enter(ScreenId prevScreen, const void* payload) {
+void EffectInfoScreen::Enter(const ScreenNavArgs& args) {
 	// TODO Parse
 	EffectType effectType = EffectType::hrocket;
 	ShowHelp(effectType);

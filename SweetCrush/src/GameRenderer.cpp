@@ -104,7 +104,7 @@ public:
 			DrawCall drawCall;
 			drawCall.program = mTileProgram.mProgramHandle;
 			drawCall.mesh = quadMesh;
-			drawCall.drawOrder = static_cast<DrawOrder>(GameDrawOrder::backgroundTile);
+			drawCall.drawOrder = GameDrawOrder::backgroundTile;
 			drawCall.sortKey = (textureID & 255); // sort by texture
 			drawCall.textures = textureIds;
 			drawCall.numTextures = 1;
@@ -156,7 +156,7 @@ public:
 			DrawCall drawCall;
 			drawCall.program = mIconProgram.mProgramHandle;
 			drawCall.mesh = quadMesh;
-			drawCall.drawOrder = static_cast<DrawOrder>(GameDrawOrder::boardPiece);
+			drawCall.drawOrder = GameDrawOrder::boardPiece;
 			drawCall.sortKey = textureIds[0]; // sort by main texture
 			drawCall.textures = textureIds;
 			drawCall.numTextures = 1;
@@ -193,7 +193,7 @@ public:
 			.numTextures = 1,
 			.program = mTrailProgram.mProgramHandle,
 			.mesh = quadMesh,
-			.drawOrder = static_cast<DrawOrder>(GameDrawOrder::overlays),
+			.drawOrder = GameDrawOrder::overlays,
 		};
 		mGraphics.Draw(drawCall);
 	}
@@ -220,7 +220,7 @@ public:
 			.numTextures = 1,
 			.program = mBlastProgram.mProgramHandle,
 			.mesh = quadMesh,
-			.drawOrder = static_cast<DrawOrder>(GameDrawOrder::overlays),
+			.drawOrder = GameDrawOrder::overlays,
 		};
 		mGraphics.Draw(drawCall);
 	}

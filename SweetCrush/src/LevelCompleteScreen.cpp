@@ -68,19 +68,21 @@ void LevelCompleteScreen::LoadAssets(Engine& engine) {
 	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
 }
 
-Wind::ScreenEvent LevelCompleteScreen::Tick([[maybe_unused]] float dt, const Input& input) {
-	if (mNextLevelButton.IsPressed(input)) {
+ScreenEvent LevelCompleteScreen::Tick(float dt, const Input& input) {
+	mAccumTime += dt;
+	if (mAccumTime > 4.f || mNextLevelButton.IsPressed(input)) {
 		return GoTo(GameScreenIds::play);
 	}
-	return { ScreenOp::keep };
+	return Continue();
 }
 
-void LevelCompleteScreen::Draw(Wind::UIRenderer& uiRenderer) {
+void LevelCompleteScreen::Draw(UIRenderer& uiRenderer, float dt) {
 	// TODO show collected pastries?
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 }
 
-void LevelCompleteScreen::Enter([[maybe_unused]] Wind::ScreenId prevScreen, const void* payload) {
+void LevelCompleteScreen::Enter([[maybe_unused]] const ScreenNavArgs& args) {
+	mAccumTime = 0.f;
 }
 
 void LevelCompleteScreen::Exit() {

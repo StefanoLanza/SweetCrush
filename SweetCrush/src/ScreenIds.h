@@ -16,5 +16,6 @@ constexpr Wind::ScreenId graphicsSettings { 8 };
 constexpr Wind::ScreenId audioSettings { 9 };
 constexpr Wind::ScreenId effectInfo { 10 };
 constexpr Wind::ScreenId language { 11 };
+constexpr Wind::ScreenId levelStart { 12 };
 
 } // namespace ScreenId

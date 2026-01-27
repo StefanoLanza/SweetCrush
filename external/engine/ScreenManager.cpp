@@ -5,8 +5,7 @@
 namespace Wind {
 
 ScreenManager::ScreenManager()
-    : mStack {}
-    , mStackSize { 0 }
+    : mCurr {}
     , mHistory {}
     , mHistorySize { 0 } {
 }
@@ -16,43 +15,38 @@ void ScreenManager::Register(Screen* screen) {
 }
 
 void ScreenManager::SetMain(ScreenId id) {
-	mStack[0] = id;
-	mStackSize = 1;
-	mScreens[id.Get()]->Enter(id, nullptr);
+	mCurr = id;
+	mScreens[id.Get()]->Enter(ScreenNavArgs { id });
 }
 
 void ScreenManager::Tick(float dt, const Input& input) {
-	if (mStackSize == 0) {
-		// Call SetMain
-		return;
-	}
-	const ScreenId         topScreenId = mStack[mStackSize - 1];
-	Screen&                topScreen = *mScreens[topScreenId.Get()];
+	const ScreenId    topScreenId = mCurr;
+	Screen&           topScreen = *mScreens[topScreenId.Get()];
 	const ScreenEvent transition = topScreen.Tick(dt, input);
-	bool                   addToHistory = false;
+	bool              addToHistory = false;
 	switch (transition.mOp) {
 	case ScreenOp::keep:
 		break;
-	case ScreenOp::goTo:
-		for (size_t i = 0; i < mStackSize; ++i) {
-			mScreens[mStack[i].Get()]->Exit();
-		}
-		mScreens[transition.mNext.Get()]->Enter(topScreenId, transition.mParams);
-		mStack[0] = transition.mNext;
-		mStackSize = 1;
+	case ScreenOp::goTo: {
+		topScreen.Exit();
+		ScreenNavArgs navArgs { topScreenId };
+		std::memcpy(navArgs.mParams, transition.mParams, sizeof navArgs.mParams);
+		mScreens[transition.mNext.Get()]->Enter(navArgs);
+		mCurr = transition.mNext;
 		addToHistory = true;
 		break;
-	case ScreenOp::back:
+	}
+	case ScreenOp::back: {
 		assert(mHistorySize > 0);
-		for (size_t i = 0; i < mStackSize; ++i) {
-			mScreens[mStack[i].Get()]->Exit();
-		}
+		topScreen.Exit();
 		ScreenId next = mHistory[mHistorySize - 1];
 		--mHistorySize;
-		mScreens[next.Get()]->Enter(topScreenId, transition.mParams);
-		mStack[0] = next;
-		mStackSize = 1;
+		ScreenNavArgs navArgs { topScreenId };
+		std::memcpy(navArgs.mParams, transition.mParams, sizeof navArgs.mParams);
+		mScreens[next.Get()]->Enter(navArgs);
+		mCurr = next;
 		break;
+	}
 	};
 	if (addToHistory) {
 		if (mHistorySize == std::size(mHistory)) {
@@ -66,12 +60,18 @@ void ScreenManager::Tick(float dt, const Input& input) {
 	}
 }
 
-void ScreenManager::Draw(UIRenderer& uiRenderer) const {
-	mScreens[mStack[mStackSize - 1].Get()]->Draw(uiRenderer);
+void ScreenManager::Draw(UIRenderer& uiRenderer, float dt) const {
+	// TODO Composition
+	// two framebuffers A, B
+	// no transition: draw to A, blit A
+	// transition: A is snapshot of pervious screen. draw to B, composite A into B, blit B
+	// A must be preserved, B is dynamic
+
+	mScreens[mCurr.Get()]->Draw(uiRenderer, dt);
 }
 
 bool ScreenManager::CanGoBack() const {
-	return mStackSize > 1;
+	return mHistorySize > 1;
 }
 
 void ScreenManager::GoBack() {
