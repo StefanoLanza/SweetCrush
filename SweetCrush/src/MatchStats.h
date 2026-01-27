@@ -2,7 +2,7 @@
 
 struct MatchStats {
 	int  score;
-	int  level;
+	int  levelIndex;
 	int  targetPieceCount[3];
 	int  layerCount;
 };

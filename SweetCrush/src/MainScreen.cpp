@@ -143,8 +143,7 @@ void MainScreen::Draw(UIRenderer& uiRenderer, float dt) {
 
 	for (int i = 0; i < NumPieceTypes; ++i) {
 		float rotation = std::sin(phase * .25f + (float)i) * 0.5f;
-		mGameRenderer.DrawIcon(pieceIcons[i], { x, 380.f + std::cos(phase) * 4.f }, rotation, whiteColor,
-		                       static_cast<unsigned>(GameDrawOrder::overlays));
+		mGameRenderer.DrawIcon(pieceIcons[i], { x, 380.f + std::cos(phase) * 4.f }, rotation, whiteColor, GameDrawOrder::overlays);
 		x += dx;
 		phase += 6.28f / static_cast<float>(NumPieceTypes);
 	}

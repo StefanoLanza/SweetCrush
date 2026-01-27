@@ -14,7 +14,7 @@ enum class GoalId {
 
 // Collect a target number of matches for 3 piece types
 struct GoalCollectMatches {
-	int count[3]; // values <= 0 are ignored
+	int count[MaxMatchesPerLevel]; // values <= 0 are ignored
 };
 
 struct GoalCollectAllStars {

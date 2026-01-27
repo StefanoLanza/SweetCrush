@@ -40,10 +40,10 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
     , mUIRenderer { engine.GetGraphics(), engine.GetTextRenderer() }
     , mMatchStats {} {
 	// Note: match order of GameScreenId
-	mScreens[0] = std::make_unique<MainScreen>(mEngine, gameRenderer);
+	mScreens[0] = std::make_unique<MainScreen>(engine, gameRenderer);
 	mScreens[1] = std::make_unique<CreditsScreen>();
 	mScreens[2] = std::make_unique<SettingsScreen>(mGameSettings);
-	mScreens[3] = std::make_unique<PlayScreen>(mEngine, gameRenderer, mGameConfig, mGameSettings, mMatchStats, mGameDataModule);
+	mScreens[3] = std::make_unique<PlayScreen>(engine, gameRenderer, gameConfig, mGameSettings, mMatchStats, gameDataModule);
 	mScreens[4] = std::make_unique<GameOverScreen>(mMatchStats);
 	mScreens[5] = std::make_unique<GameCompleteScreen>(mMatchStats);
 	mScreens[6] = std::make_unique<PauseScreen>();
@@ -52,7 +52,7 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
 	mScreens[9] = std::make_unique<AudioSettingsScreen>(mGameSettings);
 	mScreens[10] = std::make_unique<EffectInfoScreen>();
 	mScreens[11] = std::make_unique<LanguageScreen>();
-	mScreens[12] = std::make_unique<LevelStartScreen>(mMatchStats);
+	mScreens[12] = std::make_unique<LevelStartScreen>(mMatchStats, gameDataModule, gameRenderer);
 
 	for (const auto& screen : mScreens) {
 		iniParser.AddListener(screen->GetName(),
@@ -91,6 +91,7 @@ void Game::Draw(float dt) {
 #endif
 
 	graphics.SetDefaultFrameBuffer();
+	// compositor.GetFrameBuffer()
 	mEngine.GetBlitter().Blit(mFrameBuffer, BlitFilter::point);
 
 	graphics.Flush();

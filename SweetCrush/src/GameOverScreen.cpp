@@ -105,7 +105,7 @@ void GameOverScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 	const auto&     textRenderer = uiRenderer.GetTextRenderer();
 	char            tmp[256];
 	const TextStyle textStyle { whiteColor, blackColor };
-	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourReachedLevel), mMatchStats.level + 1);
+	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourReachedLevel), mMatchStats.levelIndex + 1);
 	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 470 }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
 	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourScoreIs), mMatchStats.score);
 	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 530 }, TextAlignment::center, textStyle, GameDrawOrder::overUI);

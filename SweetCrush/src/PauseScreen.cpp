@@ -16,12 +16,6 @@ namespace {
 
 const UIButtonDesc buttonDescs[] {
 	{
-	    .pos = UIAbsolutePos(0, 440),
-	    .size = UIAutoSize,
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::top,
-	},
-	{
 	    .pos = UIAbsolutePos(0, 560),
 	    .size = UIAutoSize,
 	    .horizontalAlignment = UIHorizAlignment::center,
@@ -29,6 +23,12 @@ const UIButtonDesc buttonDescs[] {
 	},
 	{
 	    .pos = UIAbsolutePos(0, 680),
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::top,
+	},
+	{
+	    .pos = UIAbsolutePos(0, 800),
 	    .size = UIAutoSize,
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,

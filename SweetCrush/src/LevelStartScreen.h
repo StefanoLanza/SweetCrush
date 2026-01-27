@@ -5,10 +5,12 @@
 #include <engine/UI.h>
 
 struct MatchStats;
+class GameDataModule;
+class GameRenderer;
 
 class LevelStartScreen final : public Wind::Screen {
 public:
-	explicit LevelStartScreen(const MatchStats& matchStats);
+	explicit LevelStartScreen(const MatchStats& matchStats, const GameDataModule& gameDataModule, const GameRenderer& gameRenderer);
 
 	const char*       GetName() const override;
 	void              LoadAssets(Wind::Engine& engine) override;
@@ -19,10 +21,12 @@ public:
 	void              ParseConfig(const char* varName, const char* varValue) override;
 
 private:
-	const MatchStats& mMatchStats;
-	Wind::UIText      mTitle;
-	Wind::UIButton    mPlayButton;
-	Wind::UICanvas    mCanvas;
-	Wind::FontPtr     mFont;
-	float             mAccumTime = 0;
+	const MatchStats&     mMatchStats;
+	const GameDataModule& mGameDataModule;
+	const GameRenderer& mGameRenderer;
+	Wind::UIText          mTitle;
+	Wind::UIButton        mPlayButton;
+	Wind::UICanvas        mCanvas;
+	Wind::FontPtr         mFont;
+	float                 mAccumTime = 0;
 };

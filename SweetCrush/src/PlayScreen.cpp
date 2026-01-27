@@ -296,7 +296,7 @@ void PlayScreen::Exit() {
 }
 
 void PlayScreen::NewGame() {
-	mMatchStats.level = 0;
+	mMatchStats.levelIndex = 0;
 	mMatchStats.score = 0;
 	mLevelComplete = false;
 	mGameComplete = false;
@@ -304,8 +304,8 @@ void PlayScreen::NewGame() {
 }
 
 void PlayScreen::NextLevel() {
-	if (mMatchStats.level < mGameDataModule.GetNumLevels()) {
-		++mMatchStats.level;
+	if (mMatchStats.levelIndex < mGameDataModule.GetNumLevels()) {
+		++mMatchStats.levelIndex;
 		StartLevel();
 	}
 }
@@ -317,7 +317,7 @@ void PlayScreen::ReplayLevel() {
 }
 
 void PlayScreen::StartLevel() {
-	const Level& level = *mGameDataModule.GetLevel(mMatchStats.level);
+	const Level& level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
 	if (level.boardDef) {
 		mBoardGenerator.InitBoard(mBoard, *level.boardDef, level.seed, level.pieceIds, 5);
 	}
@@ -358,7 +358,7 @@ void PlayScreen::OnPieceRemoved(const Cell& cell) {
 	if (cell.category != CellCategory::piece) {
 		return;
 	}
-	const Level& level = *mGameDataModule.GetLevel(mMatchStats.level);
+	const Level& level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
 	for (int i = 0; i < 3; ++i) {
 		if (level.pieceIds[i] == cell.pieceId) {
 			++mMatchStats.targetPieceCount[i];
@@ -473,7 +473,7 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 }
 
 void PlayScreen::CheckLevelCompletion() {
-	const Level& level = *mGameDataModule.GetLevel(mMatchStats.level);
+	const Level& level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
 	bool         res = true;
 	switch (level.goal.id) {
 	case GoalId::breakIce:
@@ -496,7 +496,7 @@ void PlayScreen::CheckLevelCompletion() {
 		break;
 	}
 	if (res) {
-		if (mMatchStats.level + 1 == mGameDataModule.GetNumLevels()) {
+		if (mMatchStats.levelIndex + 1 == mGameDataModule.GetNumLevels()) {
 			mGameComplete = true;
 		}
 		else {
@@ -509,7 +509,7 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 	const TextRenderer& textRenderer = mEngine.GetTextRenderer();
 	const TextStyle     textStyle { whiteColor, blackColor };
 	const TextStyle     textStyle1 { redColor, blackColor };
-	const Level&        level = *mGameDataModule.GetLevel(mMatchStats.level);
+	const Level&        level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
 	char                tmp[256];
 	const float         y = 60.f;
 

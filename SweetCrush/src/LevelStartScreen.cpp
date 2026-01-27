@@ -1,11 +1,16 @@
 #include "LevelStartScreen.h"
+#include "AssetDefs.h"
 #include "Constants.h"
+#include "GameDataModule.h"
+#include "GameDrawOrder.h"
+#include "GameRenderer.h"
+#include "Level.h"
 #include "Localization.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
 #include "UIDefs.h"
-#include "GameDrawOrder.h"
 
+#include <engine/BitmapRender.h>
 #include <engine/Engine.h>
 #include <engine/TextRender.h>
 #include <engine/UI.h>
@@ -15,13 +20,11 @@ using namespace Wind;
 
 namespace {
 
-const UIButtonDesc buttonDescs[] {
-	{
-	    UIAbsolutePos(0, 560),
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::top,
-	},
+constexpr UIButtonDesc playButtonDesc {
+	UIAbsolutePos(0, 560),
+	UIAutoSize,
+	UIHorizAlignment::center,
+	UIVertAlignment::top,
 };
 
 const UITextDesc textDescs[] {
@@ -32,7 +35,7 @@ const UITextDesc textDescs[] {
 	    .verticalAlignment = UIVertAlignment::top,
 
 	    .font = "bigFont",
-	    .stringId = (StringId)GameStringId::goal,
+	    .stringId = (StringId)GameStringId::level,
 	    .textStyle = titleTextStyle,
 	},
 	{
@@ -41,7 +44,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = (StringId)GameStringId::start,
+	    .stringId = (StringId)GameStringId::play,
 	    .textStyle = defaultTextStyle,
 	},
 };
@@ -52,10 +55,12 @@ constexpr UICanvasDesc canvasDesc {
 
 } // namespace
 
-LevelStartScreen::LevelStartScreen(const MatchStats& matchStats)
+LevelStartScreen::LevelStartScreen(const MatchStats& matchStats, const GameDataModule& gameDataModule, const GameRenderer& gameRenderer)
     : mMatchStats(matchStats)
+    , mGameDataModule(gameDataModule)
+    , mGameRenderer(gameRenderer)
     , mTitle(textDescs[0])
-    , mPlayButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1]))
+    , mPlayButton(MakeButton(playButtonDesc, buttonBitmapDesc, textDescs[1]))
     , mCanvas(canvasDesc) {
 	// Setup UI
 	mCanvas.AddText(mTitle);
@@ -92,9 +97,38 @@ void LevelStartScreen::Draw(UIRenderer& uiRenderer, float dt) {
 		.outlineColor = blackColor,
 	};
 	snprintf(tmp, sizeof(tmp), "%s", GetLocalizedString(GameStringId::goal));
-	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 400 }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
-	//snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourFinalScoreIs), mMatchStats.score);
-	//textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 460 }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
+	// textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 400 }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
+	//  snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourFinalScoreIs), mMatchStats.score);
+	//  textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 460 }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
+
+	const Level& level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
+	switch (level.goal.id) {
+	case GoalId::breakIce:
+		break;
+	case GoalId::collectMatches: {
+		snprintf(tmp, sizeof(tmp), "%s", "Match these pieces");
+		textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 360 }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
+		constexpr float dx = TileWidth * 2.f + 2;
+		float           phase = mAccumTime * 4.f;
+		float           x = (RefWindowWidth - (MaxMatchesPerLevel - 1) * dx) * 0.5f;
+		for (int i = 0; i < MaxMatchesPerLevel; ++i) {
+			float rotation = std::sin(phase * .25f + (float)i) * 0.5f;
+			mGameRenderer.DrawIcon(pieceIcons[level.pieceIds[i]], Vec2 { x, 460.f + std::cos(phase) * 4.f }, rotation, whiteColor,
+			                       GameDrawOrder::overlays);
+			x += dx;
+			phase += 6.28f / static_cast<float>(MaxMatchesPerLevel);
+		}
+		break;
+	}
+	case GoalId::removeJellies:
+		// TODO
+		break;
+	case GoalId::collectAllStars:
+		// TODO
+		break;
+	default:
+		break;
+	}
 }
 
 void LevelStartScreen::Enter(const ScreenNavArgs& args) {
