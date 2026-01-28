@@ -34,13 +34,15 @@ const UIButtonDesc buttonDescs[] {
 };
 #endif
 const UITextDesc textDescs[5] {
-	{ .pos = UIAbsolutePos(0, titleY),
-	  .size = UIAutoSize,
-	  .horizontalAlignment = UIHorizAlignment::center,
-	  .verticalAlignment = UIVertAlignment::top,
-	  .font = "bigFont",
-	  .stringId = GameStringId::title,
-	  .textStyle = titleTextStyle },
+	{
+	    .pos = UIAbsolutePos(0, titleY),
+	    .size = UIAutoSize,
+	    .horizontalAlignment = UIHorizAlignment::center,
+	    .verticalAlignment = UIVertAlignment::top,
+	    .font = "bigFont",
+	    .stringId = GameStringId::title,
+	    .textStyle = titleTextStyle,
+	},
 	{
 	    .pos = UIZeroPos,
 	    .size = UIAutoSize,

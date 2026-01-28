@@ -143,7 +143,6 @@ ScreenEvent PlayScreen::Tick(float dt, const Input& input) {
 	if (mGameComplete) {
 		if (mActionMgr.AnyRunning()) {
 			// wait for animations
-			mActionMgr.Execute(dt);
 			return Continue();
 		}
 		else if (! mMatch3.IsWaitingForUser()) {
@@ -159,7 +158,6 @@ ScreenEvent PlayScreen::Tick(float dt, const Input& input) {
 	if (mLevelComplete) {
 		if (mActionMgr.AnyRunning()) {
 			// wait for animations
-			mActionMgr.Execute(dt);
 			return Continue();
 		}
 		else if (! mMatch3.IsWaitingForUser()) {
@@ -206,9 +204,6 @@ ScreenEvent PlayScreen::Tick(float dt, const Input& input) {
 		mMatch3.Update(input);
 	}
 
-	// TODO Move to start of Tick, call once only. 
-	mActionMgr.Execute(dt);
-
 	return Continue();
 }
 
@@ -251,6 +246,9 @@ void PlayScreen::SelectBooster(const Input& input) {
 }
 
 void PlayScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
+	mActionMgr.Execute(dt);
+	mRenderActionMgr.Execute(dt);
+
 	mGameRenderer.DrawBoard(mBoard, mCellSelector->GetSelectedTile(), mGameConfig, mTime);
 	DrawUI(uiRenderer);
 
@@ -260,7 +258,6 @@ void PlayScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 	// mGameRenderer.DrawBlast({ 300.f, 300.f }, 256.f * t01, 64, c);
 	// mGameRenderer.DrawLaser({ 0.f, 300.f }, { RefWindowWidth, 300.f }, 64);
 	//  mGameRenderer.DrawLaser({ 100.f, 0.f }, { 100.f, mAppConfig.board.bottomRightCoord.y }, 64, 0.5f + 0.5f * sinf(mMatchTime * 5.0f));
-	mRenderActionMgr.Execute(dt);
 }
 
 void PlayScreen::Enter(const ScreenNavArgs& args) {
