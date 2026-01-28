@@ -19,14 +19,14 @@ const UITextDesc titleText {
 	.size = UIAutoSize,
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
-	.font = "bigFont",
+	.font = "screenTitle",
 	.stringId = GameStringId::credits,
 	.textStyle = titleTextStyle,
 };
 
 const UITextDesc codeByText {
 
-	.pos = { 0, 360, 0, 0 },
+	.pos = { 0, 560, 0, 0 },
 	.size = UIAutoSize,
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
@@ -35,7 +35,7 @@ const UITextDesc codeByText {
 };
 
 const UITextDesc graphicsByText {
-	.pos = { 0, 420, 0, 0 },
+	.pos = { 0, 620, 0, 0 },
 	.size = UIAutoSize,
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
@@ -45,7 +45,7 @@ const UITextDesc graphicsByText {
 
 const UITextDesc musicByText {
 
-	.pos = { 0, 480, 0, 0 },
+	.pos = { 0, 680, 0, 0 },
 	.size = UIAutoSize,
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
@@ -54,21 +54,12 @@ const UITextDesc musicByText {
 };
 
 const UITextDesc versionText {
-	.pos = { 0, 640, 0, 0 },
+	.pos = { 0, 840, 0, 0 },
 	.size = UIAutoSize,
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "smallFont",
 	.stringId = GameStringId::version,
-};
-
-const UITextDesc backText {
-	.pos = UIZeroPos,
-	.size = UIAutoSize,
-	.horizontalAlignment = UIHorizAlignment::center,
-	.verticalAlignment = UIVertAlignment::center,
-	.font = "mediumFont",
-	.stringId = GameStringId::back,
 };
 
 constexpr UICanvasDesc canvasDesc {

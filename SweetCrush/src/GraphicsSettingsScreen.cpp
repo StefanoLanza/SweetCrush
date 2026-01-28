@@ -24,7 +24,7 @@ const UITextDesc textDescs[] {
 	    .size = UIAutoSize,
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
-	    .font = "bigFont",
+	    .font = "screenTitle",
 	    .stringId = GameStringId::graphicsSettings,
 	    .textStyle = titleTextStyle,
 	},

@@ -35,7 +35,7 @@ const UITextDesc textDescs[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 
-	    .font = "bigFont",
+	    .font = "screenTitle",
 	    .stringId = GameStringId::level,
 	    .textStyle = titleTextStyle,
 	},

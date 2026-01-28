@@ -581,7 +581,7 @@ void PlayScreen::SetupNewBoardAnimation() {
 		visual.bkgAlpha = 0.f;
 		float delay = rnd.NextF(0.f, 0.5f);
 		mActionMgr.AddTimedAction(FadeInAlpha(visual), mGameConfig.newPieceDuration, delay);
-		mActionMgr.AddTimedAction(ScalePiece(visual, 0.f, 1.f), mGameConfig.newPieceDuration, delay);
+		mActionMgr.AddTimedAction(ScalePiece(visual, 0.f, 1.f), mGameConfig.newPieceDuration);
 	}
 }
 
