@@ -39,6 +39,8 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
     , mMatchStats {}
     , mFrameBuffer_0 { RefWindowWidth, RefWindowHeight, FBOFlags::color }
     , mFrameBuffer_1 { RefWindowWidth, RefWindowHeight, FBOFlags::color }
+    , mFrameBufferHalfRes { RefWindowWidth / 2, RefWindowHeight / 2, FBOFlags::color }
+    , mFrameBufferQuarterRes { RefWindowWidth / 4, RefWindowHeight / 4, FBOFlags::color }
     , mUIRenderer { engine.GetGraphics(), engine.GetTextRenderer() }
     , mBlur { engine.GetGraphics() } {
 	// Note: match order of GameScreenId
@@ -92,7 +94,8 @@ void Game::Draw(float dt) {
 	mMouseCursor.Draw(mUIRenderer, input.GetMappedMouseCoord(), GameDrawOrder::mousePointer);
 #endif
 
-	mBlur.Run(mFrameBuffer_0, mFrameBuffer_0, mFrameBuffer_1);
+	const GlFrameBuffer* mip[] = { &mFrameBufferHalfRes, &mFrameBufferQuarterRes };
+	mBlur.Run(mFrameBuffer_0, mip, std::size(mip));
 
 	graphics.SetDefaultFrameBuffer();
 	mEngine.GetBlitter().Blit(mFrameBuffer_0, BlitFilter::point);

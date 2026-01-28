@@ -9,7 +9,7 @@ namespace Wind {
 class Blur::Impl {
 public:
 	explicit Impl(Graphics& graphics);
-	void Run(GlFrameBuffer& src, GlFrameBuffer& dst, GlFrameBuffer& temp) const;
+	void Run(const GlFrameBuffer& src, const GlFrameBuffer& dst, const GlFrameBuffer& temp) const;
 
 private:
 	void RunPass(const GlFrameBuffer& src, bool hrz) const;
@@ -55,7 +55,7 @@ void Blur::Impl::RunPass(const GlFrameBuffer& src, bool hrz) const {
 	mGraphics.Draw(drawCall);
 }
 
-void Blur::Impl::Run(GlFrameBuffer& src, GlFrameBuffer& dst, GlFrameBuffer& temp) const {
+void Blur::Impl::Run(const GlFrameBuffer& src, const GlFrameBuffer& dst, const GlFrameBuffer& temp) const {
 	if (! mValidProgram) {
 		return;
 	}
@@ -79,7 +79,7 @@ Blur::Blur(Graphics& graphics)
 
 Blur::~Blur() = default;
 
-void Blur::Run(GlFrameBuffer& src, GlFrameBuffer& dst, GlFrameBuffer& temp) const {
+void Blur::Run(const GlFrameBuffer& src, const GlFrameBuffer& dst, const GlFrameBuffer& temp) const {
 	mPimpl->Run(src, dst, temp);
 }
 

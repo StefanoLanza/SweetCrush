@@ -10,7 +10,7 @@ public:
 	explicit Blur(Graphics& graphics);
 	~Blur();
 
-	void Run(GlFrameBuffer& src, GlFrameBuffer& dst, GlFrameBuffer& temp) const;
+	void Run(const GlFrameBuffer& src, const GlFrameBuffer& dst, const GlFrameBuffer& temp) const;
 
 private:
 	class Impl;

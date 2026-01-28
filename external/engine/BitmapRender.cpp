@@ -30,7 +30,7 @@ private:
 
 BitmapRenderer::Impl::Impl(Graphics& graphics)
     : mGraphics { graphics }
-    , mProgramHandle { graphics.NewProgram(SHADERS_FOLDER "quad.vs", SHADERS_FOLDER "quad.fs") }
+    , mProgramHandle { graphics.NewProgram(SHADERS_FOLDER "bitmap.vs", SHADERS_FOLDER "bitmap.fs") }
     , mValidPrograms { false } {
 
 	PipelineState pipelineState;
