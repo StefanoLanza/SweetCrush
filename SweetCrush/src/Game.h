@@ -1,6 +1,7 @@
 #pragma once
 
 #include <engine/ActionMgr.h>
+#include <engine/Blur.h> // FIXME
 #include <engine/FwdDecl.h>
 #include <engine/GlFrameBuffer.h>
 #include <engine/Screen.h>
@@ -38,5 +39,6 @@ private:
 	Wind::UIMouseCursor           mMouseCursor;
 	Wind::UIRenderer              mUIRenderer;
 	Wind::ScreenManager           mScreenMgr;
+	Wind::Blur                    mBlur;
 	std::unique_ptr<Wind::Screen> mScreens[13];
 };

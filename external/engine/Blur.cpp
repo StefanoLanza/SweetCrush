@@ -1,0 +1,85 @@
+#include "Blur.h"
+#include "Config.h"
+#include "GlFrameBuffer.h"
+#include "GlProgram.h"
+#include "Graphics.h"
+
+namespace Wind {
+
+class Blur::Impl {
+public:
+	explicit Impl(Graphics& graphics);
+	void Run(GlFrameBuffer& src, GlFrameBuffer& dst, GlFrameBuffer& temp) const;
+
+private:
+	void RunPass(const GlFrameBuffer& src, bool hrz) const;
+
+private:
+	Graphics&     mGraphics;
+	ProgramHandle mProgramHandle;
+	// Uniforms
+	GLint mTexture = -1;
+	GLint mSrcTexelSize = -1;
+	bool  mValidProgram;
+};
+
+Blur::Impl::Impl(Graphics& graphics)
+    : mGraphics { graphics }
+    , mProgramHandle { graphics.NewProgram(SHADERS_FOLDER "blur.vs", SHADERS_FOLDER "blur.fs") }
+    , mValidProgram { false } {
+	if (mProgramHandle != nullProgram) {
+		const GlProgram& program = graphics.GetProgram(mProgramHandle);
+		mTexture = program.GetUniformLocation("inputTexture");
+		mSrcTexelSize = program.GetUniformLocation("srcTexelSize");
+		mValidProgram = (mTexture != -1 && mSrcTexelSize != -1);
+	}
+}
+
+void Blur::Impl::RunPass(const GlFrameBuffer& src, bool hrz) const {
+	Vec2       srcSize { hrz ? (float)1.f / src.GetWidth() : 0.f, hrz ? 0.f : 1.f / src.GetHeight() };
+	const int  uniforms[] = { mSrcTexelSize };
+	const Vec4 uniformData[] = {
+		{ (float)src.GetWidth(), (float)src.GetHeight(), srcSize.x, srcSize.y },
+	};
+	const unsigned textureIds[] = { src.GetColorAttachment() };
+
+	DrawCall drawCall {
+		.uniforms = uniforms,
+		.uniformData = uniformData,
+		.numUniforms = std::size(uniforms),
+		.textures = textureIds,
+		.numTextures = 1,
+		.program = mProgramHandle,
+		.mesh = triangleMesh,
+	};
+	mGraphics.Draw(drawCall);
+}
+
+void Blur::Impl::Run(GlFrameBuffer& src, GlFrameBuffer& dst, GlFrameBuffer& temp) const {
+	if (! mValidProgram) {
+		return;
+	}
+
+	PipelineState pipelineState;
+	pipelineState.mDepthEnabled = false;
+	pipelineState.mBlending = false;
+	PipelineHandle pipelineHandle = mGraphics.NewPipeline(pipelineState);
+	mGraphics.SetPipeline(pipelineHandle);
+
+	mGraphics.SetFrameBuffer(temp);
+	RunPass(src, true);
+	mGraphics.SetFrameBuffer(dst);
+	RunPass(temp, false);
+}
+
+Blur::Blur(Graphics& graphics)
+    : mPimpl { std::make_unique<Impl>(graphics) } {
+}
+
+Blur::~Blur() = default;
+
+void Blur::Run(GlFrameBuffer& src, GlFrameBuffer& dst, GlFrameBuffer& temp) const {
+	mPimpl->Run(src, dst, temp);
+}
+
+} // namespace Wind
