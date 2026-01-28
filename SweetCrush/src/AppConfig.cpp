@@ -18,7 +18,7 @@ AppConfig DefaultGameConfig() {
 	config.board.bottomRightCoord = config.board.topLeftCoord + Wind::Vec2{ boardWidth, boardHeight };
 	// config.board.topLeftCoord.y = (RefWindowHeight - config.board.cellHeightWithSpacing * NumRows - config.board.cellSpacing) - 40.f;
 	config.moveBackPieceDuration = 0.25f;
-	config.swapSpeed = 0.25f;
+	config.swapSpeed = 0.35f;
 	config.pieceFallDuration = 1.f;
 	config.pieceFallSpeed = 1024.f;
 	config.pieceFallYCoord = -64.f; // offscreen

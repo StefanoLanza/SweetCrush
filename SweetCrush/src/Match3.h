@@ -24,10 +24,10 @@ enum class ComboType {
 };
 
 struct MatchEvent {
-	ComboType comboType;
-	PieceId   pieceId;
-	int       cellIdx;
-	int       cascadeCount;
+	ComboType   comboType;
+	PieceId     pieceId;
+	const Cell* cell;
+	int         cascadeCount;
 };
 
 struct NewSpecialPieceEvent {
@@ -91,7 +91,7 @@ public:
 
 	void SetCallback(Match3Callback&& cbk);
 	void ClearSelection();
-	void Run();
+	void Restart();
 	void UseBooster(int cellIdx);
 	void Update(const Wind::Input& input);
 	bool IsWaitingForUser() const;

@@ -6,68 +6,59 @@
 
 namespace Wind {
 
+namespace {
+
 constexpr uint16_t nullIndex = (uint16_t)-1;
 constexpr unsigned poolSize = 256;
 
+} // namespace
+
 struct ActionMgr::Action {
 	ActionFunc func;
+	int*       counter;
 	float      duration;
 	float      delay;
 	float      t;
-	uint16_t   pending; // itself and children
-	uint16_t   parent;
 	uint16_t   next;
 	uint16_t   continuation;
 };
 
 ActionMgr::ActionMgr() {
 	mActions.resize(poolSize); // init pool
+	// Build free list
+	mFreeIndex = 0;
+	for (size_t i = 0; i < poolSize - 1; ++i) {
+		mActions[i].next = (uint16_t)(i + 1);
+	}
+	mActions.back().next = nullIndex;
 }
 
 ActionMgr::~ActionMgr() = default;
 
 ActionId ActionMgr::AddAction(ActionFunc&& func, float delay) {
-	ActionId id = NewAction(std::move(func), std::numeric_limits<float>::max(), delay);
+	ActionId id = NewAction(std::move(func), std::numeric_limits<float>::max(), delay, nullptr);
 	PushAction(id.Get());
 	return id;
 }
 
 ActionId ActionMgr::AddTimedAction(ActionFunc&& func, float duration, float delay) {
 	assert(duration >= 0.f);
-	ActionId id = NewAction(std::move(func), duration, delay);
+	ActionId id = NewAction(std::move(func), duration, delay, nullptr);
 	PushAction(id.Get());
 	return id;
 }
 
-ActionId ActionMgr::AddChild(ActionId parentId, ActionFunc&& func) {
-	ActionId actionId = AddAction(std::move(func));
-
-	Action& parent = mActions[parentId.Get()];
-	assert(parent.pending > 0);
-	parent.pending++;
-	mActions[actionId.Get()].parent = parentId.Get();
-#if 0
-	// Add to linked list of children
-	if (parent.firstChild == nullIndex) {
-		parent.firstChild = actionId.Get();
-	}
-	else {
-		uint16_t child = parent.firstChild;
-		while (mActions[child].next != nullIndex) {
-			child = mActions[child].next;
-		}
-		mActions[child].next = actionId.Get();
-	}
-#endif
-
-	return actionId;
+ActionId ActionMgr::AddAction(ActionFunc&& func, const ActionDesc& desc) {
+	ActionId id = NewAction(std::move(func), desc.duration, desc.delay, desc.counter);
+	PushAction(id.Get());
+	return id;
 }
 
 ActionId ActionMgr::AddContinuation(ActionId parentId, ActionFunc&& func, float duration) {
 	Action& prev = mActions[parentId.Get()];
 	assert(prev.continuation == nullIndex);
 
-	ActionId id = NewAction(std::move(func), duration, 0.f);
+	ActionId id = NewAction(std::move(func), duration, 0.f, nullptr);
 
 	// Add continuation to linked list
 	if (prev.continuation == nullIndex) {
@@ -99,21 +90,18 @@ void ActionMgr::Execute(float dt) {
 		return res;
 	};
 	for (size_t i = 0; i < mExecuteQueue.size();) {
-		// Run action
-		auto    id = mExecuteQueue[i];
-		Action& action = mActions[id];
+		auto    index = mExecuteQueue[i];
+		Action& action = mActions[index];
 		bool    finished = pred(action, dt);
 		if (finished) {
-			assert(action.pending > 0);
-			--action.pending;
-			// Inform prev
-			if (action.parent != nullIndex) {
-				--mActions[action.parent].pending;
+			if (action.counter) {
+				--(*action.counter); // inform user
 			}
+			action.func = nullptr;
+
 			// Remove from queue
 			mExecuteQueue[i] = mExecuteQueue.back();
 			mExecuteQueue.pop_back();
-			// ::erase(mExecuteQueue,
 
 			// Enqueue continuations
 			uint16_t next = action.continuation;
@@ -121,17 +109,14 @@ void ActionMgr::Execute(float dt) {
 				PushAction(next);
 				next = mActions[next].next;
 			}
+
+			FreeAction(index);
 		}
 		else {
 			// Continue running
 			++i;
 		}
 	}
-}
-
-bool ActionMgr::IsFinished(ActionId actionId) const {
-	// TODO how to detect recycling
-	return mActions[actionId.Get()].pending == 0;
 }
 
 void ActionMgr::Clear() {
@@ -142,27 +127,36 @@ bool ActionMgr::AnyRunning() const {
 	return mExecuteQueue.empty() == false;
 }
 
-ActionId ActionMgr::NewAction(ActionFunc&& func, float duration, float delay) {
-	Action& action = mActions[mJobIndex];
-	assert(action.pending == 0 && "Job queue is full");
+ActionId ActionMgr::NewAction(ActionFunc&& func, float duration, float delay, int* counter) {
+	assert(mFreeIndex != nullIndex && "Action pool is full");
+	Action& action = mActions[mFreeIndex];
+
+	ActionId id { mFreeIndex };
+	mFreeIndex = action.next; // before overriding action!
+
+	if (counter) {
+		++(*counter);
+	}
 
 	action = Action {
 		.func = std::move(func),
+		.counter = counter,
 		.duration = duration,
 		.delay = delay,
 		.t = 0.f,
-		.pending = 1,
-		.parent = nullIndex,
 		.next = nullIndex,
 		.continuation = nullIndex,
 	};
-	ActionId id { (uint16_t)mJobIndex };
-	mJobIndex = (mJobIndex + 1) % poolSize;
 	return id;
 }
 
 void ActionMgr::PushAction(uint16_t index) {
 	mExecuteQueue.push_back(index);
+}
+
+void ActionMgr::FreeAction(uint16_t index) {
+	mActions[index].next = mFreeIndex;
+	mFreeIndex = index;
 }
 
 } // namespace Wind

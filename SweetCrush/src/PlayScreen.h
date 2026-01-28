@@ -56,7 +56,6 @@ private:
 	const AppConfig&              mGameConfig;
 	const GameSettings&           mGameSettings;
 	Wind::ActionMgr               mActionMgr;
-	Wind::ActionMgr               mRenderActionMgr;
 	MatchStats&                   mMatchStats;
 	const GameDataModule&         mGameDataModule;
 	Board                         mBoard;
@@ -78,4 +77,5 @@ private:
 	Wind::Vec2                    mSelectedBoosterCoord {};
 	bool                          mGameComplete = false;
 	bool                          mLevelComplete = false;
+	int                           mBlockingActionCounter = 0;
 };

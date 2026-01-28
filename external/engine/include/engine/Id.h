@@ -10,7 +10,6 @@ template <typename Tag, typename T = uint32_t, T invalid = 0>
 class Id {
 public:
 	using Type = T;
-	static const Id null;
 
 	Id()
 	    : mValue(static_cast<T>(-1)) {
@@ -26,6 +25,14 @@ public:
 	template <typename E>
 	requires std::is_enum_v<E>&& std::is_convertible_v<std::underlying_type_t<E>, Type> constexpr Id(E oth)
 	    : mValue(static_cast<T>(oth)) {
+	}
+
+	void Reset() {
+		mValue = invalid;
+	}
+
+	constexpr explicit operator bool() const {
+		return mValue != invalid;
 	}
 
 	constexpr T Get() const {
@@ -47,8 +54,5 @@ public:
 private:
 	T mValue;
 };
-
-template <typename Tag, typename T = uint32_t>
-inline constexpr Id null { static_cast<T>(-1) };
 
 } // namespace Wind

@@ -9,14 +9,15 @@
 namespace Wind {
 
 struct ActionTag;
-using ActionId = Id<ActionTag, uint16_t>;
+using ActionId = Id<ActionTag, uint16_t, -1>;
 
 // Returns true if complete
 using ActionFunc = std::function<bool(float dt, float t)>;
 
-struct ActionInfo {
+struct ActionDesc {
 	float duration = -1;
 	float delay = 0;
+	int*  counter = nullptr;
 };
 
 class ActionMgr final {
@@ -26,22 +27,22 @@ public:
 
 	ActionId AddAction(ActionFunc&& func, float delay = 0.f);
 	ActionId AddTimedAction(ActionFunc&& func, float duration, float delay = 0);
-	ActionId AddChild(ActionId parentId, ActionFunc&& func);
+	ActionId AddAction(ActionFunc&& func, const ActionDesc& desc);
 	ActionId AddContinuation(ActionId parentId, ActionFunc&& func, float duration);
 	void     Execute(float dt);
-	bool     IsFinished(ActionId actionId) const;
 	void     Clear();
 	bool     AnyRunning() const;
 
 private:
-	ActionId NewAction(ActionFunc&& func, float duration, float delay);
-	void     PushAction(uint16_t id);
+	ActionId NewAction(ActionFunc&& func, float duration, float delay, int* counter);
+	void     PushAction(uint16_t index);
+	void     FreeAction(uint16_t index);
 
 private:
 	struct Action;
 	std::vector<Action>   mActions;
 	std::vector<uint16_t> mExecuteQueue;
-	unsigned              mJobIndex = 0;
+	uint16_t              mFreeIndex;
 };
 
 } // namespace Wind

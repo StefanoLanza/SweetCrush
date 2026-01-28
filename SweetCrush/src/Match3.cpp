@@ -121,10 +121,9 @@ void Match3::ClearSelection() {
 	mTileSelector.Reset();
 }
 
-void Match3::Run() {
+void Match3::Restart() {
 	// Clear lists from previous match
 	mNewPieces.clear();
-
 	mTileSelector.Reset();
 	mState = State::selectAndSwapPieces;
 	mNumUserSwaps = 0;
@@ -255,13 +254,15 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 		res = false;
 	}
 
+	Cell& mainCell = mBoard.GetCell(mainCellIdx);
+
 	if (res) {
 		// Inform client
 		Match3Event event;
 		event.id = Match3Event::Id::match;
 		event.match.comboType = comboType;
 		event.match.pieceId = pieceId;
-		event.match.cellIdx = mainCellIdx;
+		event.match.cell = &mainCell;
 		event.match.cascadeCount = mCascadeCount;
 		mCbk(event);
 
@@ -285,21 +286,20 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 		const bool isSpecialCombo = false;
 #endif
 		if (! isSpecialCombo) {
-			// Kill main cell if not specialPiece
+			// Kill main mainCell if not specialPiece
 			KillCell(mainCellIdx, -1);
 		}
 		else {
-			Cell& cell = mBoard.GetCell(mainCellIdx);
-			assert(cell.category == CellCategory::piece);
-			cell.category = CellCategory::piece;
-			cell.hasEffect = true;
-			cell.effectType = effectType;
-			cell.layers = 0;
+			assert(mainCell.category == CellCategory::piece);
+			mainCell.category = CellCategory::piece;
+			mainCell.hasEffect = true;
+			mainCell.effectType = effectType;
+			mainCell.layers = 0;
 
 			// Inform client
 			event.id = Match3Event::Id::newEffect;
 			event.specialPiece.cell = &mBoard.GetCell(mainCellIdx);
-			event.specialPiece.pieceId = cell.pieceId; // FIXME redundant ?
+			event.specialPiece.pieceId = mainCell.pieceId; // FIXME redundant ?
 			event.specialPiece.type = effectType;
 			mCbk(event);
 		}
@@ -471,13 +471,13 @@ int Match3::CollapseColumn(int col, CellPairEvent* collapseList) {
 			break;
 		case CellCategory::piece:
 			if (currEmptyRow < numEmptyRows) {
-				// Fall to an empty cell
+				// Fall to an empty mainCell
 				const int dst = mBoard.GetCellIndex(col, emptyRows[currEmptyRow]);
 				++currEmptyRow;
 				collapseList[numCollapsed] = { src, dst };
 				++numCollapsed;
 
-				// Check matches after piece has been dropped to dst cell
+				// Check matches after piece has been dropped to dst mainCell
 				mCheckList.push_back(dst);
 
 				emptyRows[numEmptyRows++] = row;
