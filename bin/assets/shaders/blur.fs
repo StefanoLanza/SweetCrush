@@ -1,17 +1,17 @@
 precision mediump float;
 
 layout(binding = 0)  uniform sampler2D inputTexture;
-uniform vec4 srcTexelSize;
+uniform vec4 texelSize;
 in vec2 textureCoordinate;
 out vec4 fragColor;
 
 void main() {
-	vec2 samplePos = textureCoordinate * srcTexelSize.xy;
-	vec4 color = vec4(0.0);
-	for (int i = -2; i <= 2; i++) {
-		vec2 uv = samplePos + float(i) * srcTexelSize.zw;
-		color += texture(inputTexture, uv, 0.0);
-	}
-	color /= 5.0;
-	fragColor = color;
+    vec4 color = texture(inputTexture, textureCoordinate) * 0.2270;
+    vec2 offset12 = 1.3834 * texelSize.xy;
+    color += texture(inputTexture, textureCoordinate + offset12) * 0.3156;
+    color += texture(inputTexture, textureCoordinate - offset12) * 0.3156;
+    vec2 offset34 = 3.2308 * texelSize.xy;
+    color += texture(inputTexture, textureCoordinate + offset34) * 0.0702;
+    color += texture(inputTexture, textureCoordinate - offset34) * 0.0702;
+    fragColor = color;
 }

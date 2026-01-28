@@ -30,7 +30,7 @@ Blur::Impl::Impl(Graphics& graphics)
 	if (mProgramHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(mProgramHandle);
 		mTexture = program.GetUniformLocation("inputTexture");
-		mSrcTexelSize = program.GetUniformLocation("srcTexelSize");
+		mSrcTexelSize = program.GetUniformLocation("texelSize");
 		mValidProgram = (mTexture != -1 && mSrcTexelSize != -1);
 	}
 }
@@ -39,7 +39,7 @@ void Blur::Impl::RunPass(const GlFrameBuffer& src, bool hrz) const {
 	Vec2       srcSize { hrz ? (float)1.f / src.GetWidth() : 0.f, hrz ? 0.f : 1.f / src.GetHeight() };
 	const int  uniforms[] = { mSrcTexelSize };
 	const Vec4 uniformData[] = {
-		{ (float)src.GetWidth(), (float)src.GetHeight(), srcSize.x, srcSize.y },
+		{ srcSize.x, srcSize.y, 0.f, 0.f },
 	};
 	const unsigned textureIds[] = { src.GetColorAttachment() };
 
@@ -68,6 +68,7 @@ void Blur::Impl::Run(GlFrameBuffer& src, GlFrameBuffer& dst, GlFrameBuffer& temp
 
 	mGraphics.SetFrameBuffer(temp);
 	RunPass(src, true);
+
 	mGraphics.SetFrameBuffer(dst);
 	RunPass(temp, false);
 }
