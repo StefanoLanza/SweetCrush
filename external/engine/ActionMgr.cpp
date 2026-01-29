@@ -35,19 +35,6 @@ ActionMgr::ActionMgr() {
 
 ActionMgr::~ActionMgr() = default;
 
-ActionId ActionMgr::AddAction(ActionFunc&& func, float delay) {
-	ActionId id = NewAction(std::move(func), std::numeric_limits<float>::max(), delay, nullptr);
-	PushAction(id.Get());
-	return id;
-}
-
-ActionId ActionMgr::AddTimedAction(ActionFunc&& func, float duration, float delay) {
-	assert(duration >= 0.f);
-	ActionId id = NewAction(std::move(func), duration, delay, nullptr);
-	PushAction(id.Get());
-	return id;
-}
-
 ActionId ActionMgr::AddAction(ActionFunc&& func, const ActionDesc& desc) {
 	ActionId id = NewAction(std::move(func), desc.duration, desc.delay, desc.counter);
 	PushAction(id.Get());

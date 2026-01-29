@@ -17,15 +17,15 @@ using namespace Wind;
 
 namespace {
 
-constexpr UIButtonDesc buttonDescs[] {
+const UIButtonDesc buttonDescs[] {
 	{
-	    .pos = UIAbsolutePos(0, 680),
+	    .pos = UIAbsolutePos(0, button1_y),
 	    .size = UIAutoSize,
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	},
 	{
-	    .pos = UIAbsolutePos(0, 800),
+	    .pos = UIAbsolutePos(0, button2_y),
 	    .size = UIAutoSize,
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
@@ -106,9 +106,9 @@ void GameOverScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 	char            tmp[256];
 	const TextStyle textStyle { whiteColor, blackColor };
 	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourReachedLevel), mMatchStats.levelIndex + 1);
-	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 470 }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
+	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, text0_y }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
 	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourScoreIs), mMatchStats.score);
-	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 530 }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
+	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, text1_y }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
 }
 
 void GameOverScreen::Enter(const ScreenNavArgs& args) {

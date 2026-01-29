@@ -372,8 +372,8 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 	switch (event.id) {
 	case Match3Event::Id::match: {
 		int inc = IncreaseScore(event.match);
-		mActionMgr.AddTimedAction(DrawMatchScore(inc, *event.match.cell, mEngine.GetTextRenderer(), mGameConfig, *mFonts[1]),
-		                          mGameConfig.scoreTextDuration);
+		mActionMgr.AddAction(DrawMatchScore(inc, *event.match.cell, mEngine.GetTextRenderer(), mGameConfig, *mFonts[1]),
+		                     { .duration = mGameConfig.scoreTextDuration });
 		PlaySound(0);
 		break;
 	}
@@ -441,18 +441,19 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		// TODO Scale up
 		Vec2 startCoords = event.effect.mainCell->coords + Vec2 { mGameConfig.board.cellWidth, mGameConfig.board.cellHeight } * 0.5f;
 		if (event.effect.type == EffectType::hrocket) {
-			mActionMgr.AddTimedAction(DrawLaser(startCoords, { 0.f, startCoords.y }, mGameRenderer), mGameConfig.glowTrailTime);
-			mActionMgr.AddTimedAction(DrawLaser(startCoords, { RefWindowWidth, startCoords.y }, mGameRenderer), mGameConfig.glowTrailTime);
+			mActionMgr.AddAction(DrawLaser(startCoords, { 0.f, startCoords.y }, mGameRenderer), { .duration = mGameConfig.glowTrailTime });
+			mActionMgr.AddAction(DrawLaser(startCoords, { RefWindowWidth, startCoords.y }, mGameRenderer), { .duration = mGameConfig.glowTrailTime });
 		}
 		else if (event.effect.type == EffectType::vrocket) {
-			mActionMgr.AddTimedAction(DrawLaser(startCoords, { startCoords.x, 0.f }, mGameRenderer), mGameConfig.glowTrailTime);
-			mActionMgr.AddTimedAction(DrawLaser(startCoords, { startCoords.x, RefWindowHeight }, mGameRenderer), mGameConfig.glowTrailTime);
+			mActionMgr.AddAction(DrawLaser(startCoords, { startCoords.x, 0.f }, mGameRenderer), { .duration = mGameConfig.glowTrailTime });
+			mActionMgr.AddAction(DrawLaser(startCoords, { startCoords.x, RefWindowHeight }, mGameRenderer),
+			                     { .duration = mGameConfig.glowTrailTime });
 		}
 		else if (event.effect.type == EffectType::miniBomb) {
-			mActionMgr.AddTimedAction(DrawBlast(startCoords, 8.f, 128.f, mGameRenderer), mGameConfig.glowTrailTime);
+			mActionMgr.AddAction(DrawBlast(startCoords, 8.f, 128.f, mGameRenderer), { .duration = mGameConfig.glowTrailTime });
 		}
 		else if (event.effect.type == EffectType::bomb) {
-			mActionMgr.AddTimedAction(DrawBlast(startCoords, 8.f, 256.f, mGameRenderer), mGameConfig.glowTrailTime);
+			mActionMgr.AddAction(DrawBlast(startCoords, 8.f, 256.f, mGameRenderer), { .duration = mGameConfig.glowTrailTime });
 		}
 		mActionMgr.AddAction(ScalePiece(GetVisual(*event.effect.mainCell), 1.f, 0.f), { .duration = mGameConfig.removePieceDuration });
 		OnPieceRemoved(*event.effect.mainCell);
@@ -460,7 +461,7 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 	}
 	case Match3Event::Id::removeLayer: {
 		const Cell& cell = *event.removeLayer.cell;
-		mActionMgr.AddTimedAction(DrawBrokenIce(cell, mEngine.GetBitmapRenderer(), mGameConfig), mGameConfig.brokenIceDuration);
+		mActionMgr.AddAction(DrawBrokenIce(cell, mEngine.GetBitmapRenderer(), mGameConfig), { .duration = mGameConfig.brokenIceDuration });
 		assert(mMatchStats.layerCount > 0);
 		mMatchStats.layerCount--;
 		// TODO PlaySound(0);
@@ -580,8 +581,8 @@ void PlayScreen::SetupNewBoardAnimation() {
 		visual.rotation = 0.f;
 		visual.bkgAlpha = 0.f;
 		float delay = rnd.NextF(0.f, 0.5f);
-		mActionMgr.AddTimedAction(FadeInAlpha(visual), mGameConfig.newPieceDuration, delay);
-		mActionMgr.AddTimedAction(ScalePiece(visual, 0.f, 1.f), mGameConfig.newPieceDuration, delay);
+		mActionMgr.AddAction(FadeInAlpha(visual), { .duration = mGameConfig.newPieceDuration, .delay = delay });
+		mActionMgr.AddAction(ScalePiece(visual, 0.f, 1.f), { .duration = mGameConfig.newPieceDuration, .delay = delay });
 	}
 }
 

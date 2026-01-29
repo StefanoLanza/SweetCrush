@@ -15,7 +15,7 @@ namespace {
 
 const UIButtonDesc buttonDescs[] {
 	{
-	    UIAbsolutePos(0, 560),
+	    UIAbsolutePos(0, button2_y),
 	    UIAutoSize,
 	    UIHorizAlignment::center,
 	    UIVertAlignment::top,

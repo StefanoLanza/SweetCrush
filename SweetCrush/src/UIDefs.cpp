@@ -29,4 +29,10 @@ const UIBitmapDesc defaultBackButtonBitmapDesc {
 	.size = UIAutoSize,
 	.color = yellowColor,
 };
+
 constexpr float titleY = 160.f;
+constexpr float button0_y = 560;
+constexpr float button1_y = 680;
+constexpr float button2_y = 800;
+const float     text0_y = 450;
+const float     text1_y = 510;

@@ -25,8 +25,6 @@ public:
 	ActionMgr();
 	~ActionMgr();
 
-	ActionId AddAction(ActionFunc&& func, float delay = 0.f);
-	ActionId AddTimedAction(ActionFunc&& func, float duration, float delay = 0);
 	ActionId AddAction(ActionFunc&& func, const ActionDesc& desc);
 	ActionId AddContinuation(ActionId parentId, ActionFunc&& func, float duration);
 	void     Execute(float dt);

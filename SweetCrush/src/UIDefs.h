@@ -14,3 +14,8 @@ extern const Wind::UIButtonDesc defaultBackButtonDesc;
 extern const Wind::UIBitmapDesc defaultBackButtonBitmapDesc;
 
 extern const float titleY;
+extern const float button0_y;
+extern const float button1_y;
+extern const float button2_y;
+extern const float text0_y;
+extern const float text1_y;

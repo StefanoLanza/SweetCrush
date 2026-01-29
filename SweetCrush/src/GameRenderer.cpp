@@ -117,7 +117,9 @@ public:
 		if (! mIconProgram.mValid) {
 			return;
 		}
-		const float dynScale = 1.15f + 0.15f * std::sin(time * 8.f);
+		const float dynScale = 1.15f + 0.15f * std::sin(time * 16.f);
+		const float dynOffset = 5.f * std::sin(time * 32.f);
+		const float dynColor = 1.f + (0.5f + 0.5f * std::sin(time * 16.f));
 		const float cellWidth = gameConfig.board.cellWidth;
 		const float cellHeight = gameConfig.board.cellHeight;
 		mGraphics.SetPipeline(mPipelineBlending);
@@ -133,22 +135,40 @@ public:
 			if (visual->bitmapIdx < 0) {
 				continue;
 			}
+			Vec2  offset { 0.f, 0.f };
+			Vec4  color { 1.f, 1.f, 1.f, 1.f };
 			float s = visual->scale;
-			if (cell.hasEffect)
-				s *= dynScale;
+			if (cell.hasEffect) {
+				color.x = dynColor;
+				color.y = dynColor;
+				color.z = dynColor;
+				switch (cell.effectType) {
+				case EffectType::hrocket:
+					offset.x = dynOffset;
+					break;
+				case EffectType::vrocket:
+					offset.y = dynOffset;
+					break;
+				default:
+					s *= dynScale;
+					break;
+				}
+			}
 
-			const float uniformData[] = { visual->coords.x + cellWidth * 0.5f,
-				                          visual->coords.y + cellHeight * 0.5f,
-				                          std::cos(visual->rotation),
-				                          std::sin(visual->rotation), //
-				                          cellWidth * s,
-				                          cellHeight * s,
-				                          0.f,
-				                          0.f,
-				                          1.f,
-				                          1.f,
-				                          1.f,
-				                          1.f };
+			const float uniformData[] = {
+				visual->coords.x + cellWidth * 0.5f + offset.x,
+				visual->coords.y + cellHeight * 0.5f + offset.y,
+				std::cos(visual->rotation),
+				std::sin(visual->rotation),
+				cellWidth * s,
+				cellHeight * s,
+				0.f,
+				0.f,
+				color.x,
+				color.y,
+				color.z,
+				color.w,
+			};
 
 			//  const GLuint hrzStripesId = gameTextures[hrzStripesSprite]->GetTextureId();
 			const unsigned textureIds[] = { gameTextures[visual->bitmapIdx]->GetTextureId(), 0 };

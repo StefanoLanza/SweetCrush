@@ -21,16 +21,15 @@ namespace {
 #if defined(__ANDROID__) || defined(__OHOS__)
 // No quit button on mobiles
 const UIButtonDesc buttonDescs[] {
-	{ UIAbsolutePos(0, 680), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
-	{ UIAbsolutePos(0, 800), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
-	{ UIAbsolutePos(0, 920), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{ UIAbsolutePos(0, button0_y), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{ UIAbsolutePos(0, button1_y), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{ UIAbsolutePos(0, button2_y), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
 };
 #else
 const UIButtonDesc buttonDescs[] {
-	{ UIAbsolutePos(0, 560), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
-	{ UIAbsolutePos(0, 680), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
-	{ UIAbsolutePos(0, 800), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
-	{ UIAbsolutePos(0, 920), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{ UIAbsolutePos(0, button0_y), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{ UIAbsolutePos(0, button1_y), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{ UIAbsolutePos(0, button2_y), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
 };
 #endif
 const UITextDesc textDescs[5] {
@@ -91,7 +90,7 @@ MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
     , mSettingsButton(buttonDescs[1], buttonBitmapDesc, textDescs[2])
     , mCreditsButton(buttonDescs[2], buttonBitmapDesc, textDescs[3])
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
-    , mQuitButton(buttonDescs[3], buttonBitmapDesc, textDescs[4])
+    , mQuitButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc)
 #endif
     , mCanvas(canvasDesc)
     , mTime(0) {

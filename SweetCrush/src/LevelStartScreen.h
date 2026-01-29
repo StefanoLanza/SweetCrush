@@ -22,8 +22,8 @@ public:
 	void              ParseConfig(const char* varName, const char* varValue) override;
 
 private:
-	void DrawPieces(const Level& level) const;
-	void DrawIceBlocks(const Level& level) const;
+	void DrawPieces(const Level& level, float yCoord) const;
+	void DrawIceBlocks(const Level& level, float yCoord) const;
 
 private:
 	const MatchStats&     mMatchStats;
