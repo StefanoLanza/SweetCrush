@@ -2,8 +2,6 @@
 
 #include <engine/ActionMgr.h>
 #include <engine/FwdDecl.h>
-#include <engine/GlFrameBuffer.h>
-#include <engine/Kawase.h> // FIXME
 #include <engine/Screen.h>
 #include <engine/ScreenManager.h>
 #include <engine/UI.h>
@@ -34,13 +32,9 @@ private:
 	GameDataModule&               mGameDataModule;
 	GameSettings                  mGameSettings;
 	MatchStats                    mMatchStats;
-	Wind::GlFrameBuffer           mFrameBuffer_0;
-	Wind::GlFrameBuffer           mFrameBuffer_1;
-	Wind::GlFrameBuffer           mFrameBufferHalfRes;
-	Wind::GlFrameBuffer           mFrameBufferQuarterRes;
 	Wind::UIMouseCursor           mMouseCursor;
 	Wind::UIRenderer              mUIRenderer;
 	Wind::ScreenManager           mScreenMgr;
-	Wind::KawaseBlur              mBlur;
+	Wind::Compositor              mCompositor;
 	std::unique_ptr<Wind::Screen> mScreens[13];
 };

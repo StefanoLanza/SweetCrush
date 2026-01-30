@@ -1,6 +1,8 @@
 #pragma once
 
+#include "GlFrameBuffer.h"
 #include "Screen.h"
+// #include "Kawase.h" // FIXME
 
 #include <vector>
 
@@ -8,8 +10,23 @@ namespace Wind {
 
 class Input;
 class UIRenderer;
+class Graphics;
 
-struct Compositor {
+class Compositor {
+public:
+	explicit Compositor(Graphics& graphics, int width, int height);
+	const GlFrameBuffer& GetWriteableFramebuffer() const;
+	const GlFrameBuffer& Composite(ScreenTransition transition, float dt);
+
+private:
+	Graphics&        mGraphics;
+	GlFrameBuffer    mFrameBuffers[3];
+	ScreenTransition mCurrTransition;
+	//	Wind::GlFrameBuffer           mFrameBufferHalfRes;
+	// Wind::GlFrameBuffer           mFrameBufferQuarterRes;
+	//	KawaseBlur              mBlur;
+	float    mAccumTime;
+	unsigned mCurrDst;
 };
 
 class ScreenManager {
@@ -22,7 +39,7 @@ public:
 	bool CanGoBack() const;
 	void GoBack();
 	void GoForward();
-	void AddEvent(const ScreenEvent& event); // TODO
+	// void AddEvent(const ScreenEvent& event); // TODO
 
 private:
 	std::vector<Screen*> mScreens;

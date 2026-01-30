@@ -37,12 +37,8 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
     , mGameDataModule { gameDataModule }
     , mGameSettings {}
     , mMatchStats {}
-    , mFrameBuffer_0 { RefWindowWidth, RefWindowHeight, FBOFlags::color }
-    , mFrameBuffer_1 { RefWindowWidth, RefWindowHeight, FBOFlags::color }
-    , mFrameBufferHalfRes { RefWindowWidth / 2, RefWindowHeight / 2, FBOFlags::color }
-    , mFrameBufferQuarterRes { RefWindowWidth / 4, RefWindowHeight / 4, FBOFlags::color }
-    , mUIRenderer { engine.GetGraphics(), engine.GetTextRenderer() }
-    , mBlur { engine.GetGraphics() } {
+    , mCompositor { engine.GetGraphics(), RefWindowWidth, RefWindowHeight }
+    , mUIRenderer { engine.GetGraphics(), engine.GetTextRenderer() } {
 	// Note: match order of GameScreenId
 	mScreens[0] = std::make_unique<MainScreen>(engine, gameRenderer);
 	mScreens[1] = std::make_unique<CreditsScreen>();
@@ -87,25 +83,22 @@ void Game::Draw(float dt) {
 	const Input& input = mEngine.GetInput();
 	Graphics&    graphics = mEngine.GetGraphics();
 
-	graphics.SetFrameBuffer(mFrameBuffer_0);
+	graphics.SetFrameBuffer(mCompositor.GetWriteableFramebuffer());
 
 	mScreenMgr.Draw(mUIRenderer, dt);
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
 	mMouseCursor.Draw(mUIRenderer, input.GetMappedMouseCoord(), GameDrawOrder::mousePointer);
 #endif
-
-	const GlFrameBuffer* mip[] = { &mFrameBufferHalfRes, &mFrameBufferQuarterRes };
-	mBlur.Run(mFrameBuffer_0, mip, std::size(mip));
-
+	const GlFrameBuffer& compositedFB = mCompositor.Composite(ScreenTransition::none, dt);
 	graphics.SetDefaultFrameBuffer();
-	mEngine.GetBlitter().Blit(mFrameBuffer_0, BlitFilter::point);
+	mEngine.GetBlitter().Blit(compositedFB, BlitFilter::point);
 
 	graphics.Flush();
 }
 
 void Game::Tick(float dt) {
 	Input&     input = mEngine.GetInput();
-	const Vec2 fbMouseCoord = mEngine.GetBlitter().WindowToFrameBuffer(input.GetMouseCoord(), mFrameBuffer_0);
+	const Vec2 fbMouseCoord = mEngine.GetBlitter().WindowToFrameBuffer(input.GetMouseCoord(), mCompositor.GetWriteableFramebuffer());
 	input.SetMappedMouseCoord(fbMouseCoord);
 
 	mGameDataModule.Reload();

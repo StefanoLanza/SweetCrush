@@ -4,6 +4,44 @@
 
 namespace Wind {
 
+// mBlur { engine.GetGraphics() }
+Compositor::Compositor(Graphics& graphics, int width, int height)
+	: mGraphics{graphics}
+	, mFrameBuffers {
+	    { width, height, FBOFlags::color },
+	    { width, height, FBOFlags::color },
+	    { width, height, FBOFlags::color },
+    }
+	, mCurrTransition{ScreenTransition::none}
+	, mAccumTime{0.f}
+	, mCurrDst{0}{
+	//, mFrameBufferHalfRes { RefWindowWidth / 2, RefWindowHeight / 2, FBOFlags::color }
+}
+
+const GlFrameBuffer& Compositor::GetWriteableFramebuffer() const {
+	return mFrameBuffers[mCurrDst];
+}
+
+const GlFrameBuffer& Compositor::Composite(ScreenTransition transition, float dt) {
+	mAccumTime += dt;
+	mCurrTransition = transition;
+	unsigned dst = mCurrDst;
+	switch (transition) {
+	case ScreenTransition::none:
+		dst = mCurrDst;
+		mAccumTime = 0.f;
+		break;
+	default:
+		break; // TODO
+	}
+
+//	const GlFrameBuffer* mip[] = { &mFrameBufferHalfRes, &mFrameBufferQuarterRes };
+//	mBlur.Run(mFrameBuffer_0, mip, std::size(mip));
+
+	mCurrDst = (mCurrDst + 1) & 1;
+	return mFrameBuffers[dst];
+}
+
 ScreenManager::ScreenManager()
     : mCurr {}
     , mHistory {}

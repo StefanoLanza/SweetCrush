@@ -133,7 +133,7 @@ void Match3::Restart() {
 void Match3::UseBooster(int cellIdx) {
 	assert(mState == State::selectAndSwapPieces);
 	// TODO handle more booster types
-	KillCell(cellIdx, -1);
+	KillCell(cellIdx, nullptr);
 	mState = State::collapseColumns;
 }
 
@@ -204,7 +204,7 @@ void Match3::DeleteAllPiecesOfType(int pieceId) {
 	int cellIdx = 0;
 	for (const Cell& cell : mBoard.GetCells()) {
 		if (cell.category == CellCategory::piece && cell.pieceId == pieceId) {
-			KillCell(cellIdx, -1);
+			KillCell(cellIdx, nullptr);
 		}
 		++cellIdx;
 	}
@@ -287,7 +287,7 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 #endif
 		if (! isSpecialCombo) {
 			// Kill main mainCell if not specialPiece
-			KillCell(mainCellIdx, -1);
+			KillCell(mainCellIdx, nullptr);
 		}
 		else {
 			assert(mainCell.category == CellCategory::piece);
@@ -298,14 +298,14 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 
 			// Inform client
 			event.id = Match3Event::Id::newEffect;
-			event.specialPiece.cell = &mBoard.GetCell(mainCellIdx);
+			event.specialPiece.cell = &mainCell;;
 			event.specialPiece.pieceId = mainCell.pieceId; // FIXME redundant ?
 			event.specialPiece.type = effectType;
 			mCbk(event);
 		}
 
 		for (int i = 0; i < numMatches; ++i) {
-			KillCell(matches[i], isSpecialCombo ? mainCellIdx : -1);
+			KillCell(matches[i], isSpecialCombo ? &mainCell : nullptr);
 		}
 	}
 
@@ -332,7 +332,7 @@ bool Match3::CheckMatchesAfterSwap() {
 	return res;
 }
 
-void Match3::KillCell(int cellIdx, int targetCellIdx) {
+void Match3::KillCell(int cellIdx, const Cell* targetCell) {
 	Cell& cell = mBoard.GetCell(cellIdx);
 	if (cell.category == CellCategory::piece) {
 		if (cell.layers == 0) {
@@ -343,7 +343,7 @@ void Match3::KillCell(int cellIdx, int targetCellIdx) {
 				// Inform client
 				Match3Event event {
 					.id = Match3Event::Id::removePiece,
-					.removePiece = { .cell = &cell, .targetCell = targetCellIdx >= 0 ? &mBoard.GetCell(targetCellIdx) : nullptr },
+					.removePiece = { .cell = &cell, .targetCell = targetCell },
 				};
 				mCbk(event);
 
@@ -565,7 +565,7 @@ void Match3::HorizontalRocket(int col, int row) {
 	for (int ncol = 0; ncol < mBoard.GetCols(); ++ncol) {
 		if (col != ncol) {
 			int cellIdx = mBoard.GetCellIndex(ncol, row);
-			KillCell(cellIdx, -1);
+			KillCell(cellIdx, nullptr);
 		}
 	}
 }
@@ -575,7 +575,7 @@ void Match3::VerticalRocket(int col, int row) {
 	for (int nrow = 0; nrow < mBoard.GetRows(); ++nrow) {
 		if (row != nrow) {
 			int cellIdx = mBoard.GetCellIndex(col, nrow);
-			KillCell(cellIdx, -1);
+			KillCell(cellIdx, nullptr);
 		}
 	}
 }
@@ -590,7 +590,7 @@ void Match3::Bomb(int col, int row, int radius) {
 				int ocol = col + x;
 				if (mBoard.IsInside(ocol, orow)) {
 					int cellIdx = mBoard.GetCellIndex(ocol, orow);
-					KillCell(cellIdx, -1);
+					KillCell(cellIdx, nullptr);
 				}
 			}
 		}
