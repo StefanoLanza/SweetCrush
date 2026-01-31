@@ -14,15 +14,17 @@ class Compositor {
 public:
 	explicit Compositor(Graphics& graphics, int width, int height);
 	const GlFrameBuffer& GetWriteableFramebuffer() const;
-	const GlFrameBuffer& Composite(ScreenTransition transition, float dt);
+	void                 SetTransition(ScreenTransition newTransition);
+	const GlFrameBuffer& Execute(float dt);
+	bool                 IsIdle() const;
 
 private:
-	void SlideIn(unsigned first, unsigned second, float progress) const;
+	void Composite(unsigned first, unsigned second, const Vec4 uniforms[], float progress) const;
 
 private:
 	Graphics&        mGraphics;
 	GlFrameBuffer    mFrameBuffers[3];
-	ScreenTransition mCurrTransition;
+	ScreenTransition mTransition;
 	//	Wind::GlFrameBuffer           mFrameBufferHalfRes;
 	// Wind::GlFrameBuffer           mFrameBufferQuarterRes;
 	//	KawaseBlur              mBlur;
@@ -34,6 +36,8 @@ private:
 		GLint         mTexture1;
 		GLint         uvRect0;
 		GLint         uvRect1;
+		GLint         color0;
+		GLint         color1;
 		GLint         mProgress;
 		bool          mValid;
 	};

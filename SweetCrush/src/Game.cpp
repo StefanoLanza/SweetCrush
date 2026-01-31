@@ -89,7 +89,7 @@ void Game::Draw(float dt) {
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
 	mMouseCursor.Draw(mUIRenderer, input.GetMappedMouseCoord(), GameDrawOrder::mousePointer);
 #endif
-	const GlFrameBuffer& compositedFB = mCompositor.Composite(mScreenMgr.GetTransition(), dt);
+	const GlFrameBuffer& compositedFB = mCompositor.Execute(dt);
 	graphics.SetDefaultFrameBuffer();
 	mEngine.GetBlitter().Blit(compositedFB, BlitFilter::point);
 
@@ -105,5 +105,9 @@ void Game::Tick(float dt) {
 	if (! mGameDataModule.IsValid()) {
 		return;
 	}
-	mScreenMgr.Tick(dt, input);
+	if (mCompositor.IsIdle()) {
+		auto transition = mScreenMgr.Tick(dt, input);
+		mCompositor.SetTransition(transition);
+	}
+	// else screen transition in progress, wait for it
 }

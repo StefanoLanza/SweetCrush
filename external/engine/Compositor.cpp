@@ -7,6 +7,8 @@
 
 namespace Wind {
 
+const float T = 0.25f;
+
 // mBlur { engine.GetGraphics() }
 Compositor::Compositor(Graphics& graphics, int width, int height)
 	: mGraphics{graphics}
@@ -15,7 +17,7 @@ Compositor::Compositor(Graphics& graphics, int width, int height)
 	    { width, height, FBOFlags::color },
 	    { width, height, FBOFlags::color },
     }
-	, mCurrTransition{ScreenTransition::none}
+	, mTransition{ScreenTransition::none}
 	, mAccumTime{0.f}
 	, mCurrDst{0}{
 
@@ -27,6 +29,8 @@ Compositor::Compositor(Graphics& graphics, int width, int height)
 		mProgram.mTexture1 = program.GetUniformLocation("texture1");
 		mProgram.uvRect0 = program.GetUniformLocation("uvRect0");
 		mProgram.uvRect1 = program.GetUniformLocation("uvRect1");
+		mProgram.color0 = program.GetUniformLocation("color0");
+		mProgram.color1 = program.GetUniformLocation("color1");
 		mProgram.mProgress = program.GetUniformLocation("progress");
 		mProgram.mValid = (mProgram.mTexture0 != -1 && mProgram.mTexture1 != -1 && mProgram.uvRect0 != -1 && mProgram.uvRect1 != -1);
 	}
@@ -38,37 +42,53 @@ const GlFrameBuffer& Compositor::GetWriteableFramebuffer() const {
 	return mFrameBuffers[mCurrDst];
 }
 
-const GlFrameBuffer& Compositor::Composite(ScreenTransition transition, float dt) {
-	const float T = 1.f;
-	if (transition == ScreenTransition::none) {
-		// Wait for current to end
-		if (mCurrTransition != ScreenTransition::none) {
-			if (mAccumTime > T) {
-				mCurrTransition = ScreenTransition::none;
-				mAccumTime = 0.f;
-			}
-		}
-	}
-	else {
+void Compositor::SetTransition(ScreenTransition newTransition) {
+	if (newTransition != ScreenTransition::none) {
 		// End current. Start new
-		mCurrTransition = transition;
+		mTransition = newTransition;
 		mAccumTime = 0.f;
 	}
+}
 
-	float progress = mAccumTime / T;
-	mAccumTime += dt;
+const GlFrameBuffer& Compositor::Execute(float dt) {
+	const float progress = mAccumTime / T;
 
+	Vec4     uniforms[4];
 	unsigned res = mCurrDst;
-	switch (mCurrTransition) {
+	switch (mTransition) {
 	case ScreenTransition::none:
 		res = mCurrDst;
 		mCurrDst = (mCurrDst + 1) & 1;
 		break;
-	default:
-		mGraphics.SetFrameBuffer(mFrameBuffers[2]);
-		SlideIn(mCurrDst, (mCurrDst + 1) & 1, progress);
+	case ScreenTransition::slideIn: {
+		res = 2;
+		uniforms[0] = { 1.f - progress, 0.f, 1.f, 1.f };
+		uniforms[1] = { 0.f, 0.f, 1.f, 1.f };
+		uniforms[2] = { progress, 0.f, 0.f, 0.f }, mGraphics.SetFrameBuffer(mFrameBuffers[2]);
+		Composite(mCurrDst, (mCurrDst + 1) & 1, uniforms, progress);
+		break;
+	}
+	case ScreenTransition::slideOut: {
+		res = 2;
+		uniforms[0] = { -1.f + progress, 0.f, 1.f, 1.f };
+		uniforms[1] = { 0.f, 0.f, 1.f, 1.f };
+		uniforms[2] = { progress, 0.f, 0.f, 0.f }, mGraphics.SetFrameBuffer(mFrameBuffers[2]);
+		Composite(mCurrDst, (mCurrDst + 1) & 1, uniforms, progress);
+		break;
+	}
+	default: {
 		res = 2;
 		break;
+	}
+	}
+
+	if (mTransition != ScreenTransition::none) {
+		mAccumTime += dt;
+		if (mAccumTime > T) {
+			// End transition
+			mTransition = ScreenTransition::none;
+			mAccumTime = 0.f;
+		}
 	}
 
 	//	const GlFrameBuffer* mip[] = { &mFrameBufferHalfRes, &mFrameBufferQuarterRes };
@@ -77,7 +97,11 @@ const GlFrameBuffer& Compositor::Composite(ScreenTransition transition, float dt
 	return mFrameBuffers[res];
 }
 
-void Compositor::SlideIn(unsigned first, unsigned second, float progress) const {
+bool Compositor::IsIdle() const {
+	return mTransition == ScreenTransition::none;
+}
+
+void Compositor::Composite(unsigned first, unsigned second, const Vec4 uniformData[], float progress) const {
 	const Program& program = mProgram;
 	if (! program.mValid) {
 		return;
@@ -90,12 +114,7 @@ void Compositor::SlideIn(unsigned first, unsigned second, float progress) const 
 	PipelineHandle pipelineHandle = mGraphics.NewPipeline(pipelineState);
 	mGraphics.SetPipeline(pipelineHandle);
 
-	const int  uniforms[] = { program.uvRect0, program.uvRect1, program.mProgress };
-	const Vec4 uniformData[] = {
-		{ 0.f, 0.f, 1.f, 1.f },
-		{ 0.f, 0.f, 1.f, 1.f },
-		{ progress, 0.f, 0.f, 0.f },
-	};
+	const int      uniforms[] = { program.uvRect0, program.uvRect1, program.mProgress };
 	const unsigned textureIds[] = {
 		mFrameBuffers[first].GetColorAttachment(),
 		mFrameBuffers[second].GetColorAttachment(),

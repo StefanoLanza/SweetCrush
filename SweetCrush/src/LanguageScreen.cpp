@@ -51,7 +51,7 @@ LanguageScreen::LanguageScreen()
 	// Setup UI
 	mCanvas.AddText(mTitle);
 	mCanvas.AddButton(mLanguageButton);
-	mCanvas.AddButton(mBackButton);	
+	mCanvas.AddButton(mBackButton);
 	RefreshLanguageButton();
 }
 
@@ -70,7 +70,7 @@ ScreenEvent LanguageScreen::Tick([[maybe_unused]] float dt, const Wind::Input& i
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
 	    mBackButton.IsPressed(input)) {
-		return GoBack();
+		return GoBack(ScreenTransition::slideOut);
 	}
 	else if (mLanguageButton.IsPressed(input)) {
 		SetNextLanguage();

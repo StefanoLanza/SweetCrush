@@ -15,12 +15,11 @@ public:
 	ScreenManager();
 	void             Register(Screen* screen);
 	void             SetMain(ScreenId id);
-	void             Tick(float dt, const Input& input);
+	ScreenTransition             Tick(float dt, const Input& input);
 	void             Draw(UIRenderer& uiRenderer, float dt) const;
 	bool             CanGoBack() const;
 	void             GoBack();
 	void             GoForward();
-	ScreenTransition GetTransition() const;
 	// void AddEvent(const ScreenEvent& event); // TODO
 
 private:
@@ -28,7 +27,6 @@ private:
 	ScreenId             mCurr;
 	ScreenId             mHistory[8];
 	size_t               mHistorySize;
-	ScreenTransition     mTransition;
 };
 
 } // namespace Wind

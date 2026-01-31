@@ -92,9 +92,9 @@ ScreenEvent AudioSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Inp
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
 	    mBackButton.IsPressed(input)) {
-		return { ScreenOp::back };
+		return GoBack(ScreenTransition::slideOut);
 	}
-	return { ScreenOp::keep };
+	return Continue();
 }
 
 void AudioSettingsScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {

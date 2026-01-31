@@ -84,9 +84,9 @@ ScreenEvent GraphicsSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
 	    mBackButton.IsPressed(input)) {
-			return { ScreenOp::back };
+		return GoBack(ScreenTransition::slideOut);
 	}
-	return { ScreenOp::keep };
+	return Continue();
 }
 
 void GraphicsSettingsScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {

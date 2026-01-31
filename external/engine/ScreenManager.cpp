@@ -7,8 +7,7 @@ namespace Wind {
 ScreenManager::ScreenManager()
     : mCurr {}
     , mHistory {}
-    , mHistorySize { 0 }
-    , mTransition { ScreenTransition::none } {
+    , mHistorySize { 0 } {
 }
 
 void ScreenManager::Register(Screen* screen) {
@@ -20,14 +19,14 @@ void ScreenManager::SetMain(ScreenId id) {
 	mScreens[id.Get()]->Enter(ScreenNavArgs { id });
 }
 
-void ScreenManager::Tick(float dt, const Input& input) {
+ScreenTransition ScreenManager::Tick(float dt, const Input& input) {
 	const ScreenId    topScreenId = mCurr;
 	Screen&           topScreen = *mScreens[topScreenId.Get()];
 	const ScreenEvent event = topScreen.Tick(dt, input);
 	bool              addToHistory = false;
 	switch (event.mOp) {
 	case ScreenOp::keep:
-		mTransition = ScreenTransition::none;
+		assert(event.mTransition == ScreenTransition::none);
 		break;
 	case ScreenOp::goTo: {
 		topScreen.Exit();
@@ -35,20 +34,18 @@ void ScreenManager::Tick(float dt, const Input& input) {
 		std::memcpy(navArgs.mParams, event.mParams, sizeof navArgs.mParams);
 		mScreens[event.mNext.Get()]->Enter(navArgs);
 		mCurr = event.mNext;
-		mTransition = event.mTransition;
 		addToHistory = true;
 		break;
 	}
 	case ScreenOp::back: {
-		assert(mHistorySize > 0);
 		topScreen.Exit();
+		assert(mHistorySize > 0);
 		ScreenId next = mHistory[mHistorySize - 1];
 		--mHistorySize;
 		ScreenNavArgs navArgs { topScreenId };
 		std::memcpy(navArgs.mParams, event.mParams, sizeof navArgs.mParams);
 		mScreens[next.Get()]->Enter(navArgs);
 		mCurr = next;
-		mTransition = event.mTransition;
 		break;
 	}
 	};
@@ -58,10 +55,12 @@ void ScreenManager::Tick(float dt, const Input& input) {
 			for (size_t i = 0; i < std::size(mHistory) - 1; ++i) {
 				mHistory[i] = mHistory[i + 1];
 			}
+			--mHistorySize;
 		}
 		mHistory[mHistorySize] = topScreenId;
 		++mHistorySize;
 	}
+	return event.mTransition;
 }
 
 void ScreenManager::Draw(UIRenderer& uiRenderer, float dt) const {
@@ -82,10 +81,6 @@ void ScreenManager::GoBack() {
 }
 
 void ScreenManager::GoForward() {
-}
-
-ScreenTransition ScreenManager::GetTransition() const {
-	return mTransition;
 }
 
 } // namespace Wind
