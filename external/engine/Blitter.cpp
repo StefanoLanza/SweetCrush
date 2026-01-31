@@ -52,7 +52,6 @@ Blitter::Impl::Impl(Graphics& graphics)
 
 void Blitter::Impl::InitProgram(BlitProgram& blitProgram, Graphics& graphics, const char* fs) const {
 	blitProgram.mHandle = graphics.NewProgram(SHADERS_FOLDER "blit.vs", SHADERS_FOLDER "blit.fs");
-
 	if (blitProgram.mHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(blitProgram.mHandle);
 		blitProgram.mPosRect = program.GetUniformLocation("posRect");

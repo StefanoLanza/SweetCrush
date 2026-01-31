@@ -89,7 +89,7 @@ void Game::Draw(float dt) {
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
 	mMouseCursor.Draw(mUIRenderer, input.GetMappedMouseCoord(), GameDrawOrder::mousePointer);
 #endif
-	const GlFrameBuffer& compositedFB = mCompositor.Composite(ScreenTransition::none, dt);
+	const GlFrameBuffer& compositedFB = mCompositor.Composite(mScreenMgr.GetTransition(), dt);
 	graphics.SetDefaultFrameBuffer();
 	mEngine.GetBlitter().Blit(compositedFB, BlitFilter::point);
 

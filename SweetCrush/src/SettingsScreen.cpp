@@ -93,13 +93,13 @@ void SettingsScreen::LoadAssets(Engine& engine) {
 
 ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
 	if (mGraphicsButton.IsPressed(input)) {
-		return GoTo(GameScreenIds::graphicsSettings);
+		return GoTo(GameScreenIds::graphicsSettings, ScreenTransition::slideIn);
 	}
 	else if (mLanguageButton.IsPressed(input)) {
-		return GoTo(GameScreenIds::language);
+		return GoTo(GameScreenIds::language, ScreenTransition::slideIn);
 	}
 	else if (mAudioButton.IsPressed(input)) {
-		return GoTo(GameScreenIds::audioSettings);
+		return GoTo(GameScreenIds::audioSettings, ScreenTransition::slideIn);
 	}
 
 #if defined(__ANDROID__) || defined(__OHOS__)
@@ -108,7 +108,7 @@ ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& i
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
 	    mBackButton.IsPressed(input)) {
-		return GoBack();
+		return GoBack(ScreenTransition::slideOut);
 	}
 	return Continue();
 }

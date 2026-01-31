@@ -1,6 +1,7 @@
 #pragma once
 
 #include <engine/ActionMgr.h>
+#include <engine/Compositor.h>
 #include <engine/FwdDecl.h>
 #include <engine/Screen.h>
 #include <engine/ScreenManager.h>

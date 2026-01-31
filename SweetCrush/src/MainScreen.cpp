@@ -94,7 +94,7 @@ MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
 #endif
     , mCanvas(canvasDesc)
     , mTime(0) {
-	//
+	// Setup UI
 	mCanvas.AddText(mTitle);
 	mCanvas.AddButton(mStartButton);
 	mCanvas.AddButton(mSettingsButton);
@@ -118,7 +118,7 @@ ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
 		return GoTo(GameScreenIds::levelStart);
 	}
 	else if (mSettingsButton.IsPressed(input)) {
-		return GoTo(GameScreenIds::settings);
+		return GoTo(GameScreenIds::settings, ScreenTransition::slideIn);
 	}
 	else if (mCreditsButton.IsPressed(input)) {
 		return GoTo(GameScreenIds::credits);
@@ -144,9 +144,14 @@ void MainScreen::Draw(UIRenderer& uiRenderer, float dt) {
 
 	for (int i = 0; i < NumPieceTypes; ++i) {
 		float rotation = std::sin(phase * .25f + (float)i) * 0.5f;
-		mGameRenderer.DrawIcon(pieceIcons[i], { x, 380.f + std::cos(phase) * 4.f }, rotation, whiteColor, GameDrawOrder::overlays);
+		mGameRenderer.DrawIcon(pieceIcons[i], { x, 380.f + std::cos(phase) * 4.f }, rotation, whiteColor, GameDrawOrder::overUI);
 		x += dx;
 		phase += 6.28f / static_cast<float>(NumPieceTypes);
+	}
+
+	{
+		float rotation = std::sin(0.f + (float)mTime * 2.f) * 0.05f;
+		mGameRenderer.DrawIcon(petSprites[0], { RefWindowWidth - 100.f, RefWindowHeight - 100.f}, rotation, whiteColor, GameDrawOrder::overUI);
 	}
 }
 
