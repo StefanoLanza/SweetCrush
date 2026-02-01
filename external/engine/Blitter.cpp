@@ -115,11 +115,11 @@ void Blitter::Impl::Blit(const GlFrameBuffer& srcFrameBuffer, BlitFilter filter)
 		//{ (float)srcFrameBuffer.GetWidth(), (float)srcFrameBuffer.GetHeight(), 1.f / srcFrameBuffer.GetWidth(), 1.f / srcFrameBuffer.GetHeight() },
 	};
 	const unsigned textureIds[] = { srcFrameBuffer.GetColorAttachment() };
-	const unsigned samplers[] = { mSamplers[0] };
+	const unsigned samplers[] = { mSamplers[1] };
 
 	DrawCall drawCall;
-	drawCall.uniforms = uniforms;
-	drawCall.uniformData = uniformData;
+	drawCall.uniformLocations = uniforms;
+	drawCall.uniforms = uniformData;
 	drawCall.numUniforms = sizeof(uniformData) / 16;
 	drawCall.textures = textureIds;
 	drawCall.samplers = samplers;

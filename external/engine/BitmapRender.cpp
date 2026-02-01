@@ -84,8 +84,8 @@ void BitmapRenderer::Impl::DrawBitmapEx(const Texture& bitmap, float x, float y,
 	const unsigned textureIds[] = { bitmap.GetTextureId() };
 
 	DrawCall drawCall;
-	drawCall.uniforms = uniforms;
-	drawCall.uniformData = uniformData;
+	drawCall.uniformLocations = uniforms;
+	drawCall.uniforms = uniformData;
 	drawCall.numUniforms = sizeof(uniformData) / 16;
 	drawCall.textures = textureIds;
 	drawCall.numTextures = 1;

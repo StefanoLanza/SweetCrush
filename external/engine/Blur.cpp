@@ -44,8 +44,8 @@ void Blur::Impl::RunPass(const GlFrameBuffer& src, bool hrz) const {
 	const unsigned textureIds[] = { src.GetColorAttachment() };
 
 	DrawCall drawCall {
-		.uniforms = uniforms,
-		.uniformData = uniformData,
+		.uniformLocations = uniforms,
+		.uniforms = uniformData,
 		.numUniforms = std::size(uniforms),
 		.textures = textureIds,
 		.numTextures = 1,

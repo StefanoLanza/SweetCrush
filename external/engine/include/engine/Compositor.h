@@ -1,14 +1,26 @@
 #pragma once
 
+#include "Color.h"
+#include "Easings.h"
 #include "FwdDecl.h"
 #include "GlFrameBuffer.h"
 #include "Screen.h"
 
 namespace Wind {
 
-class Input;
-class UIRenderer;
-class Graphics;
+struct PixelateTransition {
+	float mDuration = 0.25f;
+	Color mDissolveColor = blackColor;
+};
+
+struct SlideTransition {
+	float mDuration = 0.25f;
+	float (*mTimeCurve)(float) = EaseInQuad;
+};
+
+struct DissolveTransition {
+	float mDuration = 0.25f;
+};
 
 class Compositor {
 public:
@@ -17,9 +29,16 @@ public:
 	void                 SetTransition(ScreenTransition newTransition);
 	const GlFrameBuffer& Execute(float dt);
 	bool                 IsIdle() const;
+	void                 ConfigurePixelTransition(const PixelateTransition& settings);
 
 private:
-	void Composite(unsigned first, unsigned second, const Vec4 uniforms[], float progress) const;
+	struct Program;
+	void InitPrograms(Graphics& graphics);
+	void InitProgramUniforms(Program& program, const char* fsPath, Graphics& graphics);
+	void Slide(unsigned first, unsigned second, float dir) const;
+	void Dissolve(unsigned first, unsigned second) const;
+	void Composite(const Program& program, unsigned first, unsigned second, const int uniformLocations[], const Vec4 uniforms[],
+	               int numUniforms) const;
 
 private:
 	Graphics&        mGraphics;
@@ -41,7 +60,13 @@ private:
 		GLint         mProgress;
 		bool          mValid;
 	};
-	Program mProgram;
+	PipelineHandle     mPipelineHandle;
+	Program            mSlideProgram;
+	Program            mPixelateProgram;
+	Program            mDissolveProgram;
+	PixelateTransition mPixelateTransition;
+	SlideTransition    mSlideTransition;
+	DissolveTransition mDissolveTransition;
 };
 
 } // namespace Wind

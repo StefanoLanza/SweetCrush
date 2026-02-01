@@ -9,7 +9,7 @@
 namespace Wind {
 
 struct ActionTag;
-using ActionId = Id<ActionTag, uint16_t, -1>;
+using ActionId = Id<ActionTag, uint16_t, (uint16_t)-1>;
 
 // Returns true if complete
 using ActionFunc = std::function<bool(float dt, float t)>;
@@ -27,7 +27,7 @@ public:
 
 	ActionId AddAction(ActionFunc&& func, const ActionDesc& desc);
 	ActionId AddContinuation(ActionId parentId, ActionFunc&& func, float duration);
-	void     Execute(float dt);
+	void     Run(float dt);
 	void     Clear();
 	bool     AnyRunning() const;
 
@@ -38,8 +38,8 @@ private:
 
 private:
 	struct Action;
-	std::vector<Action>   mActions;
-	std::vector<uint16_t> mExecuteQueue;
+	std::vector<Action>   mActionPool;
+	std::vector<uint16_t> mRunQueue;
 	uint16_t              mFreeIndex;
 };
 

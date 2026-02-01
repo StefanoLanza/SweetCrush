@@ -24,13 +24,13 @@ struct ActionMgr::Action {
 };
 
 ActionMgr::ActionMgr() {
-	mActions.resize(poolSize); // init pool
+	mActionPool.resize(poolSize); // init pool
 	// Build free list
 	mFreeIndex = 0;
 	for (size_t i = 0; i < poolSize - 1; ++i) {
-		mActions[i].next = (uint16_t)(i + 1);
+		mActionPool[i].next = (uint16_t)(i + 1);
 	}
-	mActions.back().next = nullIndex;
+	mActionPool.back().next = nullIndex;
 }
 
 ActionMgr::~ActionMgr() = default;
@@ -42,7 +42,7 @@ ActionId ActionMgr::AddAction(ActionFunc&& func, const ActionDesc& desc) {
 }
 
 ActionId ActionMgr::AddContinuation(ActionId parentId, ActionFunc&& func, float duration) {
-	Action& prev = mActions[parentId.Get()];
+	Action& prev = mActionPool[parentId.Get()];
 	assert(prev.continuation == nullIndex);
 
 	ActionId id = NewAction(std::move(func), duration, 0.f, nullptr);
@@ -53,16 +53,16 @@ ActionId ActionMgr::AddContinuation(ActionId parentId, ActionFunc&& func, float 
 	}
 	else {
 		uint16_t next = prev.continuation;
-		while (mActions[next].next != nullIndex) {
-			next = mActions[next].next;
+		while (mActionPool[next].next != nullIndex) {
+			next = mActionPool[next].next;
 		}
-		mActions[next].next = id.Get();
+		mActionPool[next].next = id.Get();
 	}
 
 	return id;
 }
 
-void ActionMgr::Execute(float dt) {
+void ActionMgr::Run(float dt) {
 	auto pred = [](Action& action, float dt) {
 		bool res = false;
 		action.delay -= dt;
@@ -76,9 +76,9 @@ void ActionMgr::Execute(float dt) {
 		}
 		return res;
 	};
-	for (size_t i = 0; i < mExecuteQueue.size();) {
-		auto    index = mExecuteQueue[i];
-		Action& action = mActions[index];
+	for (size_t i = 0; i < mRunQueue.size();) {
+		auto    index = mRunQueue[i];
+		Action& action = mActionPool[index];
 		bool    finished = pred(action, dt);
 		if (finished) {
 			if (action.counter) {
@@ -87,14 +87,14 @@ void ActionMgr::Execute(float dt) {
 			action.func = nullptr;
 
 			// Remove from queue
-			mExecuteQueue[i] = mExecuteQueue.back();
-			mExecuteQueue.pop_back();
+			mRunQueue[i] = mRunQueue.back();
+			mRunQueue.pop_back();
 
 			// Enqueue continuations
 			uint16_t next = action.continuation;
 			while (next != nullIndex) {
 				PushAction(next);
-				next = mActions[next].next;
+				next = mActionPool[next].next;
 			}
 
 			FreeAction(index);
@@ -107,16 +107,16 @@ void ActionMgr::Execute(float dt) {
 }
 
 void ActionMgr::Clear() {
-	mExecuteQueue.clear();
+	mRunQueue.clear();
 }
 
 bool ActionMgr::AnyRunning() const {
-	return mExecuteQueue.empty() == false;
+	return mRunQueue.empty() == false;
 }
 
 ActionId ActionMgr::NewAction(ActionFunc&& func, float duration, float delay, int* counter) {
 	assert(mFreeIndex != nullIndex && "Action pool is full");
-	Action& action = mActions[mFreeIndex];
+	Action& action = mActionPool[mFreeIndex];
 
 	ActionId id { mFreeIndex };
 	mFreeIndex = action.next; // before overriding action!
@@ -138,11 +138,11 @@ ActionId ActionMgr::NewAction(ActionFunc&& func, float duration, float delay, in
 }
 
 void ActionMgr::PushAction(uint16_t index) {
-	mExecuteQueue.push_back(index);
+	mRunQueue.push_back(index);
 }
 
 void ActionMgr::FreeAction(uint16_t index) {
-	mActions[index].next = mFreeIndex;
+	mActionPool[index].next = mFreeIndex;
 	mFreeIndex = index;
 }
 

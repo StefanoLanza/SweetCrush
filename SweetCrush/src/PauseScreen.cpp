@@ -99,22 +99,20 @@ void PauseScreen::LoadAssets(Engine& engine) {
 
 ScreenEvent PauseScreen::Tick(float /*dt*/, const Wind::Input& input) {
 #if defined(__ANDROID__) || defined(__OHOS__)
-	if (input.GetKeyJustPressed(SDLK_AC_BACK)) {
+	if (input.GetKeyJustPressed(SDLK_AC_BACK)
 #elif defined(_WIN32) || defined(__linux__)
-	if (input.GetKeyJustPressed(SDLK_ESCAPE)) {
+	if (input.GetKeyJustPressed(SDLK_ESCAPE)
 #endif
-		return GoBack(false);
+	    || mContinueButton.IsPressed(input)) {
+		return GoBack(false, ScreenTransition::slideOut);
 	}
 	if (mExitGameButton.IsPressed(input)) {
 		return GoTo(GameScreenIds::mainMenu);
 	}
 	else if (mRestartLevelButton.IsPressed(input)) {
-		return GoBack(true);
+		return GoBack(true, ScreenTransition::slideOut);
 	}
-	else if (mContinueButton.IsPressed(input)) {
-		return GoBack(false);
-	}
-	return { ScreenOp::keep };
+	return Continue();
 }
 
 void PauseScreen::Draw(UIRenderer& uiRenderer, float dt) {

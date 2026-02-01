@@ -5,11 +5,14 @@
 #include "GlProgram.h"
 #include "SdlWindow.h"
 #include "Texture.h"
+
 #include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 
 #include <algorithm>
 #include <cassert>
 #include <cstring>
+#include <stdexcept>
 #include <vector>
 
 #define UNIFORM_FILTERING 1
@@ -143,6 +146,7 @@ public:
 	std::vector<PipelineState> mPipelineStates;
 	std::vector<TexturePtr>    mTextures;
 	std::vector<char>          mInstanceBuffer;
+	std::vector<const char*>   mSearchPaths;
 	unsigned                   mInstanceBufferOffs;
 	GLuint                     mInstanceVBO;
 	unsigned                   mFrameCount;
@@ -224,9 +228,9 @@ void Graphics::Impl::Draw(const DrawCall& drawCall) {
 			SetTexture(i, drawCall.textures[i], 0 /*default */);
 		}
 	}
-	const float* u = static_cast<const float*>(drawCall.uniformData);
+	const float* u = static_cast<const float*>(drawCall.uniforms);
 	for (int i = 0; i < drawCall.numUniforms; ++i) {
-		SetFloat4(drawCall.uniforms[i], u[0], u[1], u[2], u[3]);
+		SetFloat4(drawCall.uniformLocations[i], u[0], u[1], u[2], u[3]);
 		u += 4;
 	}
 	mFirstUniform += batch.numUniforms;
@@ -482,7 +486,16 @@ TexturePtr Graphics::Impl::LoadTexture(std::string_view fileName, TextureInfo te
 		}
 		char path[260];
 		snprintf(path, sizeof(path), "%s%s", ASSETS_FOLDER, fileName.data());
-		mTextures.emplace_back(std::make_unique<Texture>(fileName, path, texInfo));
+
+		SDL_Surface* surface = IMG_Load(path);
+		if (surface == nullptr) {
+			SDL_LogError(0, "Unable to load image %s", fileName.data());
+			throw std::runtime_error(std::string("Unable to load image ") + path);
+		}
+		mTextures.emplace_back(std::make_unique<Texture>(surface, fileName, path, texInfo));
+		SDL_DestroySurface(surface);
+		surface = nullptr;
+
 		return mTextures.back();
 	}
 	catch (const std::exception& e) {
@@ -555,6 +568,11 @@ void Graphics::ClearDefaultFrameBuffer(float r, float g, float b, float a) {
 
 void Graphics::Flush() {
 	mPimpl->Flush();
+}
+
+void Graphics::RegisterSearchPath(const char* path) {
+	assert(path);
+	return mPimpl->mSearchPaths.push_back(path);
 }
 
 int Graphics::GetTargetWidth() const {

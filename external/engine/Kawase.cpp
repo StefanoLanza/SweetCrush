@@ -51,8 +51,8 @@ void KawaseBlur::Impl::Downsample(const GlFrameBuffer& src, const GlFrameBuffer&
 	const unsigned textureIds[] = { src.GetColorAttachment() };
 
 	const DrawCall drawCall {
-		.uniforms = uniforms,
-		.uniformData = uniformData,
+		.uniformLocations = uniforms,
+		.uniforms = uniformData,
 		.numUniforms = std::size(uniforms),
 		.textures = textureIds,
 		.numTextures = 1,
@@ -72,8 +72,8 @@ void KawaseBlur::Impl::Upsample(const GlFrameBuffer& src, const GlFrameBuffer& d
 	const unsigned textureIds[] = { src.GetColorAttachment() };
 
 	const DrawCall drawCall {
-		.uniforms = uniforms,
-		.uniformData = uniformData,
+		.uniformLocations = uniforms,
+		.uniforms = uniformData,
 		.numUniforms = std::size(uniforms),
 		.textures = textureIds,
 		.numTextures = 1,

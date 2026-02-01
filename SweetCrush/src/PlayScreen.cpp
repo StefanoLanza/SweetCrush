@@ -172,14 +172,12 @@ ScreenEvent PlayScreen::Tick(float dt, const Input& input) {
 
 	// Handle pause
 #if defined(__ANDROID__) || defined(__OHOS__)
-	if (input.GetKeyJustPressed(SDLK_AC_BACK)) {
+	if (input.GetKeyJustPressed(SDLK_AC_BACK)
 #elif defined(_WIN32) || defined(__linux__)
-	if (input.GetKeyJustPressed(SDLK_ESCAPE)) {
+	if (input.GetKeyJustPressed(SDLK_ESCAPE)
 #endif
-		return GoTo(GameScreenIds::pauseGame);
-	}
-	if (mPauseButton.IsPressed(input)) {
-		return GoTo(GameScreenIds::pauseGame);
+	    || mPauseButton.IsPressed(input)) {
+		return GoTo(GameScreenIds::pauseGame, ScreenTransition::slideIn);
 	}
 
 	if (mMatch3.IsWaitingForUser()) {
@@ -211,6 +209,12 @@ ScreenEvent PlayScreen::Tick(float dt, const Input& input) {
 void PlayScreen::SelectBooster(const Input& input) {
 	bool handled = false;
 
+	if (input.GetMouseButtonPressed(MouseButton::right)) {
+		mSelectedBooster = -1; // release
+		handled = true;
+		return;
+	}
+
 	// Check buttons
 	for (int i = 0; i < MaxBoosterTypesPerLevel; ++i) {
 		if (mBoosterCount[i] > 0 && mBoosterButtons[i].IsPressed(input)) {
@@ -224,8 +228,8 @@ void PlayScreen::SelectBooster(const Input& input) {
 
 	if (! handled && mSelectedBooster >= 0) {
 		// Check click on board
-		int cellIdx = mBoard.GetCellAtCoords(input.GetMouseCoord());
-		if (input.GetMouseButtonPressed()) {
+		int cellIdx = mBoard.GetCellAtCoords(input.GetMappedMouseCoord());
+		if (input.GetMouseButtonPressed(MouseButton::left)) {
 			if (cellIdx >= 0) {
 				mMatch3.UseBooster(cellIdx);
 				assert(mBoosterCount[mSelectedBooster] > 0);
@@ -242,12 +246,12 @@ void PlayScreen::SelectBooster(const Input& input) {
 	}
 
 	if (mSelectedBooster >= 0) {
-		mSelectedBoosterCoord = input.GetMouseCoord();
+		mSelectedBoosterCoord = input.GetMappedMouseCoord();
 	}
 }
 
 void PlayScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
-	mActionMgr.Execute(dt);
+	mActionMgr.Run(dt);
 
 	mGameRenderer.DrawBoard(mBoard, mCellSelector->GetSelectedTile(), mGameConfig, mTime);
 	DrawUI(uiRenderer);

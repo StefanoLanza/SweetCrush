@@ -42,16 +42,15 @@ FontPtr TextRenderer::AddFont(const char* fontName) {
 			}
 		}
 
-		char textureFile[260];
-		snprintf(textureFile, sizeof(textureFile), "%s_0.png", fontName);
-
 		char texturePath[260];
 		snprintf(texturePath, sizeof(texturePath), "%s%s_0.png", FONTS_FOLDER, fontName);
 
 		char glyphPath[260];
-		snprintf(glyphPath, sizeof(glyphPath), "%s%s.fnt", FONTS_FOLDER, fontName);
+		snprintf(glyphPath, sizeof(glyphPath), "%s%s%s.fnt", ASSETS_FOLDER, FONTS_FOLDER, fontName);
 
-		mFonts.emplace_back(std::make_unique<Font>(fontName, textureFile, texturePath, LoadGlyphs(glyphPath)));
+		TexturePtr texture = mGraphics.LoadTexture(texturePath);
+
+		mFonts.emplace_back(std::make_unique<Font>(fontName, texture, LoadGlyphs(glyphPath)));
 		return mFonts.back();
 	}
 	catch (const std::exception& e) {
@@ -74,8 +73,8 @@ void TextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, cons
 		return;
 	}
 
-	const float fontTexWidth = static_cast<float>(font.GetSurface().Width());
-	const float fontTexHeight = static_cast<float>(font.GetSurface().Height());
+	const float fontTexWidth = static_cast<float>(font.GetTexture().Width());
+	const float fontTexHeight = static_cast<float>(font.GetTexture().Height());
 	Char*       chars = static_cast<Char*>(instanceData.data);
 	for (int idx = 0, advance = 0; idx < (int)text.length(); ++idx) {
 		const Glyph& g = font.FindGlyph(text[idx]);
@@ -101,11 +100,11 @@ void TextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, cons
 	};
 	mGraphics.SetPipeline(mPipeline);
 
-	const unsigned textureIds[] = { font.GetSurface().GetTextureId() };
+	const unsigned textureIds[] = { font.GetTexture().GetTextureId() };
 
 	DrawCall drawCall;
-	drawCall.uniforms = uniforms;
-	drawCall.uniformData = reinterpret_cast<const float*>(uniformData);
+	drawCall.uniformLocations = uniforms;
+	drawCall.uniforms = reinterpret_cast<const float*>(uniformData);
 	drawCall.numUniforms = sizeof(uniformData) / 16;
 	drawCall.textures = textureIds;
 	drawCall.numTextures = 1;

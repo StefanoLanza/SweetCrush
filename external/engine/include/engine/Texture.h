@@ -3,6 +3,8 @@
 #include "Gl.h"
 #include <string>
 
+struct SDL_Surface;
+
 namespace Wind {
 
 enum class TextureWrapMode {
@@ -30,7 +32,7 @@ struct TextureInfo {
 
 class Texture final {
 public:
-	Texture(std::string_view filename, std::string_view path, TextureInfo info = TextureInfo {});
+	Texture(SDL_Surface* surface, std::string_view filename, std::string_view path, TextureInfo info = TextureInfo {});
 	const std::string& GetFileName() const;
 	int                Width() const;
 	int                Height() const;

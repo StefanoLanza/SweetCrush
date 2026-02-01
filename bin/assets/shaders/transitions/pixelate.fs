@@ -15,5 +15,5 @@ void main() {
 	vec2 uv1 = uvRect1.xy + uvRect1.zw * vTexCoord;
     vec4 tex0 = texture(texture0, uv0);
     vec4 tex1 = texture(texture1, uv1);
-    fragColor =  mix(tex0, tex1, (uv0.x >= 0.0 && uv0.x < 1.0) ? 0.0 : 1.0) + progress.x * 0.0001; //progress.x); // > (float(tileIdx) / 32.0)); // checkerboard pattern
+    fragColor =  mix(tex0, tex1, (abs(uv0.x - 0.5) < 0.5) ? 0.0 : 1.0) + progress.x * 0.0001;
 }

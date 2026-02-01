@@ -26,7 +26,7 @@ private:
 	uint32_t         mHash;
 	GLManagedProgram mProgram;
 
-	// Fixed uniforms
+	// Fixed uniformLocations
 	GLint mOrthoMatrixUniform;
 };
 

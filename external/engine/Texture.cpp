@@ -9,15 +9,9 @@
 
 namespace Wind {
 
-Texture::Texture(std::string_view fileName, std::string_view path, TextureInfo info)
+Texture::Texture(SDL_Surface* surface, std::string_view fileName, std::string_view path, TextureInfo info)
     : mFileName(fileName)
     , mHasAlpha { false } {
-	SDL_Surface* surface = IMG_Load(path.data());
-	if (surface == nullptr) {
-		SDL_LogError(0, "Unable to load image %s", fileName.data());
-		throw std::runtime_error(std::string("Unable to load image ") + std::string(fileName));
-	}
-
 	GLuint textureId = 0;
 	glGenTextures(1, &textureId);
 	glBindTexture(GL_TEXTURE_2D, textureId);
@@ -78,9 +72,6 @@ Texture::Texture(std::string_view fileName, std::string_view path, TextureInfo i
 		mHeight = surface->h;
 		mTextureId.reset(textureId);
 	}
-
-	SDL_DestroySurface(surface);
-	surface = nullptr;
 }
 
 const std::string& Texture::GetFileName() const {

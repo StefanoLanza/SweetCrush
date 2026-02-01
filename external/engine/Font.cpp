@@ -8,9 +8,9 @@
 
 namespace Wind {
 
-Font::Font(const char* name, const char* textureFile, const char* texturePath, std::vector<Glyph>&& glyphs)
+Font::Font(const char* name, const TexturePtr& texture, std::vector<Glyph>&& glyphs)
     : mName(name)
-    , mSurface(textureFile, texturePath)
+    , mTexture(texture)
     , mGlyphs(std::move(glyphs)) {
 	uint16_t height = 0;
 	for (const Glyph& g : mGlyphs) {
@@ -29,8 +29,8 @@ const std::string& Font::GetName() const {
 	return mName;
 }
 
-const Texture& Font::GetSurface() const {
-	return mSurface;
+const Texture& Font::GetTexture() const {
+	return *mTexture;
 }
 
 const Glyph& Font::FindGlyph(char c) const {

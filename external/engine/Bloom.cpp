@@ -57,8 +57,8 @@ void Bloom::Impl::Blit(const GlFrameBuffer& srcFrameBuffer) const {
 	const unsigned textureIds[] = { srcFrameBuffer.GetColorAttachment() };
 
 	DrawCall drawCall;
-	drawCall.uniforms = uniforms;
-	drawCall.uniformData = uniformData;
+	drawCall.uniformLocations = uniforms;
+	drawCall.uniforms = uniformData;
 	drawCall.numUniforms = sizeof(uniformData) / 16;
 	drawCall.textures = textureIds;
 	drawCall.numTextures = 1;

@@ -7,8 +7,6 @@
 
 namespace Wind {
 
-const float T = 0.25f;
-
 // mBlur { engine.GetGraphics() }
 Compositor::Compositor(Graphics& graphics, int width, int height)
 	: mGraphics{graphics}
@@ -21,21 +19,13 @@ Compositor::Compositor(Graphics& graphics, int width, int height)
 	, mAccumTime{0.f}
 	, mCurrDst{0}{
 
-	// TODO Register search paths
-	mProgram.mHandle = graphics.NewProgram(SHADERS_FOLDER "fullscreenTriangle.vs", SHADERS_FOLDER "composite.fs");
-	if (mProgram.mHandle != nullProgram) {
-		const GlProgram& program = graphics.GetProgram(mProgram.mHandle);
-		mProgram.mTexture0 = program.GetUniformLocation("texture0");
-		mProgram.mTexture1 = program.GetUniformLocation("texture1");
-		mProgram.uvRect0 = program.GetUniformLocation("uvRect0");
-		mProgram.uvRect1 = program.GetUniformLocation("uvRect1");
-		mProgram.color0 = program.GetUniformLocation("color0");
-		mProgram.color1 = program.GetUniformLocation("color1");
-		mProgram.mProgress = program.GetUniformLocation("progress");
-		mProgram.mValid = (mProgram.mTexture0 != -1 && mProgram.mTexture1 != -1 && mProgram.uvRect0 != -1 && mProgram.uvRect1 != -1);
-	}
-
+	InitPrograms(graphics);
 	//, mFrameBufferHalfRes { RefWindowWidth / 2, RefWindowHeight / 2, FBOFlags::color }
+
+	PipelineState pipelineState;
+	pipelineState.mDepthEnabled = false;
+	pipelineState.mBlending = false;
+	mPipelineHandle = mGraphics.NewPipeline(pipelineState);
 }
 
 const GlFrameBuffer& Compositor::GetWriteableFramebuffer() const {
@@ -51,40 +41,41 @@ void Compositor::SetTransition(ScreenTransition newTransition) {
 }
 
 const GlFrameBuffer& Compositor::Execute(float dt) {
-	const float progress = mAccumTime / T;
-
-	Vec4     uniforms[4];
 	unsigned res = mCurrDst;
+	if (mTransition != ScreenTransition::none) {
+		res = 2;
+		mGraphics.SetFrameBuffer(mFrameBuffers[2]);
+	}
+
+	float duration = 0.f;
 	switch (mTransition) {
 	case ScreenTransition::none:
 		res = mCurrDst;
 		mCurrDst = (mCurrDst + 1) & 1;
 		break;
-	case ScreenTransition::slideIn: {
-		res = 2;
-		uniforms[0] = { 1.f - progress, 0.f, 1.f, 1.f };
-		uniforms[1] = { 0.f, 0.f, 1.f, 1.f };
-		uniforms[2] = { progress, 0.f, 0.f, 0.f }, mGraphics.SetFrameBuffer(mFrameBuffers[2]);
-		Composite(mCurrDst, (mCurrDst + 1) & 1, uniforms, progress);
+	case ScreenTransition::slideIn:
+		Slide(mCurrDst, (mCurrDst + 1) & 1, -1.f);
+		duration = mSlideTransition.mDuration;
 		break;
-	}
-	case ScreenTransition::slideOut: {
-		res = 2;
-		uniforms[0] = { -1.f + progress, 0.f, 1.f, 1.f };
-		uniforms[1] = { 0.f, 0.f, 1.f, 1.f };
-		uniforms[2] = { progress, 0.f, 0.f, 0.f }, mGraphics.SetFrameBuffer(mFrameBuffers[2]);
-		Composite(mCurrDst, (mCurrDst + 1) & 1, uniforms, progress);
+	case ScreenTransition::slideOut:
+		Slide(mCurrDst, (mCurrDst + 1) & 1, +1.f);
+		duration = mSlideTransition.mDuration;
 		break;
-	}
+	case ScreenTransition::pixelate:
+		duration = mPixelateTransition.mDuration;
+		break;
+	case ScreenTransition::dissolve:
+		Dissolve(mCurrDst, (mCurrDst + 1) & 1);
+		duration = mDissolveTransition.mDuration;
+		break;
 	default: {
-		res = 2;
 		break;
 	}
 	}
 
 	if (mTransition != ScreenTransition::none) {
 		mAccumTime += dt;
-		if (mAccumTime > T) {
+		if (mAccumTime > duration) {
 			// End transition
 			mTransition = ScreenTransition::none;
 			mAccumTime = 0.f;
@@ -101,29 +92,77 @@ bool Compositor::IsIdle() const {
 	return mTransition == ScreenTransition::none;
 }
 
-void Compositor::Composite(unsigned first, unsigned second, const Vec4 uniformData[], float progress) const {
-	const Program& program = mProgram;
-	if (! program.mValid) {
+void Compositor::ConfigurePixelTransition(const PixelateTransition& settings) {
+	mPixelateTransition = settings;
+}
+
+void Compositor::InitPrograms(Graphics& graphics) {
+	// TODO Register search paths
+	InitProgramUniforms(mSlideProgram, SHADERS_FOLDER "transitions/slide.fs", graphics);
+	InitProgramUniforms(mPixelateProgram, SHADERS_FOLDER "transitions/pixelate.fs", graphics);
+	InitProgramUniforms(mDissolveProgram, SHADERS_FOLDER "transitions/dissolve.fs", graphics);
+}
+
+void Compositor::InitProgramUniforms(Program& programData, const char* fsPath, Graphics& graphics) {
+	programData.mHandle = graphics.NewProgram(SHADERS_FOLDER "fullscreenTriangle.vs", fsPath);
+	if (programData.mHandle != nullProgram) {
+		const GlProgram& program = graphics.GetProgram(programData.mHandle);
+		programData.mTexture0 = program.GetUniformLocation("texture0");
+		programData.mTexture1 = program.GetUniformLocation("texture1");
+		programData.uvRect0 = program.GetUniformLocation("uvRect0");
+		programData.uvRect1 = program.GetUniformLocation("uvRect1");
+		programData.color0 = program.GetUniformLocation("color0");
+		programData.color1 = program.GetUniformLocation("color1");
+		programData.mProgress = program.GetUniformLocation("progress");
+		programData.mValid = (programData.mTexture0 != -1 && programData.mTexture1 != -1);
+	}
+}
+
+void Compositor::Slide(unsigned first, unsigned second, float dir) const {
+	if (! mSlideProgram.mValid) {
 		return;
 	}
+	const float progress = mSlideTransition.mTimeCurve(mAccumTime / mSlideTransition.mDuration);
+	const int   uniformLocations[] = {
+        mSlideProgram.uvRect0,
+        mSlideProgram.uvRect1,
+        mSlideProgram.mProgress,
+	};
+	const Vec4 uniforms[] {
+		{ dir * (1.f - progress), 0.f, 1.f, 1.f },
+		{ dir * (-progress), 0.f, 1.f, 1.f },
+		{ progress, 0.f, 0.f, 0.f },
+	};
+	Composite(mSlideProgram, first, second, uniformLocations, uniforms, std::size(uniformLocations));
+}
 
-	// TODO Cache
-	PipelineState pipelineState;
-	pipelineState.mDepthEnabled = false;
-	pipelineState.mBlending = false;
-	PipelineHandle pipelineHandle = mGraphics.NewPipeline(pipelineState);
-	mGraphics.SetPipeline(pipelineHandle);
+void Compositor::Dissolve(unsigned first, unsigned second) const {
+	if (! mDissolveProgram.mValid) {
+		return;
+	}
+	const float progress = mAccumTime / mDissolveTransition.mDuration;
+	const int   uniformLocations[] = {
+        mDissolveProgram.mProgress,
+	};
+	const Vec4 uniforms[] {
+		{ progress, 0.f, 0.f, 0.f },
+	};
+	Composite(mDissolveProgram, first, second, uniformLocations, uniforms, std::size(uniformLocations));
+}
 
-	const int      uniforms[] = { program.uvRect0, program.uvRect1, program.mProgress };
+void Compositor::Composite(const Program& program, unsigned first, unsigned second, const int uniformLocations[], const Vec4 uniforms[],
+                           int numUniforms) const {
+	mGraphics.SetPipeline(mPipelineHandle);
+
 	const unsigned textureIds[] = {
 		mFrameBuffers[first].GetColorAttachment(),
 		mFrameBuffers[second].GetColorAttachment(),
 	};
 
 	DrawCall drawCall;
+	drawCall.uniformLocations = uniformLocations;
 	drawCall.uniforms = uniforms;
-	drawCall.uniformData = uniformData;
-	drawCall.numUniforms = std::size(uniforms);
+	drawCall.numUniforms = numUniforms;
 	drawCall.textures = textureIds;
 	drawCall.numTextures = 2;
 	drawCall.program = program.mHandle;

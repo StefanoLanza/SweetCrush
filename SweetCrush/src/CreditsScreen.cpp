@@ -95,9 +95,9 @@ ScreenEvent CreditsScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
 	    mBackButton.IsPressed(input)) {
-		return { ScreenOp::goTo, GameScreenIds::mainMenu };
+		return GoBack(ScreenTransition::slideOut);
 	}
-	return { ScreenOp::keep };
+	return Continue();
 }
 
 void CreditsScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {

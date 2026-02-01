@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Texture.h"
+#include "FwdDecl.h"
+
+#include <string>
 #include <cstdint>
 #include <vector>
 
@@ -34,9 +36,9 @@ inline bool operator<(const Glyph& lhs, const Glyph& rhs) {
 
 class Font final {
 public:
-	Font(const char* name, const char* textureFile, const char* texturePath, std::vector<Glyph>&& glyphs);
+	Font(const char* name, const TexturePtr& texture, std::vector<Glyph>&& glyphs);
 	const std::string& GetName() const;
-	const Texture&  GetSurface() const;
+	const Texture&     GetTexture() const;
 	const Glyph&       FindGlyph(char c) const;
 	int                CalculateStringWidth(std::string_view text) const;
 	int                GetHeight() const;
@@ -46,7 +48,7 @@ private:
 
 private:
 	std::string        mName;
-	Texture         mSurface;
+	TexturePtr         mTexture;
 	std::vector<Glyph> mGlyphs;
 	Glyph              mDefaultGlyph;
 	int                mHeight;

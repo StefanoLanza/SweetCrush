@@ -34,8 +34,8 @@ struct InstanceData {
 };
 
 struct DrawCall {
-	const int*      uniforms = nullptr;
-	const void*     uniformData = nullptr;
+	const int*      uniformLocations = nullptr;
+	const void*     uniforms = nullptr;
 	int             numUniforms = 0;
 	const unsigned* textures = nullptr;
 	const unsigned* samplers = nullptr;
@@ -74,6 +74,7 @@ public:
 	explicit Graphics(const SdlWindow& window);
 	~Graphics();
 
+	void             RegisterSearchPath(const char* path);
 	int              GetTargetWidth() const;
 	int              GetTargetHeight() const;
 	ProgramHandle    NewProgram(const char* vs, const char* fs, const char* defines = "");

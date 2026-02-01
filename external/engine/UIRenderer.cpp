@@ -81,8 +81,8 @@ void UIRenderer::Impl::DrawRect(const UIRect& rect, const Texture& texture, cons
 	const unsigned textureIds[] = { texture.GetTextureId() };
 
 	DrawCall drawCall;
-	drawCall.uniforms = uniforms;
-	drawCall.uniformData = uniformData;
+	drawCall.uniformLocations = uniforms;
+	drawCall.uniforms = uniformData;
 	drawCall.numUniforms = sizeof(uniformData) / 16;
 	drawCall.textures = textureIds;
 	drawCall.numTextures = 1;

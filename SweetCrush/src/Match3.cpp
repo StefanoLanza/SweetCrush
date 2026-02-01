@@ -326,7 +326,7 @@ bool Match3::CheckCellCombos(int cellIdx) {
 }
 
 bool Match3::CheckMatchesAfterSwap() {
-	// Execute both checks !
+	// Run both checks !
 	bool res = CheckCellCombos(mUserSwap.second);
 	res = CheckCellCombos(mUserSwap.first) || res;
 	return res;

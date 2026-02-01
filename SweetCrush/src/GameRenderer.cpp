@@ -180,8 +180,8 @@ public:
 			drawCall.sortKey = textureIds[0]; // sort by main texture
 			drawCall.textures = textureIds;
 			drawCall.numTextures = 1;
-			drawCall.uniforms = uniforms;
-			drawCall.uniformData = uniformData;
+			drawCall.uniformLocations = uniforms;
+			drawCall.uniforms = uniformData;
 			drawCall.numUniforms = std::size(uniforms);
 			mGraphics.Draw(drawCall);
 
@@ -206,8 +206,8 @@ public:
             start.x, start.y, end.x, end.y, w, 0.f, 0.f, 0.f, color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f,
 		};
 		const DrawCall drawCall {
-			.uniforms = uniforms,
-			.uniformData = uniformData,
+			.uniformLocations = uniforms,
+			.uniforms = uniformData,
 			.numUniforms = std::size(uniforms),
 			.textures = textureIds,
 			.numTextures = 1,
@@ -233,8 +233,8 @@ public:
             color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f,
 		};
 		const DrawCall drawCall {
-			.uniforms = uniforms,
-			.uniformData = uniformData,
+			.uniformLocations = uniforms,
+			.uniforms = uniformData,
 			.numUniforms = std::size(uniforms),
 			.textures = textureIds,
 			.numTextures = 1,
@@ -273,8 +273,8 @@ public:
 			                             color.a / 255.f };
 		const unsigned textureIds[] = { texture->GetTextureId(), 0 };
 		const DrawCall drawCall {
-			.uniforms = uniforms,
-			.uniformData = uniformData,
+			.uniformLocations = uniforms,
+			.uniforms = uniformData,
 			.numUniforms = std::size(uniforms),
 			.textures = textureIds,
 			.numTextures = 1,

@@ -109,7 +109,7 @@ bool GlProgram::Compile() {
 	glDeleteShader(fragmentShader);
 	if (valid) {
 		mProgram = std::move(program);
-		// Get default uniforms
+		// Get default uniformLocations
 		mOrthoMatrixUniform = TryGetUniformLocation("orthoMatrix");
 	}
 

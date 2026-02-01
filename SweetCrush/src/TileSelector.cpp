@@ -8,11 +8,13 @@
 #include <cassert>
 #include <cmath>
 
+using namespace Wind;
+
 namespace {
 
 constexpr int invalidIndex = -1;
 
-std::pair<bool, int> GetCellAtCoordinates(const Board& board, Wind::Vec2 coords) {
+std::pair<bool, int> GetCellAtCoordinates(const Board& board, Vec2 coords) {
 	int cellIdx = board.GetCellAtCoords(coords);
 	if (cellIdx < 0) {
 		return { false, invalidIndex };
@@ -62,10 +64,10 @@ void TileSelector::Reset() {
 	mDragDirection = DragDirection::empty;
 }
 
-std::tuple<bool, int, int> TileSelector::SelectTiles(const Wind::Input& input) {
-	const Wind::Vec2 mouseCoord = input.GetMappedMouseCoord();
-	const bool       mouseButtonDown = input.GetMouseButtonDown();
-	const bool       mouseButtonPressed = input.GetMouseButtonPressed();
+std::tuple<bool, int, int> TileSelector::SelectTiles(const Input& input) {
+	const Vec2 mouseCoord = input.GetMappedMouseCoord();
+	const bool       mouseButtonDown = input.GetMouseButtonDown(MouseButton::left);
+	const bool       mouseButtonPressed = input.GetMouseButtonPressed(MouseButton::left);
 	bool             res = false;
 	int              first = 0;
 	int              second = 0;

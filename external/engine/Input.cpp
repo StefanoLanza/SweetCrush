@@ -1,8 +1,8 @@
 #include "Input.h"
 #include "SdlWindow.h"
 
-#include <iterator> // std::size
 #include <cassert>
+#include <iterator> // std::size
 
 namespace Wind {
 
@@ -44,12 +44,12 @@ Vec2 Input::GetMappedMouseCoord() const {
 	return mMappedMouseCoord;
 }
 
-bool Input::GetMouseButtonDown() const {
-	return mMouseButtonDown;
+bool Input::GetMouseButtonDown(MouseButton button) const {
+	return mMouseButtonDown[(int)button];
 }
 
-bool Input::GetMouseButtonPressed() const {
-	return mMouseButtonPressed;
+bool Input::GetMouseButtonPressed(MouseButton button) const {
+	return mMouseButtonPressed[(int)button];
 }
 
 bool Input::GetFingerDown() const {
@@ -61,7 +61,9 @@ bool Input::GetFingerPressed() const {
 }
 
 void Input::BeginFrame() {
-	mMouseButtonPressed = false;
+	for (int i = 0; i < 3; ++i) {
+		mMouseButtonPressed[i] = false;
+	}
 	mFingerPressed = false;
 	mNumKeyPressed = 0;
 }
@@ -100,12 +102,16 @@ void Input::ParseEvent(const SDL_Event& event, const SdlWindow& window) {
 		mMappedMouseCoord = mMouseCoord;
 		break;
 	case SDL_EVENT_MOUSE_BUTTON_DOWN:
-		mMouseButtonPressed = true;
-		mMouseButtonDown = true;
+		if (event.button.button >= 1 && event.button.button < 4) {
+			mMouseButtonPressed[event.button.button - 1] = true;
+			mMouseButtonDown[event.button.button - 1] = true;
+		}
 		break;
 	case SDL_EVENT_MOUSE_BUTTON_UP:
-		mMouseButtonDown = false;
-		mMouseButtonPressed = false;
+		if (event.button.button >= 1 && event.button.button < 4) {
+			mMouseButtonDown[event.button.button - 1] = false;
+			mMouseButtonPressed[event.button.button - 1] = false;
+		}
 		break;
 	case SDL_EVENT_MOUSE_MOTION:
 		mMouseCoord.x = static_cast<float>(event.motion.x);
@@ -113,13 +119,13 @@ void Input::ParseEvent(const SDL_Event& event, const SdlWindow& window) {
 		mMappedMouseCoord = mMouseCoord;
 		break;
 	case SDL_EVENT_WINDOW_MOUSE_LEAVE:
-		mMouseCoord = { - 1000.f, -1000.f };
+		mMouseCoord = { -1000.f, -1000.f };
 		break;
 	default:
 		break;
 	}
 
-#elif  SDL_MAJOR_VERSION == 2
+#elif SDL_MAJOR_VERSION == 2
 	// TODO
 #endif
 }

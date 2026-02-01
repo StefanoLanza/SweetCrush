@@ -77,7 +77,7 @@ UIButtonState UIButton::RefreshState(const Input& input) {
 		state = UIButtonState::hovered;
 	}
 	// TODO released ?
-	if ((input.GetMouseButtonPressed() || input.GetFingerPressed()) && state == UIButtonState::hovered) {
+	if ((input.GetMouseButtonPressed(MouseButton::left) || input.GetFingerPressed()) && state == UIButtonState::hovered) {
 		state = UIButtonState::pressed;
 	}
 	mState = state;

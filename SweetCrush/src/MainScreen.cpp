@@ -115,13 +115,13 @@ void MainScreen::LoadAssets(Engine& engine) {
 ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
 	mTime += dt;
 	if (mStartButton.IsPressed(input)) {
-		return GoTo(GameScreenIds::levelStart);
+		return GoTo(GameScreenIds::levelStart, ScreenTransition::slideIn);
 	}
 	else if (mSettingsButton.IsPressed(input)) {
 		return GoTo(GameScreenIds::settings, ScreenTransition::slideIn);
 	}
 	else if (mCreditsButton.IsPressed(input)) {
-		return GoTo(GameScreenIds::credits);
+		return GoTo(GameScreenIds::credits, ScreenTransition::slideIn);
 	}
 
 #if defined(__ANDROID__) || defined(__OHOS__)

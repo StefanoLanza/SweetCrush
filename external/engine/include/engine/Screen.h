@@ -22,6 +22,8 @@ enum class ScreenTransition {
 	fadeOut,
 	slideIn,
 	slideOut,
+	pixelate,
+	dissolve,
 };
 
 struct ScreenEvent {
