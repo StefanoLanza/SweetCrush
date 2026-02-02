@@ -88,10 +88,10 @@ void GameOverScreen::LoadAssets(Engine& engine) {
 }
 
 ScreenEvent GameOverScreen::Tick(float /*dt*/, const Wind::Input& input) {
-	if (mContinueButton.IsPressed(input)) {
+	if (mContinueButton.IsClicked(input)) {
 		return { ScreenOp::goTo, GameScreenIds::mainMenu };
 	}
-	else if (mReplayLevelButton.IsPressed(input)) {
+	else if (mReplayLevelButton.IsClicked(input)) {
 		return { ScreenOp::goTo, GameScreenIds::play };
 	}
 	return { ScreenOp::keep };

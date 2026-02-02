@@ -38,6 +38,12 @@ UIRect AddPadding(const UIRect& rect, float padding) {
 	return { rect.pos.x + padding, rect.pos.y + padding, rect.size.x - padding * 2.f, rect.size.y - padding * 2.f };
 }
 
+UIRect ScaleRect(const UIRect& rect, float scale) {
+	Vec2 center = rect.pos + rect.size * 0.5f;
+	Vec2 newExtents = rect.size * 0.5f * scale;
+	return { center - newExtents, newExtents * 2.f };
+}
+
 } // namespace
 
 UIButton::UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text)
@@ -45,7 +51,7 @@ UIButton::UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, s
     , mBitmap(std::move(bitmap))
     , mText(std::move(text))
     , mRect {}
-    , mState { UIButtonState::released }
+    , mState { UIButtonState::idle }
     , mVisible { true } {
 }
 
@@ -66,26 +72,46 @@ bool UIButton::IsVisible() const {
 }
 
 UIButtonState UIButton::RefreshState(const Input& input) {
-	Rect r {
+	const Rect r {
 		.left = mRect.pos.x,
 		.top = mRect.pos.y,
 		.right = r.left + mRect.size.x,
 		.bottom = r.top + mRect.size.y,
 	};
-	UIButtonState state = UIButtonState::released;
-	if (RectContainsPoint(r, input.GetMappedMouseCoord())) {
-		state = UIButtonState::hovered;
+	const bool mouseOver = RectContainsPoint(r, input.GetMappedMouseCoord());
+	const bool mouseDown = input.GetMouseButtonDown(MouseButton::left) || input.GetFingerDown();
+	switch (mState) {
+	case UIButtonState::idle:
+		if (mouseOver) {
+			mState = UIButtonState::hovered;
+		}
+		break;
+	case UIButtonState::hovered:
+		if (! mouseOver) {
+			mState = UIButtonState::idle;
+		}
+		else if (mouseDown) {
+			mState = UIButtonState::pressed;
+		}
+		break;
+	case UIButtonState::pressed:
+		if (! mouseOver) {
+			mState = UIButtonState::idle;
+		}
+		else if (! mouseDown) {
+			// TODO Action callback instead of released state ?
+			mState = UIButtonState::released;
+		}
+		break;
+	case UIButtonState::released:
+		mState = mouseOver ? UIButtonState::hovered : UIButtonState::idle;
+		break;
 	}
-	// TODO released ?
-	if ((input.GetMouseButtonPressed(MouseButton::left) || input.GetFingerPressed()) && state == UIButtonState::hovered) {
-		state = UIButtonState::pressed;
-	}
-	mState = state;
-	return state;
+	return mState;
 }
 
-bool UIButton::IsPressed(const Input& input) {
-	return RefreshState(input) == UIButtonState::pressed;
+bool UIButton::IsClicked(const Input& input) {
+	return RefreshState(input) == UIButtonState::released;
 }
 
 void UIButton::LoadAssets(Graphics& graphics, TextRenderer& textRenderer) {
@@ -105,7 +131,7 @@ void UIButton::Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const {
 		mBitmap->Draw(renderer, drawOrder);
 	}
 	if (mText) {
-		mText->Draw(renderer.GetTextRenderer(), drawOrder + 1); // text over bitmap
+		mText->Draw(renderer.GetTextRenderer(), drawOrder + 1); // text mouseOver bitmap
 	}
 }
 
@@ -124,6 +150,9 @@ void UIButton::UpdateRect(const UIRect& parentRect) {
 
 	mRect = AlignRect(mDesc.pos, size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 	UIRect paddedRect = AddPadding(mRect, mDesc.padding);
+	if (mState == UIButtonState::pressed) {
+		paddedRect = ScaleRect(paddedRect, 1.05f);
+	}
 	if (mBitmap) {
 		mBitmap->UpdateRect(paddedRect);
 	}
@@ -159,7 +188,7 @@ void UIText::Load(TextRenderer& textRenderer) {
 
 void UIText::Draw(const TextRenderer& textRenderer, DrawOrderType drawOrder) const {
 	if (mFont) {
-		const char* str = GetString(mDesc.stringId);
+		const char* str = mDesc.text ? mDesc.text : GetString(mDesc.stringId);
 		if (str) {
 			textRenderer.Write(*mFont, str, mAlignedRect.pos, mDesc.textStyle, drawOrder);
 		}

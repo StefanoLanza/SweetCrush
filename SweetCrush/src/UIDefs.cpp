@@ -7,8 +7,9 @@ using namespace Wind;
 const UIBitmapDesc buttonBitmapDesc {
 	.fileName = "button.png",
 	.pos = UIZeroPos,
-	.size = UIAutoSize,
+	.size = UIParentSize,
 	.color = { 131.f, 255.f, 255.f, 255.f },
+	._9patch = { 16.f, 0.f, 0.f, 0.f },
 };
 
 constexpr TextStyle titleTextStyle {
@@ -30,6 +31,7 @@ const UIBitmapDesc defaultBackButtonBitmapDesc {
 	.color = yellowColor,
 };
 
+const UISize    defaultButtonSize { 422.f, 100.f, 0.f, 0.f };
 constexpr float titleY = 160.f;
 constexpr float button0_y = 560;
 constexpr float button1_y = 680;

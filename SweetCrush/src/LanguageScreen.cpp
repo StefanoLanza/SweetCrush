@@ -69,10 +69,10 @@ ScreenEvent LanguageScreen::Tick([[maybe_unused]] float dt, const Wind::Input& i
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
-	    mBackButton.IsPressed(input)) {
+	    mBackButton.IsClicked(input)) {
 		return GoBack(ScreenTransition::slideOut);
 	}
-	else if (mLanguageButton.IsPressed(input)) {
+	else if (mLanguageButton.IsClicked(input)) {
 		SetNextLanguage();
 	}
 	return Continue();

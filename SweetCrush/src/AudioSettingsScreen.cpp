@@ -77,11 +77,11 @@ void AudioSettingsScreen::LoadAssets(Engine& engine) {
 }
 
 ScreenEvent AudioSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
-	if (mMusicButton.IsPressed(input)) {
+	if (mMusicButton.IsClicked(input)) {
 		mGameConfig.musicOn = ! mGameConfig.musicOn;
 		RefreshMusicButton();
 	}
-	else if (mSfxButton.IsPressed(input)) {
+	else if (mSfxButton.IsClicked(input)) {
 		mGameConfig.sfxOn = ! mGameConfig.sfxOn;
 		RefreshSfxButton();
 	}
@@ -91,7 +91,7 @@ ScreenEvent AudioSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Inp
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
-	    mBackButton.IsPressed(input)) {
+	    mBackButton.IsClicked(input)) {
 		return GoBack(ScreenTransition::slideOut);
 	}
 	return Continue();

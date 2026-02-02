@@ -103,13 +103,13 @@ ScreenEvent PauseScreen::Tick(float /*dt*/, const Wind::Input& input) {
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE)
 #endif
-	    || mContinueButton.IsPressed(input)) {
+	    || mContinueButton.IsClicked(input)) {
 		return GoBack(false, ScreenTransition::slideOut);
 	}
-	if (mExitGameButton.IsPressed(input)) {
+	if (mExitGameButton.IsClicked(input)) {
 		return GoTo(GameScreenIds::mainMenu);
 	}
-	else if (mRestartLevelButton.IsPressed(input)) {
+	else if (mRestartLevelButton.IsClicked(input)) {
 		return GoBack(true, ScreenTransition::slideOut);
 	}
 	return Continue();

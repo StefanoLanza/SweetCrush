@@ -74,7 +74,7 @@ void GraphicsSettingsScreen::LoadAssets(Engine& engine) {
 }
 
 ScreenEvent GraphicsSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
-	if (mFilterButton.IsPressed(input)) {
+	if (mFilterButton.IsClicked(input)) {
 		// TODO
 	}
 
@@ -83,7 +83,7 @@ ScreenEvent GraphicsSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
-	    mBackButton.IsPressed(input)) {
+	    mBackButton.IsClicked(input)) {
 		return GoBack(ScreenTransition::slideOut);
 	}
 	return Continue();

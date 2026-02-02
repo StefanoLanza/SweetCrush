@@ -34,7 +34,7 @@ AppConfig DefaultGameConfig() {
 	// UI
 	config.ui.swapThreshold = 0.55f;
 	config.ui.startDragThreshold = 4.f;
-	config.ui.goalStartCoord = { 100.f, 180.f };
+	config.ui.goalStartCoord = { 170.f, 200.f };
 
 	config.settings.musicOn = true;
 	config.settings.sfxOn = true;

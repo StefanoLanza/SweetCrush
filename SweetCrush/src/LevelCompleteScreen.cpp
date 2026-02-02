@@ -70,7 +70,7 @@ void LevelCompleteScreen::LoadAssets(Engine& engine) {
 
 ScreenEvent LevelCompleteScreen::Tick(float dt, const Input& input) {
 	mAccumTime += dt;
-	if (mAccumTime > 4.f || mNextLevelButton.IsPressed(input)) {
+	if (mAccumTime > 4.f || mNextLevelButton.IsClicked(input)) {
 		return GoTo(GameScreenIds::play);
 	}
 	return Continue();

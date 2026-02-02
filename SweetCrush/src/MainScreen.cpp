@@ -21,15 +21,15 @@ namespace {
 #if defined(__ANDROID__) || defined(__OHOS__)
 // No quit button on mobiles
 const UIButtonDesc buttonDescs[] {
-	{ UIAbsolutePos(0, button0_y), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
-	{ UIAbsolutePos(0, button1_y), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
-	{ UIAbsolutePos(0, button2_y), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{ UIAbsolutePos(0, button0_y), defaultButtonSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{ UIAbsolutePos(0, button1_y), defaultButtonSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{ UIAbsolutePos(0, button2_y), defaultButtonSize, UIHorizAlignment::center, UIVertAlignment::top },
 };
 #else
 const UIButtonDesc buttonDescs[] {
-	{ UIAbsolutePos(0, button0_y), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
-	{ UIAbsolutePos(0, button1_y), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
-	{ UIAbsolutePos(0, button2_y), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{ UIAbsolutePos(0, button0_y), defaultButtonSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{ UIAbsolutePos(0, button1_y), defaultButtonSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{ UIAbsolutePos(0, button2_y), defaultButtonSize, UIHorizAlignment::center, UIVertAlignment::top },
 };
 #endif
 const UITextDesc textDescs[5] {
@@ -114,13 +114,13 @@ void MainScreen::LoadAssets(Engine& engine) {
 
 ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
 	mTime += dt;
-	if (mStartButton.IsPressed(input)) {
+	if (mStartButton.IsClicked(input)) {
 		return GoTo(GameScreenIds::levelStart, ScreenTransition::slideIn);
 	}
-	else if (mSettingsButton.IsPressed(input)) {
+	else if (mSettingsButton.IsClicked(input)) {
 		return GoTo(GameScreenIds::settings, ScreenTransition::slideIn);
 	}
-	else if (mCreditsButton.IsPressed(input)) {
+	else if (mCreditsButton.IsClicked(input)) {
 		return GoTo(GameScreenIds::credits, ScreenTransition::slideIn);
 	}
 
@@ -128,7 +128,7 @@ ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
 	if (input.GetKeyJustPressed(SDLK_AC_BACK)) {
 		mEngine.Quit();
 #elif defined(_WIN32) || defined(__linux__)
-	if (input.GetKeyJustPressed(SDLK_ESCAPE) || mQuitButton.IsPressed(input)) {
+	if (input.GetKeyJustPressed(SDLK_ESCAPE) || mQuitButton.IsClicked(input)) {
 #endif
 		mEngine.Quit();
 	}

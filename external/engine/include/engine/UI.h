@@ -59,7 +59,8 @@ struct UIRect {
 struct UITextDesc {
 	UIBaseDesc;
 	const char* font = nullptr;
-	StringId    stringId;
+	StringId    stringId = 0;
+	const char* text = nullptr;
 	TextStyle   textStyle = defaultTextStyle;
 };
 
@@ -87,6 +88,7 @@ struct UICanvasDesc {
 };
 
 enum class UIButtonState {
+	idle,
 	hovered,
 	released,
 	pressed,
@@ -134,7 +136,7 @@ public:
 	void          SetVisible(bool visible);
 	bool          IsVisible() const;
 	UIButtonState RefreshState(const Input& input);
-	bool          IsPressed(const Input& input);
+	bool          IsClicked(const Input& input);
 	void          LoadAssets(Graphics& graphics, TextRenderer& textRenderer);
 	void          Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const;
 	void          UpdateRect(const UIRect& parentRect);

@@ -176,7 +176,7 @@ ScreenEvent PlayScreen::Tick(float dt, const Input& input) {
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE)
 #endif
-	    || mPauseButton.IsPressed(input)) {
+	    || mPauseButton.IsClicked(input)) {
 		return GoTo(GameScreenIds::pauseGame, ScreenTransition::slideIn);
 	}
 
@@ -217,7 +217,7 @@ void PlayScreen::SelectBooster(const Input& input) {
 
 	// Check buttons
 	for (int i = 0; i < MaxBoosterTypesPerLevel; ++i) {
-		if (mBoosterCount[i] > 0 && mBoosterButtons[i].IsPressed(input)) {
+		if (mBoosterCount[i] > 0 && mBoosterButtons[i].IsClicked(input)) {
 			// Unselect if pressing again on same button
 			mSelectedBooster = mSelectedBooster == i ? -1 : i;
 			mMatch3.ClearSelection();
@@ -531,9 +531,9 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 		for (int i = 0; i < 3; ++i) {
 			const int icon = pieceIcons[level.pieceIds[i]];
 			mGameRenderer.DrawIcon(icon, pos, 0.f, whiteColor, GameDrawOrder::overlays);
-			snprintf(tmp, sizeof(tmp), "%d/%d", mMatchStats.targetPieceCount[i], level.goal.collectMatches.count[i]);
+			SDL_snprintf(tmp, sizeof(tmp), "%d", mMatchStats.targetPieceCount[i] - level.goal.collectMatches.count[i]);
 			textRenderer.Write(*mFonts[2], tmp, pos + Vec2 { 40.f, -20.f }, textStyle, GameDrawOrder::overlays);
-			pos.x += 180.f;
+			pos.x += 140.f;
 		}
 	}
 	else if (level.goal.id == GoalId::breakIce) {

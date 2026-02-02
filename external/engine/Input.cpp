@@ -7,12 +7,14 @@
 namespace Wind {
 
 Input::Input()
-    : mMouseCoord { 0.f, 0.f }
-    , mMappedMouseCoord { 0.f, 0.f }
+    : mMouseCoord { -100.f, -100.f }
+    , mMappedMouseCoord { -100.f, -100.f }
     , mMouseButtonDown(false)
     , mMouseButtonPressed(false)
+    , mMouseButtonReleased(false)
     , mFingerDown(false)
     , mFingerPressed(false)
+    , mFingerReleased(false)
     , mKeyDown { false }
     , mKeyPressed {}
     , mNumKeyPressed { 0 } {
@@ -52,6 +54,10 @@ bool Input::GetMouseButtonPressed(MouseButton button) const {
 	return mMouseButtonPressed[(int)button];
 }
 
+bool Input::GetMouseButtonReleased(MouseButton button) const {
+	return mMouseButtonReleased[(int)button];
+}
+
 bool Input::GetFingerDown() const {
 	return mFingerDown;
 }
@@ -60,11 +66,17 @@ bool Input::GetFingerPressed() const {
 	return mFingerPressed;
 }
 
+bool Input::GetFingerReleased() const {
+	return mFingerReleased;
+}
+
 void Input::BeginFrame() {
 	for (int i = 0; i < 3; ++i) {
 		mMouseButtonPressed[i] = false;
+		mMouseButtonReleased[i] = false;
 	}
 	mFingerPressed = false;
+	mFingerReleased = false;
 	mNumKeyPressed = 0;
 }
 
@@ -92,9 +104,11 @@ void Input::ParseEvent(const SDL_Event& event, const SdlWindow& window) {
 		mMouseCoord.x = event.tfinger.x * static_cast<float>(window.GetWidth());
 		mMouseCoord.y = event.tfinger.y * static_cast<float>(window.GetHeight());
 		mMappedMouseCoord = mMouseCoord;
+		mFingerPressed = true;
 		break;
 	case SDL_EVENT_FINGER_UP:
 		mFingerDown = false;
+		mFingerReleased = true;
 		break;
 	case SDL_EVENT_FINGER_MOTION:
 		mMouseCoord.x = event.tfinger.x * static_cast<float>(window.GetWidth());
@@ -105,12 +119,14 @@ void Input::ParseEvent(const SDL_Event& event, const SdlWindow& window) {
 		if (event.button.button >= 1 && event.button.button < 4) {
 			mMouseButtonPressed[event.button.button - 1] = true;
 			mMouseButtonDown[event.button.button - 1] = true;
+			mMouseButtonReleased[event.button.button - 1] = false;
 		}
 		break;
 	case SDL_EVENT_MOUSE_BUTTON_UP:
 		if (event.button.button >= 1 && event.button.button < 4) {
 			mMouseButtonDown[event.button.button - 1] = false;
 			mMouseButtonPressed[event.button.button - 1] = false;
+			mMouseButtonReleased[event.button.button - 1] = true;
 		}
 		break;
 	case SDL_EVENT_MOUSE_MOTION:

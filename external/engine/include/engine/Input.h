@@ -25,8 +25,10 @@ public:
 	Vec2 GetMappedMouseCoord() const;
 	bool GetMouseButtonDown(MouseButton butto) const;
 	bool GetMouseButtonPressed(MouseButton button) const;
+	bool GetMouseButtonReleased(MouseButton button) const;
 	bool GetFingerDown() const;
 	bool GetFingerPressed() const;
+	bool GetFingerReleased() const;
 	void BeginFrame();
 	void ParseEvent(const SDL_Event& event, const SdlWindow& window);
 
@@ -35,8 +37,10 @@ private:
 	Vec2    mMappedMouseCoord;
 	bool    mMouseButtonDown[3];
 	bool    mMouseButtonPressed[3];
+	bool    mMouseButtonReleased[3];
 	bool    mFingerDown;
 	bool    mFingerPressed;
+	bool    mFingerReleased;
 	bool    mKeyDown[256];
 	KeyCode mKeyPressed[256];
 	int     mNumKeyPressed;

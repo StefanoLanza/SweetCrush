@@ -11,6 +11,10 @@ struct Color {
 	float g;
 	float b;
 	float a;
+
+	explicit inline operator Vec4() const {
+		return { r / 255.f, g / 255.f, b / 255.f, a / 255.f };
+	}
 };
 
 constexpr Color blackColor = { 0.f, 0.f, 0.f, 255.f };

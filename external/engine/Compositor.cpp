@@ -109,11 +109,8 @@ void Compositor::InitProgramUniforms(Program& programData, const char* fsPath, G
 		const GlProgram& program = graphics.GetProgram(programData.mHandle);
 		programData.mTexture0 = program.GetUniformLocation("texture0");
 		programData.mTexture1 = program.GetUniformLocation("texture1");
-		programData.uvRect0 = program.GetUniformLocation("uvRect0");
-		programData.uvRect1 = program.GetUniformLocation("uvRect1");
 		programData.color0 = program.GetUniformLocation("color0");
-		programData.color1 = program.GetUniformLocation("color1");
-		programData.mProgress = program.GetUniformLocation("progress");
+		programData.mMisc = program.GetUniformLocation("misc");
 		programData.mValid = (programData.mTexture0 != -1 && programData.mTexture1 != -1);
 	}
 }
@@ -122,16 +119,15 @@ void Compositor::Slide(unsigned first, unsigned second, float dir) const {
 	if (! mSlideProgram.mValid) {
 		return;
 	}
-	const float progress = mSlideTransition.mTimeCurve(mAccumTime / mSlideTransition.mDuration);
-	const int   uniformLocations[] = {
-        mSlideProgram.uvRect0,
-        mSlideProgram.uvRect1,
-        mSlideProgram.mProgress,
+	const SlideTransition& settings = mSlideTransition;
+	const float            progress = mSlideTransition.mTimeCurve(mAccumTime / mSlideTransition.mDuration);
+	const int              uniformLocations[] = {
+        mSlideProgram.mMisc,
+        mSlideProgram.color0,
 	};
 	const Vec4 uniforms[] {
-		{ dir * (1.f - progress), 0.f, 1.f, 1.f },
-		{ dir * (-progress), 0.f, 1.f, 1.f },
-		{ progress, 0.f, 0.f, 0.f },
+		{ dir, progress, 2.f * settings.mBorderThickness / mGraphics.GetTargetWidth(), 0.f },
+		(Vec4)(settings.mBorderColor),
 	};
 	Composite(mSlideProgram, first, second, uniformLocations, uniforms, std::size(uniformLocations));
 }
@@ -142,7 +138,7 @@ void Compositor::Dissolve(unsigned first, unsigned second) const {
 	}
 	const float progress = mAccumTime / mDissolveTransition.mDuration;
 	const int   uniformLocations[] = {
-        mDissolveProgram.mProgress,
+        mDissolveProgram.mMisc,
 	};
 	const Vec4 uniforms[] {
 		{ progress, 0.f, 0.f, 0.f },

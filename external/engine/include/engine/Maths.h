@@ -39,6 +39,11 @@ struct RectI {
 	int bottom;
 };
 
+struct Int2 {
+	int x;
+	int y;
+};
+
 Vec2 operator+(const Vec2& lhs, const Vec2& rhs);
 Vec2 operator-(const Vec2& lhs, const Vec2& rhs);
 Vec2 operator*(const Vec2& v, float s);

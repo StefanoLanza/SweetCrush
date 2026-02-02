@@ -10,12 +10,14 @@ namespace Wind {
 
 struct PixelateTransition {
 	float mDuration = 0.25f;
-	Color mDissolveColor = blackColor;
+	Color mDissolveColor = whiteColor;
 };
 
 struct SlideTransition {
 	float mDuration = 0.25f;
 	float (*mTimeCurve)(float) = EaseInQuad;
+	Color mBorderColor = whiteColor;
+	float mBorderThickness = 8.f; // pixels
 };
 
 struct DissolveTransition {
@@ -53,11 +55,8 @@ private:
 		ProgramHandle mHandle;
 		GLint         mTexture0;
 		GLint         mTexture1;
-		GLint         uvRect0;
-		GLint         uvRect1;
 		GLint         color0;
-		GLint         color1;
-		GLint         mProgress;
+		GLint         mMisc;
 		bool          mValid;
 	};
 	PipelineHandle     mPipelineHandle;

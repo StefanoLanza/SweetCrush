@@ -92,13 +92,13 @@ void SettingsScreen::LoadAssets(Engine& engine) {
 }
 
 ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
-	if (mGraphicsButton.IsPressed(input)) {
+	if (mGraphicsButton.IsClicked(input)) {
 		return GoTo(GameScreenIds::graphicsSettings, ScreenTransition::slideIn);
 	}
-	else if (mLanguageButton.IsPressed(input)) {
+	else if (mLanguageButton.IsClicked(input)) {
 		return GoTo(GameScreenIds::language, ScreenTransition::slideIn);
 	}
-	else if (mAudioButton.IsPressed(input)) {
+	else if (mAudioButton.IsClicked(input)) {
 		return GoTo(GameScreenIds::audioSettings, ScreenTransition::slideIn);
 	}
 
@@ -107,7 +107,7 @@ ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& i
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
-	    mBackButton.IsPressed(input)) {
+	    mBackButton.IsClicked(input)) {
 		return GoBack(ScreenTransition::slideOut);
 	}
 	return Continue();
