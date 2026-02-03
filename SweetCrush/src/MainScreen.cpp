@@ -112,7 +112,7 @@ ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
 		return GoTo(GameScreenIds::settings, ScreenTransition::slideIn);
 	}
 	else if (mCreditsButton.IsClicked(input)) {
-		return GoTo(GameScreenIds::credits, ScreenTransition::slideIn);
+		return GoTo(GameScreenIds::credits, ScreenTransition::zoomIn);
 	}
 
 #if defined(__ANDROID__) || defined(__OHOS__)

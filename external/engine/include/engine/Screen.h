@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Id.h"
+#include "Transition.h"
 
 #include <cstring>
 #include <type_traits>
@@ -14,17 +15,6 @@ enum class ScreenOp {
 	keep,
 	goTo,
 	back,
-};
-
-enum class ScreenTransition {
-	none,
-	crossFade,
-	slideIn,
-	slideOut,
-	pixelate,
-	dissolve,
-	zoomIn,
-	zoomOut,
 };
 
 struct ScreenEvent {

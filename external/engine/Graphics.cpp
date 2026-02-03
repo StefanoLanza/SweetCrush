@@ -208,6 +208,12 @@ void Graphics::Impl::Draw(const DrawCall& drawCall) {
 	assert(targetIdx < 16);
 	// const uint32_t programIdx = static_cast<uint32_t>(drawCall.program) - 1;
 
+#if _DEBUG
+	for (int i = 0; i < drawCall.numUniforms; ++i) {
+		assert(drawCall.uniformLocations[i] >= 0);
+	}
+#endif
+
 	Batch batch;
 	batch.instances = drawCall.instances;
 	batch.sortKey = (targetIdx << 28) | (drawCall.drawOrder << 16) | (drawCall.sortKey << 8) | (meshIdx << 0);
