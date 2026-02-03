@@ -24,8 +24,7 @@ const UIButtonDesc buttonDescs[] {
 
 const UITextDesc textDescs[] {
 	{
-	    .pos = UIAbsolutePos(0, titleY),
-	    .size = UIAutoSize,
+		.pos = { 0.f, titleY },
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 
@@ -34,8 +33,6 @@ const UITextDesc textDescs[] {
 	    .textStyle = titleTextStyle,
 	},
 	{
-	    .pos = UIZeroPos,
-	    .size = UIAutoSize,
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
@@ -71,7 +68,7 @@ void LevelCompleteScreen::LoadAssets(Engine& engine) {
 ScreenEvent LevelCompleteScreen::Tick(float dt, const Input& input) {
 	mAccumTime += dt;
 	if (mAccumTime > 4.f || mNextLevelButton.IsClicked(input)) {
-		return GoTo(GameScreenIds::play);
+		return GoTo(GameScreenIds::levelStart);
 	}
 	return Continue();
 }

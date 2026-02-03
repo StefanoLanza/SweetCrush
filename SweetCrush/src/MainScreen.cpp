@@ -7,12 +7,12 @@
 #include "ScreenIds.h"
 #include "UIDefs.h"
 
+#include <engine/BitmapRender.h>
 #include <engine/Engine.h>
 #include <engine/Input.h>
 #include <engine/TextRender.h>
 #include <engine/UI.h>
-
-#include <cmath>
+#include <engine/UIRenderer.h>
 
 using namespace Wind;
 
@@ -34,8 +34,7 @@ const UIButtonDesc buttonDescs[] {
 #endif
 const UITextDesc textDescs[5] {
 	{
-	    .pos = UIAbsolutePos(0, titleY),
-	    .size = UIAutoSize,
+		.pos = { 0.f, titleY },
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "bigFont",
@@ -43,32 +42,24 @@ const UITextDesc textDescs[5] {
 	    .textStyle = titleTextStyle,
 	},
 	{
-	    .pos = UIZeroPos,
-	    .size = UIAutoSize,
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
 	    .stringId = GameStringId::start,
 	},
 	{
-	    .pos = UIZeroPos,
-	    .size = UIAutoSize,
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
 	    .stringId = GameStringId::settings,
 	},
 	{
-	    .pos = UIZeroPos,
-	    .size = UIAutoSize,
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
 	    .stringId = GameStringId::credits,
 	},
 	{
-	    .pos = UIZeroPos,
-	    .size = UIAutoSize,
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
@@ -143,15 +134,23 @@ void MainScreen::Draw(UIRenderer& uiRenderer, float dt) {
 	float           x = (RefWindowWidth - (NumPieceTypes - 1) * dx) * 0.5f;
 
 	for (int i = 0; i < NumPieceTypes; ++i) {
-		float rotation = std::sin(phase * .25f + (float)i) * 0.5f;
-		mGameRenderer.DrawIcon(pieceIcons[i], { x, 380.f + std::cos(phase) * 4.f }, rotation, whiteColor, GameDrawOrder::overUI);
+		BitmapExtParams prm;
+		prm.pivot = BitmapPivot::center;
+		prm.orientation = std::sin(phase * .25f + (float)i) * 0.5f;
+		prm.drawOrder = GameDrawOrder::overUI;
+		prm.blending = true;
+		mEngine.GetBitmapRenderer().DrawBitmapEx(*gameTextures[pieceIcons[i]], { x, 380.f + std::cos(phase) * 4.f }, prm);
 		x += dx;
 		phase += 6.28f / static_cast<float>(NumPieceTypes);
 	}
 
 	{
-		float rotation = std::sin(0.f + (float)mTime * 2.f) * 0.05f;
-		mGameRenderer.DrawIcon(petSprites[0], { RefWindowWidth - 100.f, RefWindowHeight - 100.f}, rotation, whiteColor, GameDrawOrder::overUI);
+		BitmapExtParams prm;
+		prm.orientation = std::sin(0.f + (float)mTime * 2.f) * 0.05f;
+		prm.drawOrder = GameDrawOrder::overUI;
+		prm.pivot = { 0.4f, 1.f };
+		prm.blending = true;
+		mEngine.GetBitmapRenderer().DrawBitmapEx(*gameTextures[petSprites[0]], { RefWindowWidth - 100.f, RefWindowHeight - 0.f }, prm);
 	}
 }
 

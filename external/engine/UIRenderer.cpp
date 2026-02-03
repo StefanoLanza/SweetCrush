@@ -14,44 +14,66 @@ public:
 	explicit Impl(Graphics& graphics, TextRenderer& textRenderer);
 
 	void DrawRect(const UIRect& rect, const Texture& surface, const UIDrawParams& prms) const;
+	void DrawLine(const Vec2& start, const Vec2& end, float thickness, const Color& color, unsigned priority) const;
+	void DrawBorder(const UIRect& rect, float thickness, const Color& color, unsigned priority) const;
 
 public:
+	struct BitmapProgram {
+		ProgramHandle mHandle;
+		GLint         mColor = 0;
+		GLint         mPosRect = 0;
+		GLint         mUVRect = 0;
+		GLint         mTexture = 0;
+		GLint         m9Patch = 0;
+		bool          mValid = false;
+	};
+	struct LineProgram {
+		ProgramHandle mHandle;
+		GLint         mColor = 0;
+		GLint         mCoords = 0;
+		GLint         mThickness = 0;
+		bool          mValid = false;
+	};
 	Graphics&      mGraphics;
 	TextRenderer&  mTextRenderer;
 	PipelineHandle mPipelineBlending;
-	ProgramHandle  mProgramHandle;
-	bool           mValidPrograms;
-	// Uniforms
-	GLint mColor = 0;
-	GLint mPosRect = 0;
-	GLint mUVRect = 0;
-	GLint mTexture = 0;
-	GLint m9Patch = 0;
+	BitmapProgram  mBitmapProgram;
+	LineProgram    mLineProgram;
 };
 
 UIRenderer::Impl::Impl(Graphics& graphics, TextRenderer& textRenderer)
     : mGraphics { graphics }
-    , mTextRenderer { textRenderer }
-    , mProgramHandle { graphics.NewProgram(SHADERS_FOLDER "uiQuad.vs", SHADERS_FOLDER "uiQuad.fs") }
-    , mValidPrograms { false } {
+    , mTextRenderer { textRenderer } {
 
-	PipelineState pipelineState;
-	pipelineState.mBlending = true;
+	const PipelineState pipelineState {
+		.mBlending = true,
+	};
 	mPipelineBlending = graphics.NewPipeline(pipelineState);
 
-	if (mProgramHandle != nullProgram) {
-		const GlProgram& program = graphics.GetProgram(mProgramHandle);
-		mColor = program.GetUniformLocation("color");
-		mPosRect = program.GetUniformLocation("posRect");
-		mUVRect = program.GetUniformLocation("uvRect");
-		mTexture = program.GetUniformLocation("inputTexture");
-		m9Patch = program.GetUniformLocation("_9Patch");
-		mValidPrograms = (mColor != -1 && mPosRect != -1 && m9Patch != -1 && mUVRect != -1 && mTexture != -1);
+	mBitmapProgram.mHandle = graphics.NewProgram(SHADERS_FOLDER "uiQuad.vs", SHADERS_FOLDER "uiQuad.fs");
+	if (mBitmapProgram.mHandle != nullProgram) {
+		const GlProgram& program = graphics.GetProgram(mBitmapProgram.mHandle);
+		mBitmapProgram.mColor = program.GetUniformLocation("color");
+		mBitmapProgram.mPosRect = program.GetUniformLocation("posRect");
+		mBitmapProgram.mUVRect = program.GetUniformLocation("uvRect");
+		mBitmapProgram.mTexture = program.GetUniformLocation("inputTexture");
+		mBitmapProgram.m9Patch = program.GetUniformLocation("_9Patch");
+		mBitmapProgram.mValid = (mBitmapProgram.mColor != -1 && mBitmapProgram.mPosRect != -1 && mBitmapProgram.m9Patch != -1 &&
+		                         mBitmapProgram.mUVRect != -1 && mBitmapProgram.mTexture != -1);
+	}
+
+	mLineProgram.mHandle = graphics.NewProgram(SHADERS_FOLDER "uiLine.vs", SHADERS_FOLDER "uiLine.fs");
+	if (mLineProgram.mHandle != nullProgram) {
+		const GlProgram& program = graphics.GetProgram(mLineProgram.mHandle);
+		mLineProgram.mColor = program.GetUniformLocation("color");
+		mLineProgram.mCoords = program.GetUniformLocation("coords");
+		mLineProgram.mThickness = program.GetUniformLocation("thickness");
+		mLineProgram.mValid = (mLineProgram.mColor != -1 && mLineProgram.mCoords != -1 && mLineProgram.mThickness != -1);
 	}
 }
 
 void UIRenderer::Impl::DrawRect(const UIRect& rect, const Texture& texture, const UIDrawParams& prms) const {
-	if (! mValidPrograms) {
+	if (! mBitmapProgram.mValid) {
 		return;
 	}
 
@@ -59,10 +81,10 @@ void UIRenderer::Impl::DrawRect(const UIRect& rect, const Texture& texture, cons
 	const float textureHeight = static_cast<float>(texture.Height());
 
 	const int uniforms[] = {
-		mPosRect,
-		mUVRect,
-		mColor,
-		m9Patch,
+		mBitmapProgram.mPosRect,
+		mBitmapProgram.mUVRect,
+		mBitmapProgram.mColor,
+		mBitmapProgram.m9Patch,
 	};
 	const float uniformData[][4] = {
 		{ rect.pos.x, rect.pos.y, rect.size.x, rect.size.y },
@@ -80,17 +102,50 @@ void UIRenderer::Impl::DrawRect(const UIRect& rect, const Texture& texture, cons
 
 	const unsigned textureIds[] = { texture.GetTextureId() };
 
-	DrawCall drawCall;
-	drawCall.uniformLocations = uniforms;
-	drawCall.uniforms = uniformData;
-	drawCall.numUniforms = sizeof(uniformData) / 16;
-	drawCall.textures = textureIds;
-	drawCall.numTextures = 1;
-	drawCall.program = mProgramHandle;
-	drawCall.mesh = quadMesh;
-	drawCall.drawOrder = prms.priority;
-	drawCall.sortKey = (textureIds[0] & 255); // sort by texture
+	const DrawCall drawCall {
+		.uniformLocations = uniforms,
+		.uniforms = uniformData,
+		.numUniforms = std::size(uniforms),
+		.textures = textureIds,
+		.numTextures = 1,
+		.program = mBitmapProgram.mHandle,
+		.mesh = quadMesh,
+		.drawOrder = prms.priority,
+		.sortKey = (textureIds[0] & 255), // sort by texture
+	};
 	mGraphics.Draw(drawCall);
+}
+
+void UIRenderer::Impl::DrawLine(const Vec2& start, const Vec2& end, float thickness, const Color& color, unsigned priority) const {
+	if (! mLineProgram.mValid) {
+		return;
+	}
+
+	const int uniforms[] = {
+		mLineProgram.mCoords,
+		mLineProgram.mColor,
+		mLineProgram.mThickness,
+	};
+	const float uniformData[][4] = {
+		{ start.x, start.y, end.x, end.y },
+		{ color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f },
+		{ thickness, 0.f, 0.f, 0.f },
+	};
+
+	mGraphics.SetPipeline(mPipelineBlending);
+
+	const DrawCall drawCall {
+		.uniformLocations = uniforms,
+		.uniforms = uniformData,
+		.numUniforms = std::size(uniforms),
+		.program = mLineProgram.mHandle,
+		.mesh = quadMesh,
+		.drawOrder = priority,
+	};
+	mGraphics.Draw(drawCall);
+}
+
+void UIRenderer::Impl::DrawBorder(const UIRect& rect, float thickness, const Color& color, unsigned priority) const {
 }
 
 UIRenderer::UIRenderer(Graphics& graphics, TextRenderer& textRenderer)
@@ -105,6 +160,14 @@ const TextRenderer& UIRenderer::GetTextRenderer() const {
 
 void UIRenderer::DrawRect(const UIRect& rect, const Texture& texture, const UIDrawParams& prms) const {
 	mPimpl->DrawRect(rect, texture, prms);
+}
+
+void UIRenderer::DrawLine(const Vec2& start, const Vec2& end, float thickness, const Color& color, unsigned priority) const {
+	mPimpl->DrawLine(start, end, thickness, color, priority);
+}
+
+void UIRenderer::DrawBorder(const UIRect& rect, float thickness, const Color& color, unsigned priority) const {
+	mPimpl->DrawBorder(rect, thickness, color, priority);
 }
 
 } // namespace Wind

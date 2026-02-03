@@ -103,7 +103,7 @@ Mesh BuildMesh(GLuint numVertices, GLsizei numIndices, const GLfloat vertexData[
 }
 
 Mesh BuildQuad() {
-	constexpr GLushort indexData[] = { 0, 1, 3, 2 };
+	constexpr GLushort indexData[] = { 0, 1, 2, 3 };
 	return BuildMesh(0, 4, nullptr, indexData);
 }
 
@@ -244,6 +244,9 @@ void Graphics::Impl::Flush() {
 
 	glActiveTexture(GL_TEXTURE0);
 	glDisable(GL_BLEND);
+	glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CW);
+	glCullFace(GL_BACK);
 
 	if (auto err = glGetError(); err != GL_NO_ERROR) {
 		SDL_LogError(0, "GL Error. Code: %d", err);
@@ -424,10 +427,10 @@ void Graphics::Impl::Flush() {
 				glVertexAttribDivisor(batch.instances.location + i, 1);
 			}
 
-			glDrawElementsInstanced(GL_TRIANGLE_FAN, numIndices, GL_UNSIGNED_SHORT, nullptr, batch.instances.count);
+			glDrawElementsInstanced(GL_TRIANGLE_STRIP, numIndices, GL_UNSIGNED_SHORT, nullptr, batch.instances.count);
 		}
 		else {
-			glDrawElements(GL_TRIANGLE_FAN, numIndices, GL_UNSIGNED_SHORT, nullptr);
+			glDrawElements(GL_TRIANGLE_STRIP, numIndices, GL_UNSIGNED_SHORT, nullptr);
 		}
 	}
 

@@ -30,8 +30,7 @@ const UIButtonDesc playButtonDesc {
 
 const UITextDesc textDescs[] {
 	{
-	    .pos = UIAbsolutePos(0, titleY),
-	    .size = UIAutoSize,
+		.pos = { 0.f, titleY },
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 
@@ -40,8 +39,7 @@ const UITextDesc textDescs[] {
 	    .textStyle = titleTextStyle,
 	},
 	{
-	    .pos = UIZeroPos,
-	    .size = UIAutoSize,
+	    .pos = { 0.f, 0.f },
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",

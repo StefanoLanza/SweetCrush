@@ -21,24 +21,20 @@ const UIButtonDesc buttonDesc {
 
 const UITextDesc textDesc[] {
 	{
-	    .pos = UIAbsolutePos(0, 60),
-	    .size = UIAutoSize,
+		.pos = { 0, 60 },
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "mediumFont",
 	    .stringId = GameStringId::empty,
 	},
 	{
-	    .pos = UIAbsolutePos(0, 160),
-	    .size = UIAutoSize,
+		.pos = { 0.f, 160.f },
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "smallFont",
 	    .stringId = GameStringId::empty,
 	},
 	{
-	    .pos = UIZeroPos,
-	    .size = UIAutoSize,
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",

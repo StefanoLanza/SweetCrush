@@ -65,7 +65,7 @@ ActionFunc DrawMovingSprite(const Cell& cell, const BitmapRenderer& bitmapRender
 		BitmapExtParams prm;
 		prm.pivot = BitmapPivot::center;
 		prm.orientation = t01 * 3.f;
-		prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::overlays);
+		prm.drawOrder = GameDrawOrder::overlays;
 		prm.blending = true;
 		Vec2 xy = Lerp(xy0, starIconCoord, t01);
 		bitmapRenderer.DrawBitmapEx(*gameTextures[sprite], xy, prm);
@@ -91,7 +91,7 @@ ActionFunc DrawBrokenIce(const Cell& cell, const BitmapRenderer& bitmapRenderer,
 		prm.scale.x = 1.f + t01 * 0.5f;
 		prm.scale.y = prm.scale.x;
 		prm.pivot = BitmapPivot::center;
-		prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::ice);
+		prm.drawOrder = GameDrawOrder::ice;
 		prm.blending = true;
 		prm.color.a = LerpEase(255.f, 0.f, t01, EaseInCubic);
 		bitmapRenderer.DrawBitmapEx(*gameTextures[iceSprites[1]], xy, prm);

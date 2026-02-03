@@ -531,8 +531,11 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 		for (int i = 0; i < 3; ++i) {
 			const int icon = pieceIcons[level.pieceIds[i]];
 			mGameRenderer.DrawIcon(icon, pos, 0.f, whiteColor, GameDrawOrder::overlays);
-			SDL_snprintf(tmp, sizeof(tmp), "%d", mMatchStats.targetPieceCount[i] - level.goal.collectMatches.count[i]);
-			textRenderer.Write(*mFonts[2], tmp, pos + Vec2 { 40.f, -20.f }, textStyle, GameDrawOrder::overlays);
+			if (int diff = level.goal.collectMatches.count[i] - mMatchStats.targetPieceCount[i]; diff > 0) {
+				SDL_snprintf(tmp, sizeof(tmp), "%d", diff);
+				textRenderer.Write(*mFonts[2], tmp, pos + Vec2 { 40.f, -20.f }, textStyle, GameDrawOrder::overlays);
+			}
+			// TODO Draw tick icon
 			pos.x += 140.f;
 		}
 	}

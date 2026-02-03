@@ -34,8 +34,7 @@ const UIButtonDesc buttonDescs[] {
 
 const UITextDesc textDescs[] {
 	{
-	    .pos = UIAbsolutePos(0, titleY),
-	    .size = UIAutoSize,
+		.pos = { 0.f, titleY },
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "screenTitle",
@@ -43,17 +42,12 @@ const UITextDesc textDescs[] {
 	    .textStyle = titleTextStyle,
 	},
 	{
-
-	    .pos = UIZeroPos,
-	    .size = UIAutoSize,
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
 	    .stringId = GameStringId::retry,
 	},
 	{
-	    .pos = UIZeroPos,
-	    .size = UIAutoSize,
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",

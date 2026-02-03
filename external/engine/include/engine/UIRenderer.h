@@ -21,6 +21,8 @@ public:
 
 	const TextRenderer& GetTextRenderer() const;
 	void DrawRect(const UIRect& rect, const Texture& texture, const UIDrawParams& prms) const;
+	void DrawLine(const Vec2& start, const Vec2& end, float thickness, const Color& color, unsigned priority) const;
+	void DrawBorder(const UIRect& rect, float thickness, const Color& color, unsigned priority) const;
 
 private:
 	class Impl;

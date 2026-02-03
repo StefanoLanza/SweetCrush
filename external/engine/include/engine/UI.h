@@ -1,6 +1,5 @@
 #pragma once
 
-#include "DrawOrder.h"
 #include "FwdDecl.h"
 #include "Maths.h"
 #include "StringTable.h"
@@ -47,6 +46,12 @@ struct UIRect {
 	Vec2 size;
 };
 
+enum class UISizing : uint8_t {
+	fit,
+	stretch,
+	user,
+};
+
 // Use a macro instead of inheritance, to allow designated initializers in C++ 20
 #define UIBaseDesc                                                   \
 	UIPos            pos;                                            \
@@ -57,11 +62,15 @@ struct UIRect {
 	float            borderWidth = 0.f;
 
 struct UITextDesc {
-	UIBaseDesc;
-	const char* font = nullptr;
-	StringId    stringId = 0;
-	const char* text = nullptr;
-	TextStyle   textStyle = defaultTextStyle;
+	Vec2             pos = { 0.f, 0.f };
+	UIHorizAlignment horizontalAlignment = UIHorizAlignment::center;
+	UIVertAlignment  verticalAlignment = UIVertAlignment::center;
+	float            padding = 0.f;
+	float            borderWidth = 0.f;
+	const char*      font = nullptr;
+	StringId         stringId = 0;
+	const char*      text = nullptr;
+	TextStyle        textStyle = defaultTextStyle;
 };
 
 struct UIBitmapDesc {
@@ -82,6 +91,20 @@ struct UIPanelDesc {
 	Color       backgroundColor = whiteColor;
 };
 
+struct UIGridDesc {
+	UIBaseDesc;
+	const char* background = nullptr;
+	Color       backgroundColor = whiteColor;
+	int         cols = 1;
+	int         rows = 1;
+};
+
+struct UIStackDesc {
+	UIBaseDesc;
+	const char* background = nullptr;
+	Color       backgroundColor = whiteColor;
+};
+
 struct UICanvasDesc {
 	const char* background = nullptr;
 	Color       backgroundColor = whiteColor;
@@ -90,7 +113,6 @@ struct UICanvasDesc {
 enum class UIButtonState {
 	idle,
 	hovered,
-	released,
 	pressed,
 };
 
@@ -101,14 +123,18 @@ public:
 	explicit UIText(const UITextDesc& desc);
 
 	void Load(TextRenderer& textRenderer);
-	void Draw(const TextRenderer& textRenderer, DrawOrderType drawOrder) const;
+	void Draw(const TextRenderer& textRenderer, unsigned drawOrder) const;
 	void UpdateRect(const UIRect& parentRect);
 	void SetText(StringId stringId);
+
+private:
+	const char* Text() const;
 
 private:
 	UITextDesc mDesc;
 	FontPtr    mFont;
 	UIRect     mAlignedRect;
+	char       mText[32];
 };
 
 class UIBitmap {
@@ -116,7 +142,7 @@ public:
 	explicit UIBitmap(const UIBitmapDesc& desc);
 
 	void           LoadGraphics(Graphics& graphics);
-	void           Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const;
+	void           Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	void           UpdateRect(const UIRect& parentRect);
 	void           SetBitmap(const TexturePtr& bitmap);
 	const Texture* GetBitmap() const;
@@ -135,15 +161,17 @@ public:
 
 	void          SetVisible(bool visible);
 	bool          IsVisible() const;
-	UIButtonState RefreshState(const Input& input);
 	bool          IsClicked(const Input& input);
 	void          LoadAssets(Graphics& graphics, TextRenderer& textRenderer);
-	void          Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const;
+	void          Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	void          UpdateRect(const UIRect& parentRect);
 	UIBitmap*     GetBitmap() const;
 	UIText*       GetText() const;
 	const UIRect& GetRect() const;
 	UIButtonState GetState() const;
+
+private:
+	UIButtonState RefreshState(const Input& input);
 
 private:
 	UIButtonDesc              mDesc;
@@ -154,30 +182,71 @@ private:
 	bool                      mVisible;
 };
 
-class UIPanel final {
+class UIContainer {
+public:
+	void AddPanel(UIPanel& panel);
+	void AddButton(UIButton& button);
+	void AddBitmap(UIBitmap& bitmap);
+	void AddText(UIText& text);
+	void LoadAssets(Graphics& graphics, TextRenderer& textRenderer);
+
+protected:
+	std::vector<UIPanel*>  mPanels;
+	std::vector<UIBitmap*> mBitmaps;
+	std::vector<UIButton*> mButtons;
+	std::vector<UIText*>   mTexts;
+};
+
+class UIPanel final : public UIContainer {
 public:
 	explicit UIPanel(const UIPanelDesc& desc);
 
 	void          SetVisible(bool visible);
 	bool          IsVisible() const;
 	const UIRect& Rect() const;
-	void          AddPanel(UIPanel& panel);
-	void          AddButton(UIButton& button);
-	void          AddBitmap(UIBitmap& bitmap);
-	void          AddText(UIText& text);
 	void          LoadAssets(Graphics& graphics, TextRenderer& textRenderer);
 	void          Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	void          UpdateRect(const UIRect& parentRect);
 
 private:
-	UIPanelDesc            mDesc;
-	std::vector<UIPanel*>  mPanels;
-	std::vector<UIBitmap*> mBitmaps;
-	std::vector<UIButton*> mButtons;
-	std::vector<UIText*>   mTexts;
-	UIRect                 mRect;
-	TexturePtr             mBackground;
-	bool                   mVisible;
+	UIPanelDesc mDesc;
+	UIRect      mRect;
+	TexturePtr  mBackground;
+	bool        mVisible;
+};
+
+class UIGrid final : public UIContainer {
+public:
+	explicit UIGrid(const UIGridDesc& desc);
+
+	void SetVisible(bool visible);
+	bool IsVisible() const;
+	void LoadAssets(Graphics& graphics, TextRenderer& textRenderer);
+	void Draw(const UIRenderer& renderer, unsigned drawOrder) const;
+	void UpdateRect(const UIRect& parentRect);
+
+private:
+	UIGridDesc mDesc;
+	UIRect     mRect;
+	TexturePtr mBackground;
+	bool       mVisible;
+};
+
+class UIStack final : public UIContainer {
+public:
+	explicit UIStack(const UIStackDesc& desc);
+
+	void SetVisible(bool visible);
+	bool IsVisible() const;
+	void LoadAssets(Graphics& graphics, TextRenderer& textRenderer);
+	void Draw(const UIRenderer& renderer, unsigned drawOrder) const;
+	void UpdateRect(const UIRect& parentRect);
+
+private:
+	UIGridDesc mDesc;
+	UIRect     mRect;
+	TexturePtr mBackground;
+	bool       mVisible;
 };
 
 class UICanvas final {
@@ -217,5 +286,7 @@ constexpr inline UIPos UIAbsolutePos(float x, float y) {
 constexpr inline UISize UIAbsoluteSize(float x, float y) {
 	return { x, y, 0.f, 0.f };
 }
+
+constexpr UIRect UIZeroRect { 0.f, 0.f, 0.f, 0.f };
 
 } // namespace Wind

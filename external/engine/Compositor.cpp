@@ -8,7 +8,7 @@
 namespace Wind {
 
 // mBlur { engine.GetGraphics() }
-Compositor::Compositor(Graphics& graphics, int width, int height)
+UICompositor::UICompositor(Graphics& graphics, int width, int height)
 	: mGraphics{graphics}
 	, mFrameBuffers {
 	    { width, height, FBOFlags::color },
@@ -28,11 +28,11 @@ Compositor::Compositor(Graphics& graphics, int width, int height)
 	mPipelineHandle = mGraphics.NewPipeline(pipelineState);
 }
 
-const GlFrameBuffer& Compositor::GetWriteableFramebuffer() const {
+const GlFrameBuffer& UICompositor::GetWriteableFramebuffer() const {
 	return mFrameBuffers[mCurrDst];
 }
 
-void Compositor::SetTransition(ScreenTransition newTransition) {
+void UICompositor::SetTransition(ScreenTransition newTransition) {
 	if (newTransition != ScreenTransition::none) {
 		// End current. Start new
 		mTransition = newTransition;
@@ -40,7 +40,7 @@ void Compositor::SetTransition(ScreenTransition newTransition) {
 	}
 }
 
-const GlFrameBuffer& Compositor::Execute(float dt) {
+const GlFrameBuffer& UICompositor::Execute(float dt) {
 	unsigned res = mCurrDst;
 	if (mTransition != ScreenTransition::none) {
 		res = 2;
@@ -68,6 +68,10 @@ const GlFrameBuffer& Compositor::Execute(float dt) {
 		Dissolve(mCurrDst, (mCurrDst + 1) & 1);
 		duration = mDissolveTransition.mDuration;
 		break;
+	case ScreenTransition::zoomIn:
+		Zoom(mCurrDst, (mCurrDst + 1) & 1);
+		duration = mDissolveTransition.mDuration;
+		break;
 	default: {
 		break;
 	}
@@ -88,22 +92,22 @@ const GlFrameBuffer& Compositor::Execute(float dt) {
 	return mFrameBuffers[res];
 }
 
-bool Compositor::IsIdle() const {
+bool UICompositor::IsIdle() const {
 	return mTransition == ScreenTransition::none;
 }
 
-void Compositor::ConfigurePixelTransition(const PixelateTransition& settings) {
+void UICompositor::ConfigurePixelTransition(const PixelateTransition& settings) {
 	mPixelateTransition = settings;
 }
 
-void Compositor::InitPrograms(Graphics& graphics) {
+void UICompositor::InitPrograms(Graphics& graphics) {
 	// TODO Register search paths
 	InitProgramUniforms(mSlideProgram, SHADERS_FOLDER "transitions/slide.fs", graphics);
 	InitProgramUniforms(mPixelateProgram, SHADERS_FOLDER "transitions/pixelate.fs", graphics);
 	InitProgramUniforms(mDissolveProgram, SHADERS_FOLDER "transitions/dissolve.fs", graphics);
 }
 
-void Compositor::InitProgramUniforms(Program& programData, const char* fsPath, Graphics& graphics) {
+void UICompositor::InitProgramUniforms(Program& programData, const char* fsPath, Graphics& graphics) {
 	programData.mHandle = graphics.NewProgram(SHADERS_FOLDER "fullscreenTriangle.vs", fsPath);
 	if (programData.mHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(programData.mHandle);
@@ -115,7 +119,7 @@ void Compositor::InitProgramUniforms(Program& programData, const char* fsPath, G
 	}
 }
 
-void Compositor::Slide(unsigned first, unsigned second, float dir) const {
+void UICompositor::Slide(unsigned first, unsigned second, float dir) const {
 	if (! mSlideProgram.mValid) {
 		return;
 	}
@@ -132,7 +136,7 @@ void Compositor::Slide(unsigned first, unsigned second, float dir) const {
 	Composite(mSlideProgram, first, second, uniformLocations, uniforms, std::size(uniformLocations));
 }
 
-void Compositor::Dissolve(unsigned first, unsigned second) const {
+void UICompositor::Dissolve(unsigned first, unsigned second) const {
 	if (! mDissolveProgram.mValid) {
 		return;
 	}
@@ -146,7 +150,22 @@ void Compositor::Dissolve(unsigned first, unsigned second) const {
 	Composite(mDissolveProgram, first, second, uniformLocations, uniforms, std::size(uniformLocations));
 }
 
-void Compositor::Composite(const Program& program, unsigned first, unsigned second, const int uniformLocations[], const Vec4 uniforms[],
+void UICompositor::Zoom(unsigned first, unsigned second) const {
+	// TODO
+	if (! mZoomProgram.mValid) {
+		return;
+	}
+	const float progress = mAccumTime / mDissolveTransition.mDuration;
+	const int   uniformLocations[] = {
+        mZoomProgram.mMisc,
+	};
+	const Vec4 uniforms[] {
+		{ progress, 0.f, 0.f, 0.f },
+	};
+	Composite(mZoomProgram, first, second, uniformLocations, uniforms, std::size(uniformLocations));
+}
+
+void UICompositor::Composite(const Program& program, unsigned first, unsigned second, const int uniformLocations[], const Vec4 uniforms[],
                            int numUniforms) const {
 	mGraphics.SetPipeline(mPipelineHandle);
 

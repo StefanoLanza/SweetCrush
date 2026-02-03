@@ -1,12 +1,11 @@
 #include "TextRender.h"
 #include "Config.h"
-#include "DrawOrder.h"
 #include "Font.h"
 #include "Gl.h"
 #include "GlProgram.h"
 #include "Graphics.h"
-#include "Texture.h"
 #include "SdlWindow.h"
+#include "Texture.h"
 #include <SDL3/SDL.h>
 #include <cassert>
 
@@ -59,7 +58,7 @@ FontPtr TextRenderer::AddFont(const char* fontName) {
 	}
 }
 
-void TextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, const TextStyle& style, DrawOrderType drawOrder) const {
+void TextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, const TextStyle& style, unsigned drawOrder) const {
 	if (! mValidProgram) {
 		return;
 	}
@@ -116,7 +115,7 @@ void TextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, cons
 }
 
 void TextRenderer::WriteAligned(const Font& font, std::string_view text, Vec2 pos, TextAlignment horizontalAlignment, const TextStyle& style,
-                                DrawOrderType drawOrder) const {
+                                unsigned drawOrder) const {
 	if (horizontalAlignment == TextAlignment::center) {
 		pos.x += 0.5f * (mGraphics.GetTargetWidth() - font.CalculateStringWidth(text));
 	}

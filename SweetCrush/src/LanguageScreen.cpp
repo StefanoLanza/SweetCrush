@@ -18,8 +18,7 @@ const UIButtonDesc languageButtonDesc { { 0, 560, 0, 0 }, UIAutoSize, UIHorizAli
 
 const UITextDesc textDescs[] {
 	{
-	    .pos = { 0, titleY, 0, 0 },
-	    .size = UIAutoSize,
+	    .pos = { 0, titleY },
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "screenTitle",
@@ -27,9 +26,6 @@ const UITextDesc textDescs[] {
 	    .textStyle = titleTextStyle,
 	},
 	{
-
-	    .pos = { 0, 0, 0, 0 },
-	    .size = UIAutoSize,
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",

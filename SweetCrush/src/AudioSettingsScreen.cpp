@@ -18,8 +18,7 @@ const UIButtonDesc sfxButtonDesc { { 0, 680, 0, 0 }, UIAutoSize, UIHorizAlignmen
 const UIButtonDesc backButtonDesc { { 0, 920, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
 
 const UITextDesc titleTextDesc {
-	.pos = { 0, titleY, 0, 0 },
-	.size = UIAutoSize,
+	.pos = { 0, titleY },
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "screenTitle",
@@ -28,9 +27,6 @@ const UITextDesc titleTextDesc {
 };
 
 const UITextDesc musicButtonTextDesc {
-
-	.pos = { 0, 0, 0, 0 },
-	.size = UIAutoSize,
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::center,
 	.font = "mediumFont",
@@ -38,8 +34,6 @@ const UITextDesc musicButtonTextDesc {
 };
 
 const UITextDesc sfxButtonTextDesc {
-	.pos = { 0, 0, 0, 0 },
-	.size = UIAutoSize,
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::center,
 	.font = "mediumFont",

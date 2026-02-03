@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Color.h"
-#include "DrawOrder.h"
 #include "FwdDecl.h"
 #include "Maths.h"
 #include <memory>
@@ -16,15 +15,15 @@ struct BitmapPivot {
 constexpr Rect defaultTexCoord = { 0.f, 0.f, 1.f, 1.f };
 
 struct BitmapExtParams {
-	float         width = 0.f;
-	float         height = 0.f;
-	Vec2          scale { 1.f, 1.f };
-	float         orientation = 0.f;
-	Vec2          pivot = { 0.f, 0.f };
-	Rect          texRect = defaultTexCoord;
-	Color         color = whiteColor;
-	DrawOrderType drawOrder = 0;
-	bool          blending = false;
+	float    width = 0.f;
+	float    height = 0.f;
+	Vec2     scale { 1.f, 1.f };
+	float    orientation = 0.f;
+	Vec2     pivot = { 0.f, 0.f };
+	Rect     texRect = defaultTexCoord;
+	Color    color = whiteColor;
+	uint32_t drawOrder = 0;
+	bool     blending = false;
 };
 
 class BitmapRenderer final {

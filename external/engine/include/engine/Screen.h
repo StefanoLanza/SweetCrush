@@ -18,12 +18,13 @@ enum class ScreenOp {
 
 enum class ScreenTransition {
 	none,
-	fadeIn,
-	fadeOut,
+	crossFade,
 	slideIn,
 	slideOut,
 	pixelate,
 	dissolve,
+	zoomIn,
+	zoomOut,
 };
 
 struct ScreenEvent {

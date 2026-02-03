@@ -99,19 +99,18 @@ UIButtonState UIButton::RefreshState(const Input& input) {
 			mState = UIButtonState::idle;
 		}
 		else if (! mouseDown) {
-			// TODO Action callback instead of released state ?
-			mState = UIButtonState::released;
+			// TODO Action callback ?
+			mState = UIButtonState::hovered;
 		}
-		break;
-	case UIButtonState::released:
-		mState = mouseOver ? UIButtonState::hovered : UIButtonState::idle;
 		break;
 	}
 	return mState;
 }
 
 bool UIButton::IsClicked(const Input& input) {
-	return RefreshState(input) == UIButtonState::released;
+	UIButtonState state = mState;
+	UIButtonState newState = RefreshState(input);
+	return (state == UIButtonState::pressed) && (newState == UIButtonState::hovered);
 }
 
 void UIButton::LoadAssets(Graphics& graphics, TextRenderer& textRenderer) {
@@ -123,7 +122,7 @@ void UIButton::LoadAssets(Graphics& graphics, TextRenderer& textRenderer) {
 	}
 }
 
-void UIButton::Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const {
+void UIButton::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	if (! mVisible) {
 		return;
 	}
@@ -147,11 +146,14 @@ void UIButton::UpdateRect(const UIRect& parentRect) {
 			size.rHeight = 0.f;
 		}
 	}
+	else {
+		mRect = UIZeroRect;
+	}
 
 	mRect = AlignRect(mDesc.pos, size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 	UIRect paddedRect = AddPadding(mRect, mDesc.padding);
 	if (mState == UIButtonState::pressed) {
-		paddedRect = ScaleRect(paddedRect, 1.05f);
+		paddedRect = ScaleRect(paddedRect, 1.025f);
 	}
 	if (mBitmap) {
 		mBitmap->UpdateRect(paddedRect);
@@ -186,9 +188,9 @@ void UIText::Load(TextRenderer& textRenderer) {
 	mFont = textRenderer.AddFont(mDesc.font);
 }
 
-void UIText::Draw(const TextRenderer& textRenderer, DrawOrderType drawOrder) const {
+void UIText::Draw(const TextRenderer& textRenderer, unsigned drawOrder) const {
 	if (mFont) {
-		const char* str = mDesc.text ? mDesc.text : GetString(mDesc.stringId);
+		const char* str = Text();
 		if (str) {
 			textRenderer.Write(*mFont, str, mAlignedRect.pos, mDesc.textStyle, drawOrder);
 		}
@@ -197,23 +199,27 @@ void UIText::Draw(const TextRenderer& textRenderer, DrawOrderType drawOrder) con
 
 void UIText::UpdateRect(const UIRect& parentRect) {
 	if (! mFont) {
+		mAlignedRect = UIZeroRect;
 		return;
 	}
-	const char* text = GetString(mDesc.stringId);
-	UISize      size = mDesc.size;
-	if (size.rWidth == UIAutoSize.rWidth) {
-		size.aWidth = static_cast<float>(mFont->CalculateStringWidth(text));
-		size.rWidth = 0.f;
-	}
-	if (size.rHeight <= 0.f) {
-		size.aHeight = static_cast<float>(mFont->GetHeight());
-		size.rHeight = 0.f;
-	}
-	mAlignedRect = AlignRect(mDesc.pos, size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
+	const char* str = Text();
+
+	const UISize size {
+		.aWidth = static_cast<float>(mFont->CalculateStringWidth(str)),
+		.aHeight = static_cast<float>(mFont->GetHeight()),
+		.rWidth = 0.f,
+		.rHeight = 0.f,
+	};
+	mAlignedRect = AlignRect(UIAbsolutePos(mDesc.pos.x, mDesc.pos.y), size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 }
 
 void UIText::SetText(StringId stringId) {
 	mDesc.stringId = stringId;
+}
+
+const char* UIText::Text() const {
+	// TODO Custom
+	return mDesc.text ? mDesc.text : GetString(mDesc.stringId);
 }
 
 UIBitmap::UIBitmap(const UIBitmapDesc& desc)
@@ -225,7 +231,7 @@ void UIBitmap::LoadGraphics(Graphics& graphics) {
 	mBitmap = graphics.LoadTexture(mDesc.fileName);
 }
 
-void UIBitmap::Draw(const UIRenderer& renderer, DrawOrderType drawOrder) const {
+void UIBitmap::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	if (mBitmap) {
 		const UIDrawParams prm {
 			.color = mDesc.color,
@@ -251,7 +257,7 @@ void UIBitmap::UpdateRect(const UIRect& parentRect) {
 		mAlignedRect = AlignRect(mDesc.pos, size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 	}
 	else {
-		mAlignedRect = {};
+		mAlignedRect = UIZeroRect;
 	}
 }
 
@@ -261,6 +267,37 @@ void UIBitmap::SetBitmap(const TexturePtr& bitmap) {
 
 const Texture* UIBitmap::GetBitmap() const {
 	return mBitmap.get();
+}
+
+void UIContainer::AddPanel(UIPanel& panel) {
+	mPanels.push_back(&panel);
+}
+
+void UIContainer::AddButton(UIButton& button) {
+	mButtons.push_back(&button);
+}
+
+void UIContainer::AddBitmap(UIBitmap& bitmap) {
+	mBitmaps.push_back(&bitmap);
+}
+
+void UIContainer::AddText(UIText& text) {
+	mTexts.push_back(&text);
+}
+
+void UIContainer::LoadAssets(Graphics& graphics, TextRenderer& textRenderer) {
+	for (auto& panel : mPanels) {
+		panel->LoadAssets(graphics, textRenderer);
+	}
+	for (auto& bitmap : mBitmaps) {
+		bitmap->LoadGraphics(graphics);
+	}
+	for (auto& button : mButtons) {
+		button->LoadAssets(graphics, textRenderer);
+	}
+	for (auto& text : mTexts) {
+		text->Load(textRenderer);
+	}
 }
 
 UIPanel::UIPanel(const UIPanelDesc& desc)
@@ -281,38 +318,11 @@ const UIRect& UIPanel::Rect() const {
 	return mRect;
 }
 
-void UIPanel::AddPanel(UIPanel& panel) {
-	mPanels.push_back(&panel);
-}
-
-void UIPanel::AddButton(UIButton& button) {
-	mButtons.push_back(&button);
-}
-
-void UIPanel::AddBitmap(UIBitmap& bitmap) {
-	mBitmaps.push_back(&bitmap);
-}
-
-void UIPanel::AddText(UIText& text) {
-	mTexts.push_back(&text);
-}
-
 void UIPanel::LoadAssets(Graphics& graphics, TextRenderer& textRenderer) {
 	if (mDesc.background) {
 		mBackground = graphics.LoadTexture(mDesc.background);
 	}
-	for (auto& panel : mPanels) {
-		panel->LoadAssets(graphics, textRenderer);
-	}
-	for (auto& bitmap : mBitmaps) {
-		bitmap->LoadGraphics(graphics);
-	}
-	for (auto& button : mButtons) {
-		button->LoadAssets(graphics, textRenderer);
-	}
-	for (auto& text : mTexts) {
-		text->Load(textRenderer);
-	}
+	UIContainer::LoadAssets(graphics, textRenderer);
 }
 
 void UIPanel::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
@@ -341,6 +351,71 @@ void UIPanel::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 }
 
 void UIPanel::UpdateRect(const UIRect& parentRect) {
+	const UIRect rect = AlignRect(mDesc.pos, mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
+	mRect = rect;
+	UIRect paddedRect = AddPadding(rect, mDesc.padding);
+
+	// Update children
+	for (auto& panel : mPanels) {
+		if (panel->IsVisible()) {
+			panel->UpdateRect(paddedRect);
+		}
+	}
+	for (auto& bitmap : mBitmaps) {
+		bitmap->UpdateRect(paddedRect);
+	}
+	for (auto& button : mButtons) {
+		if (button->IsVisible()) {
+			button->UpdateRect(paddedRect);
+		}
+	}
+	for (auto& text : mTexts) {
+		text->UpdateRect(paddedRect);
+	}
+}
+
+UIGrid::UIGrid(const UIGridDesc& desc)
+    : mDesc { desc }
+    , mVisible { true } {
+}
+
+void UIGrid::SetVisible(bool visible) {
+	mVisible = visible;
+}
+bool UIGrid::IsVisible() const {
+	return mVisible;
+}
+
+void UIGrid::LoadAssets(Graphics& graphics, TextRenderer& textRenderer) {
+	UIContainer::LoadAssets(graphics, textRenderer);
+}
+
+void UIGrid::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
+	if (! mVisible) {
+		return;
+	}
+	if (mBackground) {
+		UIDrawParams prms;
+		prms.blending = (mDesc.backgroundColor.a < 255.f) || mBackground->HasAlpha();
+		prms.color = mDesc.backgroundColor;
+		prms.priority = drawOrder;
+		renderer.DrawRect(mRect, *mBackground, prms);
+	}
+	for (const auto& bitmap : mBitmaps) {
+		bitmap->Draw(renderer, drawOrder + 1);
+	}
+	for (const auto& panel : mPanels) {
+		panel->Draw(renderer, drawOrder + 2);
+	}
+	for (const auto& button : mButtons) {
+		button->Draw(renderer, drawOrder + 3);
+	}
+	for (const auto& text : mTexts) {
+		text->Draw(renderer.GetTextRenderer(), drawOrder + 4);
+	}
+}
+
+void UIGrid::UpdateRect(const UIRect& parentRect) {
 	const UIRect rect = AlignRect(mDesc.pos, mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 	mRect = rect;
 	UIRect paddedRect = AddPadding(rect, mDesc.padding);

@@ -19,8 +19,7 @@ const UIButtonDesc backButtonDesc { { 0, 920, 0, 0 }, UIAutoSize, UIHorizAlignme
 
 const UITextDesc textDescs[] {
 	{
-	    .pos = { 0, titleY, 0, 0 },
-	    .size = UIAutoSize,
+	    .pos = { 0, titleY },
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "screenTitle",
@@ -28,32 +27,24 @@ const UITextDesc textDescs[] {
 	    .textStyle = titleTextStyle,
 	},
 	{
-	    .pos = { 0, 0, 0, 0 },
-	    .size = UIAutoSize,
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
 	    .stringId = GameStringId::graphicsSettings,
 	},
 	{
-	    .pos = { 0, 0, 0, 0 },
-	    .size = UIAutoSize,
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
 	    .stringId = GameStringId::audioSettings,
 	},
 	{
-	    .pos = { 0, 0, 0, 0 },
-	    .size = UIAutoSize,
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
 	    .stringId = GameStringId::languageScreen,
 	},
 	{
-	    .pos = { 0, 0, 0, 0 },
-	    .size = UIAutoSize,
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",

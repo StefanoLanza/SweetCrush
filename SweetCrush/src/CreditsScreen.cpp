@@ -14,9 +14,7 @@ using namespace Wind;
 namespace {
 
 const UITextDesc titleText {
-
-	.pos = { 0, titleY, 0, 0 },
-	.size = UIAutoSize,
+	.pos = { 0, titleY},
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "screenTitle",
@@ -25,9 +23,7 @@ const UITextDesc titleText {
 };
 
 const UITextDesc codeByText {
-
-	.pos = { 0, 560, 0, 0 },
-	.size = UIAutoSize,
+	.pos = { 0, 560},
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "smallFont",
@@ -35,8 +31,7 @@ const UITextDesc codeByText {
 };
 
 const UITextDesc graphicsByText {
-	.pos = { 0, 620, 0, 0 },
-	.size = UIAutoSize,
+	.pos = { 0, 620},
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "smallFont",
@@ -44,9 +39,7 @@ const UITextDesc graphicsByText {
 };
 
 const UITextDesc musicByText {
-
-	.pos = { 0, 680, 0, 0 },
-	.size = UIAutoSize,
+	.pos = { 0, 680 },
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "smallFont",
@@ -54,8 +47,7 @@ const UITextDesc musicByText {
 };
 
 const UITextDesc versionText {
-	.pos = { 0, 840, 0, 0 },
-	.size = UIAutoSize,
+	.pos = { 0, 840 },
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "smallFont",

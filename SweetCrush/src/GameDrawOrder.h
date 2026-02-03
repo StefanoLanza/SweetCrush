@@ -1,8 +1,8 @@
 #pragma once
 
-#include <engine/DrawOrder.h>
+#include <cstdint>
 
-enum GameDrawOrder : Wind::DrawOrderType {
+enum GameDrawOrder : uint32_t {
 	background = 0,
 	backgroundTile,
 	boardPiece,

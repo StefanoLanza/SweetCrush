@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Color.h"
-#include "DrawOrder.h"
 #include "FwdDecl.h"
 #include "Gl.h"
 
@@ -48,9 +47,9 @@ public:
 	~TextRenderer();
 
 	FontPtr AddFont(const char* fontName);
-	void    Write(const Font& font, std::string_view text, Vec2 pos, const TextStyle& style, DrawOrderType drawOrder) const;
+	void    Write(const Font& font, std::string_view text, Vec2 pos, const TextStyle& style, unsigned drawOrder) const;
 	void    WriteAligned(const Font& font, std::string_view text, Vec2 pos, TextAlignment horizontalAlignment, const TextStyle& style,
-	                     DrawOrderType drawOrder) const;
+	                     unsigned drawOrder) const;
 
 private:
 	static constexpr int maxCharsPerDraw = 256;
