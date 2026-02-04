@@ -21,24 +21,24 @@ namespace Wind {
 
 namespace {
 
-constexpr uint64_t MaxFrameTicks = 300;
+constexpr uint64_t MaxFrameTicksNS = 300'000'000;
 
 } // namespace
 
 struct Engine::Implementation {
-	SdlWindow&              mWindow;
-	GlContext               mGlContext;
-	Input                   mInput;
-	Graphics                mGraphics;
-	Audio                   mAudio;
-	BitmapRenderer          mBitmapRenderer;
-	Blitter                 mBlitter;
-	TextRenderer            mTextRenderer;
-	uint64_t                mElapsedTicks;
-	float                   mAccumTime;
-	bool                    mQuit;
-	bool                    mAppInBackground;
-	DisplayOrientation      mDisplayOrientation;
+	SdlWindow&         mWindow;
+	GlContext          mGlContext;
+	Input              mInput;
+	Graphics           mGraphics;
+	Audio              mAudio;
+	BitmapRenderer     mBitmapRenderer;
+	Blitter            mBlitter;
+	TextRenderer       mTextRenderer;
+	uint64_t           mElapsedTicks;
+	float              mAccumTime;
+	bool               mQuit;
+	bool               mAppInBackground;
+	DisplayOrientation mDisplayOrientation;
 
 	explicit Implementation(SdlWindow& window)
 	    : mWindow { window }
@@ -54,41 +54,41 @@ struct Engine::Implementation {
 	    , mDisplayOrientation { DisplayOrientation::portrait } {
 	}
 
-	void       Start(const RenderCallback& renderCkb, const UpdateCallback& updateCbk);
-	void       ParseEvent();
+	void Start(const RenderCallback& renderCkb, const UpdateCallback& updateCbk);
+	void ParseEvent();
 };
 
 void Engine::Implementation::Start(const RenderCallback& renderCbk, const UpdateCallback& updateCbk) {
 	constexpr float fixedTimeStep = 1.f / 60.f;
 
+	SDL_HideCursor();
 	mWindow.Show();
 	mAccumTime = 0.f;
 	updateCbk(fixedTimeStep); // first update
-	mElapsedTicks = SDL_GetTicks();
+	mElapsedTicks = SDL_GetTicksNS();
 	while (! mQuit) {
-		const uint64_t currentTicks = SDL_GetTicks();
+		const uint64_t currentTicks = SDL_GetTicksNS();
 		uint64_t       lastFrameTicks = currentTicks - mElapsedTicks;
 		mElapsedTicks = currentTicks;
-		lastFrameTicks = std::min(lastFrameTicks, MaxFrameTicks);
-		const float lastFrameSeconds = static_cast<float>(lastFrameTicks) * 0.001f;
-
-		// Update app logic with a fixed time step
-		mAccumTime += lastFrameSeconds;
-		const int steps = static_cast<int>(std::floor(mAccumTime / fixedTimeStep));
-		mAccumTime -= steps * fixedTimeStep;
-		for (int i = 0; i < steps; ++i) {
-			ParseEvent();
-			updateCbk(fixedTimeStep);
-		}
+		lastFrameTicks = std::min(lastFrameTicks, MaxFrameTicksNS);
+		const float lastFrameSeconds = static_cast<float>(lastFrameTicks) * 1e-9f;
 
 		if (! mAppInBackground) {
+			// Update app logic with a fixed time step
+			mAccumTime += lastFrameSeconds;
+			const int steps = static_cast<int>(std::floor(mAccumTime / fixedTimeStep));
+			mAccumTime -= steps * fixedTimeStep;
+			for (int i = 0; i < steps; ++i) {
+				ParseEvent();
+				updateCbk(fixedTimeStep);
+			}
+
 			mGraphics.BeginFrame();
 			if (! mQuit) {
 				renderCbk(lastFrameSeconds);
 			}
 			mGraphics.EndFrame();
 			SDL_GL_SwapWindow(mWindow);
-			SDL_HideCursor();
 		}
 	}
 }
@@ -141,8 +141,7 @@ Engine::Engine(SdlWindow& window)
     : mPimpl(std::make_unique<Implementation>(window)) {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	// SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	SDL_GL_SetSwapInterval(1);
-	mPimpl->mGraphics.InitGL();
+	SDL_GL_SetSwapInterval(1); // 1: vsync on
 }
 
 Engine::~Engine() = default;

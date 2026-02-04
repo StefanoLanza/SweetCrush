@@ -83,12 +83,12 @@ void GameOverScreen::LoadAssets(Engine& engine) {
 
 ScreenEvent GameOverScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	if (mContinueButton.IsClicked(input)) {
-		return { ScreenOp::goTo, GameScreenIds::mainMenu };
+		return GoTo(GameScreenIds::mainMenu, ScreenTransition::zoomInOut);
 	}
 	else if (mReplayLevelButton.IsClicked(input)) {
-		return { ScreenOp::goTo, GameScreenIds::play };
+		return GoTo(GameScreenIds::play, ScreenTransition::zoomInOut);
 	}
-	return { ScreenOp::keep };
+	return Continue();
 }
 
 void GameOverScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {

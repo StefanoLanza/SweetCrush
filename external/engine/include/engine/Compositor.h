@@ -15,14 +15,14 @@ struct PixelateTransition {
 
 struct SlideTransition {
 	float mDuration = 0.25f;
-	float (*mTimeCurve)(float) = EaseInQuad;
+	float (*mTimeCurve)(float) = EaseOutCubic;
 	Color mBorderColor = whiteColor;
 	float mBorderThickness = 8.f; // pixels
 };
 
 struct ZoomTransition {
 	float mDuration = 0.25f;
-	float (*mTimeCurve)(float) = EaseInQuad;
+	float (*mTimeCurve)(float) = EaseOutCubic;
 	Color mFadeColor = whiteColor;
 };
 

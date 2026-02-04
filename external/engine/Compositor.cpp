@@ -68,13 +68,9 @@ const GlFrameBuffer& UICompositor::Execute(float dt) {
 		Dissolve(mCurrDst, (mCurrDst + 1) & 1);
 		duration = mDissolveTransition.mDuration;
 		break;
-	case ScreenTransition::zoomIn:
+	case ScreenTransition::zoomInOut:
 		Zoom(mCurrDst, (mCurrDst + 1) & 1, 1.f);
-		duration = mDissolveTransition.mDuration;
-		break;
-	case ScreenTransition::zoomOut:
-		Zoom(mCurrDst, (mCurrDst + 1) & 1, -1.f);
-		duration = mDissolveTransition.mDuration;
+		duration = mZoomTransition.mDuration;
 		break;
 	default: {
 		break;
@@ -159,7 +155,7 @@ void UICompositor::Dissolve(unsigned first, unsigned second) const {
 }
 
 void UICompositor::Zoom(unsigned first, unsigned second, float dir) const {
-	const float progress = mAccumTime / mDissolveTransition.mDuration;
+	const float progress = mAccumTime / mZoomTransition.mDuration;
 	const int   uniformLocations[] = {
         mZoomProgram.mMisc,
         //  mZoomProgram.color0,
@@ -179,6 +175,8 @@ void UICompositor::Composite(const Program& program, unsigned first, unsigned se
 		mFrameBuffers[first].GetColorAttachment(),
 		mFrameBuffers[second].GetColorAttachment(),
 	};
+
+	// TODO SAmplers, border
 
 	DrawCall drawCall;
 	drawCall.uniformLocations = uniformLocations;

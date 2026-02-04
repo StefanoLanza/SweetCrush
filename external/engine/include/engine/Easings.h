@@ -22,6 +22,14 @@ inline float EaseInQuint(float x) {
 	return std::pow(x, 5.f);
 }
 
+inline float EaseOutQuad(float x) {
+	return 1.f - std::pow(1.f - x, 2.f);
+}
+
+inline float EaseOutCubic(float x) {
+	return 1.f - std::pow(1.f - x, 3.f);
+}
+
 inline float EaseOutQuint(float x) {
 	return 1.f - std::pow(1.f - x, 5.f);
 }

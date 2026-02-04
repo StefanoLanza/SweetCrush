@@ -84,7 +84,6 @@ public:
 	void             SetDefaultFrameBuffer();
 	void             ClearDefaultFrameBuffer(float r, float g, float b, float a);
 	void             Flush();
-	void             InitGL();
 	void             BeginFrame();
 	void             EndFrame();
 	void             SetPipeline(PipelineHandle pipeline);

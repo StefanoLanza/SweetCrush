@@ -127,7 +127,6 @@ struct Graphics::Impl {
 	void           SetFloat4(int uniform, float x, float y, float z, float w);
 	void           SetTexture(int uniform, unsigned texture, unsigned sampler);
 	void           RecompileShaders();
-	void           InitGL();
 	InstanceData   AllocInstances(unsigned count, unsigned sizePerInstance, GLint location);
 	void           ResetState();
 
@@ -170,9 +169,7 @@ Graphics::Impl::Impl(const SdlWindow& window)
 	glBufferData(GL_ARRAY_BUFFER, instanceDataBufferSize, nullptr, GL_DYNAMIC_DRAW);
 	mInstanceBuffer.resize(instanceDataBufferSize);
 	mInstanceBufferOffs = 0;
-}
 
-void Graphics::Impl::InitGL() {
 	mMeshes.push_back(BuildQuad());
 	mMeshes.push_back(BuildTriangle());
 }
@@ -602,10 +599,6 @@ PipelineHandle Graphics::NewPipeline(const PipelineState& pipelineState) {
 
 TexturePtr Graphics::LoadTexture(std::string_view fileName, TextureInfo texInfo) {
 	return mPimpl->LoadTexture(fileName, texInfo);
-}
-
-void Graphics::InitGL() {
-	mPimpl->InitGL();
 }
 
 void Graphics::BeginFrame() {

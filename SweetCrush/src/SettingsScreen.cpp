@@ -12,10 +12,9 @@ using namespace Wind;
 
 namespace {
 
-const UIButtonDesc graphicsButtonDesc { { 0, 560, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
-const UIButtonDesc audioButtonDesc { { 0, 680, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
-const UIButtonDesc languageButtonDesc { { 0, 800, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
-const UIButtonDesc backButtonDesc { { 0, 920, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
+const UIButtonDesc graphicsButtonDesc { { 0, button0_y, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
+const UIButtonDesc audioButtonDesc { { 0, button1_y, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
+const UIButtonDesc languageButtonDesc { { 0, button2_y, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
 
 const UITextDesc textDescs[] {
 	{

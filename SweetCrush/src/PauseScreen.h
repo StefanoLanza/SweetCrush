@@ -8,18 +8,19 @@ class PauseScreen final : public Wind::Screen {
 public:
 	explicit PauseScreen();
 
-	const char*            GetName() const override;
-	void                   LoadAssets(Wind::Engine& engine) override;
+	const char*       GetName() const override;
+	void              LoadAssets(Wind::Engine& engine) override;
 	Wind::ScreenEvent Tick(float dt, const Wind::Input& input) override;
-	void                   Draw(Wind::UIRenderer& uiRenderer, float dt) override;
-	void                   Enter(const Wind::ScreenNavArgs& args) override;
-	void                   Exit() override;
-	void                   ParseConfig(const char* varName, const char* varValue) override;
+	void              Draw(Wind::UIRenderer& uiRenderer, float dt) override;
+	void              Enter(const Wind::ScreenNavArgs& args) override;
+	void              Exit() override;
+	void              ParseConfig(const char* varName, const char* varValue) override;
 
 public:
 	Wind::UIText   mTitle;
-	Wind::UIButton mContinueButton;
 	Wind::UIButton mRestartLevelButton;
 	Wind::UIButton mExitGameButton;
+	Wind::UIButton mSettingsButton;
+	Wind::UIButton mBackButton;
 	Wind::UICanvas mCanvas;
 };
