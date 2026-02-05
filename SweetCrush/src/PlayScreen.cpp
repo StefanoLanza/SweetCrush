@@ -64,15 +64,13 @@ const UIBitmapDesc boosterButtonBitmapDesc {
 	.fileName = "button.png",
 	.pos = UIZeroPos,
 	.size = UIParentSize,
-	.color = Color { 255, 229, 102, 255 },
+	//	.color = Color { 255, 229, 102, 255 },
 	._9patch = { 16, 0.f, 0.f, 0.f },
 };
 
 const UIBitmapDesc pauseButtonBitmapDesc {
-	.fileName = "backButton.png",
-	.pos = UIZeroPos,
-	.size = UIAutoSize,
-	.color = yellowColor,
+	.fileName = "backButton.png", .pos = UIZeroPos, .size = UIAutoSize,
+	//	.color = yellowColor,
 };
 
 constexpr UIPanelDesc boosterPanelDesc {
@@ -521,11 +519,12 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 
 	snprintf(tmp, sizeof(tmp), "%04d", mMatchStats.score);
-	textRenderer.Write(*mFonts[2], tmp, Vec2 { 60, y }, textStyle, GameDrawOrder::overlays);
+	textRenderer.Write(*mFonts[2], tmp, Vec2 { 60, y }, textStyle, TextDirection::leftToRight, GameDrawOrder::overlays);
 
 	const int time = static_cast<int>(mMatchTime);
 	snprintf(tmp, sizeof(tmp), "%d:%02d", time / 60, time % 60);
-	textRenderer.Write(*mFonts[2], tmp, Vec2 { 500, y }, mMatchTime < criticalTime ? textStyle1 : textStyle, GameDrawOrder::overlays);
+	textRenderer.Write(*mFonts[2], tmp, Vec2 { 500, y }, mMatchTime < criticalTime ? textStyle1 : textStyle, TextDirection::leftToRight,
+	                   GameDrawOrder::overlays);
 
 	if (level.goal.id == GoalId::collectMatches) {
 		Vec2 pos = mGameConfig.ui.goalStartCoord;
@@ -534,7 +533,7 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 			mGameRenderer.DrawIcon(icon, pos, 0.f, whiteColor, GameDrawOrder::overlays);
 			if (int diff = level.goal.collectMatches.count[i] - mMatchStats.targetPieceCount[i]; diff > 0) {
 				SDL_snprintf(tmp, sizeof(tmp), "%d", diff);
-				textRenderer.Write(*mFonts[2], tmp, pos + Vec2 { 40.f, -20.f }, textStyle, GameDrawOrder::overlays);
+				textRenderer.Write(*mFonts[2], tmp, pos + Vec2 { 40.f, -20.f }, textStyle, TextDirection::leftToRight, GameDrawOrder::overlays);
 			}
 			// TODO Draw tick icon
 			pos.x += 140.f;
@@ -559,7 +558,8 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 			}
 			mGameRenderer.DrawIcon(boosterIcons[level.boosterIds[i]], coords, 0.f, whiteColor, GameDrawOrder::overUI);
 			snprintf(tmp, sizeof(tmp), "%d", mBoosterCount[i]);
-			textRenderer.Write(*mFonts[1], tmp, mBoosterButtons[i].GetRect().pos + Vec2 { 12.f, 12.f }, defaultTextStyle, GameDrawOrder::overUI);
+			textRenderer.Write(*mFonts[1], tmp, mBoosterButtons[i].GetRect().pos + Vec2 { 12.f, 12.f }, defaultTextStyle,
+			                   TextDirection::leftToRight, GameDrawOrder::overUI);
 			mBoosterButtons[i].SetVisible(true);
 		}
 		else {

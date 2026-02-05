@@ -14,14 +14,20 @@ enum class TextAlignment {
 	center,
 };
 
-struct TextStyle {
-	Color color;
-	Color outlineColor;
+enum class TextDirection {
+	leftToRight,
+	rightToLeft,
 };
 
-constexpr TextStyle defaultTextStyle = {
-	whiteColor,
-	blackColor,
+struct TextStyle {
+	Color color = whiteColor;
+	Color outlineColor = blackColor;
+	float scale = 1.f;
+};
+
+struct TextDrawArgs {
+	TextAlignment horizontalAlignment = TextAlignment::left;
+	TextDirection dir = TextDirection::leftToRight;
 };
 
 class TextRenderer final {
@@ -29,9 +35,9 @@ public:
 	explicit TextRenderer(Graphics& graphics);
 	~TextRenderer();
 
-	void Write(const Font& font, std::string_view text, Vec2 pos, const TextStyle& style, unsigned drawOrder) const;
-	void WriteAligned(const Font& font, std::string_view text, Vec2 pos, TextAlignment horizontalAlignment, const TextStyle& style,
-	                  unsigned drawOrder) const;
+	void Write(const Font& font, std::string_view text, Vec2 pos, const TextStyle& style, TextDirection direction, unsigned drawOrder) const;
+	void WriteAligned(const Font& font, std::string_view text, Vec2 pos, TextAlignment horizontalAlignment, TextDirection direction,
+	                  const TextStyle& style, unsigned drawOrder) const;
 
 private:
 	static constexpr int maxCharsPerDraw = 256;

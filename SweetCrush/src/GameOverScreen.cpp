@@ -35,12 +35,11 @@ const UIButtonDesc buttonDescs[] {
 
 const UITextDesc textDescs[] {
 	{
-		.pos = { 0.f, titleY },
+	    .pos = { 0.f, titleY },
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "screenTitle",
 	    .stringId = GameStringId::gameOver,
-	    .textStyle = titleTextStyle,
 	},
 	{
 	    .horizontalAlignment = UIHorizAlignment::center,
@@ -64,7 +63,7 @@ constexpr UICanvasDesc canvasDesc {
 
 GameOverScreen::GameOverScreen(const MatchStats& matchStats)
     : mMatchStats(matchStats)
-    , mTitle(textDescs[0])
+    , mTitle(textDescs[0], titleTextStyle)
     , mReplayLevelButton(buttonDescs[0], buttonBitmapDesc, textDescs[1])
     , mContinueButton(buttonDescs[1], buttonBitmapDesc, textDescs[2])
     , mCanvas(canvasDesc) {
@@ -101,9 +100,9 @@ void GameOverScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 	char            tmp[256];
 	const TextStyle textStyle { whiteColor, blackColor };
 	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourReachedLevel), mMatchStats.levelIndex + 1);
-	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, text0_y }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
+	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, text0_y }, TextAlignment::center, TextDirection::leftToRight, textStyle, GameDrawOrder::overUI);
 	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourScoreIs), mMatchStats.score);
-	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, text1_y }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
+	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, text1_y }, TextAlignment::center, TextDirection::leftToRight, textStyle, GameDrawOrder::overUI);
 }
 
 void GameOverScreen::Enter(const ScreenNavArgs& args) {

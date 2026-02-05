@@ -25,7 +25,6 @@ const UITextDesc textDescs[] {
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "screenTitle",
 	    .stringId = GameStringId::graphicsSettings,
-	    .textStyle = titleTextStyle,
 	},
 	{
 	    .horizontalAlignment = UIHorizAlignment::center,
@@ -49,7 +48,7 @@ constexpr UICanvasDesc canvasDesc {
 
 GraphicsSettingsScreen::GraphicsSettingsScreen(GameSettings& gameSettings)
     : mGameConfig(gameSettings)
-    , mTitle(textDescs[0])
+    , mTitle(textDescs[0], titleTextStyle)
     , mFilterButton(languageButtonDesc, buttonBitmapDesc, textDescs[1])
     , mBackButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc)
     , mCanvas(canvasDesc) {

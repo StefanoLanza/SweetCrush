@@ -5,6 +5,7 @@
 #include "Constants.h"
 #include "GameDrawOrder.h"
 #include "GameRenderer.h"
+#include "UIDefs.h"
 
 #include <engine/BitmapRender.h>
 #include <engine/Easings.h>
@@ -79,7 +80,7 @@ ActionFunc DrawMatchScore(int score, const Cell& cell, const TextRenderer& textR
 		char tmp[64];
 		snprintf(tmp, sizeof(tmp), "%d", score);
 		float y = xy.y - t * scrollSpeed;
-		textRenderer.Write(font, tmp, Vec2 { xy.x, y }, defaultTextStyle, GameDrawOrder::overlays);
+		textRenderer.Write(font, tmp, Vec2 { xy.x, y }, defaultTextStyle, TextDirection::leftToRight, GameDrawOrder::overlays);
 		return false;
 	};
 }

@@ -23,7 +23,6 @@ const UITextDesc titleTextDesc {
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "screenTitle",
 	.stringId = GameStringId::audioSettings,
-	.textStyle = titleTextStyle,
 };
 
 const UITextDesc musicButtonTextDesc {
@@ -48,7 +47,7 @@ constexpr UICanvasDesc canvasDesc {
 
 AudioSettingsScreen::AudioSettingsScreen(GameSettings& gameSettings)
     : mGameConfig(gameSettings)
-    , mTitle(titleTextDesc)
+    , mTitle(titleTextDesc, titleTextStyle)
     , mMusicButton(musicButtonDesc, buttonBitmapDesc, musicButtonTextDesc)
     , mSfxButton(sfxButtonDesc, buttonBitmapDesc, sfxButtonTextDesc)
     , mBackButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc)

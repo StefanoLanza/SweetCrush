@@ -34,7 +34,6 @@ const UITextDesc textDescs[] {
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "screenTitle",
 	    .stringId = GameStringId::gameComplete,
-	    .textStyle = titleTextStyle,
 	},
 	{
 	    .horizontalAlignment = UIHorizAlignment::center,
@@ -50,8 +49,7 @@ const UIBitmapDesc panelBitmapDesc {
 	.size = UIParentSize,
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::center,
-	.color = Color { 0, 0, 0, 200 },
-	.blending = UIBlending::on,
+	//	.color = Color { 0, 0, 0, 200 },
 };
 
 constexpr UICanvasDesc canvasDesc {
@@ -62,7 +60,7 @@ constexpr UICanvasDesc canvasDesc {
 
 GameCompleteScreen::GameCompleteScreen(const MatchStats& matchStats)
     : mMatchStats(matchStats)
-    , mTitle(textDescs[0])
+    , mTitle(textDescs[0], titleTextStyle)
     , mContinueButton(buttonDescs[0], buttonBitmapDesc, textDescs[1])
     , mPanelBitmap(panelBitmapDesc)
     , mCanvas(canvasDesc) {
@@ -97,9 +95,9 @@ void GameCompleteScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 	char            tmp[256];
 	const TextStyle textStyle { whiteColor, blackColor };
 	snprintf(tmp, sizeof(tmp), "%s", GetLocalizedString(GameStringId::youCompletedAllLevels));
-	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 400 }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
+	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 400 }, TextAlignment::center, TextDirection::leftToRight, textStyle, GameDrawOrder::overUI);
 	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourFinalScoreIs), mMatchStats.score);
-	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 460 }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
+	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 460 }, TextAlignment::center, TextDirection::leftToRight, textStyle, GameDrawOrder::overUI);
 }
 
 void GameCompleteScreen::Enter(const ScreenNavArgs& args) {

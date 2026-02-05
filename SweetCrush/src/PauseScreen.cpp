@@ -42,7 +42,6 @@ const UITextDesc textDescs[] {
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "screenTitle",
 	    .stringId = GameStringId::pauseGame,
-	    .textStyle = titleTextStyle,
 	},
 	{
 	    .horizontalAlignment = UIHorizAlignment::center,
@@ -71,7 +70,7 @@ constexpr UICanvasDesc canvasDesc {
 } // namespace
 
 PauseScreen::PauseScreen()
-    : mTitle(textDescs[0])
+    : mTitle(textDescs[0], titleTextStyle)
     , mRestartLevelButton(buttonDescs[0], buttonBitmapDesc, textDescs[1])
     , mExitGameButton(buttonDescs[1], buttonBitmapDesc, textDescs[2])
     , mSettingsButton(buttonDescs[2], buttonBitmapDesc, textDescs[3])

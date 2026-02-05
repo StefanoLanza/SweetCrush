@@ -37,7 +37,6 @@ const UITextDesc textDescs[] {
 
 	    .font = "screenTitle",
 	    .stringId = GameStringId::level,
-	    .textStyle = titleTextStyle,
 	},
 	{
 	    .pos = { 0.f, 0.f },
@@ -45,7 +44,6 @@ const UITextDesc textDescs[] {
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
 	    .stringId = GameStringId::play,
-	    .textStyle = defaultTextStyle,
 	},
 };
 
@@ -59,7 +57,7 @@ LevelStartScreen::LevelStartScreen(const MatchStats& matchStats, const GameDataM
     : mMatchStats(matchStats)
     , mGameDataModule(gameDataModule)
     , mGameRenderer(gameRenderer)
-    , mTitle(textDescs[0])
+    , mTitle(textDescs[0], titleTextStyle)
     , mPlayButton(playButtonDesc, buttonBitmapDesc, textDescs[1])
     , mCanvas(canvasDesc) {
 	// Setup UI
@@ -105,12 +103,14 @@ void LevelStartScreen::Draw(UIRenderer& uiRenderer, float dt) {
 	switch (level.goal.id) {
 	case GoalId::breakIce:
 		snprintf(tmp, sizeof(tmp), "%s", "Break all ice blocks");
-		textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, text0_y }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
+		textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, text0_y }, TextAlignment::center, TextDirection::leftToRight, textStyle,
+		                          GameDrawOrder::overUI);
 		DrawIceBlocks(level, text0_y + 120.f);
 		break;
 	case GoalId::collectMatches: {
 		snprintf(tmp, sizeof(tmp), "%s", "Match and remove these pieces");
-		textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, text0_y }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
+		textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, text0_y }, TextAlignment::center, TextDirection::leftToRight, textStyle,
+		                          GameDrawOrder::overUI);
 		DrawPieces(level, text0_y + 120.f);
 		break;
 	}

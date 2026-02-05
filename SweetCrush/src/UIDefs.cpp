@@ -17,6 +17,11 @@ constexpr TextStyle titleTextStyle {
 	blackColor,
 };
 
+constexpr TextStyle defaultTextStyle {
+	whiteColor,
+	blackColor,
+};
+
 const UIButtonDesc defaultBackButtonDesc {
 	.pos = UIAbsolutePos(32, -32),
 	.size = UIAutoSize,

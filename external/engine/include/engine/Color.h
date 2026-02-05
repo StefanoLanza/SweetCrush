@@ -37,6 +37,15 @@ inline Color Lerp(const Color& a, const Color& b, float t) {
 	};
 }
 
+inline Color Mul(const Color& first, const Color& second) {
+	return {
+		(first.r * second.r / 255.f),
+		(first.g * second.g / 255.f),
+		(first.b * second.b / 255.f),
+		(first.a * second.a / 255.f),
+	};
+}
+
 inline Color Interpolate(const Color& first, const Color& second, const Color& third, float t) {
 	return {
 		Interpolate(first.r, second.r, third.r, t),

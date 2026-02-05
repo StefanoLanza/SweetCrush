@@ -23,7 +23,6 @@ const UITextDesc textDescs[] {
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "screenTitle",
 	    .stringId = GameStringId::languageScreen,
-	    .textStyle = titleTextStyle,
 	},
 	{
 	    .horizontalAlignment = UIHorizAlignment::center,
@@ -40,7 +39,7 @@ constexpr UICanvasDesc canvasDesc {
 } // namespace
 
 LanguageScreen::LanguageScreen()
-    : mTitle(textDescs[0])
+    : mTitle(textDescs[0], titleTextStyle)
     , mLanguageButton(languageButtonDesc, buttonBitmapDesc, textDescs[1])
     , mBackButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc)
     , mCanvas(canvasDesc) {

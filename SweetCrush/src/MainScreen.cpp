@@ -34,12 +34,11 @@ const UIButtonDesc buttonDescs[] {
 #endif
 const UITextDesc textDescs[5] {
 	{
-		.pos = { 0.f, titleY },
+	    .pos = { 0.f, titleY },
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "bigFont",
 	    .stringId = GameStringId::title,
-	    .textStyle = titleTextStyle,
 	},
 	{
 	    .horizontalAlignment = UIHorizAlignment::center,
@@ -76,7 +75,7 @@ constexpr UICanvasDesc canvasDesc {
 MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
     : mEngine(engine)
     , mGameRenderer(gameRenderer)
-    , mTitle(textDescs[0])
+    , mTitle(textDescs[0], titleTextStyle)
     , mStartButton(buttonDescs[0], buttonBitmapDesc, textDescs[1])
     , mSettingsButton(buttonDescs[1], buttonBitmapDesc, textDescs[2])
     , mCreditsButton(buttonDescs[2], buttonBitmapDesc, textDescs[3])

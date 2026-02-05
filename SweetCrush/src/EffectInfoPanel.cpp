@@ -48,8 +48,6 @@ const UIBitmapDesc effectIconDesc {
 	.size = UIAbsoluteSize(64, 72),
 	.horizontalAlignment = UIHorizAlignment::left,
 	.verticalAlignment = UIVertAlignment::top,
-	.color = whiteColor,
-	.blending = UIBlending::on,
 };
 
 const UIPanelDesc panelDesc {
@@ -61,7 +59,7 @@ const UIPanelDesc panelDesc {
 } // namespace
 
 EffectInfoScreen::EffectInfoScreen()
-    : mTitle(textDesc[0])
+    : mTitle(textDesc[0], titleTextStyle)
     , mText(textDesc[1])
     , mOKButton(buttonDesc, buttonBitmapDesc, textDesc[2])
     , mEffectIcon(effectIconDesc)

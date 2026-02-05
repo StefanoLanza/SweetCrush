@@ -22,11 +22,6 @@ enum class UIVertAlignment {
 	center,
 };
 
-enum class UIBlending : bool {
-	on,
-	off,
-};
-
 struct UIPos {
 	float ax;
 	float ay;
@@ -69,20 +64,20 @@ struct UITextDesc {
 	float            borderWidth = 0.f;
 	const char*      font = nullptr;
 	StringId         stringId = 0;
-	const char*      text = nullptr;
-	TextStyle        textStyle = defaultTextStyle;
 };
 
 struct UIBitmapDesc {
 	const char* fileName;
 	UIBaseDesc;
-	Color      color = whiteColor;
-	UIBlending blending = UIBlending::on;
-	Rect       _9patch = { 0.f, 0.f, 0.f, 0.f }; // pixels
+	Color color = whiteColor;
+	Rect  _9patch = { 0.f, 0.f, 0.f, 0.f }; // pixels
 };
 
 struct UIButtonDesc {
 	UIBaseDesc;
+	bool keepPressedOutside = false;
+	bool toogleMode = false;
+	bool enabled = true;
 };
 
 struct UIPanelDesc {
@@ -110,22 +105,24 @@ struct UICanvasDesc {
 	Color       backgroundColor = whiteColor;
 };
 
-enum class UIButtonState {
-	idle,
-	hovered,
-	pressed,
-};
-
 #undef UIBaseDesc
+
+struct UIBitmapStyle {
+	Color color = whiteColor;
+	float scale = 1.f;
+};
 
 class UIText final {
 public:
-	explicit UIText(const UITextDesc& desc);
+	explicit UIText(const UITextDesc& desc, const TextStyle& style = {});
 
-	void Load(FontManager& fontManager);
-	void Draw(const TextRenderer& textRenderer, unsigned drawOrder) const;
-	void UpdateRect(const UIRect& parentRect);
-	void SetText(StringId stringId);
+	void             Load(FontManager& fontManager);
+	void             Draw(const TextRenderer& textRenderer, unsigned drawOrder) const;
+	void             UpdateRect(const UIRect& parentRect);
+	void             SetText(StringId stringId);
+	void             SetText(const char* str);
+	void             SetStyle(const TextStyle& style);
+	const TextStyle& GetStyle() const;
 
 private:
 	const char* Text() const;
@@ -135,22 +132,38 @@ private:
 	FontPtr    mFont;
 	UIRect     mAlignedRect;
 	char       mText[32];
+	TextStyle  mTextStyle;
 };
 
 class UIBitmap {
 public:
-	explicit UIBitmap(const UIBitmapDesc& desc);
+	explicit UIBitmap(const UIBitmapDesc& desc, const UIBitmapStyle& style = {});
 
 	void           LoadGraphics(Graphics& graphics);
 	void           Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	void           UpdateRect(const UIRect& parentRect);
 	void           SetBitmap(const TexturePtr& bitmap);
 	const Texture* GetBitmap() const;
+	void           SetStyle(const UIBitmapStyle& style);
 
 private:
-	UIBitmapDesc mDesc;
-	TexturePtr   mBitmap;
-	UIRect       mAlignedRect;
+	UIBitmapDesc  mDesc;
+	UIBitmapStyle mStyle;
+	TexturePtr    mBitmap;
+	UIRect        mAlignedRect;
+};
+
+enum class UIButtonState {
+	disabled,
+	idle,
+	hovered,
+	pressed,
+};
+
+struct UIButtonStyle {
+	UIBitmapStyle mBitmapStyle;
+	TextStyle     mTextStyle;
+	Vec2          offset { 0.f, 0.f };
 };
 
 class UIButton final {
@@ -159,6 +172,7 @@ public:
 	UIButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, const UITextDesc& labelDesc);
 	UIButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc);
 
+	void          SetEnabled(bool enabled);
 	void          SetVisible(bool visible);
 	bool          IsVisible() const;
 	bool          IsClicked(const Input& input);
@@ -169,6 +183,8 @@ public:
 	UIText*       GetText() const;
 	const UIRect& GetRect() const;
 	UIButtonState GetState() const;
+
+	// TODO Signals
 
 private:
 	UIButtonState RefreshState(const Input& input);
@@ -288,5 +304,16 @@ constexpr inline UISize UIAbsoluteSize(float x, float y) {
 }
 
 constexpr UIRect UIZeroRect { 0.f, 0.f, 0.f, 0.f };
+
+struct UITheme {
+	TextStyle     textStyle;
+	UIBitmapStyle bitmapStyle;
+	UIButtonStyle disabledButtonStyle;
+	UIButtonStyle idleButtonStyle;
+	UIButtonStyle pressedButtonStyle;
+	UIButtonStyle hoveredButtonStyle;
+};
+
+void SetTheme(const UITheme* theme);
 
 } // namespace Wind

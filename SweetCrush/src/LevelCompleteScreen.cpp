@@ -30,14 +30,12 @@ const UITextDesc textDescs[] {
 
 	    .font = "screenTitle",
 	    .stringId = GameStringId::levelComplete,
-	    .textStyle = titleTextStyle,
 	},
 	{
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
 	    .stringId = GameStringId::nextLevel,
-	    .textStyle = defaultTextStyle,
 	},
 };
 
@@ -49,7 +47,7 @@ constexpr UICanvasDesc canvasDesc {
 
 LevelCompleteScreen::LevelCompleteScreen(const MatchStats& matchStats)
     : mMatchStats(matchStats)
-    , mTitle(textDescs[0])
+    , mTitle(textDescs[0], titleTextStyle)
     , mNextLevelButton(buttonDescs[0], buttonBitmapDesc, textDescs[1])
     , mCanvas(canvasDesc) {
 	// Setup UI

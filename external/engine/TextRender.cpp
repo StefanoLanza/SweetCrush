@@ -6,8 +6,6 @@
 #include "Graphics.h"
 #include "Texture.h"
 
-#include <cassert>
-
 namespace Wind {
 
 TextRenderer::TextRenderer(Graphics& graphics)
@@ -33,7 +31,8 @@ TextRenderer::TextRenderer(Graphics& graphics)
 
 TextRenderer::~TextRenderer() = default;
 
-void TextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, const TextStyle& style, unsigned drawOrder) const {
+void TextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, const TextStyle& style, TextDirection direction,
+                         unsigned drawOrder) const {
 	if (! mValidProgram) {
 		return;
 	}
@@ -50,13 +49,18 @@ void TextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, cons
 	const float fontTexWidth = static_cast<float>(font.GetTexture().Width());
 	const float fontTexHeight = static_cast<float>(font.GetTexture().Height());
 	Char*       chars = static_cast<Char*>(instanceData.data);
-	for (int idx = 0, advance = 0; idx < (int)text.length(); ++idx) {
-		const Glyph& g = font.FindGlyph(text[idx]);
+	float       advance = 0.f;
+	for (int idx = 0; idx < (int)text.length(); ++idx) {
+		int ridx = idx;
+		if (direction == TextDirection::rightToLeft) {
+			ridx = (int)text.length() - 1 - idx;
+		}
+		const Glyph& g = font.FindGlyph(text[ridx]);
 		chars[idx].quad = {
-			pos.x + static_cast<float>(g.xoffset + advance),
+			pos.x + static_cast<float>(g.xoffset) + advance,
 			pos.y + static_cast<float>(g.yoffset),
-			static_cast<float>(g.width),
-			static_cast<float>(g.height),
+			static_cast<float>(g.width * style.scale),
+			static_cast<float>(g.height * style.scale),
 		};
 		chars[idx].uvs = {
 			static_cast<float>(g.x) / fontTexWidth,
@@ -64,7 +68,7 @@ void TextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, cons
 			static_cast<float>(g.width) / fontTexWidth,
 			static_cast<float>(g.height) / fontTexHeight,
 		};
-		advance += g.xadvance;
+		advance += g.xadvance * style.scale;
 	}
 
 	const int   uniforms[] = { mColor, mOutlineColor };
@@ -79,7 +83,7 @@ void TextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, cons
 	DrawCall drawCall;
 	drawCall.uniformLocations = uniforms;
 	drawCall.uniforms = reinterpret_cast<const float*>(uniformData);
-	drawCall.numUniforms = sizeof(uniformData) / 16;
+	drawCall.numUniforms = std::size(uniforms);
 	drawCall.textures = textureIds;
 	drawCall.numTextures = 1;
 	drawCall.program = mProgramHandle;
@@ -89,15 +93,15 @@ void TextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, cons
 	mGraphics.Draw(drawCall);
 }
 
-void TextRenderer::WriteAligned(const Font& font, std::string_view text, Vec2 pos, TextAlignment horizontalAlignment, const TextStyle& style,
-                                unsigned drawOrder) const {
+void TextRenderer::WriteAligned(const Font& font, std::string_view text, Vec2 pos, TextAlignment horizontalAlignment, TextDirection direction,
+                                const TextStyle& style, unsigned drawOrder) const {
 	if (horizontalAlignment == TextAlignment::center) {
 		pos.x += 0.5f * (mGraphics.GetTargetWidth() - font.CalculateStringWidth(text));
 	}
 	else if (horizontalAlignment == TextAlignment::right) {
 		pos.x += (mGraphics.GetTargetWidth() - font.CalculateStringWidth(text));
 	}
-	Write(font, text, pos, style, drawOrder);
+	Write(font, text, pos, style, direction, drawOrder);
 }
 
 } // namespace Wind

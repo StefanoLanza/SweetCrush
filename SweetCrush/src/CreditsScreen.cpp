@@ -19,7 +19,6 @@ const UITextDesc titleText {
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "screenTitle",
 	.stringId = GameStringId::credits,
-	.textStyle = titleTextStyle,
 };
 
 const UITextDesc codeByText {
@@ -61,11 +60,11 @@ constexpr UICanvasDesc canvasDesc {
 } // namespace
 
 CreditsScreen::CreditsScreen()
-    : mTitle(titleText)
-    , mCodeBy(codeByText)
-    , mGraphicsBy(graphicsByText)
-    , mMusicBy(musicByText)
-    , mVersion(versionText)
+    : mTitle(titleText, titleTextStyle)
+    , mCodeBy(codeByText, defaultTextStyle)
+    , mGraphicsBy(graphicsByText, defaultTextStyle)
+    , mMusicBy(musicByText, defaultTextStyle)
+    , mVersion(versionText, defaultTextStyle)
     , mBackButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc)
     , mCanvas(canvasDesc) {
 	mCanvas.AddText(mTitle);

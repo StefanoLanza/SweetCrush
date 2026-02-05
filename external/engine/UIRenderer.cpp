@@ -13,7 +13,7 @@ class UIRenderer::Impl {
 public:
 	explicit Impl(Graphics& graphics, TextRenderer& textRenderer);
 
-	void DrawRect(const UIRect& rect, const Texture& surface, const UIDrawParams& prms) const;
+	void DrawBitmap(const UIRect& rect, const Texture& surface, const UIDrawParams& prms) const;
 	void DrawLine(const Vec2& start, const Vec2& end, float thickness, const Color& color, unsigned priority) const;
 	void DrawBorder(const UIRect& rect, float thickness, const Color& color, unsigned priority) const;
 
@@ -72,7 +72,7 @@ UIRenderer::Impl::Impl(Graphics& graphics, TextRenderer& textRenderer)
 	}
 }
 
-void UIRenderer::Impl::DrawRect(const UIRect& rect, const Texture& texture, const UIDrawParams& prms) const {
+void UIRenderer::Impl::DrawBitmap(const UIRect& rect, const Texture& texture, const UIDrawParams& prms) const {
 	if (! mBitmapProgram.mValid) {
 		return;
 	}
@@ -158,8 +158,8 @@ const TextRenderer& UIRenderer::GetTextRenderer() const {
 	return mPimpl->mTextRenderer;
 }
 
-void UIRenderer::DrawRect(const UIRect& rect, const Texture& texture, const UIDrawParams& prms) const {
-	mPimpl->DrawRect(rect, texture, prms);
+void UIRenderer::DrawBitmap(const UIRect& rect, const Texture& texture, const UIDrawParams& prms) const {
+	mPimpl->DrawBitmap(rect, texture, prms);
 }
 
 void UIRenderer::DrawLine(const Vec2& start, const Vec2& end, float thickness, const Color& color, unsigned priority) const {
