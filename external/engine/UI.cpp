@@ -311,6 +311,10 @@ void UIBitmap::SetColor(const Color& color) {
 	mDesc.color = color;
 }
 
+const UIBitmapDesc& UIBitmap::GetDesc() const {
+	return mDesc;
+}
+
 void UIBitmap::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	if (mBitmap) {
 		const UIDrawParams prm {

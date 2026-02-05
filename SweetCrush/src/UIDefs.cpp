@@ -30,10 +30,10 @@ const UIButtonDesc defaultBackButtonDesc {
 };
 
 const UIBitmapDesc defaultBackButtonBitmapDesc {
-	.fileName = "backButton.png",
+	.fileName = "backButton2.png",
 	.pos = UIZeroPos,
 	.size = UIAutoSize,
-	.color = yellowColor,
+	.color = whiteColor,
 };
 
 const UISize    defaultButtonSize { 422.f, 100.f, 0.f, 0.f };

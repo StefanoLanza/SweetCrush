@@ -139,14 +139,15 @@ class UIBitmap {
 public:
 	explicit UIBitmap(const UIBitmapDesc& desc, const UIBitmapStyle& style = {});
 
-	void           LoadGraphics(Graphics& graphics);
-	void           SetPosition(const Vec2& pos);
-	void           SetColor(const Color& color);
-	void           Draw(const UIRenderer& renderer, unsigned drawOrder) const;
-	void           UpdateRect(const UIRect& parentRect);
-	void           SetBitmap(const TexturePtr& bitmap);
-	const Texture* GetBitmap() const;
-	void           SetStyle(const UIBitmapStyle& style);
+	void                LoadGraphics(Graphics& graphics);
+	void                SetPosition(const Vec2& pos);
+	void                SetColor(const Color& color);
+	const UIBitmapDesc& GetDesc() const;
+	void                Draw(const UIRenderer& renderer, unsigned drawOrder) const;
+	void                UpdateRect(const UIRect& parentRect);
+	void                SetBitmap(const TexturePtr& bitmap);
+	const Texture*      GetBitmap() const;
+	void                SetStyle(const UIBitmapStyle& style);
 
 private:
 	UIBitmapDesc  mDesc;

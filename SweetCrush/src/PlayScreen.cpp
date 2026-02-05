@@ -69,8 +69,10 @@ const UIBitmapDesc boosterButtonBitmapDesc {
 };
 
 const UIBitmapDesc pauseButtonBitmapDesc {
-	.fileName = "backButton.png", .pos = UIZeroPos, .size = UIAutoSize,
-	//	.color = yellowColor,
+	.fileName = "pauseButton.png",
+	.pos = UIZeroPos,
+	.size = UIAutoSize,
+	.color = whiteColor,
 };
 
 const UITextDesc scoreTextDesc {

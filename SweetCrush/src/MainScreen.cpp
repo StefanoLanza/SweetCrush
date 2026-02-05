@@ -185,5 +185,6 @@ void MainScreen::ParseConfig(const char* varName, const char* varValue) {
 
 void MainScreen::AnimateUI() {
 	float t = EaseOutQuint(std::min(1.f, mTime));
-	mQuitButton.GetBitmap()->SetColor(Color { yellowColor.r, yellowColor.g, yellowColor.b, 255.f * t});
+	const auto& desc = mQuitButton.GetBitmap()->GetDesc();
+	mQuitButton.GetBitmap()->SetColor(Color { desc.color.r, desc.color.g, desc.color.b, 255.f * t});
 }
