@@ -53,6 +53,10 @@ const GlFrameBuffer& UICompositor::Execute(float dt) {
 		res = mCurrDst;
 		mCurrDst = (mCurrDst + 1) & 1;
 		break;
+	case ScreenTransition::fade:
+		Fade(mCurrDst, (mCurrDst + 1) & 1, mAccumTime / mFadeTransition.mDuration);
+		duration = mFadeTransition.mDuration;
+		break;
 	case ScreenTransition::slideIn:
 		Slide(mCurrDst, (mCurrDst + 1) & 1, -1.f);
 		duration = mSlideTransition.mDuration;
@@ -102,6 +106,7 @@ void UICompositor::ConfigurePixelTransition(const PixelateTransition& settings) 
 
 void UICompositor::InitPrograms(Graphics& graphics) {
 	// TODO Register search paths
+	InitProgramUniforms(mFadeProgram, SHADERS_FOLDER "transitions/fade.fs", graphics);
 	InitProgramUniforms(mSlideProgram, SHADERS_FOLDER "transitions/slide.fs", graphics);
 	InitProgramUniforms(mPixelateProgram, SHADERS_FOLDER "transitions/pixelate.fs", graphics);
 	InitProgramUniforms(mDissolveProgram, SHADERS_FOLDER "transitions/dissolve.fs", graphics);
@@ -114,13 +119,29 @@ void UICompositor::InitProgramUniforms(Program& programData, const char* fsPath,
 		const GlProgram& program = graphics.GetProgram(programData.mHandle);
 		programData.mTexture0 = program.GetUniformLocation("texture0");
 		programData.mTexture1 = program.GetUniformLocation("texture1");
-		programData.color0 = program.GetUniformLocation("color0");
+		programData.color0 = program.GetUniformLocation("fadeColor");
 		programData.mMisc = program.GetUniformLocation("misc");
 		programData.mValid = (programData.mTexture0 != -1 && programData.mTexture1 != -1);
 	}
 	else {
 		programData.mValid = false;
 	}
+}
+
+void UICompositor::Fade(unsigned first, unsigned second, float progress) const {
+	if (! mFadeProgram.mValid) {
+		return;
+	}
+	const FadeTransition& settings = mFadeTransition;
+	const int             uniformLocations[] = {
+        mFadeProgram.mMisc,
+        mFadeProgram.color0,
+	};
+	const Vec4 uniforms[] {
+		{ progress, 0.f, 0.f, 0.f },
+		(Vec4)(settings.mFadeColor),
+	};
+	Composite(mFadeProgram, first, second, uniformLocations, uniforms, std::size(uniformLocations));
 }
 
 void UICompositor::Slide(unsigned first, unsigned second, float dir) const {
@@ -161,7 +182,7 @@ void UICompositor::Zoom(unsigned first, unsigned second, float dir) const {
         //  mZoomProgram.color0,
 	};
 	const Vec4 uniforms[] {
-		{ dir, progress, 0.f, 0.f },
+		{ dir, progress, mZoomTransition.mZoomFactor, 0.f },
 		{ 1.f, 1.f, 1.f, 1.f },
 	};
 	Composite(mZoomProgram, first, second, uniformLocations, uniforms, std::size(uniformLocations));

@@ -4,7 +4,7 @@ namespace Wind {
 
 enum class ScreenTransition {
 	none,
-	crossFade,
+	fade,
 	slideIn,
 	slideOut,
 	pixelate,

@@ -4,7 +4,7 @@ layout(binding = 0)  uniform sampler2D texture0; // new
 layout(binding = 1)  uniform sampler2D texture1; // snapshot
 in vec2 vTexCoord;
 uniform vec4 misc; // dir, progress, border thickness
-uniform vec4 color0;
+uniform vec4 fadeColor;
 out vec4 fragColor;
 
 void main() {
@@ -16,7 +16,7 @@ void main() {
 	//float isInBounds = step(abs(uv0.x - 0.5), 0.5);
     vec4 tex0 = texture(texture0, uv0);
     vec4 tex1 = texture(texture1, uv1);
-	tex0 = mix(color0, tex0, isInBounds); // make out of bounds black
+	tex0 = mix(fadeColor, tex0, isInBounds); // make out of bounds black
 	float borderTest = step(0.5 + misc.z, abs(uv0.x - 0.5));
     fragColor =  mix(tex0, tex1, borderTest);
 }

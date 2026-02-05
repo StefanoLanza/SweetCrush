@@ -275,7 +275,7 @@ void UIText::SetText(StringId stringId) {
 }
 
 void UIText::SetText(const char* str) {
-	int count = SDL_snprintf(mText, sizeof mText, str);
+	int count = SDL_snprintf(mText, sizeof mText, "%s", str);
 	if (count >= sizeof mText) {
 		// TODO log
 	}
@@ -301,6 +301,14 @@ UIBitmap::UIBitmap(const UIBitmapDesc& desc, const UIBitmapStyle& style)
 
 void UIBitmap::LoadGraphics(Graphics& graphics) {
 	mBitmap = graphics.LoadTexture(mDesc.fileName);
+}
+
+void UIBitmap::SetPosition(const Vec2& pos) {
+	mDesc.pos = UIAbsolutePos(pos.x, pos.y);
+}
+
+void UIBitmap::SetColor(const Color& color) {
+	mDesc.color = color;
 }
 
 void UIBitmap::Draw(const UIRenderer& renderer, unsigned drawOrder) const {

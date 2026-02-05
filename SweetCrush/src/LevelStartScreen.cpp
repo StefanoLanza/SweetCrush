@@ -77,7 +77,7 @@ void LevelStartScreen::LoadAssets(Engine& engine) {
 ScreenEvent LevelStartScreen::Tick(float dt, const Input& input) {
 	mAccumTime += dt;
 	if (mAccumTime > 6.f || mPlayButton.IsClicked(input)) {
-		return GoTo(GameScreenIds::play, ScreenTransition::zoomInOut);
+		return GoTo(GameScreenIds::play, ScreenTransition::fade);
 	}
 	return Continue();
 }

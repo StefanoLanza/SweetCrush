@@ -3,15 +3,12 @@ precision mediump float;
 layout(binding = 0)  uniform sampler2D texture0; // new
 layout(binding = 1)  uniform sampler2D texture1; // snapshot
 in vec2 vTexCoord;
-uniform vec4 misc; // dir, progress
+uniform vec4 misc; // dir, progress, zoom
 out vec4 fragColor;
 
 void main() {
-	vec2 uv0 = vTexCoord;
-	vec2 uv1 = vTexCoord;
-	// Shrink towards (misc.x == 1) or expand from (misc.x == -1) center
-	uv0 = 0.5 + (uv0 - 0.5) * mix(0.75, 1.0, misc.y); // zoom in
-	uv1 = 0.5 + (uv1 - 0.5) * mix(1.0, 0.75, misc.y); // zoom out
+	vec2 uv0 = 0.5 + (vTexCoord - 0.5) * mix(misc.z, 1.0, misc.y); // zoom in
+	vec2 uv1 = 0.5 + (vTexCoord - 0.5) * mix(1.0, misc.z, misc.y); // zoom out
 	float f = mix(1.0, 0.0, min(1.0, misc.y)); // fade out current
 	float f2 = 1.0 - f; //mix(0.0, 1.0, min(1.0, misc.y * 8.0)); // fade in current
 	//float l = float( (abs(uv1.x - 0.5) > 0.5) || (abs(uv1.y - 0.5) > 0.5) ) ;

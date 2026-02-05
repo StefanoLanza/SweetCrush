@@ -73,6 +73,20 @@ const UIBitmapDesc pauseButtonBitmapDesc {
 	//	.color = yellowColor,
 };
 
+const UITextDesc scoreTextDesc {
+	.pos = { 60.f, 60.f },
+	.horizontalAlignment = UIHorizAlignment::left,
+	.verticalAlignment = UIVertAlignment::top,
+	.font = "smallFont",
+};
+
+const UITextDesc timeTextDesc {
+	.pos = { 500.f, 60.f },
+	.horizontalAlignment = UIHorizAlignment::left,
+	.verticalAlignment = UIVertAlignment::top,
+	.font = "smallFont",
+};
+
 constexpr UIPanelDesc boosterPanelDesc {
 	.pos = { 0.f, -20.f, 0.f, 0.f },
 	.size = { 340.f, 100.f, 0.f, 0.f },
@@ -104,6 +118,8 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
     , mCellSelector { std::make_unique<TileSelector>(mBoard, gameConfig) }
     , mCanvas(canvasDesc)
     , mBoostersPanel(boosterPanelDesc)
+    , mScoreText(scoreTextDesc, defaultTextStyle)
+    , mTimeText(timeTextDesc, defaultTextStyle)
     , mPauseButton(pauseButtonDesc, pauseButtonBitmapDesc)
     , mBoosterButtons { { booster0ButtonDesc, boosterButtonBitmapDesc },
 	                    { booster1ButtonDesc, boosterButtonBitmapDesc },
@@ -117,6 +133,8 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
 	// Build UI
 	mCanvas.AddPanel(mBoostersPanel);
 	mCanvas.AddButton(mPauseButton);
+	mCanvas.AddText(mScoreText);
+	mCanvas.AddText(mTimeText);
 	mBoostersPanel.AddButton(mBoosterButtons[0]);
 	mBoostersPanel.AddButton(mBoosterButtons[1]);
 	mBoostersPanel.AddButton(mBoosterButtons[2]);
@@ -176,7 +194,7 @@ ScreenEvent PlayScreen::Tick(float dt, const Input& input) {
 	if (input.GetKeyJustPressed(SDLK_ESCAPE)
 #endif
 	    || mPauseButton.IsClicked(input)) {
-		return GoTo(GameScreenIds::pauseGame, ScreenTransition::slideIn);
+		return GoTo(GameScreenIds::pauseGame, ScreenTransition::fade);
 	}
 
 	if (mMatch3.IsWaitingForUser()) {
@@ -514,17 +532,16 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 	const TextStyle     textStyle1 { redColor, blackColor };
 	const Level&        level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
 	char                tmp[256];
-	const float         y = 60.f;
-
-	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 
 	snprintf(tmp, sizeof(tmp), "%04d", mMatchStats.score);
-	textRenderer.Write(*mFonts[2], tmp, Vec2 { 60, y }, textStyle, TextDirection::leftToRight, GameDrawOrder::overlays);
+	mScoreText.SetText(tmp);
 
 	const int time = static_cast<int>(mMatchTime);
 	snprintf(tmp, sizeof(tmp), "%d:%02d", time / 60, time % 60);
-	textRenderer.Write(*mFonts[2], tmp, Vec2 { 500, y }, mMatchTime < criticalTime ? textStyle1 : textStyle, TextDirection::leftToRight,
-	                   GameDrawOrder::overlays);
+	mTimeText.SetText(tmp);
+	mTimeText.SetStyle(mMatchTime < criticalTime ? textStyle1 : textStyle);
+
+	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 
 	if (level.goal.id == GoalId::collectMatches) {
 		Vec2 pos = mGameConfig.ui.goalStartCoord;
@@ -558,8 +575,8 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 			}
 			mGameRenderer.DrawIcon(boosterIcons[level.boosterIds[i]], coords, 0.f, whiteColor, GameDrawOrder::overUI);
 			snprintf(tmp, sizeof(tmp), "%d", mBoosterCount[i]);
-			textRenderer.Write(*mFonts[1], tmp, mBoosterButtons[i].GetRect().pos + Vec2 { 12.f, 12.f }, defaultTextStyle,
-			                   TextDirection::leftToRight, GameDrawOrder::overUI);
+			textRenderer.Write(*mFonts[1], tmp, mBoosterButtons[i].GetRect().pos + Vec2 { 12.f, 12.f }, defaultTextStyle, TextDirection::leftToRight,
+			                   GameDrawOrder::overUI);
 			mBoosterButtons[i].SetVisible(true);
 		}
 		else {

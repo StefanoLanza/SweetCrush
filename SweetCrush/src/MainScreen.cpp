@@ -13,6 +13,7 @@
 #include <engine/TextRender.h>
 #include <engine/UI.h>
 #include <engine/UIRenderer.h>
+#include <engine/Easings.h>
 
 using namespace Wind;
 
@@ -27,9 +28,24 @@ const UIButtonDesc buttonDescs[] {
 };
 #else
 const UIButtonDesc buttonDescs[] {
-	{ UIAbsolutePos(0, button0_y), defaultButtonSize, UIHorizAlignment::center, UIVertAlignment::top },
-	{ UIAbsolutePos(0, button1_y), defaultButtonSize, UIHorizAlignment::center, UIVertAlignment::top },
-	{ UIAbsolutePos(0, button2_y), defaultButtonSize, UIHorizAlignment::center, UIVertAlignment::top },
+	{
+	    UIAbsolutePos(0, button0_y),
+	    defaultButtonSize,
+	    UIHorizAlignment::center,
+	    UIVertAlignment::top,
+	},
+	{
+	    UIAbsolutePos(0, button1_y),
+	    defaultButtonSize,
+	    UIHorizAlignment::center,
+	    UIVertAlignment::top,
+	},
+	{
+	    UIAbsolutePos(0, button2_y),
+	    defaultButtonSize,
+	    UIHorizAlignment::center,
+	    UIVertAlignment::top,
+	},
 };
 #endif
 const UITextDesc textDescs[5] {
@@ -104,8 +120,9 @@ void MainScreen::LoadAssets(Engine& engine) {
 
 ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
 	mTime += dt;
+
 	if (mStartButton.IsClicked(input)) {
-		return GoTo(GameScreenIds::levelStart, ScreenTransition::zoomInOut);
+		return GoTo(GameScreenIds::levelStart, ScreenTransition::fade);
 	}
 	else if (mSettingsButton.IsClicked(input)) {
 		return GoTo(GameScreenIds::settings, ScreenTransition::slideIn);
@@ -113,6 +130,8 @@ ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
 	else if (mCreditsButton.IsClicked(input)) {
 		return GoTo(GameScreenIds::credits, ScreenTransition::slideIn);
 	}
+
+	AnimateUI();
 
 #if defined(__ANDROID__) || defined(__OHOS__)
 	if (input.GetKeyJustPressed(SDLK_AC_BACK)) {
@@ -154,10 +173,17 @@ void MainScreen::Draw(UIRenderer& uiRenderer, float dt) {
 }
 
 void MainScreen::Enter(const ScreenNavArgs& args) {
+	mTime = 0.f;
+	AnimateUI();
 }
 
 void MainScreen::Exit() {
 }
 
 void MainScreen::ParseConfig(const char* varName, const char* varValue) {
+}
+
+void MainScreen::AnimateUI() {
+	float t = EaseOutQuint(std::min(1.f, mTime));
+	mQuitButton.GetBitmap()->SetColor(Color { yellowColor.r, yellowColor.g, yellowColor.b, 255.f * t});
 }

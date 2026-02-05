@@ -19,6 +19,10 @@ public:
 	void                   ParseConfig(const char* varName, const char* varValue) override;
 
 private:
+
+	void AnimateUI();
+
+private:
 	Wind::Engine&       mEngine;
 	const GameRenderer& mGameRenderer;
 	Wind::UICanvas      mCanvas;

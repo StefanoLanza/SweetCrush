@@ -64,6 +64,8 @@ private:
 	Wind::UICanvas                mCanvas;
 	Wind::UIButton                mPauseButton;
 	Wind::UIPanel                 mBoostersPanel;
+	Wind::UIText                  mScoreText;
+	Wind::UIText                  mTimeText;
 	Wind::UIButton                mBoosterButtons[3];
 	Match3                        mMatch3;
 	std::vector<CellVisual>       mCellGraphics;

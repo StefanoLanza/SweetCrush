@@ -8,8 +8,15 @@
 
 namespace Wind {
 
+struct FadeTransition {
+	float mDuration = 0.25f;
+	float (*mTimeCurve)(float) = EaseOutCubic;
+	Color mFadeColor = whiteColor;
+};
+
 struct PixelateTransition {
 	float mDuration = 0.25f;
+	float (*mTimeCurve)(float) = EaseOutCubic;
 	Color mDissolveColor = whiteColor;
 };
 
@@ -17,12 +24,13 @@ struct SlideTransition {
 	float mDuration = 0.25f;
 	float (*mTimeCurve)(float) = EaseOutCubic;
 	Color mBorderColor = whiteColor;
-	float mBorderThickness = 8.f; // pixels
+	float mBorderThickness = 4.f; // pixels
 };
 
 struct ZoomTransition {
 	float mDuration = 0.25f;
 	float (*mTimeCurve)(float) = EaseOutCubic;
+	float mZoomFactor = 0.9f;
 	Color mFadeColor = whiteColor;
 };
 
@@ -43,6 +51,7 @@ private:
 	struct Program;
 	void InitPrograms(Graphics& graphics);
 	void InitProgramUniforms(Program& program, const char* fsPath, Graphics& graphics);
+	void Fade(unsigned first, unsigned second, float progress) const;
 	void Slide(unsigned first, unsigned second, float dir) const;
 	void Dissolve(unsigned first, unsigned second) const;
 	void Zoom(unsigned first, unsigned second, float dir) const;
@@ -67,10 +76,12 @@ private:
 		bool          mValid = false;
 	};
 	PipelineHandle     mPipelineHandle;
+	Program            mFadeProgram;
 	Program            mSlideProgram;
 	Program            mPixelateProgram;
 	Program            mDissolveProgram;
 	Program            mZoomProgram;
+	FadeTransition     mFadeTransition;
 	PixelateTransition mPixelateTransition;
 	SlideTransition    mSlideTransition;
 	DissolveTransition mDissolveTransition;

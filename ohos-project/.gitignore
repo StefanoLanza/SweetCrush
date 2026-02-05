@@ -22,4 +22,4 @@ cpp/build
 entry/.preview
 
 # Resources
-/entry/src/main/resources/rawfile
+entry/src/main/resources/rawfile

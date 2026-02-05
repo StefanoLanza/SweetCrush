@@ -101,10 +101,10 @@ ScreenEvent PauseScreen::Tick(float /*dt*/, const Wind::Input& input) {
 		return GoBack(false, ScreenTransition::slideOut);
 	}
 	if (mExitGameButton.IsClicked(input)) {
-		return GoTo(GameScreenIds::mainMenu, ScreenTransition::zoomInOut);
+		return GoTo(GameScreenIds::mainMenu, ScreenTransition::fade);
 	}
 	else if (mRestartLevelButton.IsClicked(input)) {
-		return GoBack(true, ScreenTransition::zoomInOut);
+		return GoBack(true, ScreenTransition::fade);
 	}
 	else if (mSettingsButton.IsClicked(input)) {
 		return GoTo(GameScreenIds::settings, ScreenTransition::slideIn);
