@@ -122,7 +122,7 @@ class UIText final {
 public:
 	explicit UIText(const UITextDesc& desc);
 
-	void Load(TextRenderer& textRenderer);
+	void Load(FontManager& fontManager);
 	void Draw(const TextRenderer& textRenderer, unsigned drawOrder) const;
 	void UpdateRect(const UIRect& parentRect);
 	void SetText(StringId stringId);
@@ -162,7 +162,7 @@ public:
 	void          SetVisible(bool visible);
 	bool          IsVisible() const;
 	bool          IsClicked(const Input& input);
-	void          LoadAssets(Graphics& graphics, TextRenderer& textRenderer);
+	void          LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void          Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	void          UpdateRect(const UIRect& parentRect);
 	UIBitmap*     GetBitmap() const;
@@ -188,7 +188,7 @@ public:
 	void AddButton(UIButton& button);
 	void AddBitmap(UIBitmap& bitmap);
 	void AddText(UIText& text);
-	void LoadAssets(Graphics& graphics, TextRenderer& textRenderer);
+	void LoadAssets(Graphics& graphics, FontManager& fontManager);
 
 protected:
 	std::vector<UIPanel*>  mPanels;
@@ -204,7 +204,7 @@ public:
 	void          SetVisible(bool visible);
 	bool          IsVisible() const;
 	const UIRect& Rect() const;
-	void          LoadAssets(Graphics& graphics, TextRenderer& textRenderer);
+	void          LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void          Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	void          UpdateRect(const UIRect& parentRect);
 
@@ -221,7 +221,7 @@ public:
 
 	void SetVisible(bool visible);
 	bool IsVisible() const;
-	void LoadAssets(Graphics& graphics, TextRenderer& textRenderer);
+	void LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	void UpdateRect(const UIRect& parentRect);
 
@@ -238,7 +238,7 @@ public:
 
 	void SetVisible(bool visible);
 	bool IsVisible() const;
-	void LoadAssets(Graphics& graphics, TextRenderer& textRenderer);
+	void LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	void UpdateRect(const UIRect& parentRect);
 
@@ -258,7 +258,7 @@ public:
 	void AddButton(UIButton& button);
 	void AddBitmap(UIBitmap& bitmap);
 	void AddText(UIText& text);
-	void LoadAssets(Graphics& graphics, TextRenderer& textRenderer);
+	void LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder);
 
 private:

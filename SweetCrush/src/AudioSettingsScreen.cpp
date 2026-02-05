@@ -67,7 +67,7 @@ const char* AudioSettingsScreen::GetName() const {
 }
 
 void AudioSettingsScreen::LoadAssets(Engine& engine) {
-	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
 }
 
 ScreenEvent AudioSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {

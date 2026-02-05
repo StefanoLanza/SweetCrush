@@ -103,7 +103,7 @@ void CreditsScreen::Exit() {
 }
 
 void CreditsScreen::LoadAssets(Engine& engine) {
-	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
 }
 
 void CreditsScreen::ParseConfig(const char* varName, const char* varValue) {

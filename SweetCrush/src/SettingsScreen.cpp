@@ -78,7 +78,7 @@ const char* SettingsScreen::GetName() const {
 }
 
 void SettingsScreen::LoadAssets(Engine& engine) {
-	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
 }
 
 ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {

@@ -32,6 +32,7 @@ public:
 	Graphics&       GetGraphics() const;
 	const Blitter&  GetBlitter() const;
 	BitmapRenderer& GetBitmapRenderer() const;
+	FontManager&    GetFontManager() const;
 	TextRenderer&   GetTextRenderer() const;
 	Audio&          GetAudio() const;
 

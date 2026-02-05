@@ -5,12 +5,14 @@
 #include "Blitter.h"
 #include "Color.h"
 #include "Config.h"
+#include "FontManager.h"
 #include "Gl.h"
 #include "GlContext.h"
 #include "Graphics.h"
 #include "Input.h"
 #include "SdlWindow.h"
 #include "TextRender.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -32,6 +34,7 @@ struct Engine::Implementation {
 	Graphics           mGraphics;
 	Audio              mAudio;
 	BitmapRenderer     mBitmapRenderer;
+	FontManager        mFontManager;
 	Blitter            mBlitter;
 	TextRenderer       mTextRenderer;
 	uint64_t           mElapsedTicks;
@@ -45,6 +48,7 @@ struct Engine::Implementation {
 	    , mGlContext(mWindow)
 	    , mGraphics(mWindow)
 	    , mBitmapRenderer { mGraphics }
+	    , mFontManager { mGraphics }
 	    , mBlitter { mGraphics }
 	    , mTextRenderer { mGraphics }
 	    , mElapsedTicks(0)
@@ -179,6 +183,10 @@ const Blitter& Engine::GetBlitter() const {
 
 BitmapRenderer& Engine::GetBitmapRenderer() const {
 	return mPimpl->mBitmapRenderer;
+}
+
+FontManager& Engine::GetFontManager() const {
+	return mPimpl->mFontManager;
 }
 
 void Engine::Start(const RenderCallback& renderCbk, const UpdateCallback& updateCbk) {

@@ -27,6 +27,7 @@ class UIPanel;
 class UIBitmap;
 class UIText;
 class UIRenderer;
+class FontManager;
 using TexturePtr = std::shared_ptr<Texture>;
 using FontPtr = std::shared_ptr<Font>;
 using SoundPtr = std::shared_ptr<SdlSound>;

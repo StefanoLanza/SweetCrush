@@ -18,6 +18,7 @@
 #include <engine/BitmapRender.h>
 #include <engine/Engine.h>
 #include <engine/Font.h>
+#include <engine/FontManager.h>
 #include <engine/Graphics.h>
 #include <engine/Input.h>
 #include <engine/SdlMusic.h>
@@ -130,13 +131,13 @@ const char* PlayScreen::GetName() const {
 }
 
 void PlayScreen::LoadAssets(Engine& engine) {
-	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
 	Audio& audio = engine.GetAudio();
 	mMusic = audio.LoadMusic("audio/music.ogg");
 	mSounds[0] = audio.LoadSound("audio/match.wav");
-	mFonts[0] = mEngine.GetTextRenderer().AddFont("mediumFont");
-	mFonts[1] = mEngine.GetTextRenderer().AddFont("tiny");
-	mFonts[2] = mEngine.GetTextRenderer().AddFont("smallFont");
+	mFonts[0] = mEngine.GetFontManager().AddFont("mediumFont");
+	mFonts[1] = mEngine.GetFontManager().AddFont("tiny");
+	mFonts[2] = mEngine.GetFontManager().AddFont("smallFont");
 }
 
 ScreenEvent PlayScreen::Tick(float dt, const Input& input) {

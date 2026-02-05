@@ -54,6 +54,4 @@ private:
 	int                mHeight;
 };
 
-std::vector<Glyph> LoadGlyphs(const char* fontFile);
-
 } // namespace Wind

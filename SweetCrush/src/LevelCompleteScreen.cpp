@@ -62,7 +62,7 @@ const char* LevelCompleteScreen::GetName() const {
 }
 
 void LevelCompleteScreen::LoadAssets(Engine& engine) {
-	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
 }
 
 ScreenEvent LevelCompleteScreen::Tick(float dt, const Input& input) {

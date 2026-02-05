@@ -7,6 +7,7 @@
 #include "UIDefs.h"
 
 #include <engine/Engine.h>
+#include <engine/FontManager.h>
 #include <engine/TextRender.h>
 #include <engine/UI.h>
 #include <engine/UIRenderer.h>
@@ -28,7 +29,7 @@ const UIButtonDesc buttonDescs[] {
 
 const UITextDesc textDescs[] {
 	{
-		.pos = { 0.f, titleY },
+	    .pos = { 0.f, titleY },
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "screenTitle",
@@ -75,8 +76,8 @@ const char* GameCompleteScreen::GetName() const {
 }
 
 void GameCompleteScreen::LoadAssets(Engine& engine) {
-	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
-	mFont = engine.GetTextRenderer().AddFont("smallFont");
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
+	mFont = engine.GetFontManager().AddFont("smallFont");
 }
 
 ScreenEvent GameCompleteScreen::Tick(float dt, const Wind::Input& input) {

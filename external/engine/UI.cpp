@@ -4,7 +4,7 @@
 #include "Graphics.h"
 #include "Input.h"
 #include "StringTable.h"
-#include "TextRender.h"
+#include "FontManager.h"
 #include "Texture.h"
 #include "UIRenderer.h"
 #include <cassert>
@@ -113,12 +113,12 @@ bool UIButton::IsClicked(const Input& input) {
 	return (state == UIButtonState::pressed) && (newState == UIButtonState::hovered);
 }
 
-void UIButton::LoadAssets(Graphics& graphics, TextRenderer& textRenderer) {
+void UIButton::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 	if (mBitmap) {
 		mBitmap->LoadGraphics(graphics);
 	}
 	if (mText) {
-		mText->Load(textRenderer);
+		mText->Load(fontManager);
 	}
 }
 
@@ -184,8 +184,8 @@ UIText::UIText(const UITextDesc& desc)
     , mAlignedRect {} {
 }
 
-void UIText::Load(TextRenderer& textRenderer) {
-	mFont = textRenderer.AddFont(mDesc.font);
+void UIText::Load(FontManager& fontManager) {
+	mFont = fontManager.AddFont(mDesc.font);
 }
 
 void UIText::Draw(const TextRenderer& textRenderer, unsigned drawOrder) const {
@@ -285,18 +285,18 @@ void UIContainer::AddText(UIText& text) {
 	mTexts.push_back(&text);
 }
 
-void UIContainer::LoadAssets(Graphics& graphics, TextRenderer& textRenderer) {
+void UIContainer::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 	for (auto& panel : mPanels) {
-		panel->LoadAssets(graphics, textRenderer);
+		panel->LoadAssets(graphics, fontManager);
 	}
 	for (auto& bitmap : mBitmaps) {
 		bitmap->LoadGraphics(graphics);
 	}
 	for (auto& button : mButtons) {
-		button->LoadAssets(graphics, textRenderer);
+		button->LoadAssets(graphics, fontManager);
 	}
 	for (auto& text : mTexts) {
-		text->Load(textRenderer);
+		text->Load(fontManager);
 	}
 }
 
@@ -318,11 +318,11 @@ const UIRect& UIPanel::Rect() const {
 	return mRect;
 }
 
-void UIPanel::LoadAssets(Graphics& graphics, TextRenderer& textRenderer) {
+void UIPanel::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 	if (mDesc.background) {
 		mBackground = graphics.LoadTexture(mDesc.background);
 	}
-	UIContainer::LoadAssets(graphics, textRenderer);
+	UIContainer::LoadAssets(graphics, fontManager);
 }
 
 void UIPanel::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
@@ -386,8 +386,8 @@ bool UIGrid::IsVisible() const {
 	return mVisible;
 }
 
-void UIGrid::LoadAssets(Graphics& graphics, TextRenderer& textRenderer) {
-	UIContainer::LoadAssets(graphics, textRenderer);
+void UIGrid::LoadAssets(Graphics& graphics, FontManager& fontManager) {
+	UIContainer::LoadAssets(graphics, fontManager);
 }
 
 void UIGrid::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
@@ -448,8 +448,8 @@ UICanvas::UICanvas(const UICanvasDesc& desc)
     : mPanel(UIPanelDesc { .pos = UIZeroPos, .size = UIParentSize, .background = desc.background, .backgroundColor = desc.backgroundColor }) {
 }
 
-void UICanvas::LoadAssets(Graphics& graphics, TextRenderer& textRenderer) {
-	mPanel.LoadAssets(graphics, textRenderer);
+void UICanvas::LoadAssets(Graphics& graphics, FontManager& fontManager) {
+	mPanel.LoadAssets(graphics, fontManager);
 }
 
 void UICanvas::AddPanel(UIPanel& panel) {

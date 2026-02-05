@@ -12,6 +12,7 @@
 
 #include <engine/BitmapRender.h>
 #include <engine/Engine.h>
+#include <engine/FontManager.h>
 #include <engine/TextRender.h>
 #include <engine/Texture.h>
 #include <engine/UI.h>
@@ -30,7 +31,7 @@ const UIButtonDesc playButtonDesc {
 
 const UITextDesc textDescs[] {
 	{
-		.pos = { 0.f, titleY },
+	    .pos = { 0.f, titleY },
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 
@@ -71,8 +72,8 @@ const char* LevelStartScreen::GetName() const {
 }
 
 void LevelStartScreen::LoadAssets(Engine& engine) {
-	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
-	mFont = engine.GetTextRenderer().AddFont("smallFont");
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
+	mFont = engine.GetFontManager().AddFont("smallFont");
 }
 
 ScreenEvent LevelStartScreen::Tick(float dt, const Input& input) {

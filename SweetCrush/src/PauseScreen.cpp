@@ -89,7 +89,7 @@ const char* PauseScreen::GetName() const {
 }
 
 void PauseScreen::LoadAssets(Engine& engine) {
-	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
 }
 
 ScreenEvent PauseScreen::Tick(float /*dt*/, const Wind::Input& input) {

@@ -100,7 +100,7 @@ const char* MainScreen::GetName() const {
 }
 
 void MainScreen::LoadAssets(Engine& engine) {
-	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
 }
 
 ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {

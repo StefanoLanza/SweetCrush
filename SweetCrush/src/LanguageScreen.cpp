@@ -56,7 +56,7 @@ const char* LanguageScreen::GetName() const {
 }
 
 void LanguageScreen::LoadAssets(Engine& engine) {
-	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
 }
 
 ScreenEvent LanguageScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {

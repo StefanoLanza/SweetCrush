@@ -9,9 +9,9 @@ namespace Wind {
 Input::Input()
     : mMouseCoord { -100.f, -100.f }
     , mMappedMouseCoord { -100.f, -100.f }
-    , mMouseButtonDown(false)
-    , mMouseButtonPressed(false)
-    , mMouseButtonReleased(false)
+    , mMouseButtonDown{}
+    , mMouseButtonPressed{}
+    , mMouseButtonReleased{}
     , mFingerDown(false)
     , mFingerPressed(false)
     , mFingerReleased(false)

@@ -4,9 +4,8 @@
 #include "Gl.h"
 #include "GlProgram.h"
 #include "Graphics.h"
-#include "SdlWindow.h"
 #include "Texture.h"
-#include <SDL3/SDL.h>
+
 #include <cassert>
 
 namespace Wind {
@@ -24,39 +23,15 @@ TextRenderer::TextRenderer(Graphics& graphics)
 		mValidProgram = (mPosRect >= 0 && mColor >= 0 && mOutlineColor >= 0 && mTexture >= 0);
 	}
 
-	PipelineState pipelineState;
-	pipelineState.mDepthEnabled = false;
-	pipelineState.mBlending = true;
-	pipelineState.mScissorTestEnabled = false;
+	const PipelineState pipelineState {
+		.mDepthEnabled = false,
+		.mScissorTestEnabled = false,
+		.mBlending = true,
+	};
 	mPipeline = mGraphics.NewPipeline(pipelineState);
 }
 
 TextRenderer::~TextRenderer() = default;
-
-FontPtr TextRenderer::AddFont(const char* fontName) {
-	try {
-		for (const FontPtr& font : mFonts) {
-			if (font->GetName() == fontName) {
-				return font;
-			}
-		}
-
-		char texturePath[260];
-		snprintf(texturePath, sizeof(texturePath), "%s%s_0.png", FONTS_FOLDER, fontName);
-
-		char glyphPath[260];
-		snprintf(glyphPath, sizeof(glyphPath), "%s%s%s.fnt", ASSETS_FOLDER, FONTS_FOLDER, fontName);
-
-		TexturePtr texture = mGraphics.LoadTexture(texturePath);
-
-		mFonts.emplace_back(std::make_unique<Font>(fontName, texture, LoadGlyphs(glyphPath)));
-		return mFonts.back();
-	}
-	catch (const std::exception& e) {
-		SDL_LogError(0, "%s", e.what());
-		return nullptr;
-	}
-}
 
 void TextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, const TextStyle& style, unsigned drawOrder) const {
 	if (! mValidProgram) {

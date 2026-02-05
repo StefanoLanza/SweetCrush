@@ -78,7 +78,7 @@ EffectInfoScreen::EffectInfoScreen()
 }
 
 void EffectInfoScreen::LoadAssets(Engine& engine) {
-	mPanel.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
+	mPanel.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
 }
 
 const char* EffectInfoScreen::GetName() const {

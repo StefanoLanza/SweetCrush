@@ -7,6 +7,7 @@
 #include "UIDefs.h"
 
 #include <engine/Engine.h>
+#include <engine/FontManager.h>
 #include <engine/TextRender.h>
 #include <engine/UI.h>
 #include <engine/UIRenderer.h>
@@ -77,8 +78,8 @@ const char* GameOverScreen::GetName() const {
 }
 
 void GameOverScreen::LoadAssets(Engine& engine) {
-	mFont = engine.GetTextRenderer().AddFont("smallFont");
-	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetTextRenderer());
+	mFont = engine.GetFontManager().AddFont("smallFont");
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
 }
 
 ScreenEvent GameOverScreen::Tick(float /*dt*/, const Wind::Input& input) {
