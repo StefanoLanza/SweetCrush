@@ -57,12 +57,20 @@ const GlFrameBuffer& UICompositor::Execute(float dt) {
 		Fade(mCurrDst, (mCurrDst + 1) & 1, mAccumTime / mFadeTransition.mDuration);
 		duration = mFadeTransition.mDuration;
 		break;
-	case ScreenTransition::slideIn:
-		Slide(mCurrDst, (mCurrDst + 1) & 1, -1.f);
+	case ScreenTransition::slideLeft:
+		Slide(mCurrDst, (mCurrDst + 1) & 1, -1.f, 0.f);
 		duration = mSlideTransition.mDuration;
 		break;
-	case ScreenTransition::slideOut:
-		Slide(mCurrDst, (mCurrDst + 1) & 1, +1.f);
+	case ScreenTransition::slideRight:
+		Slide(mCurrDst, (mCurrDst + 1) & 1, +1.f, 0.f);
+		duration = mSlideTransition.mDuration;
+		break;
+	case ScreenTransition::slideTop:
+		Slide(mCurrDst, (mCurrDst + 1) & 1, 0.f, -1.f);
+		duration = mSlideTransition.mDuration;
+		break;
+	case ScreenTransition::slideBottom:
+		Slide(mCurrDst, (mCurrDst + 1) & 1, 0.f, 1.f);
 		duration = mSlideTransition.mDuration;
 		break;
 	case ScreenTransition::pixelate:
@@ -144,7 +152,7 @@ void UICompositor::Fade(unsigned first, unsigned second, float progress) const {
 	Composite(mFadeProgram, first, second, uniformLocations, uniforms, std::size(uniformLocations));
 }
 
-void UICompositor::Slide(unsigned first, unsigned second, float dir) const {
+void UICompositor::Slide(unsigned first, unsigned second, float dirx, float diry) const {
 	if (! mSlideProgram.mValid) {
 		return;
 	}
@@ -155,7 +163,7 @@ void UICompositor::Slide(unsigned first, unsigned second, float dir) const {
         mSlideProgram.color0,
 	};
 	const Vec4 uniforms[] {
-		{ dir, progress, 2.f * settings.mBorderThickness / mGraphics.GetTargetWidth(), 0.f },
+		{ dirx, diry, progress, 2.f * settings.mBorderThickness / mGraphics.GetTargetWidth() },
 		(Vec4)(settings.mBorderColor),
 	};
 	Composite(mSlideProgram, first, second, uniformLocations, uniforms, std::size(uniformLocations));

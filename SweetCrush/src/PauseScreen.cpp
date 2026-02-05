@@ -3,7 +3,7 @@
 #include "Localization.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
-#include "UIDefs.h"
+#include "GameUI.h"
 
 #include <engine/Engine.h>
 #include <engine/Input.h>
@@ -98,7 +98,7 @@ ScreenEvent PauseScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	if (input.GetKeyJustPressed(SDLK_ESCAPE)
 #endif
 	    || mBackButton.IsClicked(input)) {
-		return GoBack(false, ScreenTransition::slideOut);
+		return GoBack(false, ScreenTransition::slideRight);
 	}
 	if (mExitGameButton.IsClicked(input)) {
 		return GoTo(GameScreenIds::mainMenu, ScreenTransition::fade);
@@ -107,7 +107,7 @@ ScreenEvent PauseScreen::Tick(float /*dt*/, const Wind::Input& input) {
 		return GoBack(true, ScreenTransition::fade);
 	}
 	else if (mSettingsButton.IsClicked(input)) {
-		return GoTo(GameScreenIds::settings, ScreenTransition::slideIn);
+		return GoTo(GameScreenIds::settings, ScreenTransition::slideLeft);
 	}
 	return Continue();
 }

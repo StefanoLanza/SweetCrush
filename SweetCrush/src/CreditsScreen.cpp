@@ -2,7 +2,7 @@
 #include "Constants.h"
 #include "Localization.h"
 #include "ScreenIds.h"
-#include "UIDefs.h"
+#include "GameUI.h"
 
 #include <engine/Engine.h>
 #include <engine/Input.h>
@@ -13,16 +13,8 @@ using namespace Wind;
 
 namespace {
 
-const UITextDesc titleText {
-	.pos = { 0, titleY},
-	.horizontalAlignment = UIHorizAlignment::center,
-	.verticalAlignment = UIVertAlignment::top,
-	.font = "screenTitle",
-	.stringId = GameStringId::credits,
-};
-
 const UITextDesc codeByText {
-	.pos = { 0, 560},
+	.pos = { 0, 560 },
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "smallFont",
@@ -30,7 +22,7 @@ const UITextDesc codeByText {
 };
 
 const UITextDesc graphicsByText {
-	.pos = { 0, 620},
+	.pos = { 0, 620 },
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "smallFont",
@@ -60,12 +52,12 @@ constexpr UICanvasDesc canvasDesc {
 } // namespace
 
 CreditsScreen::CreditsScreen()
-    : mTitle(titleText, titleTextStyle)
-    , mCodeBy(codeByText, defaultTextStyle)
-    , mGraphicsBy(graphicsByText, defaultTextStyle)
-    , mMusicBy(musicByText, defaultTextStyle)
-    , mVersion(versionText, defaultTextStyle)
-    , mBackButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc)
+    : mTitle { MakeTitleText(GameStringId::credits) }
+    , mCodeBy { MakeScreenText(GameStringId::codeBy, 560) }
+    , mGraphicsBy { MakeScreenText(GameStringId::graphicsBy, 620) }
+    , mMusicBy { MakeScreenText(GameStringId::musicBy, 680) }
+    , mVersion { MakeScreenText(GameStringId::version, 840) }
+	, mBackButton{ MakeBackButton() }
     , mCanvas(canvasDesc) {
 	mCanvas.AddText(mTitle);
 	mCanvas.AddText(mCodeBy);
@@ -86,7 +78,7 @@ ScreenEvent CreditsScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
 	    mBackButton.IsClicked(input)) {
-		return GoBack(ScreenTransition::slideOut);
+		return GoBack(ScreenTransition::slideRight);
 	}
 	return Continue();
 }

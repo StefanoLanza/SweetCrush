@@ -12,7 +12,7 @@
 #include "MatchStats.h"
 #include "ScreenIds.h"
 #include "TileSelector.h"
-#include "UIDefs.h"
+#include "GameUI.h"
 
 #include <engine/Audio.h>
 #include <engine/BitmapRender.h>
@@ -65,7 +65,7 @@ const UIBitmapDesc boosterButtonBitmapDesc {
 	.pos = UIZeroPos,
 	.size = UIParentSize,
 	//	.color = Color { 255, 229, 102, 255 },
-	._9patch = { 16, 0.f, 0.f, 0.f },
+	//FIXME ._9patch = { 16, 0.f, 0.f, 0.f },
 };
 
 const UIBitmapDesc pauseButtonBitmapDesc {

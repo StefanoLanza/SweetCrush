@@ -57,12 +57,17 @@ UIRect AddPadding(const UIRect& rect, float padding) {
 }
 
 UIRect ScaleRect(const UIRect& rect, float scale) {
+	assert(scale > 0.f);
 	Vec2 center = rect.pos + rect.size * 0.5f;
 	Vec2 newExtents = rect.size * 0.5f * scale;
 	return { center - newExtents, newExtents * 2.f };
 }
 
 } // namespace
+
+UIButton::UIButton(const UIButtonDesc& desc)
+    : UIButton(desc, nullptr, nullptr) {
+}
 
 UIButton::UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text)
     : mDesc(desc)
@@ -79,6 +84,10 @@ UIButton::UIButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, con
 
 UIButton::UIButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc)
     : UIButton(desc, std::make_unique<UIBitmap>(bitmapDesc), nullptr) {
+}
+
+UIButton::UIButton(const UIButtonDesc& desc, const UITextDesc& labelDesc)
+    : UIButton(desc, nullptr, std::make_unique<UIText>(labelDesc, defaultTheme.textStyle)) { // FIXME Style
 }
 
 void UIButton::SetEnabled(bool enabled) {
@@ -147,6 +156,9 @@ bool UIButton::IsClicked(const Input& input) {
 }
 
 void UIButton::LoadAssets(Graphics& graphics, FontManager& fontManager) {
+	if (mDesc.background) {
+		mBackground = graphics.LoadTexture(mDesc.background);
+	}
 	if (mBitmap) {
 		mBitmap->LoadGraphics(graphics);
 	}
@@ -158,6 +170,15 @@ void UIButton::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 void UIButton::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	if (! mVisible) {
 		return;
+	}
+	if (mBackground) {
+		const UIDrawParams prm {
+			.color = mDesc.backgroundColor,
+			.blending = true, // TODO determine
+			.priority = drawOrder,
+			._9patch = mDesc._9patch,
+		};
+		renderer.DrawBitmap(mRect, *mBackground, prm);
 	}
 	if (mBitmap) {
 		mBitmap->Draw(renderer, drawOrder);
@@ -207,6 +228,8 @@ void UIButton::UpdateRect(const UIRect& parentRect) {
 	}
 
 	mRect = AlignRect(mDesc.pos, size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
+	mRect = ScaleRect(mRect, mDesc.scale);
+
 	UIRect paddedRect = AddPadding(mRect, mDesc.padding);
 	paddedRect.pos = paddedRect.pos + buttonStyle->offset;
 
@@ -232,6 +255,14 @@ const UIRect& UIButton::GetRect() const {
 
 UIButtonState UIButton::GetState() const {
 	return mState;
+}
+
+const UIButtonDesc& UIButton::GetDesc() const {
+	return mDesc;
+}
+
+void UIButton::SetDesc(const UIButtonDesc& desc) {
+	mDesc = desc;
 }
 
 UIText::UIText(const UITextDesc& desc, const TextStyle& style)
@@ -321,7 +352,6 @@ void UIBitmap::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 			.color = Mul(mDesc.color, mStyle.color),
 			.blending = true, // TODO determine
 			.priority = drawOrder,
-			._9patch = mDesc._9patch,
 		};
 		renderer.DrawBitmap(mAlignedRect, *mBitmap, prm);
 	}

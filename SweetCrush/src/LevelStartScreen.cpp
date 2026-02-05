@@ -8,7 +8,7 @@
 #include "Localization.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
-#include "UIDefs.h"
+#include "GameUI.h"
 
 #include <engine/BitmapRender.h>
 #include <engine/Engine.h>
@@ -77,7 +77,7 @@ void LevelStartScreen::LoadAssets(Engine& engine) {
 ScreenEvent LevelStartScreen::Tick(float dt, const Input& input) {
 	mAccumTime += dt;
 	if (mAccumTime > 6.f || mPlayButton.IsClicked(input)) {
-		return GoTo(GameScreenIds::play, ScreenTransition::fade);
+		return GoTo(GameScreenIds::play, ScreenTransition::slideTop);
 	}
 	return Continue();
 }

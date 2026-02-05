@@ -70,14 +70,16 @@ struct UIBitmapDesc {
 	const char* fileName;
 	UIBaseDesc;
 	Color color = whiteColor;
-	Rect  _9patch = { 0.f, 0.f, 0.f, 0.f }; // pixels
 };
 
 struct UIButtonDesc {
 	UIBaseDesc;
-	bool keepPressedOutside = false;
-	bool toogleMode = false;
-	bool enabled = true;
+	const char* background = nullptr;
+	Color       backgroundColor = whiteColor;
+	float       scale = 1.f;
+	Rect        _9patch = { 0.f, 0.f, 0.f, 0.f }; // pixels
+	bool        keepPressedOutside = false;
+	bool        toogleMode = false;
 };
 
 struct UIPanelDesc {
@@ -171,29 +173,32 @@ struct UIButtonStyle {
 
 class UIButton final {
 public:
+	explicit UIButton(const UIButtonDesc& desc);
 	UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text);
-	UIButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, const UITextDesc& labelDesc);
-	UIButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc);
+	UIButton(const UIButtonDesc& desc, const UIBitmapDesc& iconDesc, const UITextDesc& labelDesc);
+	UIButton(const UIButtonDesc& desc, const UITextDesc& labelDesc);
+	UIButton(const UIButtonDesc& desc, const UIBitmapDesc& iconDesc);
 
-	void          SetEnabled(bool enabled);
-	void          SetVisible(bool visible);
-	bool          IsVisible() const;
-	bool          IsClicked(const Input& input);
-	void          LoadAssets(Graphics& graphics, FontManager& fontManager);
-	void          Draw(const UIRenderer& renderer, unsigned drawOrder) const;
-	void          UpdateRect(const UIRect& parentRect);
-	UIBitmap*     GetBitmap() const;
-	UIText*       GetText() const;
-	const UIRect& GetRect() const;
-	UIButtonState GetState() const;
-
-	// TODO Signals
+	void                SetEnabled(bool enabled);
+	void                SetVisible(bool visible);
+	bool                IsVisible() const;
+	bool                IsClicked(const Input& input);
+	void                LoadAssets(Graphics& graphics, FontManager& fontManager);
+	void                Draw(const UIRenderer& renderer, unsigned drawOrder) const;
+	void                UpdateRect(const UIRect& parentRect);
+	UIBitmap*           GetBitmap() const;
+	UIText*             GetText() const;
+	const UIRect&       GetRect() const;
+	UIButtonState       GetState() const;
+	const UIButtonDesc& GetDesc() const;
+	void                SetDesc(const UIButtonDesc&);
 
 private:
 	UIButtonState RefreshState(const Input& input);
 
 private:
 	UIButtonDesc              mDesc;
+	TexturePtr                mBackground;
 	std::unique_ptr<UIBitmap> mBitmap;
 	std::unique_ptr<UIText>   mText;
 	UIRect                    mRect;

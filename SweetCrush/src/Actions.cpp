@@ -5,7 +5,7 @@
 #include "Constants.h"
 #include "GameDrawOrder.h"
 #include "GameRenderer.h"
-#include "UIDefs.h"
+#include "GameUI.h"
 
 #include <engine/BitmapRender.h>
 #include <engine/Easings.h>

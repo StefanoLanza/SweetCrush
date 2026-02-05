@@ -3,7 +3,7 @@
 #include "GameDrawOrder.h"
 #include "Localization.h"
 #include "ScreenIds.h"
-#include "UIDefs.h"
+#include "GameUI.h"
 
 #include <engine/Engine.h>
 #include <engine/Input.h>

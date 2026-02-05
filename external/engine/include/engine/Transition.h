@@ -5,8 +5,10 @@ namespace Wind {
 enum class ScreenTransition {
 	none,
 	fade,
-	slideIn,
-	slideOut,
+	slideLeft,
+	slideRight,
+	slideTop,
+	slideBottom,
 	pixelate,
 	dissolve,
 	zoomInOut,

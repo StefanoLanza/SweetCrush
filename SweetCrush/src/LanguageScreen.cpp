@@ -3,7 +3,7 @@
 #include "GameSettings.h"
 #include "Localization.h"
 #include "ScreenIds.h"
-#include "UIDefs.h"
+#include "GameUI.h"
 
 #include <engine/Engine.h>
 #include <engine/Input.h>
@@ -65,7 +65,7 @@ ScreenEvent LanguageScreen::Tick([[maybe_unused]] float dt, const Wind::Input& i
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
 	    mBackButton.IsClicked(input)) {
-		return GoBack(ScreenTransition::slideOut);
+		return GoBack(ScreenTransition::slideRight);
 	}
 	else if (mLanguageButton.IsClicked(input)) {
 		SetNextLanguage();

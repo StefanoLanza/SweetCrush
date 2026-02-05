@@ -3,7 +3,7 @@
 #include "GameSettings.h"
 #include "Localization.h"
 #include "ScreenIds.h"
-#include "UIDefs.h"
+#include "GameUI.h"
 
 #include <engine/Engine.h>
 #include <engine/Input.h>
@@ -85,7 +85,7 @@ ScreenEvent AudioSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Inp
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
 	    mBackButton.IsClicked(input)) {
-		return GoBack(ScreenTransition::slideOut);
+		return GoBack(ScreenTransition::slideRight);
 	}
 	return Continue();
 }

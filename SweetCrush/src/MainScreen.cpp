@@ -5,82 +5,19 @@
 #include "GameRenderer.h"
 #include "Localization.h"
 #include "ScreenIds.h"
-#include "UIDefs.h"
+#include "GameUI.h"
 
 #include <engine/BitmapRender.h>
+#include <engine/Easings.h>
 #include <engine/Engine.h>
 #include <engine/Input.h>
 #include <engine/TextRender.h>
 #include <engine/UI.h>
 #include <engine/UIRenderer.h>
-#include <engine/Easings.h>
 
 using namespace Wind;
 
 namespace {
-
-#if defined(__ANDROID__) || defined(__OHOS__)
-// No quit button on mobiles
-const UIButtonDesc buttonDescs[] {
-	{ UIAbsolutePos(0, button0_y), defaultButtonSize, UIHorizAlignment::center, UIVertAlignment::top },
-	{ UIAbsolutePos(0, button1_y), defaultButtonSize, UIHorizAlignment::center, UIVertAlignment::top },
-	{ UIAbsolutePos(0, button2_y), defaultButtonSize, UIHorizAlignment::center, UIVertAlignment::top },
-};
-#else
-const UIButtonDesc buttonDescs[] {
-	{
-	    UIAbsolutePos(0, button0_y),
-	    defaultButtonSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::top,
-	},
-	{
-	    UIAbsolutePos(0, button1_y),
-	    defaultButtonSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::top,
-	},
-	{
-	    UIAbsolutePos(0, button2_y),
-	    defaultButtonSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::top,
-	},
-};
-#endif
-const UITextDesc textDescs[5] {
-	{
-	    .pos = { 0.f, titleY },
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::top,
-	    .font = "bigFont",
-	    .stringId = GameStringId::title,
-	},
-	{
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::center,
-	    .font = "mediumFont",
-	    .stringId = GameStringId::start,
-	},
-	{
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::center,
-	    .font = "mediumFont",
-	    .stringId = GameStringId::settings,
-	},
-	{
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::center,
-	    .font = "mediumFont",
-	    .stringId = GameStringId::credits,
-	},
-	{
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::center,
-	    .font = "mediumFont",
-	    .stringId = GameStringId::quit,
-	},
-};
 
 constexpr UICanvasDesc canvasDesc {
 	.background = "gameartguppy/background.png",
@@ -91,12 +28,12 @@ constexpr UICanvasDesc canvasDesc {
 MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
     : mEngine(engine)
     , mGameRenderer(gameRenderer)
-    , mTitle(textDescs[0], titleTextStyle)
-    , mStartButton(buttonDescs[0], buttonBitmapDesc, textDescs[1])
-    , mSettingsButton(buttonDescs[1], buttonBitmapDesc, textDescs[2])
-    , mCreditsButton(buttonDescs[2], buttonBitmapDesc, textDescs[3])
+    , mTitle { MakeTitleText(GameStringId::title) }
+    , mStartButton { MakeMenuButton(button0_y, GameStringId::start) }
+    , mSettingsButton { MakeMenuButton(button1_y, GameStringId::settings) }
+    , mCreditsButton { MakeMenuButton(button2_y, GameStringId::credits) }
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
-    , mQuitButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc)
+    , mQuitButton( MakeQuitButton() )
 #endif
     , mCanvas(canvasDesc)
     , mTime(0) {
@@ -122,13 +59,13 @@ ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
 	mTime += dt;
 
 	if (mStartButton.IsClicked(input)) {
-		return GoTo(GameScreenIds::levelStart, ScreenTransition::fade);
+		return GoTo(GameScreenIds::levelStart, ScreenTransition::slideTop);
 	}
 	else if (mSettingsButton.IsClicked(input)) {
-		return GoTo(GameScreenIds::settings, ScreenTransition::slideIn);
+		return GoTo(GameScreenIds::settings, ScreenTransition::slideLeft);
 	}
 	else if (mCreditsButton.IsClicked(input)) {
-		return GoTo(GameScreenIds::credits, ScreenTransition::slideIn);
+		return GoTo(GameScreenIds::credits, ScreenTransition::slideLeft);
 	}
 
 	AnimateUI();
@@ -184,7 +121,13 @@ void MainScreen::ParseConfig(const char* varName, const char* varValue) {
 }
 
 void MainScreen::AnimateUI() {
-	float t = EaseOutQuint(std::min(1.f, mTime));
-	const auto& desc = mQuitButton.GetBitmap()->GetDesc();
-	mQuitButton.GetBitmap()->SetColor(Color { desc.color.r, desc.color.g, desc.color.b, 255.f * t});
+	float       t = std::min(1.f, mTime * 3.f);
+	 auto desc = mSettingsButton.GetDesc();
+//	mQuitButton.GetDesc Bitmap()->SetColor(Color { desc.color.r, desc.color.g, desc.color.b, 255.f * t });
+	//desc.scale = LerpEase(0.85f, 1.f, t, EaseOutBounce);
+	desc.pos.ax = LerpEase(-400.f, 0.f, t, EaseOutCubic);
+	//mSettingsButton.SetDesc(desc);
+	 desc = mStartButton.GetDesc();
+	desc.pos.ax = LerpEase(400.f, 0.f, t, EaseOutCubic);
+	//mStartButton.SetDesc(desc);
 }

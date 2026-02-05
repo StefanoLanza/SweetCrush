@@ -4,7 +4,7 @@
 #include "Localization.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
-#include "UIDefs.h"
+#include "GameUI.h"
 
 #include <engine/Engine.h>
 #include <engine/FontManager.h>

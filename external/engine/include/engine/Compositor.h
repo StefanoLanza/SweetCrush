@@ -52,7 +52,7 @@ private:
 	void InitPrograms(Graphics& graphics);
 	void InitProgramUniforms(Program& program, const char* fsPath, Graphics& graphics);
 	void Fade(unsigned first, unsigned second, float progress) const;
-	void Slide(unsigned first, unsigned second, float dir) const;
+	void Slide(unsigned first, unsigned second, float dirx, float diry) const;
 	void Dissolve(unsigned first, unsigned second) const;
 	void Zoom(unsigned first, unsigned second, float dir) const;
 	void Composite(const Program& program, unsigned first, unsigned second, const int uniformLocations[], const Vec4 uniforms[],

@@ -2,7 +2,7 @@
 #include "AppConfig.h"
 #include "Localization.h"
 #include "ScreenIds.h"
-#include "UIDefs.h"
+#include "GameUI.h"
 
 #include <engine/Engine.h>
 #include <engine/Input.h>
@@ -82,13 +82,13 @@ void SettingsScreen::LoadAssets(Engine& engine) {
 
 ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
 	if (mGraphicsButton.IsClicked(input)) {
-		return GoTo(GameScreenIds::graphicsSettings, ScreenTransition::slideIn);
+		return GoTo(GameScreenIds::graphicsSettings, ScreenTransition::slideLeft);
 	}
 	else if (mLanguageButton.IsClicked(input)) {
-		return GoTo(GameScreenIds::language, ScreenTransition::slideIn);
+		return GoTo(GameScreenIds::language, ScreenTransition::slideLeft);
 	}
 	else if (mAudioButton.IsClicked(input)) {
-		return GoTo(GameScreenIds::audioSettings, ScreenTransition::slideIn);
+		return GoTo(GameScreenIds::audioSettings, ScreenTransition::slideLeft);
 	}
 
 #if defined(__ANDROID__) || defined(__OHOS__)
@@ -97,7 +97,7 @@ ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& i
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
 	    mBackButton.IsClicked(input)) {
-		return GoBack(ScreenTransition::slideOut);
+		return GoBack(ScreenTransition::slideRight);
 	}
 	return Continue();
 }
