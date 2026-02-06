@@ -79,7 +79,8 @@ struct UIButtonDesc {
 	float       scale = 1.f;
 	Rect        _9patch = { 0.f, 0.f, 0.f, 0.f }; // pixels
 	bool        keepPressedOutside = false;
-	bool        toogleMode = false;
+	bool        toggleMode = false;
+	bool        toggled = true;
 };
 
 struct UIPanelDesc {
@@ -166,15 +167,14 @@ enum class UIButtonState {
 };
 
 struct UIButtonStyle {
-	UIBitmapStyle mBitmapStyle;
-	TextStyle     mTextStyle;
+	UIBitmapStyle mIconStyle;
+	TextStyle     mLabelStyle;
 	Vec2          offset { 0.f, 0.f };
 };
 
 class UIButton final {
 public:
 	explicit UIButton(const UIButtonDesc& desc);
-	UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text);
 	UIButton(const UIButtonDesc& desc, const UIBitmapDesc& iconDesc, const UITextDesc& labelDesc);
 	UIButton(const UIButtonDesc& desc, const UITextDesc& labelDesc);
 	UIButton(const UIButtonDesc& desc, const UIBitmapDesc& iconDesc);
@@ -182,7 +182,8 @@ public:
 	void                SetEnabled(bool enabled);
 	void                SetVisible(bool visible);
 	bool                IsVisible() const;
-	bool                IsClicked(const Input& input);
+	bool                IsClicked() const;
+	bool                IsToggled() const;
 	void                LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void                Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	void                UpdateRect(const UIRect& parentRect);
@@ -192,18 +193,22 @@ public:
 	UIButtonState       GetState() const;
 	const UIButtonDesc& GetDesc() const;
 	void                SetDesc(const UIButtonDesc&);
+	void                HandleInput(const Input& input);
 
 private:
+	UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text);
 	UIButtonState RefreshState(const Input& input);
 
 private:
 	UIButtonDesc              mDesc;
 	TexturePtr                mBackground;
-	std::unique_ptr<UIBitmap> mBitmap;
-	std::unique_ptr<UIText>   mText;
+	std::unique_ptr<UIBitmap> mIcon;
+	std::unique_ptr<UIText>   mLabel;
 	UIRect                    mRect;
 	UIButtonState             mState;
 	bool                      mVisible;
+	bool                      mToggled;
+	bool                      mClicked;
 };
 
 class UIContainer {
@@ -230,6 +235,7 @@ public:
 	const UIRect& Rect() const;
 	void          LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void          Draw(const UIRenderer& renderer, unsigned drawOrder) const;
+	void          HandleInput(const Input& input) const;
 	void          UpdateRect(const UIRect& parentRect);
 
 private:
@@ -237,40 +243,7 @@ private:
 	UIRect      mRect;
 	TexturePtr  mBackground;
 	bool        mVisible;
-};
-
-class UIGrid final : public UIContainer {
-public:
-	explicit UIGrid(const UIGridDesc& desc);
-
-	void SetVisible(bool visible);
-	bool IsVisible() const;
-	void LoadAssets(Graphics& graphics, FontManager& fontManager);
-	void Draw(const UIRenderer& renderer, unsigned drawOrder) const;
-	void UpdateRect(const UIRect& parentRect);
-
-private:
-	UIGridDesc mDesc;
-	UIRect     mRect;
-	TexturePtr mBackground;
-	bool       mVisible;
-};
-
-class UIStack final : public UIContainer {
-public:
-	explicit UIStack(const UIStackDesc& desc);
-
-	void SetVisible(bool visible);
-	bool IsVisible() const;
-	void LoadAssets(Graphics& graphics, FontManager& fontManager);
-	void Draw(const UIRenderer& renderer, unsigned drawOrder) const;
-	void UpdateRect(const UIRect& parentRect);
-
-private:
-	UIGridDesc mDesc;
-	UIRect     mRect;
-	TexturePtr mBackground;
-	bool       mVisible;
+	// TODO Layout
 };
 
 class UICanvas final {
@@ -284,6 +257,7 @@ public:
 	void AddText(UIText& text);
 	void LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder);
+	void HandleInput(const Input& input) const;
 
 private:
 	UIPanel mPanel;

@@ -25,6 +25,7 @@ SettingsScreen::SettingsScreen(GameSettings& gameSettings)
     , mAudioButton { MakeMenuButton(button1_y, GameStringId::audioSettings) }
     , mLanguageButton { MakeMenuButton(button2_y, GameStringId::languageScreen) }
     , mBackButton { MakeBackButton() }
+    , mToggleButton { MakeToggleButton(600, GameStringId::languageScreen) }
     , mCanvas(canvasDesc) {
 	// Build UI
 	mCanvas.AddText(mTitle);
@@ -32,6 +33,7 @@ SettingsScreen::SettingsScreen(GameSettings& gameSettings)
 	mCanvas.AddButton(mLanguageButton);
 	mCanvas.AddButton(mAudioButton);
 	mCanvas.AddButton(mBackButton);
+	mCanvas.AddButton(mToggleButton);
 }
 
 const char* SettingsScreen::GetName() const {
@@ -43,14 +45,19 @@ void SettingsScreen::LoadAssets(Engine& engine) {
 }
 
 ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
-	if (mGraphicsButton.IsClicked(input)) {
+	mCanvas.HandleInput(input);
+
+	if (mGraphicsButton.IsClicked()) {
 		return GoTo(GameScreenIds::graphicsSettings, ScreenTransition::slideLeft);
 	}
-	else if (mLanguageButton.IsClicked(input)) {
+	else if (mLanguageButton.IsClicked()) {
 		return GoTo(GameScreenIds::language, ScreenTransition::slideLeft);
 	}
-	else if (mAudioButton.IsClicked(input)) {
+	else if (mAudioButton.IsClicked()) {
 		return GoTo(GameScreenIds::audioSettings, ScreenTransition::slideLeft);
+	}
+
+	if (mToggleButton.IsToggled()) {
 	}
 
 #if defined(__ANDROID__) || defined(__OHOS__)
@@ -58,7 +65,7 @@ ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& i
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
-	    mBackButton.IsClicked(input)) {
+	    mBackButton.IsClicked()) {
 		return GoBack(ScreenTransition::slideRight);
 	}
 	return Continue();

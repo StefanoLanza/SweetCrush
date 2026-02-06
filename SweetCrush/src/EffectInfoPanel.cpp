@@ -84,7 +84,8 @@ const char* EffectInfoScreen::GetName() const {
 }
 
 ScreenEvent EffectInfoScreen::Tick(float dt, const Input& input) {
-	if (mOKButton.IsClicked(input) ||
+	mPanel.HandleInput(input);
+	if (mOKButton.IsClicked() ||
 #if defined(_WIN32) || defined(__linux__)
 	    input.GetKeyJustPressed(SDLK_ESCAPE)) {
 #else

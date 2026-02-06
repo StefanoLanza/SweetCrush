@@ -43,21 +43,22 @@ void PauseScreen::LoadAssets(Engine& engine) {
 }
 
 ScreenEvent PauseScreen::Tick(float /*dt*/, const Wind::Input& input) {
+	mCanvas.HandleInput(input);
 #if defined(__ANDROID__) || defined(__OHOS__)
 	if (input.GetKeyJustPressed(SDLK_AC_BACK)
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE)
 #endif
-	    || mBackButton.IsClicked(input)) {
+	    || mBackButton.IsClicked()) {
 		return GoBack(false, ScreenTransition::slideRight);
 	}
-	if (mEndGameButton.IsClicked(input)) {
+	if (mEndGameButton.IsClicked()) {
 		return GoTo(GameScreenIds::mainMenu, ScreenTransition::slideBottom);
 	}
-	else if (mRestartLevelButton.IsClicked(input)) {
+	else if (mRestartLevelButton.IsClicked()) {
 		return GoBack(true, ScreenTransition::slideRight);
 	}
-	else if (mSettingsButton.IsClicked(input)) {
+	else if (mSettingsButton.IsClicked()) {
 		return GoTo(GameScreenIds::settings, ScreenTransition::slideLeft);
 	}
 	return Continue();

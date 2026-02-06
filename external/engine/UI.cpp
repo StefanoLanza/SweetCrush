@@ -22,8 +22,8 @@ const UITheme defaultTheme {
 	.bitmapStyle {},
 	.idleButtonStyle {},
 	.pressedButtonStyle {
-	    .mBitmapStyle { .scale = 1.0f },
-	    .mTextStyle { .scale = 1.0f },
+	    .mIconStyle { .scale = 1.0f },
+	    .mLabelStyle { .scale = 1.0f },
 		.offset { 2.f, 2.f },
 	},
 	.hoveredButtonStyle {},
@@ -71,11 +71,12 @@ UIButton::UIButton(const UIButtonDesc& desc)
 
 UIButton::UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text)
     : mDesc(desc)
-    , mBitmap(std::move(bitmap))
-    , mText(std::move(text))
+    , mIcon(std::move(bitmap))
+    , mLabel(std::move(text))
     , mRect {}
     , mState { UIButtonState::idle }
-    , mVisible { true } {
+    , mVisible { true }
+    , mToggled { mDesc.toggled } {
 }
 
 UIButton::UIButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, const UITextDesc& labelDesc)
@@ -148,22 +149,25 @@ UIButtonState UIButton::RefreshState(const Input& input) {
 	return mState;
 }
 
-bool UIButton::IsClicked(const Input& input) {
-	UIButtonState currState = mState;
-	UIButtonState newState = RefreshState(input);
-	// TODO Make it configurable ?
-	return (currState == UIButtonState::pressed) && (newState == UIButtonState::hovered);
+bool UIButton::IsClicked() const {
+	assert(! mDesc.toggleMode);
+	return mClicked;
+}
+
+bool UIButton::IsToggled() const {
+	assert(mDesc.toggleMode);
+	return mToggled;
 }
 
 void UIButton::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 	if (mDesc.background) {
 		mBackground = graphics.LoadTexture(mDesc.background);
 	}
-	if (mBitmap) {
-		mBitmap->LoadGraphics(graphics);
+	if (mIcon) {
+		mIcon->LoadGraphics(graphics);
 	}
-	if (mText) {
-		mText->Load(fontManager);
+	if (mLabel) {
+		mLabel->Load(fontManager);
 	}
 }
 
@@ -180,46 +184,48 @@ void UIButton::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 		};
 		renderer.DrawBitmap(mRect, *mBackground, prm);
 	}
-	if (mBitmap) {
-		mBitmap->Draw(renderer, drawOrder);
+	if (mIcon) {
+		if ((mDesc.toggleMode == false) || (mDesc.toggleMode && mToggled)) {
+			mIcon->Draw(renderer, drawOrder);
+		}
 	}
-	if (mText) {
-		mText->Draw(renderer.GetTextRenderer(), drawOrder + 1); // text over bitmap
+	if (mLabel) {
+		mLabel->Draw(renderer.GetTextRenderer(), drawOrder + 1); // text over bitmap
 	}
 }
 
 void UIButton::UpdateRect(const UIRect& parentRect) {
-	const UIButtonStyle* buttonStyle = nullptr;
+	const UIButtonStyle* style = nullptr;
 	switch (mState) {
 	case UIButtonState::disabled:
-		buttonStyle = &defaultTheme.disabledButtonStyle;
+		style = &defaultTheme.disabledButtonStyle;
 		break;
 	case UIButtonState::idle:
-		buttonStyle = &defaultTheme.idleButtonStyle;
+		style = &defaultTheme.idleButtonStyle;
 		break;
 	case UIButtonState::pressed:
-		buttonStyle = &defaultTheme.pressedButtonStyle;
+		style = &defaultTheme.pressedButtonStyle;
 		break;
 	case UIButtonState::hovered:
-		buttonStyle = &defaultTheme.hoveredButtonStyle;
+		style = &defaultTheme.hoveredButtonStyle;
 		break;
 	};
-	if (mText) {
-		mText->SetStyle(buttonStyle->mTextStyle);
+	if (mLabel) {
+		mLabel->SetStyle(style->mLabelStyle);
 	}
-	if (mBitmap) {
-		mBitmap->SetStyle(buttonStyle->mBitmapStyle);
+	if (mIcon) {
+		mIcon->SetStyle(style->mIconStyle);
 	}
 
 	UISize size = mDesc.size;
-	if (mBitmap && mBitmap->GetBitmap()) {
+	if (mIcon && mIcon->GetBitmap()) {
 		// TODO if textSize == Fit
 		if (size.rWidth < 0.f && size.aWidth < 0.0f) {
-			size.aWidth = static_cast<float>(mBitmap->GetBitmap()->Width());
+			size.aWidth = static_cast<float>(mIcon->GetBitmap()->Width());
 			size.rWidth = 0.f;
 		}
 		if (size.rHeight < 0.f && size.aHeight < 0.0f) {
-			size.aHeight = static_cast<float>(mBitmap->GetBitmap()->Height());
+			size.aHeight = static_cast<float>(mIcon->GetBitmap()->Height());
 			size.rHeight = 0.f;
 		}
 	}
@@ -229,24 +235,24 @@ void UIButton::UpdateRect(const UIRect& parentRect) {
 
 	mRect = AlignRect(mDesc.pos, size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 	mRect = ScaleRect(mRect, mDesc.scale);
+	mRect.pos = mRect.pos + style->offset;
 
 	UIRect paddedRect = AddPadding(mRect, mDesc.padding);
-	paddedRect.pos = paddedRect.pos + buttonStyle->offset;
 
-	if (mBitmap) {
-		mBitmap->UpdateRect(paddedRect);
+	if (mIcon) {
+		mIcon->UpdateRect(paddedRect);
 	}
-	if (mText) {
-		mText->UpdateRect(paddedRect);
+	if (mLabel) {
+		mLabel->UpdateRect(paddedRect);
 	}
 }
 
 UIBitmap* UIButton::GetBitmap() const {
-	return mBitmap.get();
+	return mIcon.get();
 }
 
 UIText* UIButton::GetText() const {
-	return mText.get();
+	return mLabel.get();
 }
 
 const UIRect& UIButton::GetRect() const {
@@ -263,6 +269,17 @@ const UIButtonDesc& UIButton::GetDesc() const {
 
 void UIButton::SetDesc(const UIButtonDesc& desc) {
 	mDesc = desc;
+}
+
+void UIButton::HandleInput(const Input& input) {
+	UIButtonState currState = mState;
+	UIButtonState newState = RefreshState(input);
+	// TODO Make it configurable ?
+	bool clicked = (currState == UIButtonState::pressed) && (newState == UIButtonState::hovered);
+	mClicked = clicked;
+	if (mDesc.toggleMode && clicked) {
+		mToggled = ! mToggled;
+	}
 }
 
 UIText::UIText(const UITextDesc& desc, const TextStyle& style)
@@ -470,72 +487,21 @@ void UIPanel::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	}
 }
 
-void UIPanel::UpdateRect(const UIRect& parentRect) {
-	const UIRect rect = AlignRect(mDesc.pos, mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
-	mRect = rect;
-	UIRect paddedRect = AddPadding(rect, mDesc.padding);
-
-	// Update children
+void UIPanel::HandleInput(const Input& input) const {
+	// TODO Priorities?
 	for (auto& panel : mPanels) {
 		if (panel->IsVisible()) {
-			panel->UpdateRect(paddedRect);
+			panel->HandleInput(input);
 		}
-	}
-	for (auto& bitmap : mBitmaps) {
-		bitmap->UpdateRect(paddedRect);
 	}
 	for (auto& button : mButtons) {
 		if (button->IsVisible()) {
-			button->UpdateRect(paddedRect);
+			button->HandleInput(input);
 		}
 	}
-	for (auto& text : mTexts) {
-		text->UpdateRect(paddedRect);
-	}
 }
 
-UIGrid::UIGrid(const UIGridDesc& desc)
-    : mDesc { desc }
-    , mVisible { true } {
-}
-
-void UIGrid::SetVisible(bool visible) {
-	mVisible = visible;
-}
-bool UIGrid::IsVisible() const {
-	return mVisible;
-}
-
-void UIGrid::LoadAssets(Graphics& graphics, FontManager& fontManager) {
-	UIContainer::LoadAssets(graphics, fontManager);
-}
-
-void UIGrid::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
-	if (! mVisible) {
-		return;
-	}
-	if (mBackground) {
-		UIDrawParams prms;
-		prms.blending = (mDesc.backgroundColor.a < 255.f) || mBackground->HasAlpha();
-		prms.color = mDesc.backgroundColor;
-		prms.priority = drawOrder;
-		renderer.DrawBitmap(mRect, *mBackground, prms);
-	}
-	for (const auto& bitmap : mBitmaps) {
-		bitmap->Draw(renderer, drawOrder + 1);
-	}
-	for (const auto& panel : mPanels) {
-		panel->Draw(renderer, drawOrder + 2);
-	}
-	for (const auto& button : mButtons) {
-		button->Draw(renderer, drawOrder + 3);
-	}
-	for (const auto& text : mTexts) {
-		text->Draw(renderer.GetTextRenderer(), drawOrder + 4);
-	}
-}
-
-void UIGrid::UpdateRect(const UIRect& parentRect) {
+void UIPanel::UpdateRect(const UIRect& parentRect) {
 	const UIRect rect = AlignRect(mDesc.pos, mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 	mRect = rect;
 	UIRect paddedRect = AddPadding(rect, mDesc.padding);
@@ -597,6 +563,10 @@ void UICanvas::Draw(int canvasWidth, int canvasHeight, const UIRenderer& rendere
 	const UIRect parentRect { { 0.f, 0.f }, (float)canvasWidth, (float)canvasHeight };
 	mPanel.UpdateRect(parentRect);
 	mPanel.Draw(renderer, drawOrder);
+}
+
+void UICanvas::HandleInput(const Input& input) const {
+	mPanel.HandleInput(input);
 }
 
 void UIMouseCursor::SetCursor(const char* fileName, Graphics& graphics) {

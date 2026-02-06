@@ -128,11 +128,38 @@ Wind::UIButton MakeQuitButton() {
 Wind::UIButton MakeBackButton() {
 	UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(32, -32),
-		.size = UIAbsoluteSize(64, 64),
+		.size = UIAbsoluteSize(92, 85),
 		.horizontalAlignment = UIHorizAlignment::left,
 		.verticalAlignment = UIVertAlignment::bottom,
-		.background = "backButton2.png",
+		.background = "backButton.png",
 		.backgroundColor = whiteColor, //{ 131.f, 255.f, 255.f, 255.f },
 	};
 	return Wind::UIButton { buttonDesc }; //, /*iconDesc,*/ labelDesc };
+}
+
+Wind::UIButton MakeToggleButton(float y, Wind::StringId label) {
+	UIButtonDesc buttonDesc = {
+		.pos = UIAbsolutePos(0, y),
+		.size = UIAbsoluteSize(300.f, 100.f),
+		.horizontalAlignment = UIHorizAlignment::left, // inside a panel
+		.verticalAlignment = UIVertAlignment::top,
+		.background = "button.png",
+		.backgroundColor = { 131.f, 255.f, 255.f, 255.f },
+		._9patch = { 16.f, 0.f, 0.f, 0.f },
+		.toggleMode = true,
+		.toggled = true,
+	};
+	const UIBitmapDesc iconDesc {
+		.fileName = "gameartguppy/pastry_cookie01.png",
+		.pos = UIZeroPos,
+		.size = UIAutoSize,
+		.horizontalAlignment = UIHorizAlignment::right,
+	};
+	const UITextDesc labelDesc {
+		.horizontalAlignment = UIHorizAlignment::center,
+		.verticalAlignment = UIVertAlignment::center,
+		.font = "smallFont",
+		.stringId = label,
+	};
+	return Wind::UIButton { buttonDesc, iconDesc, labelDesc };
 }

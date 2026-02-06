@@ -59,15 +59,16 @@ void LanguageScreen::LoadAssets(Engine& engine) {
 }
 
 ScreenEvent LanguageScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
+	mCanvas.HandleInput(input);
 #if defined(__ANDROID__) || defined(__OHOS__)
 	if (input.GetKeyJustPressed(SDLK_AC_BACK) ||
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
-	    mBackButton.IsClicked(input)) {
+	    mBackButton.IsClicked()) {
 		return GoBack(ScreenTransition::slideRight);
 	}
-	else if (mLanguageButton.IsClicked(input)) {
+	else if (mLanguageButton.IsClicked()) {
 		SetNextLanguage();
 	}
 	return Continue();

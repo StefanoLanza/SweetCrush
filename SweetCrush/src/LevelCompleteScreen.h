@@ -5,11 +5,10 @@
 #include <engine/UI.h>
 
 struct MatchStats;
-class GameDataModule;
 
 class LevelCompleteScreen final : public Wind::Screen {
 public:
-	explicit LevelCompleteScreen(MatchStats& matchStats, const GameDataModule& gameDataModule);
+	explicit LevelCompleteScreen(MatchStats& matchStats);
 
 	const char*       GetName() const override;
 	void              LoadAssets(Wind::Engine& engine) override;
@@ -21,7 +20,6 @@ public:
 
 private:
 	MatchStats&           mMatchStats;
-	const GameDataModule& mGameDataModule;
 	Wind::UIText          mTitle;
 	Wind::UIText          mSubTitle;
 	Wind::UIButton        mNextLevelButton;

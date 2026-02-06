@@ -25,5 +25,6 @@ private:
 	Wind::UIButton mAudioButton;
 	Wind::UIButton mLanguageButton;
 	Wind::UIButton mBackButton;
+	Wind::UIButton mToggleButton;
 	Wind::UICanvas mCanvas;
 };

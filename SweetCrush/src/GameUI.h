@@ -34,3 +34,4 @@ Wind::UIText MakeDynScreenText(float y);
 Wind::UIButton MakeMenuButton(float y, Wind::StringId label);
 Wind::UIButton MakeBackButton();
 Wind::UIButton MakeQuitButton();
+Wind::UIButton MakeToggleButton(float y, Wind::StringId label);

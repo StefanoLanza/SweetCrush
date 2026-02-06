@@ -56,15 +56,16 @@ void MainScreen::LoadAssets(Engine& engine) {
 }
 
 ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
+	mCanvas.HandleInput(input);
 	mTime += dt;
 
-	if (mStartButton.IsClicked(input)) {
+	if (mStartButton.IsClicked()) {
 		return GoTo(GameScreenIds::levelStart, ScreenTransition::slideTop);
 	}
-	else if (mSettingsButton.IsClicked(input)) {
+	else if (mSettingsButton.IsClicked()) {
 		return GoTo(GameScreenIds::settings, ScreenTransition::slideLeft);
 	}
-	else if (mCreditsButton.IsClicked(input)) {
+	else if (mCreditsButton.IsClicked()) {
 		return GoTo(GameScreenIds::credits, ScreenTransition::slideLeft);
 	}
 
@@ -74,7 +75,7 @@ ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
 	if (input.GetKeyJustPressed(SDLK_AC_BACK)) {
 		mEngine.Quit();
 #elif defined(_WIN32) || defined(__linux__)
-	if (input.GetKeyJustPressed(SDLK_ESCAPE) || mQuitButton.IsClicked(input)) {
+	if (input.GetKeyJustPressed(SDLK_ESCAPE) || mQuitButton.IsClicked()) {
 #endif
 		mEngine.Quit();
 	}

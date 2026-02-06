@@ -79,8 +79,9 @@ void GameCompleteScreen::LoadAssets(Engine& engine) {
 }
 
 ScreenEvent GameCompleteScreen::Tick(float dt, const Wind::Input& input) {
+	mCanvas.HandleInput(input);
 	mAccumTime += dt;
-	if (mAccumTime > 4.f || mContinueButton.IsClicked(input)) {
+	if (mAccumTime > 4.f || mContinueButton.IsClicked()) {
 		return GoTo(GameScreenIds::mainMenu);
 	}
 	return Continue();

@@ -49,8 +49,9 @@ void LevelStartScreen::LoadAssets(Engine& engine) {
 }
 
 ScreenEvent LevelStartScreen::Tick(float dt, const Input& input) {
+	mCanvas.HandleInput(input);
 	mAccumTime += dt;
-	if (mAccumTime > 6.f || mPlayButton.IsClicked(input)) {
+	if (mAccumTime > 6.f || mPlayButton.IsClicked()) {
 		return GoTo(GameScreenIds::play, ScreenTransition::slideTop);
 	}
 	return Continue();

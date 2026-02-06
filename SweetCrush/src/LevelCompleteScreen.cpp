@@ -21,9 +21,8 @@ constexpr UICanvasDesc canvasDesc {
 
 } // namespace
 
-LevelCompleteScreen::LevelCompleteScreen(MatchStats& matchStats, const GameDataModule& gameDataModule)
+LevelCompleteScreen::LevelCompleteScreen(MatchStats& matchStats)
     : mMatchStats(matchStats)
-    , mGameDataModule { gameDataModule }
     , mTitle { MakeTitleText(GameStringId::level) }
     , mSubTitle { MakeSubTitleText(GameStringId::complete) }
     , mNextLevelButton { MakeMenuButton(button2_y, GameStringId::nextLevel) }
@@ -43,8 +42,9 @@ void LevelCompleteScreen::LoadAssets(Engine& engine) {
 }
 
 ScreenEvent LevelCompleteScreen::Tick(float dt, const Input& input) {
+	mCanvas.HandleInput(input);
 	mAccumTime += dt;
-	if (mAccumTime > 4.f || mNextLevelButton.IsClicked(input)) {
+	if (mAccumTime > 4.f || mNextLevelButton.IsClicked()) {
 		return GoTo(GameScreenIds::levelStart, ScreenTransition::slideTop);
 	}
 	return Continue();
@@ -58,8 +58,7 @@ void LevelCompleteScreen::Draw(UIRenderer& uiRenderer, float dt) {
 void LevelCompleteScreen::Enter([[maybe_unused]] const ScreenNavArgs& args) {
 	mAccumTime = 0.f;
 
-	char         tmp[256];
-	const Level& level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
+	char tmp[256];
 	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::level), mMatchStats.levelIndex + 1);
 	mTitle.SetText(tmp);
 }

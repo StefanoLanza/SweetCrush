@@ -46,10 +46,11 @@ void GameOverScreen::LoadAssets(Engine& engine) {
 }
 
 ScreenEvent GameOverScreen::Tick(float /*dt*/, const Input& input) {
-	if (mContinueButton.IsClicked(input)) {
+	mCanvas.HandleInput(input);
+	if (mContinueButton.IsClicked()) {
 		return GoTo(GameScreenIds::mainMenu, ScreenTransition::slideBottom);
 	}
-	else if (mReplayLevelButton.IsClicked(input)) {
+	else if (mReplayLevelButton.IsClicked()) {
 		return GoTo(GameScreenIds::play, ScreenTransition::slideBottom);
 	}
 	return Continue();

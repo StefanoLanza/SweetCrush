@@ -40,12 +40,13 @@ const char* CreditsScreen::GetName() const {
 }
 
 ScreenEvent CreditsScreen::Tick(float /*dt*/, const Wind::Input& input) {
+	mCanvas.HandleInput(input);
 #if defined(__ANDROID__) || defined(__OHOS__)
 	if (input.GetKeyJustPressed(SDLK_AC_BACK) ||
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
-	    mBackButton.IsClicked(input)) {
+	    mBackButton.IsClicked()) {
 		return GoBack(ScreenTransition::slideRight);
 	}
 	return Continue();

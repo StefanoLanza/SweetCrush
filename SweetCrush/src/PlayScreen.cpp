@@ -172,12 +172,13 @@ ScreenEvent PlayScreen::Tick(float dt, const Input& input) {
 	}
 
 	// Handle pause
+	mCanvas.HandleInput(input);
 #if defined(__ANDROID__) || defined(__OHOS__)
 	if (input.GetKeyJustPressed(SDLK_AC_BACK)
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE)
 #endif
-	    || mPauseButton.IsClicked(input)) {
+	    || mPauseButton.IsClicked()) {
 		return GoTo(GameScreenIds::pauseGame, ScreenTransition::slideLeft);
 	}
 
@@ -218,7 +219,7 @@ void PlayScreen::SelectBooster(const Input& input) {
 
 	// Check buttons
 	for (int i = 0; i < MaxBoosterTypesPerLevel; ++i) {
-		if (mBoosterCount[i] > 0 && mBoosterButtons[i].IsClicked(input)) {
+		if (mBoosterCount[i] > 0 && mBoosterButtons[i].IsClicked()) {
 			// Unselect if pressing again on same button
 			mSelectedBooster = mSelectedBooster == i ? -1 : i;
 			mMatch3.ClearSelection();
