@@ -281,10 +281,21 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 		assert(numMatches < NumRows * NumCols);
 
 #if ENABLE_EFFECTS
-		const bool isSpecialCombo = comboType != ComboType::C3;
+		bool isSpecialCombo = comboType != ComboType::C3;
+		// In Candy Crush, if a special candy appears in a combo, it is activated and NO new special candy is created
+		for (int i = 0; i < numMatches; ++i) {
+			if (IsSpecial(mBoard.GetCell(matches[i]))) {
+				isSpecialCombo = false;
+				break;
+			}
+		}
+		if (IsSpecial(mainCell)) {
+			isSpecialCombo = false;
+		}
 #else
 		const bool isSpecialCombo = false;
 #endif
+
 		if (! isSpecialCombo) {
 			// Kill main mainCell if not specialPiece
 			KillCell(mainCellIdx, nullptr);
@@ -298,7 +309,7 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 
 			// Inform client
 			event.id = Match3Event::Id::newEffect;
-			event.specialPiece.cell = &mainCell;;
+			event.specialPiece.cell = &mainCell;
 			event.specialPiece.pieceId = mainCell.pieceId; // FIXME redundant ?
 			event.specialPiece.type = effectType;
 			mCbk(event);

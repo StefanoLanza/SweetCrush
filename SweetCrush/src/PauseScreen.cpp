@@ -1,9 +1,9 @@
 #include "PauseScreen.h"
 #include "Constants.h"
+#include "GameUI.h"
 #include "Localization.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
-#include "GameUI.h"
 
 #include <engine/Engine.h>
 #include <engine/Input.h>
@@ -14,55 +14,6 @@ using namespace Wind;
 
 namespace {
 
-const UIButtonDesc buttonDescs[] {
-	{
-	    .pos = UIAbsolutePos(0, button0_y),
-	    .size = UIAutoSize,
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::top,
-	},
-	{
-	    .pos = UIAbsolutePos(0, button1_y),
-	    .size = UIAutoSize,
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::top,
-	},
-	{
-	    .pos = UIAbsolutePos(0, button2_y),
-	    .size = UIAutoSize,
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::top,
-	},
-};
-
-const UITextDesc textDescs[] {
-	{
-	    .pos = { 0.f, titleY },
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::top,
-	    .font = "screenTitle",
-	    .stringId = GameStringId::pauseGame,
-	},
-	{
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::center,
-	    .font = "mediumFont",
-	    .stringId = GameStringId::restartLevel,
-	},
-	{
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::center,
-	    .font = "mediumFont",
-	    .stringId = GameStringId::exitGame,
-	},
-	{
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::center,
-	    .font = "mediumFont",
-	    .stringId = GameStringId::settings,
-	},
-};
-
 constexpr UICanvasDesc canvasDesc {
 	.background = "gameartguppy/background.png",
 };
@@ -70,17 +21,17 @@ constexpr UICanvasDesc canvasDesc {
 } // namespace
 
 PauseScreen::PauseScreen()
-    : mTitle(textDescs[0], titleTextStyle)
-    , mRestartLevelButton(buttonDescs[0], buttonBitmapDesc, textDescs[1])
-    , mExitGameButton(buttonDescs[1], buttonBitmapDesc, textDescs[2])
-    , mSettingsButton(buttonDescs[2], buttonBitmapDesc, textDescs[3])
-    , mBackButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc)
+    : mTitle { MakeTitleText(GameStringId::pauseGame) }
+    , mRestartLevelButton { MakeMenuButton(button0_y, GameStringId::restartLevel) }
+    , mEndGameButton { MakeMenuButton(button1_y, GameStringId::endGame) }
+    , mSettingsButton { MakeMenuButton(button2_y, GameStringId::settings) }
+    , mBackButton { MakeBackButton() }
     , mCanvas(canvasDesc) {
 	mCanvas.AddText(mTitle);
 	mCanvas.AddButton(mBackButton);
 	mCanvas.AddButton(mRestartLevelButton);
 	mCanvas.AddButton(mSettingsButton);
-	mCanvas.AddButton(mExitGameButton);
+	mCanvas.AddButton(mEndGameButton);
 }
 
 const char* PauseScreen::GetName() const {
@@ -100,11 +51,11 @@ ScreenEvent PauseScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	    || mBackButton.IsClicked(input)) {
 		return GoBack(false, ScreenTransition::slideRight);
 	}
-	if (mExitGameButton.IsClicked(input)) {
-		return GoTo(GameScreenIds::mainMenu, ScreenTransition::fade);
+	if (mEndGameButton.IsClicked(input)) {
+		return GoTo(GameScreenIds::mainMenu, ScreenTransition::slideBottom);
 	}
 	else if (mRestartLevelButton.IsClicked(input)) {
-		return GoBack(true, ScreenTransition::fade);
+		return GoBack(true, ScreenTransition::slideRight);
 	}
 	else if (mSettingsButton.IsClicked(input)) {
 		return GoTo(GameScreenIds::settings, ScreenTransition::slideLeft);

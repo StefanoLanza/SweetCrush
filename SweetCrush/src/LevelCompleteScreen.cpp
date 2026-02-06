@@ -1,9 +1,11 @@
 #include "LevelCompleteScreen.h"
 #include "Constants.h"
+#include "GameDataModule.h"
+#include "GameUI.h"
+#include "Level.h"
 #include "Localization.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
-#include "GameUI.h"
 
 #include <engine/Engine.h>
 #include <engine/TextRender.h>
@@ -13,45 +15,22 @@ using namespace Wind;
 
 namespace {
 
-const UIButtonDesc buttonDescs[] {
-	{
-	    UIAbsolutePos(0, button2_y),
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::top,
-	},
-};
-
-const UITextDesc textDescs[] {
-	{
-		.pos = { 0.f, titleY },
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::top,
-
-	    .font = "screenTitle",
-	    .stringId = GameStringId::levelComplete,
-	},
-	{
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::center,
-	    .font = "mediumFont",
-	    .stringId = GameStringId::nextLevel,
-	},
-};
-
 constexpr UICanvasDesc canvasDesc {
 	.background = "gameartguppy/background.png",
 };
 
 } // namespace
 
-LevelCompleteScreen::LevelCompleteScreen(const MatchStats& matchStats)
+LevelCompleteScreen::LevelCompleteScreen(MatchStats& matchStats, const GameDataModule& gameDataModule)
     : mMatchStats(matchStats)
-    , mTitle(textDescs[0], titleTextStyle)
-    , mNextLevelButton(buttonDescs[0], buttonBitmapDesc, textDescs[1])
+    , mGameDataModule { gameDataModule }
+    , mTitle { MakeTitleText(GameStringId::level) }
+    , mSubTitle { MakeSubTitleText(GameStringId::complete) }
+    , mNextLevelButton { MakeMenuButton(button2_y, GameStringId::nextLevel) }
     , mCanvas(canvasDesc) {
 	// Setup UI
 	mCanvas.AddText(mTitle);
+	mCanvas.AddText(mSubTitle);
 	mCanvas.AddButton(mNextLevelButton);
 }
 
@@ -66,7 +45,7 @@ void LevelCompleteScreen::LoadAssets(Engine& engine) {
 ScreenEvent LevelCompleteScreen::Tick(float dt, const Input& input) {
 	mAccumTime += dt;
 	if (mAccumTime > 4.f || mNextLevelButton.IsClicked(input)) {
-		return GoTo(GameScreenIds::levelStart, ScreenTransition::zoomInOut);
+		return GoTo(GameScreenIds::levelStart, ScreenTransition::slideTop);
 	}
 	return Continue();
 }
@@ -78,9 +57,15 @@ void LevelCompleteScreen::Draw(UIRenderer& uiRenderer, float dt) {
 
 void LevelCompleteScreen::Enter([[maybe_unused]] const ScreenNavArgs& args) {
 	mAccumTime = 0.f;
+
+	char         tmp[256];
+	const Level& level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
+	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::level), mMatchStats.levelIndex + 1);
+	mTitle.SetText(tmp);
 }
 
 void LevelCompleteScreen::Exit() {
+	mMatchStats.levelIndex++;
 }
 
 void LevelCompleteScreen::ParseConfig(const char* varName, const char* varValue) {

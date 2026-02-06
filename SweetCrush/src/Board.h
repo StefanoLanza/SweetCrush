@@ -40,6 +40,7 @@ struct Cell {
 };
 
 bool IsSelectable(const Cell& cell);
+bool IsSpecial(const Cell& cell);
 
 struct BoardConfig {
 	Wind::Vec2 topLeftCoord;

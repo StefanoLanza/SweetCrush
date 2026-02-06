@@ -4,16 +4,14 @@
 #include "GameDataModule.h"
 #include "GameDrawOrder.h"
 #include "GameRenderer.h"
+#include "GameUI.h"
 #include "Level.h"
 #include "Localization.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
-#include "GameUI.h"
 
 #include <engine/BitmapRender.h>
 #include <engine/Engine.h>
-#include <engine/FontManager.h>
-#include <engine/TextRender.h>
 #include <engine/Texture.h>
 #include <engine/UI.h>
 #include <engine/UIRenderer.h>
@@ -21,31 +19,6 @@
 using namespace Wind;
 
 namespace {
-
-const UIButtonDesc playButtonDesc {
-	UIAbsolutePos(0, button2_y),
-	UIAutoSize,
-	UIHorizAlignment::center,
-	UIVertAlignment::top,
-};
-
-const UITextDesc textDescs[] {
-	{
-	    .pos = { 0.f, titleY },
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::top,
-
-	    .font = "screenTitle",
-	    .stringId = GameStringId::level,
-	},
-	{
-	    .pos = { 0.f, 0.f },
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::center,
-	    .font = "mediumFont",
-	    .stringId = GameStringId::play,
-	},
-};
 
 constexpr UICanvasDesc canvasDesc {
 	.background = "gameartguppy/background.png",
@@ -57,12 +30,14 @@ LevelStartScreen::LevelStartScreen(const MatchStats& matchStats, const GameDataM
     : mMatchStats(matchStats)
     , mGameDataModule(gameDataModule)
     , mGameRenderer(gameRenderer)
-    , mTitle(textDescs[0], titleTextStyle)
-    , mPlayButton(playButtonDesc, buttonBitmapDesc, textDescs[1])
-    , mCanvas(canvasDesc) {
+    , mTitle { MakeTitleText(GameStringId::level) }
+    , mPlayButton { MakeMenuButton(button2_y, GameStringId::play) }
+    , mCanvas(canvasDesc)
+    , mGoalText { MakeDynScreenText(text0_y) } {
 	// Setup UI
 	mCanvas.AddText(mTitle);
 	mCanvas.AddButton(mPlayButton);
+	mCanvas.AddText(mGoalText);
 }
 
 const char* LevelStartScreen::GetName() const {
@@ -71,7 +46,6 @@ const char* LevelStartScreen::GetName() const {
 
 void LevelStartScreen::LoadAssets(Engine& engine) {
 	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
-	mFont = engine.GetFontManager().AddFont("smallFont");
 }
 
 ScreenEvent LevelStartScreen::Tick(float dt, const Input& input) {
@@ -85,32 +59,12 @@ ScreenEvent LevelStartScreen::Tick(float dt, const Input& input) {
 void LevelStartScreen::Draw(UIRenderer& uiRenderer, float dt) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 
-	if (! mFont) {
-		return;
-	}
-	const auto&     textRenderer = uiRenderer.GetTextRenderer();
-	char            tmp[256];
-	const TextStyle textStyle {
-		.color = whiteColor,
-		.outlineColor = blackColor,
-	};
-	snprintf(tmp, sizeof(tmp), "%s", GetLocalizedString(GameStringId::goal));
-	// textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 400 }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
-	//  snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourFinalScoreIs), mMatchStats.score);
-	//  textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 460 }, TextAlignment::center, textStyle, GameDrawOrder::overUI);
-
 	const Level& level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
 	switch (level.goal.id) {
 	case GoalId::breakIce:
-		snprintf(tmp, sizeof(tmp), "%s", "Break all ice blocks");
-		textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, text0_y }, TextAlignment::center, TextDirection::leftToRight, textStyle,
-		                          GameDrawOrder::overUI);
 		DrawIceBlocks(level, text0_y + 120.f);
 		break;
 	case GoalId::collectMatches: {
-		snprintf(tmp, sizeof(tmp), "%s", "Match and remove these pieces");
-		textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, text0_y }, TextAlignment::center, TextDirection::leftToRight, textStyle,
-		                          GameDrawOrder::overUI);
 		DrawPieces(level, text0_y + 120.f);
 		break;
 	}
@@ -121,12 +75,40 @@ void LevelStartScreen::Draw(UIRenderer& uiRenderer, float dt) {
 		// TODO
 		break;
 	default:
+		assert(false);
 		break;
 	}
 }
 
 void LevelStartScreen::Enter(const ScreenNavArgs& args) {
+	char tmp[256];
 	mAccumTime = 0.f;
+
+	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::level), mMatchStats.levelIndex + 1);
+	mTitle.SetText(tmp);
+
+	const Level& level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
+	switch (level.goal.id) {
+	case GoalId::breakIce:
+		snprintf(tmp, sizeof(tmp), "%s", "Break all ice blocks");
+		break;
+	case GoalId::collectMatches: {
+		snprintf(tmp, sizeof(tmp), "%s", "Match and remove these pieces");
+		break;
+	}
+	case GoalId::removeJellies:
+		snprintf(tmp, sizeof(tmp), "%s", "Remove all jellies");
+		// TODO
+		break;
+	case GoalId::collectAllStars:
+		snprintf(tmp, sizeof(tmp), "%s", "Collect all stars");
+		// TODO
+		break;
+	default:
+		assert(false);
+		break;
+	}
+	mGoalText.SetText(tmp);
 }
 
 void LevelStartScreen::Exit() {

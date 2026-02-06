@@ -28,7 +28,9 @@ extern const float text0_y;
 extern const float text1_y;
 
 Wind::UIText MakeTitleText(Wind::StringId label);
+Wind::UIText MakeSubTitleText(Wind::StringId label);
 Wind::UIText MakeScreenText(Wind::StringId label, float y);
+Wind::UIText MakeDynScreenText(float y);
 Wind::UIButton MakeMenuButton(float y, Wind::StringId label);
 Wind::UIButton MakeBackButton();
 Wind::UIButton MakeQuitButton();

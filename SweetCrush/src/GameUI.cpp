@@ -37,6 +37,7 @@ const UIBitmapDesc defaultBackButtonBitmapDesc {
 
 const UISize    defaultButtonSize { 422.f, 100.f, 0.f, 0.f };
 constexpr float titleY = 160.f;
+constexpr float subTitleY = 280.f;
 constexpr float button0_y = 560;
 constexpr float button1_y = 680;
 constexpr float button2_y = 800;
@@ -54,6 +55,17 @@ Wind::UIText MakeTitleText(Wind::StringId label) {
 	return Wind::UIText { desc, titleTextStyle };
 }
 
+Wind::UIText MakeSubTitleText(Wind::StringId label) {
+	const UITextDesc desc {
+		.pos = { 0.f, subTitleY },
+		.horizontalAlignment = UIHorizAlignment::center,
+		.verticalAlignment = UIVertAlignment::top,
+		.font = "screenTitle",
+		.stringId = label,
+	};
+	return Wind::UIText { desc, titleTextStyle };
+}
+
 Wind::UIText MakeScreenText(Wind::StringId label, float y) {
 	const UITextDesc desc {
 		.pos = { 0.f, y },
@@ -61,6 +73,17 @@ Wind::UIText MakeScreenText(Wind::StringId label, float y) {
 		.verticalAlignment = UIVertAlignment::top,
 		.font = "smallFont",
 		.stringId = label,
+	};
+	return Wind::UIText { desc, defaultTextStyle };
+}
+
+Wind::UIText MakeDynScreenText(float y) {
+	const UITextDesc desc {
+		.pos = { 0.f, y },
+		.horizontalAlignment = UIHorizAlignment::center,
+		.verticalAlignment = UIVertAlignment::top,
+		.font = "smallFont",
+		.stringId = 0,
 	};
 	return Wind::UIText { desc, defaultTextStyle };
 }

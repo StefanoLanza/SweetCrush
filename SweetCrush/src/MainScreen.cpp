@@ -3,9 +3,9 @@
 #include "Constants.h"
 #include "GameDrawOrder.h"
 #include "GameRenderer.h"
+#include "GameUI.h"
 #include "Localization.h"
 #include "ScreenIds.h"
-#include "GameUI.h"
 
 #include <engine/BitmapRender.h>
 #include <engine/Easings.h>
@@ -33,7 +33,7 @@ MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
     , mSettingsButton { MakeMenuButton(button1_y, GameStringId::settings) }
     , mCreditsButton { MakeMenuButton(button2_y, GameStringId::credits) }
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
-    , mQuitButton( MakeQuitButton() )
+    , mQuitButton { MakeQuitButton() }
 #endif
     , mCanvas(canvasDesc)
     , mTime(0) {
@@ -99,6 +99,7 @@ void MainScreen::Draw(UIRenderer& uiRenderer, float dt) {
 		phase += 6.28f / static_cast<float>(NumPieceTypes);
 	}
 
+#if 0
 	{
 		BitmapExtParams prm;
 		prm.orientation = std::sin(0.f + (float)mTime * 2.f) * 0.05f;
@@ -107,6 +108,7 @@ void MainScreen::Draw(UIRenderer& uiRenderer, float dt) {
 		prm.blending = true;
 		mEngine.GetBitmapRenderer().DrawBitmapEx(*gameTextures[petSprites[0]], { RefWindowWidth - 100.f, RefWindowHeight - 0.f }, prm);
 	}
+#endif
 }
 
 void MainScreen::Enter(const ScreenNavArgs& args) {
@@ -121,13 +123,13 @@ void MainScreen::ParseConfig(const char* varName, const char* varValue) {
 }
 
 void MainScreen::AnimateUI() {
-	float       t = std::min(1.f, mTime * 3.f);
-	 auto desc = mSettingsButton.GetDesc();
-//	mQuitButton.GetDesc Bitmap()->SetColor(Color { desc.color.r, desc.color.g, desc.color.b, 255.f * t });
-	//desc.scale = LerpEase(0.85f, 1.f, t, EaseOutBounce);
+	float t = std::min(1.f, mTime * 3.f);
+	auto  desc = mSettingsButton.GetDesc();
+	//	mQuitButton.GetDesc Bitmap()->SetColor(Color { desc.color.r, desc.color.g, desc.color.b, 255.f * t });
+	// desc.scale = LerpEase(0.85f, 1.f, t, EaseOutBounce);
 	desc.pos.ax = LerpEase(-400.f, 0.f, t, EaseOutCubic);
-	//mSettingsButton.SetDesc(desc);
-	 desc = mStartButton.GetDesc();
+	// mSettingsButton.SetDesc(desc);
+	desc = mStartButton.GetDesc();
 	desc.pos.ax = LerpEase(400.f, 0.f, t, EaseOutCubic);
-	//mStartButton.SetDesc(desc);
+	// mStartButton.SetDesc(desc);
 }

@@ -47,7 +47,7 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
 	mScreens[4] = std::make_unique<GameOverScreen>(mMatchStats);
 	mScreens[5] = std::make_unique<GameCompleteScreen>(mMatchStats);
 	mScreens[6] = std::make_unique<PauseScreen>();
-	mScreens[7] = std::make_unique<LevelCompleteScreen>(mMatchStats);
+	mScreens[7] = std::make_unique<LevelCompleteScreen>(mMatchStats, gameDataModule);
 	mScreens[8] = std::make_unique<GraphicsSettingsScreen>(mGameSettings);
 	mScreens[9] = std::make_unique<AudioSettingsScreen>(mGameSettings);
 	mScreens[10] = std::make_unique<EffectInfoScreen>();

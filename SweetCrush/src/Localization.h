@@ -36,9 +36,9 @@ enum GameStringId {
 	pauseGame,
 	continueGame,
 	restartLevel,
-	exitGame,
+	endGame,
 	ok,
-	levelComplete,
+	complete,
 	nextLevel,
 	gameComplete,
 	// boosters

@@ -41,7 +41,7 @@ const char* eng[] = {
 	"RESTART LEVEL",
 	"END MATCH",
 	"OK",
-	"LEVEL COMPLETE",
+	"COMPLETE",
 	"NEXT",
 	"GAME COMPLETE",
 	// Boosters
@@ -91,7 +91,7 @@ const char* esp[] = {
 	"REINICIAR NIVEL",
 	"ABANDONAR PARTIDA",
 	"VALE",
-	"NIVEL COMPLETO",
+	"COMPLETO",
 	"SIGUIENTE",
 	"JUEGO COMPLETO",
 	// Boosters
@@ -141,7 +141,7 @@ const char* ita[] = {
 	"RICOMINCIA",
 	"ABBANDONA",
 	"OK",
-	"LIVELLO COMPLETATO",
+	"COMPLETATO",
 	"CONTINUA",
 	"GIOCO COMPLETO",
 	// Boosters

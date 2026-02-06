@@ -7,12 +7,12 @@
 #include "GameDrawOrder.h"
 #include "GameRenderer.h"
 #include "GameSettings.h"
+#include "GameUI.h"
 #include "Level.h"
 #include "Localization.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
 #include "TileSelector.h"
-#include "GameUI.h"
 
 #include <engine/Audio.h>
 #include <engine/BitmapRender.h>
@@ -32,40 +32,24 @@ using namespace Wind;
 
 namespace {
 
+UIButton MakeBoosterButton(float x) {
+	const UIButtonDesc desc {
+		.pos = UIAbsolutePos(x, -10),
+		.size = { 100.f, 100.f, 0.f, 0.f },
+		.horizontalAlignment = UIHorizAlignment::center,
+		.verticalAlignment = UIVertAlignment::bottom,
+		.background = "button.png",
+		.backgroundColor = Color { 255, 229, 102, 255 },
+		._9patch = { 16, 0.f, 0.f, 0.f },
+	};
+	return UIButton { desc };
+}
+
 const UIButtonDesc pauseButtonDesc {
 	.pos = UIAbsolutePos(32, -32),
 	.size = UIAutoSize,
 	.horizontalAlignment = UIHorizAlignment::left,
 	.verticalAlignment = UIVertAlignment::bottom,
-};
-
-const UIButtonDesc booster0ButtonDesc {
-	.pos = UIAbsolutePos(10, -10),
-	.size = { 100.f, 100.f, 0.f, 0.f },
-	.horizontalAlignment = UIHorizAlignment::left,
-	.verticalAlignment = UIVertAlignment::bottom,
-};
-
-const UIButtonDesc booster1ButtonDesc {
-	.pos = UIAbsolutePos(0, -10),
-	.size = { 100.f, 100.f, 0.f, 0.f },
-	.horizontalAlignment = UIHorizAlignment::center,
-	.verticalAlignment = UIVertAlignment::bottom,
-};
-
-const UIButtonDesc booster2ButtonDesc {
-	.pos = UIAbsolutePos(-10, -10),
-	.size = { 100.f, 100.f, 0.f, 0.f },
-	.horizontalAlignment = UIHorizAlignment::right,
-	.verticalAlignment = UIVertAlignment::bottom,
-};
-
-const UIBitmapDesc boosterButtonBitmapDesc {
-	.fileName = "button.png",
-	.pos = UIZeroPos,
-	.size = UIParentSize,
-	//	.color = Color { 255, 229, 102, 255 },
-	//FIXME ._9patch = { 16, 0.f, 0.f, 0.f },
 };
 
 const UIBitmapDesc pauseButtonBitmapDesc {
@@ -123,9 +107,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
     , mScoreText(scoreTextDesc, defaultTextStyle)
     , mTimeText(timeTextDesc, defaultTextStyle)
     , mPauseButton(pauseButtonDesc, pauseButtonBitmapDesc)
-    , mBoosterButtons { { booster0ButtonDesc, boosterButtonBitmapDesc },
-	                    { booster1ButtonDesc, boosterButtonBitmapDesc },
-	                    { booster2ButtonDesc, boosterButtonBitmapDesc } }
+    , mBoosterButtons { MakeBoosterButton(-110.f), MakeBoosterButton(0.f), MakeBoosterButton(110.f) }
     , mMatch3 { mBoard, mBoardGenerator, *mCellSelector }
     , mTime { 0.f }
     , mMatchTime { 0 } {
@@ -137,7 +119,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
 	mCanvas.AddButton(mPauseButton);
 	mCanvas.AddText(mScoreText);
 	mCanvas.AddText(mTimeText);
-	mBoostersPanel.AddButton(mBoosterButtons[0]);
+	mBoostersPanel.AddButton(mBoosterButtons[0]); // TODO GridLayout
 	mBoostersPanel.AddButton(mBoosterButtons[1]);
 	mBoostersPanel.AddButton(mBoosterButtons[2]);
 }
@@ -196,7 +178,7 @@ ScreenEvent PlayScreen::Tick(float dt, const Input& input) {
 	if (input.GetKeyJustPressed(SDLK_ESCAPE)
 #endif
 	    || mPauseButton.IsClicked(input)) {
-		return GoTo(GameScreenIds::pauseGame, ScreenTransition::fade);
+		return GoTo(GameScreenIds::pauseGame, ScreenTransition::slideLeft);
 	}
 
 	if (mMatch3.IsWaitingForUser()) {
@@ -285,18 +267,15 @@ void PlayScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 
 void PlayScreen::Enter(const ScreenNavArgs& args) {
 	bool restartLevel = false;
-	if (args.mPrev == GameScreenIds::levelComplete) {
-		NextLevel();
-	}
-	else if (args.mPrev == GameScreenIds::pauseGame) {
+	if (args.mPrev == GameScreenIds::pauseGame) {
 		// resume game
 		std::memcpy(&restartLevel, args.mParams, sizeof restartLevel);
 		if (restartLevel) {
-			ReplayLevel();
+			NewGame();
 		}
 	}
 	else if (args.mPrev == GameScreenIds::gameOver) {
-		ReplayLevel();
+		NewGame();
 	}
 	else if (args.mPrev == GameScreenIds::effectInfo) {
 		// continue playing
@@ -320,27 +299,9 @@ void PlayScreen::Exit() {
 }
 
 void PlayScreen::NewGame() {
-	mMatchStats.levelIndex = 0;
-	mMatchStats.score = 0;
 	mLevelComplete = false;
 	mGameComplete = false;
-	StartLevel();
-}
 
-void PlayScreen::NextLevel() {
-	if (mMatchStats.levelIndex < mGameDataModule.GetNumLevels()) {
-		++mMatchStats.levelIndex;
-		StartLevel();
-	}
-}
-
-void PlayScreen::ReplayLevel() {
-	mMatchStats.score = 0;
-	mGameComplete = false;
-	StartLevel();
-}
-
-void PlayScreen::StartLevel() {
 	const Level& level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
 	if (level.boardDef) {
 		mBoardGenerator.InitBoard(mBoard, *level.boardDef, level.seed, level.pieceIds, 5);
@@ -355,8 +316,8 @@ void PlayScreen::StartLevel() {
 	for (int& c : mMatchStats.targetPieceCount) {
 		c = 0;
 	}
+	mMatchStats.score = 0;
 	mMatchStats.layerCount = mBoard.TotalLayerCount();
-	mLevelComplete = false;
 	mActionMgr.Clear();
 	SetupNewBoardAnimation();
 	mMatch3.Restart();

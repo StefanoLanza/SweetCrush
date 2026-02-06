@@ -78,6 +78,10 @@ bool IsSelectable(const Cell& cell) {
 	return (cell.category == CellCategory::piece && cell.layers == 0); // cannot select if frozen
 }
 
+bool IsSpecial(const Cell& cell) {
+	return (cell.category == CellCategory::piece && cell.hasEffect);
+}
+
 bool Board::IsInside(int col, int row) const {
 	return (col >= 0 && col < mCols && row >= 0 && row < mRows);
 }

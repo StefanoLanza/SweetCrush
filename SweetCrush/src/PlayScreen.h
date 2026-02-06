@@ -34,9 +34,6 @@ public:
 private:
 	void SelectBooster(const Wind::Input& input);
 	void NewGame();
-	void NextLevel();
-	void ReplayLevel();
-	void StartLevel();
 	void SetupNewBoardAnimation();
 	void OnTileSelectionEvent(const TileSelectionEvent& event);
 	void OnPieceRemoved(const Cell& cell);

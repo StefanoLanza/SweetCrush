@@ -1,8 +1,8 @@
 #include "CreditsScreen.h"
 #include "Constants.h"
+#include "GameUI.h"
 #include "Localization.h"
 #include "ScreenIds.h"
-#include "GameUI.h"
 
 #include <engine/Engine.h>
 #include <engine/Input.h>
@@ -12,38 +12,6 @@
 using namespace Wind;
 
 namespace {
-
-const UITextDesc codeByText {
-	.pos = { 0, 560 },
-	.horizontalAlignment = UIHorizAlignment::center,
-	.verticalAlignment = UIVertAlignment::top,
-	.font = "smallFont",
-	.stringId = GameStringId::codeBy,
-};
-
-const UITextDesc graphicsByText {
-	.pos = { 0, 620 },
-	.horizontalAlignment = UIHorizAlignment::center,
-	.verticalAlignment = UIVertAlignment::top,
-	.font = "smallFont",
-	.stringId = GameStringId::graphicsBy,
-};
-
-const UITextDesc musicByText {
-	.pos = { 0, 680 },
-	.horizontalAlignment = UIHorizAlignment::center,
-	.verticalAlignment = UIVertAlignment::top,
-	.font = "smallFont",
-	.stringId = GameStringId::musicBy,
-};
-
-const UITextDesc versionText {
-	.pos = { 0, 840 },
-	.horizontalAlignment = UIHorizAlignment::center,
-	.verticalAlignment = UIVertAlignment::top,
-	.font = "smallFont",
-	.stringId = GameStringId::version,
-};
 
 constexpr UICanvasDesc canvasDesc {
 	.background = "gameartguppy/background.png",
@@ -57,7 +25,7 @@ CreditsScreen::CreditsScreen()
     , mGraphicsBy { MakeScreenText(GameStringId::graphicsBy, 620) }
     , mMusicBy { MakeScreenText(GameStringId::musicBy, 680) }
     , mVersion { MakeScreenText(GameStringId::version, 840) }
-	, mBackButton{ MakeBackButton() }
+    , mBackButton { MakeBackButton() }
     , mCanvas(canvasDesc) {
 	mCanvas.AddText(mTitle);
 	mCanvas.AddText(mCodeBy);

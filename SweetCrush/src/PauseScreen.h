@@ -19,7 +19,7 @@ public:
 public:
 	Wind::UIText   mTitle;
 	Wind::UIButton mRestartLevelButton;
-	Wind::UIButton mExitGameButton;
+	Wind::UIButton mEndGameButton;
 	Wind::UIButton mSettingsButton;
 	Wind::UIButton mBackButton;
 	Wind::UICanvas mCanvas;

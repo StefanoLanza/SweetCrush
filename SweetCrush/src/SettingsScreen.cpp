@@ -1,8 +1,8 @@
 #include "SettingsScreen.h"
 #include "AppConfig.h"
+#include "GameUI.h"
 #include "Localization.h"
 #include "ScreenIds.h"
-#include "GameUI.h"
 
 #include <engine/Engine.h>
 #include <engine/Input.h>
@@ -12,44 +12,6 @@ using namespace Wind;
 
 namespace {
 
-const UIButtonDesc graphicsButtonDesc { { 0, button0_y, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
-const UIButtonDesc audioButtonDesc { { 0, button1_y, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
-const UIButtonDesc languageButtonDesc { { 0, button2_y, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
-
-const UITextDesc textDescs[] {
-	{
-	    .pos = { 0, titleY },
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::top,
-	    .font = "screenTitle",
-	    .stringId = GameStringId::settings,
-	},
-	{
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::center,
-	    .font = "mediumFont",
-	    .stringId = GameStringId::graphicsSettings,
-	},
-	{
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::center,
-	    .font = "mediumFont",
-	    .stringId = GameStringId::audioSettings,
-	},
-	{
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::center,
-	    .font = "mediumFont",
-	    .stringId = GameStringId::languageScreen,
-	},
-	{
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::center,
-	    .font = "mediumFont",
-	    .stringId = GameStringId::back,
-	},
-};
-
 constexpr UICanvasDesc canvasDesc {
 	.background = "gameartguppy/background.png",
 };
@@ -58,11 +20,11 @@ constexpr UICanvasDesc canvasDesc {
 
 SettingsScreen::SettingsScreen(GameSettings& gameSettings)
     : mGameConfig(gameSettings)
-    , mTitle(textDescs[0], titleTextStyle)
-    , mGraphicsButton(graphicsButtonDesc, buttonBitmapDesc, textDescs[1])
-    , mAudioButton(audioButtonDesc, buttonBitmapDesc, textDescs[2])
-    , mLanguageButton(languageButtonDesc, buttonBitmapDesc, textDescs[3])
-    , mBackButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc)
+    , mTitle { MakeTitleText(GameStringId::settings) }
+    , mGraphicsButton { MakeMenuButton(button0_y, GameStringId::graphicsSettings) }
+    , mAudioButton { MakeMenuButton(button1_y, GameStringId::audioSettings) }
+    , mLanguageButton { MakeMenuButton(button2_y, GameStringId::languageScreen) }
+    , mBackButton { MakeBackButton() }
     , mCanvas(canvasDesc) {
 	// Build UI
 	mCanvas.AddText(mTitle);
