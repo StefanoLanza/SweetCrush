@@ -184,6 +184,7 @@ public:
 	bool                IsVisible() const;
 	bool                IsClicked() const;
 	bool                IsToggled() const;
+	void                SetToggled(bool value);
 	void                LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void                Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	void                UpdateRect(const UIRect& parentRect);
@@ -193,7 +194,7 @@ public:
 	UIButtonState       GetState() const;
 	const UIButtonDesc& GetDesc() const;
 	void                SetDesc(const UIButtonDesc&);
-	void                HandleInput(const Input& input);
+	bool                HandleInput(const Input& input);
 
 private:
 	UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text);
@@ -235,7 +236,7 @@ public:
 	const UIRect& Rect() const;
 	void          LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void          Draw(const UIRenderer& renderer, unsigned drawOrder) const;
-	void          HandleInput(const Input& input) const;
+	bool          HandleInput(const Input& input) const;
 	void          UpdateRect(const UIRect& parentRect);
 
 private:

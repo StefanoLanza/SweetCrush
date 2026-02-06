@@ -1,9 +1,9 @@
 #include "AudioSettingsScreen.h"
 #include "AppConfig.h"
 #include "GameSettings.h"
+#include "GameUI.h"
 #include "Localization.h"
 #include "ScreenIds.h"
-#include "GameUI.h"
 
 #include <engine/Engine.h>
 #include <engine/Input.h>
@@ -13,8 +13,6 @@ using namespace Wind;
 
 namespace {
 
-const UIButtonDesc musicButtonDesc { { 0, 560, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
-const UIButtonDesc sfxButtonDesc { { 0, 680, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
 const UIButtonDesc backButtonDesc { { 0, 920, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
 
 const UITextDesc titleTextDesc {
@@ -23,20 +21,6 @@ const UITextDesc titleTextDesc {
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "screenTitle",
 	.stringId = GameStringId::audioSettings,
-};
-
-const UITextDesc musicButtonTextDesc {
-	.horizontalAlignment = UIHorizAlignment::center,
-	.verticalAlignment = UIVertAlignment::center,
-	.font = "mediumFont",
-	.stringId = GameStringId::musicOn,
-};
-
-const UITextDesc sfxButtonTextDesc {
-	.horizontalAlignment = UIHorizAlignment::center,
-	.verticalAlignment = UIVertAlignment::center,
-	.font = "mediumFont",
-	.stringId = GameStringId::sfxOn,
 };
 
 constexpr UICanvasDesc canvasDesc {
@@ -48,8 +32,8 @@ constexpr UICanvasDesc canvasDesc {
 AudioSettingsScreen::AudioSettingsScreen(GameSettings& gameSettings)
     : mGameConfig(gameSettings)
     , mTitle(titleTextDesc, titleTextStyle)
-    , mMusicButton(musicButtonDesc, buttonBitmapDesc, musicButtonTextDesc)
-    , mSfxButton(sfxButtonDesc, buttonBitmapDesc, sfxButtonTextDesc)
+    , mMusicButton { MakeToggleButton(560.f, GameStringId::music) }
+    , mSfxButton { MakeToggleButton(680.f, GameStringId::sfx) }
     , mBackButton(defaultBackButtonDesc, defaultBackButtonBitmapDesc)
     , mCanvas(canvasDesc) {
 	// Build UI
@@ -57,8 +41,8 @@ AudioSettingsScreen::AudioSettingsScreen(GameSettings& gameSettings)
 	mCanvas.AddButton(mMusicButton);
 	mCanvas.AddButton(mSfxButton);
 	mCanvas.AddButton(mBackButton);
-	RefreshMusicButton();
-	RefreshSfxButton();
+	// RefreshMusicButton();
+	// RefreshSfxButton();
 }
 
 const char* AudioSettingsScreen::GetName() const {
@@ -71,14 +55,10 @@ void AudioSettingsScreen::LoadAssets(Engine& engine) {
 
 ScreenEvent AudioSettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
 	mCanvas.HandleInput(input);
-	if (mMusicButton.IsClicked()) {
-		mGameConfig.musicOn = ! mGameConfig.musicOn;
-		RefreshMusicButton();
-	}
-	else if (mSfxButton.IsClicked()) {
-		mGameConfig.sfxOn = ! mGameConfig.sfxOn;
-		RefreshSfxButton();
-	}
+	mGameConfig.musicOn = mMusicButton.IsToggled();
+	mGameConfig.sfxOn = mSfxButton.IsToggled();
+	// RefreshMusicButton();
+	// RefreshSfxButton();
 
 #if defined(__ANDROID__) || defined(__OHOS__)
 	if (input.GetKeyJustPressed(SDLK_AC_BACK) ||
@@ -96,19 +76,11 @@ void AudioSettingsScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 }
 
 void AudioSettingsScreen::Enter(const ScreenNavArgs& args) {
+	mMusicButton.SetToggled(mGameConfig.musicOn);
+	mSfxButton.SetToggled(mGameConfig.sfxOn);
 }
 
 void AudioSettingsScreen::Exit() {
-}
-
-void AudioSettingsScreen::RefreshMusicButton() {
-	const StringId stringId = static_cast<StringId>(mGameConfig.musicOn ? GameStringId::musicOn : GameStringId::musicOff);
-	mMusicButton.GetText()->SetText(stringId);
-}
-
-void AudioSettingsScreen::RefreshSfxButton() {
-	const StringId stringId = static_cast<StringId>(mGameConfig.sfxOn ? GameStringId::sfxOn : GameStringId::sfxOff);
-	mSfxButton.GetText()->SetText(stringId);
 }
 
 void AudioSettingsScreen::ParseConfig(const char* varName, const char* varValue) {

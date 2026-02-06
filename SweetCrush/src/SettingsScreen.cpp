@@ -25,7 +25,6 @@ SettingsScreen::SettingsScreen(GameSettings& gameSettings)
     , mAudioButton { MakeMenuButton(button1_y, GameStringId::audioSettings) }
     , mLanguageButton { MakeMenuButton(button2_y, GameStringId::languageScreen) }
     , mBackButton { MakeBackButton() }
-    , mToggleButton { MakeToggleButton(600, GameStringId::languageScreen) }
     , mCanvas(canvasDesc) {
 	// Build UI
 	mCanvas.AddText(mTitle);
@@ -33,7 +32,6 @@ SettingsScreen::SettingsScreen(GameSettings& gameSettings)
 	mCanvas.AddButton(mLanguageButton);
 	mCanvas.AddButton(mAudioButton);
 	mCanvas.AddButton(mBackButton);
-	mCanvas.AddButton(mToggleButton);
 }
 
 const char* SettingsScreen::GetName() const {
@@ -55,9 +53,6 @@ ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& i
 	}
 	else if (mAudioButton.IsClicked()) {
 		return GoTo(GameScreenIds::audioSettings, ScreenTransition::slideLeft);
-	}
-
-	if (mToggleButton.IsToggled()) {
 	}
 
 #if defined(__ANDROID__) || defined(__OHOS__)

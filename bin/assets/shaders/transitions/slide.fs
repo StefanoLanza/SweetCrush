@@ -4,17 +4,13 @@ layout(binding = 0)  uniform sampler2D texture0; // new
 layout(binding = 1)  uniform sampler2D texture1; // snapshot
 in vec2 vTexCoord;
 uniform vec4 misc; // dirx, diry, progress, border thickness
-uniform vec4 fadeColor;
 out vec4 fragColor;
 
 void main() {
 	vec2 uv0 = vTexCoord + misc.xy * (1.0 - misc.z);
 	vec2 uv1 = vTexCoord + misc.xy * (-misc.z);
-	float isInBounds = step(0.0, uv0.x) * step(uv0.x, 1.0) * step(0.0, uv0.y) * step(uv0.y, 1.0);
-	//float isInBounds = step(abs(uv0.x - 0.5), 0.5);
     vec4 tex0 = texture(texture0, uv0);
     vec4 tex1 = texture(texture1, uv1);
-	tex0 = mix(fadeColor, tex0, 1.0 + 0.001*isInBounds); // colorize out of bounds
 	float borderTest = step(abs(uv0.x - 0.5), 0.5 + misc.w) * step(abs(uv0.y - 0.5), 0.5 + misc.w); // add border
     fragColor =  mix(tex1, tex0, borderTest);
 }

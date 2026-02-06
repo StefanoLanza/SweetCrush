@@ -236,8 +236,8 @@ void PlayScreen::SelectBooster(const Input& input) {
 				mMatch3.UseBooster(cellIdx);
 				assert(mBoosterCount[mSelectedBooster] > 0);
 				--mBoosterCount[mSelectedBooster];
+				mSelectedBooster = -1; // release
 			}
-			mSelectedBooster = -1; // release
 		}
 		else {
 			if (cellIdx >= 0) {

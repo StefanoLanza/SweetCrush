@@ -160,11 +160,9 @@ void UICompositor::Slide(unsigned first, unsigned second, float dirx, float diry
 	const float            progress = mSlideTransition.mTimeCurve(mAccumTime / mSlideTransition.mDuration);
 	const int              uniformLocations[] = {
         mSlideProgram.mMisc,
-        mSlideProgram.color0,
 	};
 	const Vec4 uniforms[] {
-		{ dirx, diry, progress, 2.f * settings.mBorderThickness / mGraphics.GetTargetWidth() },
-		(Vec4)(settings.mBorderColor),
+		{ dirx, diry, progress, 0.f },
 	};
 	Composite(mSlideProgram, first, second, uniformLocations, uniforms, std::size(uniformLocations));
 }

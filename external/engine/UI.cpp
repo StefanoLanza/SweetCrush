@@ -76,7 +76,8 @@ UIButton::UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, s
     , mRect {}
     , mState { UIButtonState::idle }
     , mVisible { true }
-    , mToggled { mDesc.toggled } {
+    , mToggled { mDesc.toggled }
+    , mClicked { false } {
 }
 
 UIButton::UIButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, const UITextDesc& labelDesc)
@@ -159,6 +160,11 @@ bool UIButton::IsToggled() const {
 	return mToggled;
 }
 
+void UIButton::SetToggled(bool value)  {
+	assert(mDesc.toggleMode);
+	mToggled = value;
+}
+
 void UIButton::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 	if (mDesc.background) {
 		mBackground = graphics.LoadTexture(mDesc.background);
@@ -178,7 +184,7 @@ void UIButton::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	if (mBackground) {
 		const UIDrawParams prm {
 			.color = mDesc.backgroundColor,
-			.blending = true, // TODO determine
+			.blending = mBackground->HasAlpha() || (mDesc.backgroundColor.a < 255.f),
 			.priority = drawOrder,
 			._9patch = mDesc._9patch,
 		};
@@ -186,11 +192,11 @@ void UIButton::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	}
 	if (mIcon) {
 		if ((mDesc.toggleMode == false) || (mDesc.toggleMode && mToggled)) {
-			mIcon->Draw(renderer, drawOrder);
+			mIcon->Draw(renderer, drawOrder + 1);
 		}
 	}
 	if (mLabel) {
-		mLabel->Draw(renderer.GetTextRenderer(), drawOrder + 1); // text over bitmap
+		mLabel->Draw(renderer.GetTextRenderer(), drawOrder + 2); // text over bitmap
 	}
 }
 
@@ -271,7 +277,7 @@ void UIButton::SetDesc(const UIButtonDesc& desc) {
 	mDesc = desc;
 }
 
-void UIButton::HandleInput(const Input& input) {
+bool UIButton::HandleInput(const Input& input) {
 	UIButtonState currState = mState;
 	UIButtonState newState = RefreshState(input);
 	// TODO Make it configurable ?
@@ -280,6 +286,7 @@ void UIButton::HandleInput(const Input& input) {
 	if (mDesc.toggleMode && clicked) {
 		mToggled = ! mToggled;
 	}
+	return (currState == UIButtonState::pressed);
 }
 
 UIText::UIText(const UITextDesc& desc, const TextStyle& style)
@@ -365,9 +372,10 @@ const UIBitmapDesc& UIBitmap::GetDesc() const {
 
 void UIBitmap::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	if (mBitmap) {
+		const Color        tintedColor = Mul(mDesc.color, mStyle.color);
 		const UIDrawParams prm {
-			.color = Mul(mDesc.color, mStyle.color),
-			.blending = true, // TODO determine
+			.color = tintedColor,
+			.blending = mBitmap->HasAlpha() || tintedColor.a < 255.f,
 			.priority = drawOrder,
 		};
 		renderer.DrawBitmap(mAlignedRect, *mBitmap, prm);
@@ -487,18 +495,20 @@ void UIPanel::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	}
 }
 
-void UIPanel::HandleInput(const Input& input) const {
+bool UIPanel::HandleInput(const Input& input) const {
 	// TODO Priorities?
+	bool handled = false;
 	for (auto& panel : mPanels) {
-		if (panel->IsVisible()) {
-			panel->HandleInput(input);
+		if (panel->IsVisible() && ! handled) {
+			handled = panel->HandleInput(input);
 		}
 	}
 	for (auto& button : mButtons) {
-		if (button->IsVisible()) {
-			button->HandleInput(input);
+		if (button->IsVisible() && ! handled) {
+			handled = button->HandleInput(input);
 		}
 	}
+	return handled;
 }
 
 void UIPanel::UpdateRect(const UIRect& parentRect) {

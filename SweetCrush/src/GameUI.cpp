@@ -141,7 +141,7 @@ Wind::UIButton MakeToggleButton(float y, Wind::StringId label) {
 	UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(0, y),
 		.size = UIAbsoluteSize(300.f, 100.f),
-		.horizontalAlignment = UIHorizAlignment::left, // inside a panel
+		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::top,
 		.background = "button.png",
 		.backgroundColor = { 131.f, 255.f, 255.f, 255.f },
@@ -149,14 +149,17 @@ Wind::UIButton MakeToggleButton(float y, Wind::StringId label) {
 		.toggleMode = true,
 		.toggled = true,
 	};
+	float              padding = 16.f;
 	const UIBitmapDesc iconDesc {
 		.fileName = "gameartguppy/pastry_cookie01.png",
-		.pos = UIZeroPos,
+		.pos = UIAbsolutePos(-padding, 0.f),
 		.size = UIAutoSize,
 		.horizontalAlignment = UIHorizAlignment::right,
+		.verticalAlignment = UIVertAlignment::center,
 	};
 	const UITextDesc labelDesc {
-		.horizontalAlignment = UIHorizAlignment::center,
+		.pos = { padding, 0.f },
+		.horizontalAlignment = UIHorizAlignment::left,
 		.verticalAlignment = UIVertAlignment::center,
 		.font = "smallFont",
 		.stringId = label,
