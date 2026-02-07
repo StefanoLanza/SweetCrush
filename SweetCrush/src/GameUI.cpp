@@ -128,10 +128,10 @@ Wind::UIButton MakeQuitButton() {
 Wind::UIButton MakeBackButton() {
 	UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(32, -32),
-		.size = UIAbsoluteSize(92, 85),
+		.size = UIAbsoluteSize(64, 64),
 		.horizontalAlignment = UIHorizAlignment::left,
 		.verticalAlignment = UIVertAlignment::bottom,
-		.background = "backButton.png",
+		.background = "back.png",
 		.backgroundColor = whiteColor, //{ 131.f, 255.f, 255.f, 255.f },
 	};
 	return Wind::UIButton { buttonDesc }; //, /*iconDesc,*/ labelDesc };
@@ -151,11 +151,12 @@ Wind::UIButton MakeToggleButton(float y, Wind::StringId label) {
 	};
 	const float        padding = 48.f;
 	const UIBitmapDesc iconDesc {
-		.fileName = "gameartguppy/pastry_cookie01.png",
+		.fileName = "checkmark.png",
 		.pos = UIAbsolutePos(-padding, 0.f),
 		.horizontalAlignment = UIHorizAlignment::right,
 		.verticalAlignment = UIVertAlignment::center,
 		.sizing = UIBitmapSizing::fit,
+		.color = greenColor,
 	};
 	const UITextDesc labelDesc {
 		.pos = { padding, 0.f },

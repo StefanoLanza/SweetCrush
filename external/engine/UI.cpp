@@ -223,23 +223,7 @@ void UIButton::UpdateRect(const UIRect& parentRect) {
 		mIcon->SetStyle(style->mIconStyle);
 	}
 
-	UISize size = mDesc.size;
-	if (mIcon && mIcon->GetBitmap()) {
-		// TODO if textSize == Fit
-		if (size.rWidth < 0.f && size.aWidth < 0.0f) {
-			size.aWidth = static_cast<float>(mIcon->GetBitmap()->Width());
-			size.rWidth = 0.f;
-		}
-		if (size.rHeight < 0.f && size.aHeight < 0.0f) {
-			size.aHeight = static_cast<float>(mIcon->GetBitmap()->Height());
-			size.rHeight = 0.f;
-		}
-	}
-	else {
-		mRect = UIZeroRect;
-	}
-
-	mRect = AlignRect(mDesc.pos, size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
+	mRect = AlignRect(mDesc.pos, mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 	mRect = ScaleRect(mRect, mDesc.scale);
 	mRect.pos = mRect.pos + style->offset;
 
