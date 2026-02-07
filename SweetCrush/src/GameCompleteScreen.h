@@ -22,7 +22,6 @@ private:
 	const MatchStats& mMatchStats;
 	Wind::UIText      mTitle;
 	Wind::UIButton    mContinueButton;
-	Wind::UIBitmap    mPanelBitmap;
 	Wind::UICanvas    mCanvas;
 	Wind::FontPtr     mFont;
 	float             mAccumTime = 0.f;

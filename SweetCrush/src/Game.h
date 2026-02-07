@@ -36,6 +36,6 @@ private:
 	Wind::UIMouseCursor           mMouseCursor;
 	Wind::UIRenderer              mUIRenderer;
 	Wind::ScreenManager           mScreenMgr;
-	Wind::UICompositor              mCompositor;
-	std::unique_ptr<Wind::Screen> mScreens[13];
+	Wind::UICompositor            mCompositor;
+	std::unique_ptr<Wind::Screen> mScreens[11];
 };

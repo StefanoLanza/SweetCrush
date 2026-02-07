@@ -35,7 +35,7 @@ namespace {
 UIButton MakeBoosterButton(float x) {
 	const UIButtonDesc desc {
 		.pos = UIAbsolutePos(x, -10),
-		.size = { 100.f, 100.f, 0.f, 0.f },
+		.size = UIAbsoluteSize(100.f, 100.f),
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::bottom,
 		.background = "button.png",
@@ -47,7 +47,7 @@ UIButton MakeBoosterButton(float x) {
 
 const UIButtonDesc pauseButtonDesc {
 	.pos = UIAbsolutePos(32, -32),
-	.size = UIAutoSize,
+	.size = UIAbsoluteSize(64.f, 64.f),
 	.horizontalAlignment = UIHorizAlignment::left,
 	.verticalAlignment = UIVertAlignment::bottom,
 };
@@ -55,7 +55,7 @@ const UIButtonDesc pauseButtonDesc {
 const UIBitmapDesc pauseButtonBitmapDesc {
 	.fileName = "pauseButton.png",
 	.pos = UIZeroPos,
-	.size = UIAutoSize,
+	.sizing = UIBitmapSizing::fit,
 	.color = whiteColor,
 };
 
@@ -75,7 +75,7 @@ const UITextDesc timeTextDesc {
 
 constexpr UIPanelDesc boosterPanelDesc {
 	.pos = { 0.f, -20.f, 0.f, 0.f },
-	.size = { 340.f, 100.f, 0.f, 0.f },
+	.size = UIAbsoluteSize(340, 100),
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::bottom,
 };

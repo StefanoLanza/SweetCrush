@@ -160,7 +160,7 @@ bool UIButton::IsToggled() const {
 	return mToggled;
 }
 
-void UIButton::SetToggled(bool value)  {
+void UIButton::SetToggled(bool value) {
 	assert(mDesc.toggleMode);
 	mToggled = value;
 }
@@ -246,10 +246,10 @@ void UIButton::UpdateRect(const UIRect& parentRect) {
 	UIRect paddedRect = AddPadding(mRect, mDesc.padding);
 
 	if (mIcon) {
-		mIcon->UpdateRect(paddedRect);
+		mIcon->ComputeRect(paddedRect);
 	}
 	if (mLabel) {
-		mLabel->UpdateRect(paddedRect);
+		mLabel->ComputeRect(paddedRect);
 	}
 }
 
@@ -291,7 +291,7 @@ bool UIButton::HandleInput(const Input& input) {
 
 UIText::UIText(const UITextDesc& desc, const TextStyle& style)
     : mDesc(desc)
-    , mAlignedRect {}
+    , mRect {}
     , mText {}
     , mTextStyle { style } {
 }
@@ -304,25 +304,34 @@ void UIText::Draw(const TextRenderer& textRenderer, unsigned drawOrder) const {
 	if (mFont) {
 		const char* str = Text();
 		if (str) {
-			textRenderer.Write(*mFont, str, mAlignedRect.pos, mTextStyle, TextDirection::leftToRight, drawOrder);
+			textRenderer.Write(*mFont, str, mRect.pos, mTextStyle, TextDirection::leftToRight, drawOrder);
 		}
 	}
 }
 
-void UIText::UpdateRect(const UIRect& parentRect) {
-	if (! mFont) {
-		mAlignedRect = UIZeroRect;
-		return;
+void UIText::ComputeRect(const UIRect& parentRect) {
+	if (mDesc.sizing == UITextSizing::stretch) {
+		mRect = parentRect;
 	}
-	const char* str = Text();
+	else if (mDesc.sizing == UITextSizing::user) {
+		mRect = AlignRect(UIAbsolutePos(mDesc.pos.x, mDesc.pos.y), mDesc.size, parentRect, mDesc.horizontalAlignment,
+		                  mDesc.verticalAlignment);
+	}
+	else {
+		if (! mFont) {
+			mRect = UIZeroRect;
+			return;
+		}
+		const char* str = Text();
 
-	const UISize textSize {
-		.aWidth = static_cast<float>(mFont->CalculateStringWidth(str) * mTextStyle.scale),
-		.aHeight = static_cast<float>(mFont->GetHeight() * mTextStyle.scale),
-		.rWidth = 0.f,
-		.rHeight = 0.f,
-	};
-	mAlignedRect = AlignRect(UIAbsolutePos(mDesc.pos.x, mDesc.pos.y), textSize, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
+		const UISize textSize {
+			.aWidth = static_cast<float>(mFont->CalculateStringWidth(str) * mTextStyle.scale),
+			.aHeight = static_cast<float>(mFont->GetHeight() * mTextStyle.scale),
+			.rWidth = 0.f,
+			.rHeight = 0.f,
+		};
+		mRect = AlignRect(UIAbsolutePos(mDesc.pos.x, mDesc.pos.y), textSize, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
+	}
 }
 
 void UIText::SetText(StringId stringId) {
@@ -349,9 +358,9 @@ const char* UIText::Text() const {
 }
 
 UIBitmap::UIBitmap(const UIBitmapDesc& desc, const UIBitmapStyle& style)
-    : mDesc(desc)
+    : mDesc { desc }
     , mStyle { style }
-    , mAlignedRect {} {
+    , mRect {} {
 }
 
 void UIBitmap::LoadGraphics(Graphics& graphics) {
@@ -378,27 +387,32 @@ void UIBitmap::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 			.blending = mBitmap->HasAlpha() || tintedColor.a < 255.f,
 			.priority = drawOrder,
 		};
-		renderer.DrawBitmap(mAlignedRect, *mBitmap, prm);
+		renderer.DrawBitmap(mRect, *mBitmap, prm);
 	}
 }
 
-void UIBitmap::UpdateRect(const UIRect& parentRect) {
-	if (mBitmap) {
-		UISize size = mDesc.size;
-		if (size.rWidth <= -1.f) {
-			size.aWidth = static_cast<float>(mBitmap->Width());
+void UIBitmap::ComputeRect(const UIRect& parentRect) {
+	if (mDesc.sizing == UIBitmapSizing::fit) {
+		if (mBitmap) {
+			UISize size;
+			size.aWidth = static_cast<float>(mBitmap->Width()) * mStyle.scale;
+			size.aHeight = static_cast<float>(mBitmap->Height()) * mStyle.scale;
 			size.rWidth = 0.f;
-		}
-		if (size.rHeight <= -1.f) {
-			size.aHeight = static_cast<float>(mBitmap->Height());
 			size.rHeight = 0.f;
+			mRect = AlignRect(mDesc.pos, size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 		}
+		else {
+			mRect = UIZeroRect;
+		}
+	}
+	else if (mDesc.sizing == UIBitmapSizing::stretch) {
+		mRect = parentRect;
+	}
+	else if (mDesc.sizing == UIBitmapSizing::user) {
+		UISize size = mDesc.size;
 		size.aWidth *= mStyle.scale;
 		size.aHeight *= mStyle.scale;
-		mAlignedRect = AlignRect(mDesc.pos, size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
-	}
-	else {
-		mAlignedRect = UIZeroRect;
+		mRect = AlignRect(mDesc.pos, size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 	}
 }
 
@@ -523,7 +537,7 @@ void UIPanel::UpdateRect(const UIRect& parentRect) {
 		}
 	}
 	for (auto& bitmap : mBitmaps) {
-		bitmap->UpdateRect(paddedRect);
+		bitmap->ComputeRect(paddedRect);
 	}
 	for (auto& button : mButtons) {
 		if (button->IsVisible()) {
@@ -531,12 +545,12 @@ void UIPanel::UpdateRect(const UIRect& parentRect) {
 		}
 	}
 	for (auto& text : mTexts) {
-		text->UpdateRect(paddedRect);
+		text->ComputeRect(paddedRect);
 	}
 }
 
 UICanvas::UICanvas()
-    : mPanel(UIDefaultPanelDesc) {
+    : mPanel({ UIZeroPos, UIParentSize }) {
 	mPanel.SetVisible(true);
 }
 

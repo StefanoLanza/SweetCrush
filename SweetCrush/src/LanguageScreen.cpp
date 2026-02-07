@@ -14,7 +14,7 @@ using namespace Wind;
 
 namespace {
 
-const UIButtonDesc languageButtonDesc { { 0, 560, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top };
+const UIButtonDesc languageButtonDesc { { 0, 560, 0, 0 }, UIZeroSize, UIHorizAlignment::center, UIVertAlignment::top };
 
 const UITextDesc textDescs[] {
 	{

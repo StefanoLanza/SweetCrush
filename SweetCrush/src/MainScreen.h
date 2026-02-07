@@ -33,5 +33,5 @@ private:
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
 	Wind::UIButton mQuitButton;
 #endif
-	float mTime;
+	float mAccumTime;
 };

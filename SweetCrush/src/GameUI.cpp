@@ -7,7 +7,7 @@ using namespace Wind;
 const UIBitmapDesc buttonBitmapDesc {
 	.fileName = "button.png",
 	.pos = UIZeroPos,
-	.size = UIParentSize,
+	.sizing = UIBitmapSizing::stretch,
 	.color = { 131.f, 255.f, 255.f, 255.f },
 };
 
@@ -23,7 +23,7 @@ constexpr TextStyle defaultTextStyle {
 
 const UIButtonDesc defaultBackButtonDesc {
 	.pos = UIAbsolutePos(32, -32),
-	.size = UIAutoSize,
+	.size = UIAbsoluteSize(64, 64),
 	.horizontalAlignment = UIHorizAlignment::left,
 	.verticalAlignment = UIVertAlignment::bottom,
 };
@@ -31,16 +31,16 @@ const UIButtonDesc defaultBackButtonDesc {
 const UIBitmapDesc defaultBackButtonBitmapDesc {
 	.fileName = "backButton2.png",
 	.pos = UIZeroPos,
-	.size = UIAutoSize,
+	.sizing = UIBitmapSizing::fit,
 	.color = whiteColor,
 };
 
-const UISize    defaultButtonSize { 422.f, 100.f, 0.f, 0.f };
 constexpr float titleY = 160.f;
 constexpr float subTitleY = 280.f;
 constexpr float button0_y = 560;
 constexpr float button1_y = 680;
 constexpr float button2_y = 800;
+constexpr float button3_y = 440;
 const float     text0_y = 450;
 const float     text1_y = 510;
 
@@ -91,7 +91,7 @@ Wind::UIText MakeDynScreenText(float y) {
 Wind::UIButton MakeMenuButton(float y, Wind::StringId label) {
 	UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(0, y),
-		.size = defaultButtonSize,
+		.size = UIAbsoluteSize(420.f, 100.f),
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::top,
 		.background = "button.png",
@@ -140,7 +140,7 @@ Wind::UIButton MakeBackButton() {
 Wind::UIButton MakeToggleButton(float y, Wind::StringId label) {
 	UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(0, y),
-		.size = UIAbsoluteSize(300.f, 100.f),
+		.size = UIAbsoluteSize(420.f, 100.f),
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::top,
 		.background = "button.png",
@@ -149,20 +149,27 @@ Wind::UIButton MakeToggleButton(float y, Wind::StringId label) {
 		.toggleMode = true,
 		.toggled = true,
 	};
-	float              padding = 16.f;
+	const float        padding = 48.f;
 	const UIBitmapDesc iconDesc {
 		.fileName = "gameartguppy/pastry_cookie01.png",
 		.pos = UIAbsolutePos(-padding, 0.f),
-		.size = UIAutoSize,
 		.horizontalAlignment = UIHorizAlignment::right,
 		.verticalAlignment = UIVertAlignment::center,
+		.sizing = UIBitmapSizing::fit,
 	};
 	const UITextDesc labelDesc {
 		.pos = { padding, 0.f },
 		.horizontalAlignment = UIHorizAlignment::left,
 		.verticalAlignment = UIVertAlignment::center,
-		.font = "smallFont",
+		.font = "mediumFont",
 		.stringId = label,
 	};
 	return Wind::UIButton { buttonDesc, iconDesc, labelDesc };
+}
+
+Wind::UICanvas MakeCanvas() {
+	constexpr UICanvasDesc desc {
+		.background = "gameartguppy/background.png",
+	};
+	return UICanvas { desc };
 }

@@ -14,7 +14,7 @@ namespace {
 
 const UIButtonDesc buttonDesc {
 	.pos = UIAbsolutePos(0, 260),
-	.size = UIAutoSize,
+	.size = UIZeroSize,
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 };

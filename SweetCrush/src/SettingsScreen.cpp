@@ -22,15 +22,17 @@ SettingsScreen::SettingsScreen(GameSettings& gameSettings)
     : mGameConfig(gameSettings)
     , mTitle { MakeTitleText(GameStringId::settings) }
     , mGraphicsButton { MakeMenuButton(button0_y, GameStringId::graphicsSettings) }
-    , mAudioButton { MakeMenuButton(button1_y, GameStringId::audioSettings) }
-    , mLanguageButton { MakeMenuButton(button2_y, GameStringId::languageScreen) }
+    , mMusicButton { MakeToggleButton(button1_y, GameStringId::music) }
+    , mSfxButton { MakeToggleButton(button2_y, GameStringId::sfx) }
+    , mLanguageButton { MakeMenuButton(button3_y, GameStringId::languageScreen) }
     , mBackButton { MakeBackButton() }
     , mCanvas(canvasDesc) {
 	// Build UI
 	mCanvas.AddText(mTitle);
 	mCanvas.AddButton(mGraphicsButton);
 	mCanvas.AddButton(mLanguageButton);
-	mCanvas.AddButton(mAudioButton);
+	mCanvas.AddButton(mMusicButton);
+	mCanvas.AddButton(mSfxButton);
 	mCanvas.AddButton(mBackButton);
 }
 
@@ -45,14 +47,11 @@ void SettingsScreen::LoadAssets(Engine& engine) {
 ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
 	mCanvas.HandleInput(input);
 
-	if (mGraphicsButton.IsClicked()) {
-		return GoTo(GameScreenIds::graphicsSettings, ScreenTransition::slideLeft);
-	}
-	else if (mLanguageButton.IsClicked()) {
-		return GoTo(GameScreenIds::language, ScreenTransition::slideLeft);
-	}
-	else if (mAudioButton.IsClicked()) {
-		return GoTo(GameScreenIds::audioSettings, ScreenTransition::slideLeft);
+	mGameConfig.musicOn = mMusicButton.IsToggled();
+	mGameConfig.sfxOn = mSfxButton.IsToggled();
+
+	if (mLanguageButton.IsClicked()) {
+		SetNextLanguage();
 	}
 
 #if defined(__ANDROID__) || defined(__OHOS__)
@@ -71,10 +70,17 @@ void SettingsScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 }
 
 void SettingsScreen::Enter(const ScreenNavArgs& args) {
+	mMusicButton.SetToggled(mGameConfig.musicOn);
+	mSfxButton.SetToggled(mGameConfig.sfxOn);
 }
 
 void SettingsScreen::Exit() {
 }
 
 void SettingsScreen::ParseConfig(const char* varName, const char* varValue) {
+}
+
+void SettingsScreen::RefreshLanguageButton() {
+	GameStringId stringId = GameStringId::nextLanguage;
+	mLanguageButton.GetText()->SetText(static_cast<StringId>(stringId));
 }

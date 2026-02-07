@@ -11,14 +11,12 @@
 #include <engine/Input.h>
 
 // Game screens
-#include "AudioSettingsScreen.h"
 #include "CreditsScreen.h"
+#include "DemoScreen.h"
 #include "EffectInfoPanel.h"
 #include "GameCompleteScreen.h"
 #include "GameDrawOrder.h"
 #include "GameOverScreen.h"
-#include "GraphicsSettingsScreen.h"
-#include "LanguageScreen.h"
 #include "LevelCompleteScreen.h"
 #include "LevelStartScreen.h"
 #include "Localization.h"
@@ -48,11 +46,9 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
 	mScreens[5] = std::make_unique<GameCompleteScreen>(mMatchStats);
 	mScreens[6] = std::make_unique<PauseScreen>();
 	mScreens[7] = std::make_unique<LevelCompleteScreen>(mMatchStats);
-	mScreens[8] = std::make_unique<GraphicsSettingsScreen>(mGameSettings);
-	mScreens[9] = std::make_unique<AudioSettingsScreen>(mGameSettings);
-	mScreens[10] = std::make_unique<EffectInfoScreen>();
-	mScreens[11] = std::make_unique<LanguageScreen>();
-	mScreens[12] = std::make_unique<LevelStartScreen>(mMatchStats, gameDataModule, gameRenderer);
+	mScreens[8] = std::make_unique<EffectInfoScreen>();
+	mScreens[9] = std::make_unique<LevelStartScreen>(mMatchStats, gameDataModule, gameRenderer);
+	mScreens[10] = std::make_unique<DemoScreen>(engine, gameRenderer);
 
 	for (const auto& screen : mScreens) {
 		iniParser.AddListener(screen->GetName(),

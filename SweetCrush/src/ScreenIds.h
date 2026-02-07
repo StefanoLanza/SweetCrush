@@ -11,9 +11,6 @@ enum class GameScreenIds : Wind::ScreenId::Type {
 	gameComplete,
 	pauseGame,
 	levelComplete,
-	graphicsSettings,
-	audioSettings,
 	effectInfo,
-	language,
 	levelStart,
 };

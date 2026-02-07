@@ -17,14 +17,6 @@
 
 using namespace Wind;
 
-namespace {
-
-constexpr UICanvasDesc canvasDesc {
-	.background = "gameartguppy/background.png",
-};
-
-} // namespace
-
 MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
     : mEngine(engine)
     , mGameRenderer(gameRenderer)
@@ -35,8 +27,8 @@ MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
     , mQuitButton { MakeQuitButton() }
 #endif
-    , mCanvas(canvasDesc)
-    , mTime(0) {
+    , mCanvas { MakeCanvas() }
+    , mAccumTime(0) {
 	// Setup UI
 	mCanvas.AddText(mTitle);
 	mCanvas.AddButton(mStartButton);
@@ -57,7 +49,7 @@ void MainScreen::LoadAssets(Engine& engine) {
 
 ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
 	mCanvas.HandleInput(input);
-	mTime += dt;
+	mAccumTime += dt;
 
 	if (mStartButton.IsClicked()) {
 		return GoTo(GameScreenIds::levelStart, ScreenTransition::slideTop);
@@ -86,7 +78,7 @@ void MainScreen::Draw(UIRenderer& uiRenderer, float dt) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 
 	constexpr float dx = TileWidth + 2;
-	float           phase = mTime * 4.f;
+	float           phase = mAccumTime * 4.f;
 	float           x = (RefWindowWidth - (NumPieceTypes - 1) * dx) * 0.5f;
 
 	for (int i = 0; i < NumPieceTypes; ++i) {
@@ -113,7 +105,7 @@ void MainScreen::Draw(UIRenderer& uiRenderer, float dt) {
 }
 
 void MainScreen::Enter(const ScreenNavArgs& args) {
-	mTime = 0.f;
+	mAccumTime = 0.f;
 	AnimateUI();
 }
 
@@ -124,7 +116,7 @@ void MainScreen::ParseConfig(const char* varName, const char* varValue) {
 }
 
 void MainScreen::AnimateUI() {
-	float t = std::min(1.f, mTime * 3.f);
+	float t = std::min(1.f, mAccumTime * 3.f);
 	auto  desc = mSettingsButton.GetDesc();
 	//	mQuitButton.GetDesc Bitmap()->SetColor(Color { desc.color.r, desc.color.g, desc.color.b, 255.f * t });
 	// desc.scale = LerpEase(0.85f, 1.f, t, EaseOutBounce);

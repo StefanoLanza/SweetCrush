@@ -41,23 +41,44 @@ struct UIRect {
 	Vec2 size;
 };
 
-enum class UISizing : uint8_t {
-	fit,
-	stretch,
-	user,
+constexpr UIPos  UIZeroPos = { 0.f, 0.f, 0.f, 0.f };
+constexpr UISize UIZeroSize = {
+	0.f,
+	0.f,
+	0.f,
+	0.f,
 };
+constexpr UISize UIParentSize = { 0.f, 0.f, 1.f, 1.f };
+
+constexpr inline UIPos UIAbsolutePos(float x, float y) {
+	return { x, y, 0.f, 0.f };
+}
+
+constexpr inline UISize UIAbsoluteSize(float x, float y) {
+	return { x, y, 0.f, 0.f };
+}
+
+constexpr UIRect UIZeroRect { 0.f, 0.f, 0.f, 0.f };
 
 // Use a macro instead of inheritance, to allow designated initializers in C++ 20
 #define UIBaseDesc                                                   \
-	UIPos            pos;                                            \
-	UISize           size;                                           \
+	UIPos            pos = UIZeroPos;                                \
+	UISize           size = UIZeroSize;                              \
 	UIHorizAlignment horizontalAlignment = UIHorizAlignment::center; \
 	UIVertAlignment  verticalAlignment = UIVertAlignment::center;    \
 	float            padding = 0.f;                                  \
 	float            borderWidth = 0.f;
 
+enum class UITextSizing {
+	fit,
+	stretch,
+	user,
+};
+
 struct UITextDesc {
 	Vec2             pos = { 0.f, 0.f };
+	UISize           size = { 0.f, 0.f };
+	UITextSizing     sizing = UITextSizing::fit;
 	UIHorizAlignment horizontalAlignment = UIHorizAlignment::center;
 	UIVertAlignment  verticalAlignment = UIVertAlignment::center;
 	float            padding = 0.f;
@@ -66,10 +87,17 @@ struct UITextDesc {
 	StringId         stringId = 0;
 };
 
+enum class UIBitmapSizing {
+	fit,
+	stretch,
+	user,
+};
+
 struct UIBitmapDesc {
 	const char* fileName;
 	UIBaseDesc;
-	Color color = whiteColor;
+	UIBitmapSizing sizing = UIBitmapSizing::fit;
+	Color          color = whiteColor;
 };
 
 struct UIButtonDesc {
@@ -121,7 +149,7 @@ public:
 
 	void             Load(FontManager& fontManager);
 	void             Draw(const TextRenderer& textRenderer, unsigned drawOrder) const;
-	void             UpdateRect(const UIRect& parentRect);
+	void             ComputeRect(const UIRect& parentRect);
 	void             SetText(StringId stringId);
 	void             SetText(const char* str);
 	void             SetStyle(const TextStyle& style);
@@ -133,7 +161,7 @@ private:
 private:
 	UITextDesc mDesc;
 	FontPtr    mFont;
-	UIRect     mAlignedRect;
+	UIRect     mRect;
 	char       mText[32];
 	TextStyle  mTextStyle;
 };
@@ -147,7 +175,7 @@ public:
 	void                SetColor(const Color& color);
 	const UIBitmapDesc& GetDesc() const;
 	void                Draw(const UIRenderer& renderer, unsigned drawOrder) const;
-	void                UpdateRect(const UIRect& parentRect);
+	void                ComputeRect(const UIRect& parentRect);
 	void                SetBitmap(const TexturePtr& bitmap);
 	const Texture*      GetBitmap() const;
 	void                SetStyle(const UIBitmapStyle& style);
@@ -156,7 +184,7 @@ private:
 	UIBitmapDesc  mDesc;
 	UIBitmapStyle mStyle;
 	TexturePtr    mBitmap;
-	UIRect        mAlignedRect;
+	UIRect        mRect;
 };
 
 enum class UIButtonState {
@@ -272,21 +300,6 @@ public:
 private:
 	TexturePtr mMousePointer;
 };
-
-constexpr UIPos       UIZeroPos = { 0.f, 0.f, 0.f, 0.f };
-constexpr UISize      UIAutoSize = { -1.f, -1.f, -1.f, -1.f };
-constexpr UISize      UIParentSize = { 0.f, 0.f, 1.f, 1.f };
-constexpr UIPanelDesc UIDefaultPanelDesc { UIZeroPos, UIParentSize };
-
-constexpr inline UIPos UIAbsolutePos(float x, float y) {
-	return { x, y, 0.f, 0.f };
-}
-
-constexpr inline UISize UIAbsoluteSize(float x, float y) {
-	return { x, y, 0.f, 0.f };
-}
-
-constexpr UIRect UIZeroRect { 0.f, 0.f, 0.f, 0.f };
 
 struct UITheme {
 	TextStyle     textStyle;

@@ -1,10 +1,10 @@
 #include "GameCompleteScreen.h"
 #include "Constants.h"
 #include "GameDrawOrder.h"
+#include "GameUI.h"
 #include "Localization.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
-#include "GameUI.h"
 
 #include <engine/Engine.h>
 #include <engine/FontManager.h>
@@ -18,40 +18,6 @@ using namespace Wind;
 
 namespace {
 
-const UIButtonDesc buttonDescs[] {
-	{
-	    UIAbsolutePos(0, 680),
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::top,
-	},
-};
-
-const UITextDesc textDescs[] {
-	{
-	    .pos = { 0.f, titleY },
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::top,
-	    .font = "screenTitle",
-	    .stringId = GameStringId::gameComplete,
-	},
-	{
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::center,
-	    .font = "mediumFont",
-	    .stringId = GameStringId::continueGame,
-	},
-};
-
-const UIBitmapDesc panelBitmapDesc {
-	.fileName = "null.png",
-	.pos = UIZeroPos,
-	.size = UIParentSize,
-	.horizontalAlignment = UIHorizAlignment::center,
-	.verticalAlignment = UIVertAlignment::center,
-	//	.color = Color { 0, 0, 0, 200 },
-};
-
 constexpr UICanvasDesc canvasDesc {
 	.background = "gameartguppy/background.png",
 };
@@ -60,13 +26,11 @@ constexpr UICanvasDesc canvasDesc {
 
 GameCompleteScreen::GameCompleteScreen(const MatchStats& matchStats)
     : mMatchStats(matchStats)
-    , mTitle(textDescs[0], titleTextStyle)
-    , mContinueButton(buttonDescs[0], buttonBitmapDesc, textDescs[1])
-    , mPanelBitmap(panelBitmapDesc)
+    , mTitle { MakeTitleText(GameStringId::gameComplete) }
+    , mContinueButton { MakeMenuButton(680.f, GameStringId::continueGame) }
     , mCanvas(canvasDesc) {
 	mCanvas.AddText(mTitle);
 	mCanvas.AddButton(mContinueButton);
-	// mmCanvas.AddBitmap(mPanelBitmap);
 }
 
 const char* GameCompleteScreen::GetName() const {

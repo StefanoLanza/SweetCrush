@@ -4,9 +4,11 @@
 #include <engine/Screen.h>
 #include <engine/UI.h>
 
-class LanguageScreen final : public Wind::Screen {
+class GameRenderer;
+
+class DemoScreen final : public Wind::Screen {
 public:
-	explicit LanguageScreen();
+	explicit DemoScreen(Wind::Engine& engine, const GameRenderer& gameRenderer);
 
 	const char*       GetName() const override;
 	void              LoadAssets(Wind::Engine& engine) override;
@@ -17,11 +19,12 @@ public:
 	void              ParseConfig(const char* varName, const char* varValue) override;
 
 private:
-	void RefreshLanguageButton();
+	void AnimateUI();
 
 private:
-	Wind::UIText   mTitle;
-	Wind::UIButton mLanguageButton;
-	Wind::UIButton mBackButton;
-	Wind::UICanvas mCanvas;
+	Wind::Engine&       mEngine;
+	const GameRenderer& mGameRenderer;
+	Wind::UICanvas      mCanvas;
+	Wind::UIText        mTitle;
+	float               mAccumTime;
 };
