@@ -22,6 +22,9 @@ enum class TextDirection {
 struct TextStyle {
 	Color color = whiteColor;
 	Color outlineColor = blackColor;
+	Color shadowColor = blackColor;
+	float shadow = 0.f;
+	Vec2  shadowOffset = { 0.f, 4.f };
 	float scale = 1.f;
 };
 
@@ -46,6 +49,7 @@ private:
 	PipelineHandle mPipeline;
 	ProgramHandle  mProgramHandle;
 	bool           mValidProgram;
+	GLuint         mSampler;
 	// Uniforms
 	GLint mColor = -1;
 	GLint mOutlineColor = -1;

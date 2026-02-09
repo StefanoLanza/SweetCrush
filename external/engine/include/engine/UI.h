@@ -85,6 +85,7 @@ struct UITextDesc {
 	float            borderWidth = 0.f;
 	const char*      font = nullptr;
 	StringId         stringId = 0;
+	const TextStyle& style = {};
 };
 
 enum class UIBitmapSizing {
@@ -105,7 +106,7 @@ struct UIButtonDesc {
 	const char* background = nullptr;
 	Color       backgroundColor = whiteColor;
 	float       scale = 1.f;
-	Rect        _9patch = { 0.f, 0.f, 0.f, 0.f }; // pixels
+	float       _9patch = 0.f; // pixels
 	bool        keepPressedOutside = false;
 	bool        toggleMode = false;
 	bool        toggled = true;
@@ -115,6 +116,7 @@ struct UIPanelDesc {
 	UIBaseDesc;
 	const char* background = nullptr;
 	Color       backgroundColor = whiteColor;
+	float       _9patch = 0.f; // pixels
 };
 
 struct UIGridDesc {
@@ -145,7 +147,7 @@ struct UIBitmapStyle {
 
 class UIText final {
 public:
-	explicit UIText(const UITextDesc& desc, const TextStyle& style = {});
+	explicit UIText(const UITextDesc& desc);
 
 	void             Load(FontManager& fontManager);
 	void             Draw(const UITextRenderer& textRenderer, unsigned drawOrder) const;
@@ -265,7 +267,7 @@ public:
 	void          LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void          Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	bool          HandleInput(const Input& input) const;
-	void          UpdateRect(const UIRect& parentRect);
+	void          ComputeRect(const UIRect& parentRect);
 
 private:
 	UIPanelDesc mDesc;

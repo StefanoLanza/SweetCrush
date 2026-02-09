@@ -26,6 +26,7 @@ const UITextDesc textDesc[] {
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "mediumFont",
 	    .stringId = GameStringId::empty,
+		.style = titleTextStyle,
 	},
 	{
 		.pos = { 0.f, 160.f },
@@ -59,7 +60,7 @@ const UIPanelDesc panelDesc {
 } // namespace
 
 EffectInfoScreen::EffectInfoScreen()
-    : mTitle(textDesc[0], titleTextStyle)
+    : mTitle(textDesc[0])
     , mText(textDesc[1])
     , mOKButton(buttonDesc, buttonBitmapDesc, textDesc[2])
     , mEffectIcon(effectIconDesc)

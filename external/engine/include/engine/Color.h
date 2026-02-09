@@ -17,6 +17,7 @@ struct Color {
 	}
 };
 
+constexpr Color transparentColor = { 0.f, 0.f, 0.f, 0.f };
 constexpr Color blackColor = { 0.f, 0.f, 0.f, 255.f };
 constexpr Color whiteColor = { 255.f, 255.f, 255.f, 255.f };
 constexpr Color redColor = { 255.f, 0.f, 0.f, 255.f };

@@ -8,13 +8,13 @@ out vec4 fragColor;
 
 void main() {
 	// Single channel encoding of glyph and outline
-	float val = texture(inputTexture, textureCoordinate).r;
- 	float glyph = val > 0.5 ? 2.0*val - 1. : 0.;
-	float outline = (val > 0.5 ? 1. : 2.0*val) - glyph;
+//	float val = texture(inputTexture, textureCoordinate).r;
+// 	float glyph = val > 0.5 ? 2.0*val - 1. : 0.;
+//	float outline = (val > 0.5 ? 0. : 2.0*val) - glyph;
 	// rgba encoding of glyph and outline
-//	vec4 val = texture(inputTexture, textureCoordinate);
- //	float glyph = val.r;
-//	float outline = val.a - glyph;
+	vec4 val = texture(inputTexture, textureCoordinate);
+ 	float glyph = val.r;
+	float outline = val.a - glyph;
 	
 	vec3 glyphColor = color.xyz;
 	float glyphAlpha = glyph * color.w;

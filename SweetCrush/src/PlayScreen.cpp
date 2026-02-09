@@ -40,7 +40,7 @@ UIButton MakeBoosterButton(float x) {
 		.verticalAlignment = UIVertAlignment::bottom,
 		.background = "button.png",
 		.backgroundColor = Color { 255, 229, 102, 255 },
-		._9patch = { 16, 0.f, 0.f, 0.f },
+		._9patch = 16.f,
 	};
 	return UIButton { desc };
 }
@@ -104,8 +104,8 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
     , mCellSelector { std::make_unique<TileSelector>(mBoard, gameConfig) }
     , mCanvas(canvasDesc)
     , mBoostersPanel(boosterPanelDesc)
-    , mScoreText(scoreTextDesc, defaultTextStyle)
-    , mTimeText(timeTextDesc, defaultTextStyle)
+    , mScoreText(scoreTextDesc)
+    , mTimeText(timeTextDesc)
     , mPauseButton(pauseButtonDesc, pauseButtonBitmapDesc)
     , mBoosterButtons { MakeBoosterButton(-110.f), MakeBoosterButton(0.f), MakeBoosterButton(110.f) }
     , mMatch3 { mBoard, mBoardGenerator, *mCellSelector }
@@ -179,7 +179,7 @@ ScreenEvent PlayScreen::Tick(float dt, const Input& input) {
 	if (input.GetKeyJustPressed(SDLK_ESCAPE)
 #endif
 	    || mPauseButton.IsClicked()) {
-		return GoTo(GameScreenIds::pauseGame, ScreenTransition::slideLeft);
+		return GoTo(GameScreenIds::pauseGame, ScreenTransition::blur);
 	}
 
 	if (mMatch3.IsWaitingForUser()) {

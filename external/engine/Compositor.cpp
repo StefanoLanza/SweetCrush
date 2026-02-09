@@ -7,7 +7,6 @@
 
 namespace Wind {
 
-// mBlur { engine.GetGraphics() }
 UICompositor::UICompositor(Graphics& graphics, int width, int height)
 	: mGraphics{graphics}
 	, mFrameBuffers {
@@ -15,18 +14,21 @@ UICompositor::UICompositor(Graphics& graphics, int width, int height)
 	    { width, height, FBOFlags::color },
 	    { width, height, FBOFlags::color },
     }
+	, mFrameBufferHalfRes { width / 2, height / 2, FBOFlags::color }
+	, mFrameBufferQuarterRes { width / 4, height / 4, FBOFlags::color }
+	, mBlur { graphics }
 	, mTransition{ScreenTransition::none}
 	, mAccumTime{0.f}
 	, mCurrDst{0}{
 
 	InitPrograms(graphics);
-	//, mFrameBufferHalfRes { RefWindowWidth / 2, RefWindowHeight / 2, FBOFlags::color }
 
 	PipelineState pipelineState;
 	pipelineState.mDepthEnabled = false;
 	pipelineState.mBlending = false;
 	mPipelineHandle = mGraphics.NewPipeline(pipelineState);
 
+#if 0
 	MaterialInfo mi;
 	mi.SetShader(SHADERS_FOLDER "fullscreenTriangle.vs", SHADERS_FOLDER "transitions/fade.fs");
 	mi.AddFloat4("fadeColor", { 1.f, 2.f, 3.f, 4.f });
@@ -34,6 +36,7 @@ UICompositor::UICompositor(Graphics& graphics, int width, int height)
 	mi.AddFloat4("boh", { 1.f, 2.f, 3.f, 4.f });
 	mi.AddTexture("texture0", "ciao.png");
 	Material m = MakeMaterial(mi, graphics);
+#endif
 }
 
 const GlFrameBuffer& UICompositor::GetWriteableFramebuffer() const {
@@ -92,6 +95,10 @@ const GlFrameBuffer& UICompositor::Execute(float dt) {
 		Zoom(mCurrDst, (mCurrDst + 1) & 1, 1.f);
 		duration = mZoomTransition.mDuration;
 		break;
+	case ScreenTransition::blur:
+		Blur(mCurrDst, (mCurrDst + 1) & 1);
+		duration = 1000000.f;
+		break;
 	default: {
 		break;
 	}
@@ -106,14 +113,11 @@ const GlFrameBuffer& UICompositor::Execute(float dt) {
 		}
 	}
 
-	//	const GlFrameBuffer* mip[] = { &mFrameBufferHalfRes, &mFrameBufferQuarterRes };
-	//	mBlur.Run(mFrameBuffer_0, mip, std::size(mip));
-
 	return mFrameBuffers[res];
 }
 
 bool UICompositor::IsIdle() const {
-	return mTransition == ScreenTransition::none;
+	return mTransition == ScreenTransition::none || mTransition == ScreenTransition::blur;//FIXME
 }
 
 void UICompositor::ConfigurePixelTransition(const PixelateTransition& settings) {
@@ -126,7 +130,8 @@ void UICompositor::InitPrograms(Graphics& graphics) {
 	InitProgramUniforms(mSlideProgram, SHADERS_FOLDER "transitions/slide.fs", graphics);
 	InitProgramUniforms(mPixelateProgram, SHADERS_FOLDER "transitions/pixelate.fs", graphics);
 	InitProgramUniforms(mDissolveProgram, SHADERS_FOLDER "transitions/dissolve.fs", graphics);
-	InitProgramUniforms(mZoomProgram, SHADERS_FOLDER "transitions/zoom.fs", graphics);
+	InitProgramUniforms(mZoomProgram, SHADERS_FOLDER "transitions/zoom.fs", graphics); // TODO merge with slide
+	InitProgramUniforms(mBlendProgram, SHADERS_FOLDER "transitions/blend.fs", graphics);
 }
 
 void UICompositor::InitProgramUniforms(Program& programData, const char* fsPath, Graphics& graphics) {
@@ -199,6 +204,38 @@ void UICompositor::Zoom(unsigned first, unsigned second, float dir) const {
 		{ 1.f, 1.f, 1.f, 1.f },
 	};
 	Composite(mZoomProgram, first, second, uniformLocations, uniforms, std::size(uniformLocations));
+}
+
+void UICompositor::Blur(unsigned first, unsigned second) const {
+	const GlFrameBuffer* mip[] = { &mFrameBufferHalfRes, &mFrameBufferQuarterRes };
+	mBlur.Run(mFrameBuffers[second], mip, std::size(mip));
+
+	mGraphics.SetFrameBuffer(mFrameBuffers[2]);
+
+	const int uniformLocations[] = {
+		mBlendProgram.mMisc,
+	};
+	const Vec4 uniforms[] {
+		{ 0.f, 0.f, 0.f, 0.f },
+		{ 1.f, 1.f, 1.f, 1.f },
+	};
+	
+	mGraphics.SetPipeline(mPipelineHandle);
+
+	const unsigned textureIds[] = {
+		mFrameBuffers[first].GetColorAttachment(),
+		mFrameBufferHalfRes.GetColorAttachment(),
+	};
+
+	// TODO SAmplers, border
+	DrawCall drawCall;
+	drawCall.textures = textureIds;
+	drawCall.numTextures = 2;
+	drawCall.program = mBlendProgram.mHandle;
+	drawCall.mesh = triangleMesh;
+	drawCall.drawOrder = 0;
+	mGraphics.Draw(drawCall);
+	//Composite(mBlendProgram, first, second, uniformLocations, uniforms, 0);
 }
 
 void UICompositor::Composite(const Program& program, unsigned first, unsigned second, const int uniformLocations[], const Vec4 uniforms[],

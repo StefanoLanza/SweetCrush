@@ -51,8 +51,9 @@ Wind::UIText MakeTitleText(Wind::StringId label) {
 		.verticalAlignment = UIVertAlignment::top,
 		.font = "screenTitle", //"bigFont",
 		.stringId = label,
+		.style = titleTextStyle,
 	};
-	return Wind::UIText { desc, titleTextStyle };
+	return Wind::UIText { desc };
 }
 
 Wind::UIText MakeSubTitleText(Wind::StringId label) {
@@ -62,8 +63,9 @@ Wind::UIText MakeSubTitleText(Wind::StringId label) {
 		.verticalAlignment = UIVertAlignment::top,
 		.font = "screenTitle",
 		.stringId = label,
+		.style = titleTextStyle,
 	};
-	return Wind::UIText { desc, titleTextStyle };
+	return Wind::UIText { desc };
 }
 
 Wind::UIText MakeScreenText(Wind::StringId label, float y) {
@@ -73,8 +75,9 @@ Wind::UIText MakeScreenText(Wind::StringId label, float y) {
 		.verticalAlignment = UIVertAlignment::top,
 		.font = "smallFont",
 		.stringId = label,
+		.style = defaultTextStyle,
 	};
-	return Wind::UIText { desc, defaultTextStyle };
+	return Wind::UIText { desc };
 }
 
 Wind::UIText MakeDynScreenText(float y) {
@@ -84,8 +87,9 @@ Wind::UIText MakeDynScreenText(float y) {
 		.verticalAlignment = UIVertAlignment::top,
 		.font = "smallFont",
 		.stringId = 0,
+		.style = defaultTextStyle,
 	};
-	return Wind::UIText { desc, defaultTextStyle };
+	return Wind::UIText { desc };
 }
 
 Wind::UIButton MakeMenuButton(float y, Wind::StringId label) {
@@ -94,9 +98,9 @@ Wind::UIButton MakeMenuButton(float y, Wind::StringId label) {
 		.size = UIAbsoluteSize(440.f, 100.f),
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::top,
-		.background = "button.png",
-		.backgroundColor = { 131.f, 255.f, 255.f, 255.f },
-		._9patch = { 0.f, 0.f, 0.f, 0.f },
+		.background = "UI/buttonOrange.png",
+		.backgroundColor = whiteColor, //{ 131.f, 255.f, 255.f, 255.f },
+		._9patch = 0.f,                // 16.f,
 	};
 	/*	const UIBitmapDesc iconDesc {
 	        .fileName = "button.png",
@@ -109,6 +113,10 @@ Wind::UIButton MakeMenuButton(float y, Wind::StringId label) {
 		.verticalAlignment = UIVertAlignment::center,
 		.font = "mediumFont",
 		.stringId = label,
+		.style = {
+	whiteColor,
+	yellowColor,
+},
 	};
 	return Wind::UIButton { buttonDesc, /*iconDesc,*/ labelDesc };
 }
@@ -116,7 +124,7 @@ Wind::UIButton MakeMenuButton(float y, Wind::StringId label) {
 Wind::UIButton MakeQuitButton() {
 	UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(32, -32),
-		.size = UIAbsoluteSize(64, 64),
+		.size = UIAbsoluteSize(48, 48),
 		.horizontalAlignment = UIHorizAlignment::left,
 		.verticalAlignment = UIVertAlignment::bottom,
 		.background = "icons/X.png",
@@ -128,10 +136,22 @@ Wind::UIButton MakeQuitButton() {
 Wind::UIButton MakeBackButton() {
 	UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(32, -32),
-		.size = UIAbsoluteSize(64, 64),
+		.size = UIAbsoluteSize(48, 48),
 		.horizontalAlignment = UIHorizAlignment::left,
 		.verticalAlignment = UIVertAlignment::bottom,
 		.background = "icons/back.png",
+		.backgroundColor = whiteColor, //{ 131.f, 255.f, 255.f, 255.f },
+	};
+	return Wind::UIButton { buttonDesc }; //, /*iconDesc,*/ labelDesc };
+}
+
+Wind::UIButton MakeCloseButton() {
+	UIButtonDesc buttonDesc = {
+		.pos = UIAbsolutePos(-32, 32),
+		.size = UIAbsoluteSize(48, 48),
+		.horizontalAlignment = UIHorizAlignment::right,
+		.verticalAlignment = UIVertAlignment::top,
+		.background = "icons/X.png",
 		.backgroundColor = whiteColor, //{ 131.f, 255.f, 255.f, 255.f },
 	};
 	return Wind::UIButton { buttonDesc }; //, /*iconDesc,*/ labelDesc };
@@ -145,7 +165,7 @@ Wind::UIButton MakeToggleButton(float y, Wind::StringId label) {
 		.verticalAlignment = UIVertAlignment::top,
 		.background = "button.png",
 		.backgroundColor = { 131.f, 255.f, 255.f, 255.f },
-		._9patch = { 16.f, 0.f, 0.f, 0.f },
+		._9patch = 16.f,
 		.toggleMode = true,
 		.toggled = true,
 	};

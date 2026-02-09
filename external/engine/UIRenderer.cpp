@@ -14,12 +14,13 @@ public:
 	explicit Impl(Graphics& graphics, UITextRenderer& textRenderer);
 
 	void DrawBitmap(const UIRect& rect, const Texture& surface, const UIDrawParams& prms) const;
+	void DrawSolidRect(const UIRect& rect, const Color& color, UIBlendMode blendMode) const;
 	void DrawLine(const Vec2& start, const Vec2& end, float thickness, const Color& color, unsigned priority) const;
 	void DrawBorder(const UIRect& rect, float thickness, const Color& color, unsigned priority) const;
 
 public:
 	struct BitmapProgram {
-		ProgramHandle mHandle;
+		ProgramHandle mHandle = nullProgram;
 		GLint         mColor = 0;
 		GLint         mPosRect = 0;
 		GLint         mUVRect = 0;
@@ -28,17 +29,24 @@ public:
 		bool          mValid = false;
 	};
 	struct LineProgram {
-		ProgramHandle mHandle;
+		ProgramHandle mHandle = nullProgram;
 		GLint         mColor = 0;
 		GLint         mCoords = 0;
 		GLint         mThickness = 0;
 		bool          mValid = false;
 	};
-	Graphics&      mGraphics;
-	UITextRenderer&  mTextRenderer;
-	PipelineHandle mPipelineBlending;
-	BitmapProgram  mBitmapProgram;
-	LineProgram    mLineProgram;
+	struct RectProgram {
+		ProgramHandle mHandle = nullProgram;
+		GLint         mCoords = 0;
+		GLint         mColor = 0;
+		bool          mValid = false;
+	};
+	Graphics&       mGraphics;
+	UITextRenderer& mTextRenderer;
+	PipelineHandle  mPipelineBlending;
+	BitmapProgram   mBitmapProgram;
+	RectProgram     mRectProgram;
+	LineProgram     mLineProgram;
 };
 
 UIRenderer::Impl::Impl(Graphics& graphics, UITextRenderer& textRenderer)
@@ -50,7 +58,7 @@ UIRenderer::Impl::Impl(Graphics& graphics, UITextRenderer& textRenderer)
 	};
 	mPipelineBlending = graphics.NewPipeline(pipelineState);
 
-	mBitmapProgram.mHandle = graphics.NewProgram(SHADERS_FOLDER "uiQuad.vs", SHADERS_FOLDER "uiQuad.fs");
+	mBitmapProgram.mHandle = graphics.NewProgram(SHADERS_FOLDER "ui/uiQuad.vs", SHADERS_FOLDER "ui/uiQuad.fs");
 	if (mBitmapProgram.mHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(mBitmapProgram.mHandle);
 		mBitmapProgram.mColor = program.GetUniformLocation("color");
@@ -62,13 +70,21 @@ UIRenderer::Impl::Impl(Graphics& graphics, UITextRenderer& textRenderer)
 		                         mBitmapProgram.mUVRect != -1 && mBitmapProgram.mTexture != -1);
 	}
 
-	mLineProgram.mHandle = graphics.NewProgram(SHADERS_FOLDER "uiLine.vs", SHADERS_FOLDER "uiLine.fs");
+	mLineProgram.mHandle = graphics.NewProgram(SHADERS_FOLDER "ui/uiLine.vs", SHADERS_FOLDER "ui/uiLine.fs");
 	if (mLineProgram.mHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(mLineProgram.mHandle);
 		mLineProgram.mColor = program.GetUniformLocation("color");
 		mLineProgram.mCoords = program.GetUniformLocation("coords");
 		mLineProgram.mThickness = program.GetUniformLocation("thickness");
 		mLineProgram.mValid = (mLineProgram.mColor != -1 && mLineProgram.mCoords != -1 && mLineProgram.mThickness != -1);
+	}
+
+	mRectProgram.mHandle = graphics.NewProgram(SHADERS_FOLDER "ui/uiRect.vs", SHADERS_FOLDER "ui/uiRect.fs");
+	if (mRectProgram.mHandle != nullProgram) {
+		const GlProgram& program = graphics.GetProgram(mRectProgram.mHandle);
+		mRectProgram.mCoords = program.GetUniformLocation("coords");
+		mRectProgram.mColor = program.GetUniformLocation("color");
+		mRectProgram.mValid = (mRectProgram.mColor != -1 && mRectProgram.mCoords != -1);
 	}
 }
 
@@ -90,10 +106,17 @@ void UIRenderer::Impl::DrawBitmap(const UIRect& rect, const Texture& texture, co
 		{ rect.pos.x, rect.pos.y, rect.size.x, rect.size.y },
 		{ 0.f, 0.f, 1.f, 1.f },
 		{ prms.color.r / 255.f, prms.color.g / 255.f, prms.color.b / 255.f, prms.color.a / 255.f },
-		{ prms._9patch.left, prms._9patch.left / textureWidth, prms._9patch.left / textureHeight, 0.f },
+		{ prms._9patch, prms._9patch / textureWidth, prms._9patch / textureHeight, 0.f },
 	};
 
-	if (prms.blending) {
+	bool blending = false;
+	if (prms.blendMode == UIBlendMode::On) {
+		blending = true;
+	}
+	else if (prms.blendMode == UIBlendMode::Auto) {
+		blending = (prms.color.a < 255.f) || texture.HasAlpha();
+	}
+	if (blending) {
 		mGraphics.SetPipeline(mPipelineBlending);
 	}
 	else {
@@ -112,6 +135,45 @@ void UIRenderer::Impl::DrawBitmap(const UIRect& rect, const Texture& texture, co
 		.mesh = quadMesh,
 		.drawOrder = prms.priority,
 		.sortKey = (textureIds[0] & 255), // sort by texture
+	};
+	mGraphics.Draw(drawCall);
+}
+
+void UIRenderer::Impl::DrawSolidRect(const UIRect& rect, const Color& color, UIBlendMode blendMode) const {
+	if (! mRectProgram.mValid) {
+		return;
+	}
+
+	const int uniforms[] = {
+		mRectProgram.mCoords,
+		mRectProgram.mColor,
+	};
+	const float uniformData[][4] = {
+		{ rect.pos.x, rect.pos.y, rect.size.x, rect.size.y },
+		{ color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f },
+	};
+
+	bool blending = false;
+	if (blendMode == UIBlendMode::On) {
+		blending = true;
+	}
+	else if (blendMode == UIBlendMode::Auto) {
+		blending = (color.a < 255.f);
+	}
+	if (blending) {
+		mGraphics.SetPipeline(mPipelineBlending);
+	}
+	else {
+		mGraphics.SetDefaultPipeline();
+	}
+
+	const DrawCall drawCall {
+		.uniformLocations = uniforms,
+		.uniforms = uniformData,
+		.numUniforms = std::size(uniforms),
+		.program = mRectProgram.mHandle,
+		.mesh = quadMesh,
+		.drawOrder = 0, // TODO
 	};
 	mGraphics.Draw(drawCall);
 }
@@ -162,11 +224,21 @@ void UIRenderer::DrawBitmap(const UIRect& rect, const Texture& texture, const UI
 	mPimpl->DrawBitmap(rect, texture, prms);
 }
 
+void UIRenderer::DrawSolidRect(const UIRect& rect, const Color& color, UIBlendMode blendMode) const {
+	mPimpl->DrawSolidRect(rect, color, blendMode);
+}
+
 void UIRenderer::DrawLine(const Vec2& start, const Vec2& end, float thickness, const Color& color, unsigned priority) const {
+	if (color.a <= 0.f) {
+		return;
+	}
 	mPimpl->DrawLine(start, end, thickness, color, priority);
 }
 
 void UIRenderer::DrawBorder(const UIRect& rect, float thickness, const Color& color, unsigned priority) const {
+	if (color.a <= 0.f) {
+		return;
+	}
 	mPimpl->DrawBorder(rect, thickness, color, priority);
 }
 

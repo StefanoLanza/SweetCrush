@@ -10,11 +10,11 @@ namespace Wind {
 
 UITextRenderer::UITextRenderer(Graphics& graphics)
     : mGraphics { graphics }
-    , mProgramHandle { graphics.NewProgram(SHADERS_FOLDER "font.vs", SHADERS_FOLDER "font.fs") }
+    , mProgramHandle { graphics.NewProgram(SHADERS_FOLDER "ui/font.vs", SHADERS_FOLDER "ui/font.fs") }
     , mValidProgram { false } {
 	if (mProgramHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(mProgramHandle);
-		mPosRect = program.GetAttribLocation("posRect");
+		mPosRect = program.GetAttribLocation("coords");
 		mColor = program.GetUniformLocation("color");
 		mOutlineColor = program.GetUniformLocation("outlineColor");
 		mTexture = program.GetUniformLocation("inputTexture");
@@ -27,12 +27,18 @@ UITextRenderer::UITextRenderer(Graphics& graphics)
 		.mBlending = true,
 	};
 	mPipeline = mGraphics.NewPipeline(pipelineState);
+
+	glGenSamplers(1, &mSampler);
+	glSamplerParameteri(mSampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glSamplerParameteri(mSampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glSamplerParameteri(mSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(mSampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
 UITextRenderer::~UITextRenderer() = default;
 
 void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, const TextStyle& style, TextDirection direction,
-                         unsigned drawOrder) const {
+                           unsigned drawOrder) const {
 	if (! mValidProgram) {
 		return;
 	}
@@ -79,6 +85,7 @@ void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, co
 	mGraphics.SetPipeline(mPipeline);
 
 	const unsigned textureIds[] = { font.GetTexture().GetGLId() };
+	const unsigned samplers[] = { mSampler };
 
 	DrawCall drawCall;
 	drawCall.uniformLocations = uniforms;
@@ -86,6 +93,7 @@ void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, co
 	drawCall.numUniforms = std::size(uniforms);
 	drawCall.textures = textureIds;
 	drawCall.numTextures = 1;
+	drawCall.samplers = samplers;
 	drawCall.program = mProgramHandle;
 	drawCall.mesh = quadMesh;
 	drawCall.drawOrder = drawOrder;
@@ -94,7 +102,7 @@ void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, co
 }
 
 void UITextRenderer::WriteAligned(const Font& font, std::string_view text, Vec2 pos, TextAlignment horizontalAlignment, TextDirection direction,
-                                const TextStyle& style, unsigned drawOrder) const {
+                                  const TextStyle& style, unsigned drawOrder) const {
 	if (horizontalAlignment == TextAlignment::center) {
 		pos.x += 0.5f * (mGraphics.GetTargetWidth() - font.CalculateStringWidth(text));
 	}

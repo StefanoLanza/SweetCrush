@@ -7,11 +7,17 @@
 
 namespace Wind {
 
+enum class UIBlendMode {
+	Off,
+	On,
+	Auto,
+};
+
 struct UIDrawParams {
-	Color    color = whiteColor;
-	bool     blending = false;
-	unsigned priority = 0;
-	Rect     _9patch = { 0.f, 0.f, 0.f, 0.f }; // pixels
+	Color       color = whiteColor;
+	UIBlendMode blendMode = UIBlendMode::Auto;
+	unsigned    priority = 0;
+	float       _9patch = 0.f; // pixels
 };
 
 class UIRenderer final {
@@ -20,9 +26,10 @@ public:
 	~UIRenderer();
 
 	const UITextRenderer& GetTextRenderer() const;
-	void DrawBitmap(const UIRect& rect, const Texture& texture, const UIDrawParams& prms) const;
-	void DrawLine(const Vec2& start, const Vec2& end, float thickness, const Color& color, unsigned priority) const;
-	void DrawBorder(const UIRect& rect, float thickness, const Color& color, unsigned priority) const;
+	void                  DrawBitmap(const UIRect& rect, const Texture& texture, const UIDrawParams& prms) const;
+	void                  DrawSolidRect(const UIRect& rect, const Color& color, UIBlendMode blendMode) const;
+	void                  DrawLine(const Vec2& start, const Vec2& end, float thickness, const Color& color, unsigned priority) const;
+	void                  DrawBorder(const UIRect& rect, float thickness, const Color& color, unsigned priority) const;
 
 private:
 	class Impl;

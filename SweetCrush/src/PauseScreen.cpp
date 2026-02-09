@@ -15,23 +15,35 @@ using namespace Wind;
 namespace {
 
 constexpr UICanvasDesc canvasDesc {
-	.background = "gameartguppy/background.png",
+	.backgroundColor = { 127.5f, 127.5f, 127.5f, 27.5f },
+};
+
+constexpr UIPanelDesc panelDesc {
+	.pos = UIZeroPos,
+	.size = UIAbsoluteSize(600.f, 500.f),
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::center,
+	.background = "UI/blueSquareRect.png",
+	.backgroundColor = whiteColor,
+	._9patch = 16.f,
 };
 
 } // namespace
 
 PauseScreen::PauseScreen()
     : mTitle { MakeTitleText(GameStringId::pauseGame) }
-    , mRestartLevelButton { MakeMenuButton(button0_y, GameStringId::restartLevel) }
-    , mEndGameButton { MakeMenuButton(button1_y, GameStringId::endGame) }
-    , mSettingsButton { MakeMenuButton(button2_y, GameStringId::settings) }
-    , mBackButton { MakeBackButton() }
+    , mRestartLevelButton { MakeMenuButton(100, GameStringId::restartLevel) }
+    , mEndGameButton { MakeMenuButton(220, GameStringId::endGame) }
+    , mSettingsButton { MakeMenuButton(340, GameStringId::settings) }
+    , mCloseButton { MakeCloseButton() }
+    , mPanel { panelDesc }
     , mCanvas(canvasDesc) {
-	mCanvas.AddText(mTitle);
-	mCanvas.AddButton(mBackButton);
-	mCanvas.AddButton(mRestartLevelButton);
-	mCanvas.AddButton(mSettingsButton);
-	mCanvas.AddButton(mEndGameButton);
+	// mCanvas.AddText(mTitle);
+	mCanvas.AddPanel(mPanel);
+	mPanel.AddButton(mCloseButton);
+	mPanel.AddButton(mRestartLevelButton);
+	mPanel.AddButton(mSettingsButton);
+	mPanel.AddButton(mEndGameButton);
 }
 
 const char* PauseScreen::GetName() const {
@@ -49,14 +61,14 @@ ScreenEvent PauseScreen::Tick(float /*dt*/, const Wind::Input& input) {
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE)
 #endif
-	    || mBackButton.IsClicked()) {
-		return GoBack(false, ScreenTransition::slideRight);
+	    || mCloseButton.IsClicked()) {
+		return GoBack(false);
 	}
 	if (mEndGameButton.IsClicked()) {
-		return GoTo(GameScreenIds::mainMenu, ScreenTransition::slideBottom);
+		return GoTo(GameScreenIds::mainMenu);
 	}
 	else if (mRestartLevelButton.IsClicked()) {
-		return GoBack(true, ScreenTransition::slideRight);
+		return GoBack(true);
 	}
 	else if (mSettingsButton.IsClicked()) {
 		return GoTo(GameScreenIds::settings, ScreenTransition::slideLeft);

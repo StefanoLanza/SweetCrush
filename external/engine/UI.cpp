@@ -81,7 +81,7 @@ UIButton::UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, s
 }
 
 UIButton::UIButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, const UITextDesc& labelDesc)
-    : UIButton(desc, std::make_unique<UIBitmap>(bitmapDesc), std::make_unique<UIText>(labelDesc, defaultTheme.textStyle)) { // FIXME Style
+    : UIButton(desc, std::make_unique<UIBitmap>(bitmapDesc), std::make_unique<UIText>(labelDesc)) {
 }
 
 UIButton::UIButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc)
@@ -89,7 +89,7 @@ UIButton::UIButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc)
 }
 
 UIButton::UIButton(const UIButtonDesc& desc, const UITextDesc& labelDesc)
-    : UIButton(desc, nullptr, std::make_unique<UIText>(labelDesc, defaultTheme.textStyle)) { // FIXME Style
+    : UIButton(desc, nullptr, std::make_unique<UIText>(labelDesc)) {
 }
 
 void UIButton::SetEnabled(bool enabled) {
@@ -184,7 +184,7 @@ void UIButton::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	if (mBackground) {
 		const UIDrawParams prm {
 			.color = mDesc.backgroundColor,
-			.blending = mBackground->HasAlpha() || (mDesc.backgroundColor.a < 255.f),
+			.blendMode = UIBlendMode::Auto,
 			.priority = drawOrder,
 			._9patch = mDesc._9patch,
 		};
@@ -216,8 +216,9 @@ void UIButton::UpdateRect(const UIRect& parentRect) {
 		style = &defaultTheme.hoveredButtonStyle;
 		break;
 	};
+	assert(style);
 	if (mLabel) {
-		mLabel->SetStyle(style->mLabelStyle);
+		//FIXME mLabel->SetStyle(style->mLabelStyle);
 	}
 	if (mIcon) {
 		mIcon->SetStyle(style->mIconStyle);
@@ -273,11 +274,11 @@ bool UIButton::HandleInput(const Input& input) {
 	return (currState == UIButtonState::pressed);
 }
 
-UIText::UIText(const UITextDesc& desc, const TextStyle& style)
+UIText::UIText(const UITextDesc& desc)
     : mDesc(desc)
     , mRect {}
     , mText {}
-    , mTextStyle { style } {
+    , mTextStyle { mDesc.style } {
 }
 
 void UIText::Load(FontManager& fontManager) {
@@ -298,8 +299,7 @@ void UIText::ComputeRect(const UIRect& parentRect) {
 		mRect = parentRect;
 	}
 	else if (mDesc.sizing == UITextSizing::user) {
-		mRect = AlignRect(UIAbsolutePos(mDesc.pos.x, mDesc.pos.y), mDesc.size, parentRect, mDesc.horizontalAlignment,
-		                  mDesc.verticalAlignment);
+		mRect = AlignRect(UIAbsolutePos(mDesc.pos.x, mDesc.pos.y), mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 	}
 	else {
 		if (! mFont) {
@@ -368,7 +368,7 @@ void UIBitmap::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 		const Color        tintedColor = Mul(mDesc.color, mStyle.color);
 		const UIDrawParams prm {
 			.color = tintedColor,
-			.blending = mBitmap->HasAlpha() || tintedColor.a < 255.f,
+			.blendMode = UIBlendMode::Auto,
 			.priority = drawOrder,
 		};
 		renderer.DrawBitmap(mRect, *mBitmap, prm);
@@ -474,10 +474,14 @@ void UIPanel::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	}
 	if (mBackground) {
 		UIDrawParams prms;
-		prms.blending = (mDesc.backgroundColor.a < 255.f) || mBackground->HasAlpha();
+		prms.blendMode = UIBlendMode::Auto;
 		prms.color = mDesc.backgroundColor;
 		prms.priority = drawOrder;
+		prms._9patch = mDesc._9patch;
 		renderer.DrawBitmap(mRect, *mBackground, prms);
+	}
+	else {
+		renderer.DrawSolidRect(mRect, mDesc.backgroundColor, UIBlendMode::Off);
 	}
 	for (const auto& bitmap : mBitmaps) {
 		bitmap->Draw(renderer, drawOrder + 1);
@@ -509,7 +513,7 @@ bool UIPanel::HandleInput(const Input& input) const {
 	return handled;
 }
 
-void UIPanel::UpdateRect(const UIRect& parentRect) {
+void UIPanel::ComputeRect(const UIRect& parentRect) {
 	const UIRect rect = AlignRect(mDesc.pos, mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 	mRect = rect;
 	UIRect paddedRect = AddPadding(rect, mDesc.padding);
@@ -517,7 +521,7 @@ void UIPanel::UpdateRect(const UIRect& parentRect) {
 	// Update children
 	for (auto& panel : mPanels) {
 		if (panel->IsVisible()) {
-			panel->UpdateRect(paddedRect);
+			panel->ComputeRect(paddedRect);
 		}
 	}
 	for (auto& bitmap : mBitmaps) {
@@ -569,7 +573,7 @@ void UICanvas::AddText(UIText& text) {
 
 void UICanvas::Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder) {
 	const UIRect parentRect { { 0.f, 0.f }, (float)canvasWidth, (float)canvasHeight };
-	mPanel.UpdateRect(parentRect);
+	mPanel.ComputeRect(parentRect);
 	mPanel.Draw(renderer, drawOrder);
 }
 
@@ -584,7 +588,7 @@ void UIMouseCursor::SetCursor(const char* fileName, Graphics& graphics) {
 void UIMouseCursor::Draw(const UIRenderer& renderer, const Vec2& mouseCoords, unsigned drawOrder) {
 	if (mMousePointer) {
 		const UIDrawParams prm {
-			.blending = true,
+			.blendMode = UIBlendMode::On,
 			.priority = drawOrder,
 		};
 		renderer.DrawBitmap({ mouseCoords.x, mouseCoords.y, (float)mMousePointer->Width(), (float)mMousePointer->Height() }, *mMousePointer, prm);

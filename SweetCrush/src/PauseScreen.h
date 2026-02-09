@@ -21,6 +21,7 @@ public:
 	Wind::UIButton mRestartLevelButton;
 	Wind::UIButton mEndGameButton;
 	Wind::UIButton mSettingsButton;
-	Wind::UIButton mBackButton;
+	Wind::UIButton mCloseButton;
 	Wind::UICanvas mCanvas;
+	Wind::UIPanel  mPanel;
 };

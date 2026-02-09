@@ -12,6 +12,7 @@ enum class ScreenTransition {
 	pixelate,
 	dissolve,
 	zoomInOut,
+	blur,
 };
 
 } // namespace Wind
