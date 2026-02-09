@@ -4,6 +4,7 @@
 #include "Easings.h"
 #include "FwdDecl.h"
 #include "GlFrameBuffer.h"
+#include "Material.h"
 #include "Transition.h"
 
 namespace Wind {
@@ -81,6 +82,7 @@ private:
 	Program            mPixelateProgram;
 	Program            mDissolveProgram;
 	Program            mZoomProgram;
+	Material           mSlideMaterial;
 	FadeTransition     mFadeTransition;
 	PixelateTransition mPixelateTransition;
 	SlideTransition    mSlideTransition;

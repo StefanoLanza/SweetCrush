@@ -36,7 +36,7 @@ struct Engine::Implementation {
 	BitmapRenderer     mBitmapRenderer;
 	FontManager        mFontManager;
 	Blitter            mBlitter;
-	TextRenderer       mTextRenderer;
+	UITextRenderer       mTextRenderer;
 	uint64_t           mElapsedTicks;
 	float              mAccumTime;
 	bool               mQuit;
@@ -166,7 +166,7 @@ Input& Engine::GetInput() const {
 	return mPimpl->mInput;
 }
 
-TextRenderer& Engine::GetTextRenderer() const {
+UITextRenderer& Engine::GetTextRenderer() const {
 	return mPimpl->mTextRenderer;
 }
 

@@ -74,7 +74,7 @@ ActionFunc DrawMovingSprite(const Cell& cell, const BitmapRenderer& bitmapRender
 	};
 }
 
-ActionFunc DrawMatchScore(int score, const Cell& cell, const TextRenderer& textRenderer, const AppConfig& gameConfig, const Font& font) {
+ActionFunc DrawMatchScore(int score, const Cell& cell, const UITextRenderer& textRenderer, const AppConfig& gameConfig, const Font& font) {
 	Vec2 xy = cell.coords + Vec2 { gameConfig.board.cellWidth, gameConfig.board.cellHeight } * 0.5f;
 	return [&textRenderer, &font, xy, score, scrollSpeed = gameConfig.scoreTextScrollSpeed](float /*dt*/, float t) {
 		char tmp[64];

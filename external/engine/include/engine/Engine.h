@@ -33,7 +33,7 @@ public:
 	const Blitter&  GetBlitter() const;
 	BitmapRenderer& GetBitmapRenderer() const;
 	FontManager&    GetFontManager() const;
-	TextRenderer&   GetTextRenderer() const;
+	UITextRenderer&   GetTextRenderer() const;
 	Audio&          GetAudio() const;
 
 private:

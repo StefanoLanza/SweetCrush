@@ -506,7 +506,7 @@ TexturePtr Graphics::Impl::LoadTexture(std::string_view fileName, TextureInfo te
 	}
 	catch (const std::exception& e) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", e.what());
-		return mTextures.empty() ? nullptr : mTextures[0]; // placeholder
+		return nullptr;
 	}
 }
 

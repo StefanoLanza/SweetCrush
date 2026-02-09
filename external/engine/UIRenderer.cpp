@@ -11,7 +11,7 @@ namespace Wind {
 
 class UIRenderer::Impl {
 public:
-	explicit Impl(Graphics& graphics, TextRenderer& textRenderer);
+	explicit Impl(Graphics& graphics, UITextRenderer& textRenderer);
 
 	void DrawBitmap(const UIRect& rect, const Texture& surface, const UIDrawParams& prms) const;
 	void DrawLine(const Vec2& start, const Vec2& end, float thickness, const Color& color, unsigned priority) const;
@@ -35,13 +35,13 @@ public:
 		bool          mValid = false;
 	};
 	Graphics&      mGraphics;
-	TextRenderer&  mTextRenderer;
+	UITextRenderer&  mTextRenderer;
 	PipelineHandle mPipelineBlending;
 	BitmapProgram  mBitmapProgram;
 	LineProgram    mLineProgram;
 };
 
-UIRenderer::Impl::Impl(Graphics& graphics, TextRenderer& textRenderer)
+UIRenderer::Impl::Impl(Graphics& graphics, UITextRenderer& textRenderer)
     : mGraphics { graphics }
     , mTextRenderer { textRenderer } {
 
@@ -100,7 +100,7 @@ void UIRenderer::Impl::DrawBitmap(const UIRect& rect, const Texture& texture, co
 		mGraphics.SetDefaultPipeline();
 	}
 
-	const unsigned textureIds[] = { texture.GetTextureId() };
+	const unsigned textureIds[] = { texture.GetGLId() };
 
 	const DrawCall drawCall {
 		.uniformLocations = uniforms,
@@ -148,13 +148,13 @@ void UIRenderer::Impl::DrawLine(const Vec2& start, const Vec2& end, float thickn
 void UIRenderer::Impl::DrawBorder(const UIRect& rect, float thickness, const Color& color, unsigned priority) const {
 }
 
-UIRenderer::UIRenderer(Graphics& graphics, TextRenderer& textRenderer)
+UIRenderer::UIRenderer(Graphics& graphics, UITextRenderer& textRenderer)
     : mPimpl { std::make_unique<Impl>(graphics, textRenderer) } {
 }
 
 UIRenderer::~UIRenderer() = default;
 
-const TextRenderer& UIRenderer::GetTextRenderer() const {
+const UITextRenderer& UIRenderer::GetTextRenderer() const {
 	return mPimpl->mTextRenderer;
 }
 

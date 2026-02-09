@@ -87,14 +87,15 @@ void Game::Draw(float dt) {
 #endif
 	const GlFrameBuffer& compositedFB = mCompositor.Execute(dt);
 	graphics.SetDefaultFrameBuffer();
-	mEngine.GetBlitter().Blit(compositedFB, BlitFilter::point);
+	mEngine.GetBlitter().Blit(compositedFB.GetColorAttachment(), compositedFB.GetWidth(), compositedFB.GetHeight(), BlitFilter::point);
 
 	graphics.Flush();
 }
 
 void Game::Tick(float dt) {
 	Input&     input = mEngine.GetInput();
-	const Vec2 fbMouseCoord = mEngine.GetBlitter().WindowToFrameBuffer(input.GetMouseCoord(), mCompositor.GetWriteableFramebuffer());
+	const Vec2 fbMouseCoord = mEngine.GetBlitter().WindowToFrameBuffer(input.GetMouseCoord(), mCompositor.GetWriteableFramebuffer().GetWidth(),
+	                                                                   mCompositor.GetWriteableFramebuffer().GetHeight());
 	input.SetMappedMouseCoord(fbMouseCoord);
 
 	mGameDataModule.Reload();

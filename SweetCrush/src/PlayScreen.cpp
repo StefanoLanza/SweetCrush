@@ -491,13 +491,13 @@ void PlayScreen::CheckLevelCompletion() {
 }
 
 void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
-	const TextRenderer& textRenderer = mEngine.GetTextRenderer();
+	const UITextRenderer& textRenderer = mEngine.GetTextRenderer();
 	const TextStyle     textStyle { whiteColor, blackColor };
 	const TextStyle     textStyle1 { redColor, blackColor };
 	const Level&        level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
 	char                tmp[256];
 
-	snprintf(tmp, sizeof(tmp), "%04d", mMatchStats.score);
+	snprintf(tmp, sizeof(tmp), "Score %04d", mMatchStats.score);
 	mScoreText.SetText(tmp);
 
 	const int time = static_cast<int>(mMatchTime);

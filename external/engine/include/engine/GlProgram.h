@@ -6,6 +6,12 @@
 
 namespace Wind {
 
+struct GlUniform {
+	char   name[32];
+	GLint  location;
+	GLenum type;
+};
+
 class GlProgram final {
 public:
 	GlProgram(const char* vertexShaderSource, const char* fragmentShaderSource, const char* defines = "");
@@ -18,6 +24,8 @@ public:
 	GLint  GetOrthoMatrixUniform() const;
 	bool   IsEqual(const char* vertexShaderSource, const char* fragmentShaderSource, std::string_view defines) const;
 	operator bool() const;
+	int GetUniformCount() const;
+	GlUniform QueryUniform(int index) const;
 
 private:
 	std::string      mVertexShaderSource;

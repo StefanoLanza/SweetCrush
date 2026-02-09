@@ -91,12 +91,12 @@ Wind::UIText MakeDynScreenText(float y) {
 Wind::UIButton MakeMenuButton(float y, Wind::StringId label) {
 	UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(0, y),
-		.size = UIAbsoluteSize(420.f, 100.f),
+		.size = UIAbsoluteSize(440.f, 100.f),
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::top,
 		.background = "button.png",
 		.backgroundColor = { 131.f, 255.f, 255.f, 255.f },
-		._9patch = { 16.f, 0.f, 0.f, 0.f },
+		._9patch = { 0.f, 0.f, 0.f, 0.f },
 	};
 	/*	const UIBitmapDesc iconDesc {
 	        .fileName = "button.png",
@@ -119,7 +119,7 @@ Wind::UIButton MakeQuitButton() {
 		.size = UIAbsoluteSize(64, 64),
 		.horizontalAlignment = UIHorizAlignment::left,
 		.verticalAlignment = UIVertAlignment::bottom,
-		.background = "quitButton.png",
+		.background = "icons/X.png",
 		.backgroundColor = whiteColor, //{ 131.f, 255.f, 255.f, 255.f },
 	};
 	return Wind::UIButton { buttonDesc }; //, /*iconDesc,*/ labelDesc };
@@ -131,7 +131,7 @@ Wind::UIButton MakeBackButton() {
 		.size = UIAbsoluteSize(64, 64),
 		.horizontalAlignment = UIHorizAlignment::left,
 		.verticalAlignment = UIVertAlignment::bottom,
-		.background = "back.png",
+		.background = "icons/back.png",
 		.backgroundColor = whiteColor, //{ 131.f, 255.f, 255.f, 255.f },
 	};
 	return Wind::UIButton { buttonDesc }; //, /*iconDesc,*/ labelDesc };
@@ -151,11 +151,12 @@ Wind::UIButton MakeToggleButton(float y, Wind::StringId label) {
 	};
 	const float        padding = 48.f;
 	const UIBitmapDesc iconDesc {
-		.fileName = "checkmark.png",
+		.fileName = "icons/check.png",
 		.pos = UIAbsolutePos(-padding, 0.f),
+		.size = UIAbsoluteSize(64, 64),
 		.horizontalAlignment = UIHorizAlignment::right,
 		.verticalAlignment = UIVertAlignment::center,
-		.sizing = UIBitmapSizing::fit,
+		.sizing = UIBitmapSizing::user,
 		.color = greenColor,
 	};
 	const UITextDesc labelDesc {

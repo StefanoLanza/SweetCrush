@@ -16,10 +16,10 @@ struct UIDrawParams {
 
 class UIRenderer final {
 public:
-	explicit UIRenderer(Graphics& graphics, TextRenderer& textRenderer);
+	explicit UIRenderer(Graphics& graphics, UITextRenderer& textRenderer);
 	~UIRenderer();
 
-	const TextRenderer& GetTextRenderer() const;
+	const UITextRenderer& GetTextRenderer() const;
 	void DrawBitmap(const UIRect& rect, const Texture& texture, const UIDrawParams& prms) const;
 	void DrawLine(const Vec2& start, const Vec2& end, float thickness, const Color& color, unsigned priority) const;
 	void DrawBorder(const UIRect& rect, float thickness, const Color& color, unsigned priority) const;

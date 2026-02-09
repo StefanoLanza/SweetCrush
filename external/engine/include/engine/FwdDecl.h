@@ -10,7 +10,7 @@ class Graphics;
 class Input;
 class Audio;
 class BitmapRenderer;
-class TextRenderer;
+class UITextRenderer;
 class Blitter;
 class Sdl;
 class SdlWindow;

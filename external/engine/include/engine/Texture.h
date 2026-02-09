@@ -36,7 +36,7 @@ public:
 	const std::string& GetFileName() const;
 	int                Width() const;
 	int                Height() const;
-	GLuint             GetTextureId() const;
+	GLuint             GetGLId() const;
 	bool               HasAlpha() const;
 
 private:

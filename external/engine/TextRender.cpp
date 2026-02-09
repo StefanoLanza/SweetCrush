@@ -8,7 +8,7 @@
 
 namespace Wind {
 
-TextRenderer::TextRenderer(Graphics& graphics)
+UITextRenderer::UITextRenderer(Graphics& graphics)
     : mGraphics { graphics }
     , mProgramHandle { graphics.NewProgram(SHADERS_FOLDER "font.vs", SHADERS_FOLDER "font.fs") }
     , mValidProgram { false } {
@@ -29,9 +29,9 @@ TextRenderer::TextRenderer(Graphics& graphics)
 	mPipeline = mGraphics.NewPipeline(pipelineState);
 }
 
-TextRenderer::~TextRenderer() = default;
+UITextRenderer::~UITextRenderer() = default;
 
-void TextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, const TextStyle& style, TextDirection direction,
+void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, const TextStyle& style, TextDirection direction,
                          unsigned drawOrder) const {
 	if (! mValidProgram) {
 		return;
@@ -78,7 +78,7 @@ void TextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, cons
 	};
 	mGraphics.SetPipeline(mPipeline);
 
-	const unsigned textureIds[] = { font.GetTexture().GetTextureId() };
+	const unsigned textureIds[] = { font.GetTexture().GetGLId() };
 
 	DrawCall drawCall;
 	drawCall.uniformLocations = uniforms;
@@ -93,7 +93,7 @@ void TextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, cons
 	mGraphics.Draw(drawCall);
 }
 
-void TextRenderer::WriteAligned(const Font& font, std::string_view text, Vec2 pos, TextAlignment horizontalAlignment, TextDirection direction,
+void UITextRenderer::WriteAligned(const Font& font, std::string_view text, Vec2 pos, TextAlignment horizontalAlignment, TextDirection direction,
                                 const TextStyle& style, unsigned drawOrder) const {
 	if (horizontalAlignment == TextAlignment::center) {
 		pos.x += 0.5f * (mGraphics.GetTargetWidth() - font.CalculateStringWidth(text));

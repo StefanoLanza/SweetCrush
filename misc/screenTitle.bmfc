@@ -36,12 +36,12 @@ widthPaddingFactor=0.00
 # output file
 outWidth=512
 outHeight=256
-outBitDepth=32
+outBitDepth=8
 fontDescFormat=2
 fourChnlPacked=0
 textureFormat=png
 textureCompression=0
-alphaChnl=1
+alphaChnl=2
 redChnl=0
 greenChnl=0
 blueChnl=0

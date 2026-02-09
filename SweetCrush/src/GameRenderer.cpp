@@ -77,7 +77,7 @@ public:
 		const float cellSpacing = gameConfig.board.cellSpacing;
 		mGraphics.SetPipeline(mPipelineBlending);
 
-		const GLuint   textureID = gameTextures[boardTileIcons[0]]->GetTextureId();
+		const GLuint   textureID = gameTextures[boardTileIcons[0]]->GetGLId();
 		const unsigned textureIds[] = { textureID };
 
 		struct Tile {
@@ -170,8 +170,8 @@ public:
 				color.w,
 			};
 
-			//  const GLuint hrzStripesId = gameTextures[hrzStripesSprite]->GetTextureId();
-			const unsigned textureIds[] = { gameTextures[visual->bitmapIdx]->GetTextureId(), 0 };
+			//  const GLuint hrzStripesId = gameTextures[hrzStripesSprite]->GetGLId();
+			const unsigned textureIds[] = { gameTextures[visual->bitmapIdx]->GetGLId(), 0 };
 
 			DrawCall drawCall;
 			drawCall.program = mIconProgram.mProgramHandle;
@@ -201,7 +201,7 @@ public:
 
 		const Texture& texture = *gameTextures[glowSprite];
 		const int      uniforms[] = { mTrailProgram.mCoords, mTrailProgram.mWidth, mTrailProgram.mColor };
-		unsigned       textureIds[] = { texture.GetTextureId() };
+		unsigned       textureIds[] = { texture.GetGLId() };
 		const float    uniformData[] = {
             start.x, start.y, end.x, end.y, w, 0.f, 0.f, 0.f, color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f,
 		};
@@ -227,7 +227,7 @@ public:
 
 		const Texture& texture = *gameTextures[blastSprite];
 		const int      uniforms[] = { mBlastProgram.mCoords, mBlastProgram.mColor };
-		unsigned       textureIds[] = { texture.GetTextureId() };
+		unsigned       textureIds[] = { texture.GetGLId() };
 		const float    uniformData[] = {
             center.x,        center.y,        radius,          width, //
             color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f,
@@ -271,7 +271,7 @@ public:
 			                             color.g / 255.f,
 			                             color.b / 255.f,
 			                             color.a / 255.f };
-		const unsigned textureIds[] = { texture->GetTextureId(), 0 };
+		const unsigned textureIds[] = { texture->GetGLId(), 0 };
 		const DrawCall drawCall {
 			.uniformLocations = uniforms,
 			.uniforms = uniformData,

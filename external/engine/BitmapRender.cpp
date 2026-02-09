@@ -81,7 +81,7 @@ void BitmapRenderer::Impl::DrawBitmapEx(const Texture& bitmap, float x, float y,
 		mGraphics.SetDefaultPipeline();
 	}
 
-	const unsigned textureIds[] = { bitmap.GetTextureId() };
+	const unsigned textureIds[] = { bitmap.GetGLId() };
 
 	DrawCall drawCall;
 	drawCall.uniformLocations = uniforms;
@@ -92,7 +92,7 @@ void BitmapRenderer::Impl::DrawBitmapEx(const Texture& bitmap, float x, float y,
 	drawCall.program = mProgramHandle;
 	drawCall.mesh = quadMesh;
 	drawCall.drawOrder = prm.drawOrder;
-	drawCall.sortKey = (bitmap.GetTextureId() & 255); // sort by texture
+	drawCall.sortKey = (bitmap.GetGLId() & 255); // sort by texture
 	mGraphics.Draw(drawCall);
 }
 

@@ -181,4 +181,25 @@ GlProgram::operator bool() const {
 	return program != 0;
 }
 
+int GlProgram::GetUniformCount() const {
+	GLint count = 0;
+	glGetProgramiv(mProgram.get(), GL_ACTIVE_UNIFORMS, &count);
+	GLint maxLength = 0;
+	glGetProgramiv(mProgram.get(), GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
+	if (maxLength > sizeof(GlUniform::name)) {
+		SDL_LogError(0, "size of GlUniform.name is too small. Increase it to at least %d", maxLength);
+		return 0;
+	}
+	return count;
+}
+
+GlUniform GlProgram::QueryUniform(int index) const {
+	GLint     size;
+	GLsizei   length;
+	GlUniform u;
+	glGetActiveUniform(mProgram.get(), index, sizeof(GlUniform::name), &length, &size, &u.type, u.name);
+	u.location = glGetUniformLocation(mProgram.get(), u.name);
+	return u;
+}
+
 } // namespace Wind

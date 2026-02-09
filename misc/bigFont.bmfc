@@ -5,7 +5,7 @@ fileVersion=1
 fontName=Orange Juice
 fontFile=
 charSet=0
-fontSize=96
+fontSize=82
 aa=1
 scaleH=100
 useSmoothing=1
@@ -18,6 +18,9 @@ dontIncludeKerningPairs=0
 useHinting=1
 renderFromOutline=1
 useClearType=0
+autoFitNumPages=0
+autoFitFontSizeMin=0
+autoFitFontSizeMax=0
 
 # character alignment
 paddingDown=0
@@ -28,16 +31,17 @@ spacingHoriz=1
 spacingVert=1
 useFixedHeight=0
 forceZero=0
+widthPaddingFactor=0.00
 
 # output file
 outWidth=512
-outHeight=512
-outBitDepth=32
+outHeight=256
+outBitDepth=8
 fontDescFormat=2
 fourChnlPacked=0
 textureFormat=png
 textureCompression=0
-alphaChnl=1
+alphaChnl=2
 redChnl=0
 greenChnl=0
 blueChnl=0
@@ -50,6 +54,6 @@ invB=0
 outlineThickness=2
 
 # selected chars
-chars=32,65-90
+chars=0-0,32,65-90
 
 # imported icon images

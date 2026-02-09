@@ -30,10 +30,10 @@ struct TextDrawArgs {
 	TextDirection dir = TextDirection::leftToRight;
 };
 
-class TextRenderer final {
+class UITextRenderer final {
 public:
-	explicit TextRenderer(Graphics& graphics);
-	~TextRenderer();
+	explicit UITextRenderer(Graphics& graphics);
+	~UITextRenderer();
 
 	void Write(const Font& font, std::string_view text, Vec2 pos, const TextStyle& style, TextDirection direction, unsigned drawOrder) const;
 	void WriteAligned(const Font& font, std::string_view text, Vec2 pos, TextAlignment horizontalAlignment, TextDirection direction,

@@ -148,7 +148,7 @@ public:
 	explicit UIText(const UITextDesc& desc, const TextStyle& style = {});
 
 	void             Load(FontManager& fontManager);
-	void             Draw(const TextRenderer& textRenderer, unsigned drawOrder) const;
+	void             Draw(const UITextRenderer& textRenderer, unsigned drawOrder) const;
 	void             ComputeRect(const UIRect& parentRect);
 	void             SetText(StringId stringId);
 	void             SetText(const char* str);

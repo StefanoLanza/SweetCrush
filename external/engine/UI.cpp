@@ -284,7 +284,7 @@ void UIText::Load(FontManager& fontManager) {
 	mFont = fontManager.AddFont(mDesc.font);
 }
 
-void UIText::Draw(const TextRenderer& textRenderer, unsigned drawOrder) const {
+void UIText::Draw(const UITextRenderer& textRenderer, unsigned drawOrder) const {
 	if (mFont) {
 		const char* str = Text();
 		if (str) {
@@ -325,7 +325,7 @@ void UIText::SetText(StringId stringId) {
 void UIText::SetText(const char* str) {
 	int count = SDL_snprintf(mText, sizeof mText, "%s", str);
 	if (count >= sizeof mText) {
-		// TODO log
+		SDL_LogWarn(0, "Truncating UI text %s", str);
 	}
 }
 

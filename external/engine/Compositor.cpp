@@ -26,6 +26,14 @@ UICompositor::UICompositor(Graphics& graphics, int width, int height)
 	pipelineState.mDepthEnabled = false;
 	pipelineState.mBlending = false;
 	mPipelineHandle = mGraphics.NewPipeline(pipelineState);
+
+	MaterialInfo mi;
+	mi.SetShader(SHADERS_FOLDER "fullscreenTriangle.vs", SHADERS_FOLDER "transitions/fade.fs");
+	mi.AddFloat4("fadeColor", { 1.f, 2.f, 3.f, 4.f });
+	mi.AddFloat4("misc", { 1.f, 2.f, 3.f, 4.f });
+	mi.AddFloat4("boh", { 1.f, 2.f, 3.f, 4.f });
+	mi.AddTexture("texture0", "ciao.png");
+	Material m = MakeMaterial(mi, graphics);
 }
 
 const GlFrameBuffer& UICompositor::GetWriteableFramebuffer() const {
@@ -156,9 +164,8 @@ void UICompositor::Slide(unsigned first, unsigned second, float dirx, float diry
 	if (! mSlideProgram.mValid) {
 		return;
 	}
-	const SlideTransition& settings = mSlideTransition;
-	const float            progress = mSlideTransition.mTimeCurve(mAccumTime / mSlideTransition.mDuration);
-	const int              uniformLocations[] = {
+	const float progress = mSlideTransition.mTimeCurve(mAccumTime / mSlideTransition.mDuration);
+	const int   uniformLocations[] = {
         mSlideProgram.mMisc,
 	};
 	const Vec4 uniforms[] {

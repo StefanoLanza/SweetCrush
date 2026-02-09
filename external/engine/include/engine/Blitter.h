@@ -1,6 +1,8 @@
 #pragma once
 
 #include "FwdDecl.h"
+#include "Gl.h"
+
 #include <memory>
 
 namespace Wind {
@@ -17,8 +19,8 @@ public:
 	explicit Blitter(Graphics& graphics);
 	~Blitter();
 
-	void Blit(const GlFrameBuffer& srcFrameBuffer, BlitFilter filter) const;
-	Vec2 WindowToFrameBuffer(Vec2 winCoord, const GlFrameBuffer& frameBuffer) const;
+	void Blit(GLuint srcTexture, int srcWidth, int srcHeight, BlitFilter filter) const;
+	Vec2 WindowToFrameBuffer(Vec2 winCoord, int srcWidth, int srcHeight) const;
 
 private:
 	class Impl;

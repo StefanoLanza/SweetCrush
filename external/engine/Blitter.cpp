@@ -9,11 +9,11 @@ namespace Wind {
 class Blitter::Impl {
 public:
 	explicit Impl(Graphics& graphics);
-	void Blit(const GlFrameBuffer& frameBuffer, BlitFilter filter) const;
-	Vec2 WindowToFrameBuffer(Vec2 winCoord, const GlFrameBuffer& frameBuffer) const;
+	void Blit(GLuint srcTexture, int srcWidth, int srcHeight, BlitFilter filter) const;
+	Vec2 WindowToFrameBuffer(Vec2 winCoord, int srcWidth, int srcHeight) const;
 
 private:
-	RectI ComputeTargetRect(const GlFrameBuffer& srcFrameBuffer) const;
+	RectI ComputeTargetRect(int srcWidth, int srcHeight) const;
 	struct BlitProgram;
 	void InitProgram(BlitProgram& program, Graphics& graphics, const char* fs) const;
 
@@ -61,10 +61,10 @@ void Blitter::Impl::InitProgram(BlitProgram& blitProgram, Graphics& graphics, co
 	}
 }
 
-RectI Blitter::Impl::ComputeTargetRect(const GlFrameBuffer& frameBuffer) const {
+RectI Blitter::Impl::ComputeTargetRect(int srcWidth, int srcHeight) const {
 	int       cx, cy, cw, ch;
-	const int targetHeight = mGraphics.GetTargetWidth() * frameBuffer.GetHeight() / frameBuffer.GetWidth();
-	const int targetWidth = mGraphics.GetTargetHeight() * frameBuffer.GetWidth() / frameBuffer.GetHeight();
+	const int targetHeight = mGraphics.GetTargetWidth() * srcHeight / srcWidth;
+	const int targetWidth = mGraphics.GetTargetHeight() * srcWidth / srcHeight;
 	if (targetHeight < mGraphics.GetTargetHeight()) {
 		// Center vertically
 		cx = 0;
@@ -89,13 +89,13 @@ RectI Blitter::Impl::ComputeTargetRect(const GlFrameBuffer& frameBuffer) const {
 	return { cx, cy, cx + cw, cy + ch };
 }
 
-void Blitter::Impl::Blit(const GlFrameBuffer& srcFrameBuffer, BlitFilter filter) const {
+void Blitter::Impl::Blit(GLuint srcTexture, int srcWidth, int srcHeight, BlitFilter filter) const {
 	const BlitProgram& program = mPrograms[0];
 	if (! program.mValid) {
 		return;
 	}
 
-	const RectI targetRect = ComputeTargetRect(srcFrameBuffer);
+	const RectI targetRect = ComputeTargetRect(srcWidth, srcHeight);
 
 	PipelineState pipelineState;
 	pipelineState.mDepthEnabled = false;
@@ -114,7 +114,7 @@ void Blitter::Impl::Blit(const GlFrameBuffer& srcFrameBuffer, BlitFilter filter)
 		{ x0, y0, x1, y1 },
 		//{ (float)srcFrameBuffer.GetWidth(), (float)srcFrameBuffer.GetHeight(), 1.f / srcFrameBuffer.GetWidth(), 1.f / srcFrameBuffer.GetHeight() },
 	};
-	const unsigned textureIds[] = { srcFrameBuffer.GetColorAttachment() };
+	const unsigned textureIds[] = { srcTexture };
 	const unsigned samplers[] = { mSamplers[1] };
 
 	DrawCall drawCall;
@@ -130,11 +130,11 @@ void Blitter::Impl::Blit(const GlFrameBuffer& srcFrameBuffer, BlitFilter filter)
 	mGraphics.Draw(drawCall);
 }
 
-Vec2 Blitter::Impl::WindowToFrameBuffer(Vec2 winCoord, const GlFrameBuffer& frameBuffer) const {
-	const RectI targetRect = ComputeTargetRect(frameBuffer);
+Vec2 Blitter::Impl::WindowToFrameBuffer(Vec2 winCoord, int srcWidth, int srcHeight) const {
+	const RectI targetRect = ComputeTargetRect(srcWidth, srcHeight);
 	return {
-		(winCoord.x - targetRect.left) * frameBuffer.GetWidth() / (float)(targetRect.right - targetRect.left),
-		(winCoord.y - targetRect.top) * frameBuffer.GetHeight() / (float)(targetRect.bottom - targetRect.top),
+		(winCoord.x - targetRect.left) * srcWidth / (float)(targetRect.right - targetRect.left),
+		(winCoord.y - targetRect.top) * srcHeight / (float)(targetRect.bottom - targetRect.top),
 	};
 }
 
@@ -144,12 +144,12 @@ Blitter::Blitter(Graphics& graphics)
 
 Blitter::~Blitter() = default;
 
-void Blitter::Blit(const GlFrameBuffer& srcFrameBuffer, BlitFilter filter) const {
-	mPimpl->Blit(srcFrameBuffer, filter);
+void Blitter::Blit(GLuint srcTexture, int srcWidth, int srcHeight, BlitFilter filter) const {
+	mPimpl->Blit(srcTexture, srcWidth, srcHeight, filter);
 }
 
-Vec2 Blitter::WindowToFrameBuffer(Vec2 winCoord, const GlFrameBuffer& frameBuffer) const {
-	return mPimpl->WindowToFrameBuffer(winCoord, frameBuffer);
+Vec2 Blitter::WindowToFrameBuffer(Vec2 winCoord, int srcWidth, int srcHeight) const {
+	return mPimpl->WindowToFrameBuffer(winCoord, srcWidth, srcHeight);
 }
 
 } // namespace Wind
