@@ -24,7 +24,6 @@ private:
 private:
 	GameSettings&  mGameConfig;
 	Wind::UIText   mTitle;
-	Wind::UIButton mGraphicsButton;
 	Wind::UIButton mMusicButton;
 	Wind::UIButton mSfxButton;
 	Wind::UIButton mLanguageButton;

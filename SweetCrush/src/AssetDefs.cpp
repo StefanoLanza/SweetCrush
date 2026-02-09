@@ -7,13 +7,13 @@ Wind::TexturePtr gameTextures[NumGameTextures];
 // TODO Atlas row cols and tile size
 const char* gameTexturePath[NumGameTextures] {
 	"gameartguppy/pastry_cookie01.png",
-	"gameartguppy/pastry_cookie02.png",
 	"gameartguppy/pastry_croissant.png",
+	"gameartguppy/pastry_cookie02.png",
 	"gameartguppy/pastry_cupcake.png",
 	"gameartguppy/pastry_donut.png",
 	"gameartguppy/pastry_macaroon.png",
-	"gameartguppy/pastry_pie.png",
 	"gameartguppy/pastry_poptart01.png",
+	"gameartguppy/pastry_pie.png",
 	"gameartguppy/pastry_poptart02.png",
 	"gameartguppy/board.png",
 	"boosters/bomb_green.png", // TODO Replace

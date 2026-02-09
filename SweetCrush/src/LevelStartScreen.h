@@ -32,6 +32,8 @@ private:
 	Wind::UIText          mTitle;
 	Wind::UIButton        mPlayButton;
 	Wind::UICanvas        mCanvas;
+	Wind::UIPanel         mPanel;
 	Wind::UIText          mGoalText;
+	Wind::UIText          mGoalDesc;
 	float                 mAccumTime = 0;
 };

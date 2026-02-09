@@ -21,15 +21,13 @@ constexpr UICanvasDesc canvasDesc {
 SettingsScreen::SettingsScreen(GameSettings& gameSettings)
     : mGameConfig(gameSettings)
     , mTitle { MakeTitleText(GameStringId::settings) }
-    , mGraphicsButton { MakeMenuButton(button0_y, GameStringId::graphicsSettings) }
-    , mMusicButton { MakeToggleButton(button1_y, GameStringId::music) }
-    , mSfxButton { MakeToggleButton(button2_y, GameStringId::sfx) }
-    , mLanguageButton { MakeMenuButton(button3_y, GameStringId::languageScreen) }
+    , mMusicButton { MakeToggleButton(button0_y, GameStringId::music, button0_color) }
+    , mSfxButton { MakeToggleButton(button1_y, GameStringId::sfx, button1_color) }
+    , mLanguageButton { MakeMenuButton(button2_y, GameStringId::languageScreen, button2_color) }
     , mBackButton { MakeBackButton() }
     , mCanvas(canvasDesc) {
 	// Build UI
 	mCanvas.AddText(mTitle);
-	mCanvas.AddButton(mGraphicsButton);
 	mCanvas.AddButton(mLanguageButton);
 	mCanvas.AddButton(mMusicButton);
 	mCanvas.AddButton(mSfxButton);

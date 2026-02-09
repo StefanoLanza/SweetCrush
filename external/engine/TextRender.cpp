@@ -14,11 +14,12 @@ UITextRenderer::UITextRenderer(Graphics& graphics)
     , mValidProgram { false } {
 	if (mProgramHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(mProgramHandle);
-		mPosRect = program.GetAttribLocation("coords");
+		mCoords = program.GetAttribLocation("coords");
+		mPosOffset = program.GetUniformLocation("posOffset");
 		mColor = program.GetUniformLocation("color");
 		mOutlineColor = program.GetUniformLocation("outlineColor");
 		mTexture = program.GetUniformLocation("inputTexture");
-		mValidProgram = (mPosRect >= 0 && mColor >= 0 && mOutlineColor >= 0 && mTexture >= 0);
+		mValidProgram = (mCoords >= 0 && mPosOffset >= 0 &&mColor >= 0 && mOutlineColor >= 0 && mTexture >= 0);
 	}
 
 	const PipelineState pipelineState {
@@ -47,7 +48,7 @@ void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, co
 		Rect quad;
 		Rect uvs;
 	};
-	InstanceData instanceData = mGraphics.AllocInstances((unsigned)text.length(), sizeof(Char), mPosRect);
+	InstanceData instanceData = mGraphics.AllocInstances((unsigned)text.length(), sizeof(Char), mCoords);
 	if (! instanceData.data) {
 		return;
 	}
@@ -77,10 +78,16 @@ void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, co
 		advance += g.xadvance * style.scale;
 	}
 
-	const int   uniforms[] = { mColor, mOutlineColor };
+	const int   uniforms[] = { mPosOffset, mColor, mOutlineColor };
 	const float uniformData[][4] = {
+		{ 0.f, 0.f, 0.f, 0.f },
 		{ style.color.r / 255.f, style.color.g / 255.f, style.color.b / 255.f, style.color.a / 255.f },
 		{ style.outlineColor.r / 255.f, style.outlineColor.g / 255.f, style.outlineColor.b / 255.f, style.outlineColor.a / 255.f },
+	};
+	const float shadowUniformData[][4] = {
+		{ style.shadowOffset.x, style.shadowOffset.y, 0.f, 0.f },
+		{ style.shadowColor.r / 255.f, style.shadowColor.g / 255.f, style.shadowColor.b / 255.f, style.shadowColor.a / 255.f },
+		{ style.shadowColor.r / 255.f, style.shadowColor.g / 255.f, style.shadowColor.b / 255.f, 1.f },
 	};
 	mGraphics.SetPipeline(mPipeline);
 
@@ -89,7 +96,6 @@ void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, co
 
 	DrawCall drawCall;
 	drawCall.uniformLocations = uniforms;
-	drawCall.uniforms = reinterpret_cast<const float*>(uniformData);
 	drawCall.numUniforms = std::size(uniforms);
 	drawCall.textures = textureIds;
 	drawCall.numTextures = 1;
@@ -98,6 +104,13 @@ void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, co
 	drawCall.mesh = quadMesh;
 	drawCall.drawOrder = drawOrder;
 	drawCall.instances = instanceData;
+
+	if (style.shadow) {
+		drawCall.uniforms = shadowUniformData;
+		mGraphics.Draw(drawCall);
+	}
+
+	drawCall.uniforms = uniformData;
 	mGraphics.Draw(drawCall);
 }
 

@@ -7,42 +7,39 @@
 
 #include <engine/Engine.h>
 #include <engine/Input.h>
-#include <engine/TextRender.h>
-#include <engine/UI.h>
 
 using namespace Wind;
 
 namespace {
 
 constexpr UICanvasDesc canvasDesc {
-	.backgroundColor = { 127.5f, 127.5f, 127.5f, 27.5f },
+	.backgroundColor = { 27.5f, 27.5f, 27.5f, 200.5f },
 };
 
-constexpr UIPanelDesc panelDesc {
+const UIPanelDesc panelDesc {
 	.pos = UIZeroPos,
 	.size = UIAbsoluteSize(600.f, 500.f),
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::center,
-	.background = "UI/blueSquareRect.png",
-	.backgroundColor = whiteColor,
+	.background = "UI/button.png",
+	.backgroundColor = panel0_color,
 	._9patch = 16.f,
 };
 
 } // namespace
 
 PauseScreen::PauseScreen()
-    : mTitle { MakeTitleText(GameStringId::pauseGame) }
-    , mRestartLevelButton { MakeMenuButton(100, GameStringId::restartLevel) }
-    , mEndGameButton { MakeMenuButton(220, GameStringId::endGame) }
-    , mSettingsButton { MakeMenuButton(340, GameStringId::settings) }
-    , mCloseButton { MakeCloseButton() }
+    : mRestartLevelButton { MakeMenuButton(80, GameStringId::restartLevel, button0_color) }
+    , mEndGameButton { MakeMenuButton(200, GameStringId::endGame, button2_color) }
+    , mSettingsButton { MakeMenuButton(440, GameStringId::settings, button1_color) }
+    , mCloseButton { MakeMenuButton(320, GameStringId::continueGame, button3_color) }
+//    , mCloseButton { MakeCloseButton() }
     , mPanel { panelDesc }
     , mCanvas(canvasDesc) {
-	// mCanvas.AddText(mTitle);
 	mCanvas.AddPanel(mPanel);
 	mPanel.AddButton(mCloseButton);
 	mPanel.AddButton(mRestartLevelButton);
-	mPanel.AddButton(mSettingsButton);
+	// mPanel.AddButton(mSettingsButton);
 	mPanel.AddButton(mEndGameButton);
 }
 

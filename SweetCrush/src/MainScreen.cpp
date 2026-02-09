@@ -11,8 +11,6 @@
 #include <engine/Easings.h>
 #include <engine/Engine.h>
 #include <engine/Input.h>
-#include <engine/TextRender.h>
-#include <engine/UI.h>
 #include <engine/UIRenderer.h>
 
 using namespace Wind;
@@ -21,11 +19,11 @@ MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
     : mEngine(engine)
     , mGameRenderer(gameRenderer)
     , mTitle { MakeTitleText(GameStringId::title) }
-    , mStartButton { MakeMenuButton(button0_y, GameStringId::start) }
-    , mSettingsButton { MakeMenuButton(button1_y, GameStringId::settings) }
-    , mCreditsButton { MakeMenuButton(button2_y, GameStringId::credits) }
+    , mStartButton { MakeMenuButton(button0_y, GameStringId::start, button0_color) }
+    , mSettingsButton { MakeMenuButton(button1_y, GameStringId::settings, button1_color) }
+    , mCreditsButton { MakeMenuButton(button2_y, GameStringId::credits, button2_color) }
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
-    , mQuitButton { MakeQuitButton() }
+    , mQuitButton { MakeMenuButton(button3_y, GameStringId::quit, button3_color) } //MakeQuitButton() }
 #endif
     , mCanvas { MakeCanvas() }
     , mAccumTime(0) {

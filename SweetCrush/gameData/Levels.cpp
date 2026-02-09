@@ -90,7 +90,7 @@ const Level levels[numLevels] {
 
 const Level levels[numLevels] {
     // #0
-	{ .pieceIds { 0, 2, 3, 4, 5 },
+	{ .pieceIds { 0, 1, 3, 4, 5 },
 	  .goal { GoalId::collectMatches, { 12, 12, 12 } },
 	  .seed = 24234,
 	  .availableTime = 60.f,

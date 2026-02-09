@@ -23,7 +23,7 @@ struct TextStyle {
 	Color color = whiteColor;
 	Color outlineColor = blackColor;
 	Color shadowColor = blackColor;
-	float shadow = 0.f;
+	bool  shadow = false;
 	Vec2  shadowOffset = { 0.f, 4.f };
 	float scale = 1.f;
 };
@@ -53,7 +53,8 @@ private:
 	// Uniforms
 	GLint mColor = -1;
 	GLint mOutlineColor = -1;
-	GLint mPosRect = -1;
+	GLint mCoords = -1;
+	GLint mPosOffset  = -1;
 	GLint mTexture = -1;
 };
 

@@ -27,8 +27,8 @@ private:
 
 KawaseBlur::Impl::Impl(Graphics& graphics)
     : mGraphics { graphics }
-    , mDownsampleProgram { graphics.NewProgram(SHADERS_FOLDER "fullscreenTriangle.vs", SHADERS_FOLDER "kawaseDownsample.fs") }
-    , mUpsampleProgram { graphics.NewProgram(SHADERS_FOLDER "fullscreenTriangle.vs", SHADERS_FOLDER "kawaseUpsample.fs") }
+    , mDownsampleProgram { graphics.NewProgram(SHADERS_FOLDER "fullscreenTriangle.vs", SHADERS_FOLDER "postprocess/kawaseDownsample.fs") }
+    , mUpsampleProgram { graphics.NewProgram(SHADERS_FOLDER "fullscreenTriangle.vs", SHADERS_FOLDER "postprocess/kawaseUpsample.fs") }
     , mValidPrograms { false } {
 	if (mDownsampleProgram != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(mDownsampleProgram);

@@ -12,26 +12,24 @@ namespace Wind {
 
 struct FadeTransition {
 	float mDuration = 0.25f;
-	float (*mTimeCurve)(float) = EaseInCubic;
+	float (*mTimeCurve)(float) = EaseInQuad;
 	Color mFadeColor = whiteColor;
 };
 
 struct PixelateTransition {
 	float mDuration = 0.25f;
-	float (*mTimeCurve)(float) = EaseInCubic;
+	float (*mTimeCurve)(float) = EaseInQuad;
 	Color mDissolveColor = whiteColor;
 };
 
 struct SlideTransition {
-	float mDuration = 0.5f;
-	float (*mTimeCurve)(float) = EaseInCubic;
-	Color mBorderColor = whiteColor;
-	float mBorderThickness = 4.f; // pixels
+	float mDuration = 0.25f;
+	float (*mTimeCurve)(float) = EaseInQuad;
 };
 
 struct ZoomTransition {
 	float mDuration = 0.25f;
-	float (*mTimeCurve)(float) = EaseInCubic;
+	float (*mTimeCurve)(float) = EaseInQuad;
 	float mZoomFactor = 0.9f;
 	Color mFadeColor = whiteColor;
 };

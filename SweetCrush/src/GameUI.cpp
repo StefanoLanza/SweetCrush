@@ -1,4 +1,6 @@
 #include "GameUI.h"
+#include "Localization.h"
+
 #include <engine/Color.h>
 #include <engine/UI.h>
 
@@ -12,8 +14,11 @@ const UIBitmapDesc buttonBitmapDesc {
 };
 
 constexpr TextStyle titleTextStyle {
-	yellowColor,
-	blackColor,
+	.color = yellowColor,
+	.outlineColor = blackColor,
+	.shadowColor = { 0.f, 0.f, 0.f, 100.f },
+	.shadow = true,
+	.shadowOffset = { 0.f, 8.f },
 };
 
 constexpr TextStyle defaultTextStyle {
@@ -21,28 +26,19 @@ constexpr TextStyle defaultTextStyle {
 	blackColor,
 };
 
-const UIButtonDesc defaultBackButtonDesc {
-	.pos = UIAbsolutePos(32, -32),
-	.size = UIAbsoluteSize(64, 64),
-	.horizontalAlignment = UIHorizAlignment::left,
-	.verticalAlignment = UIVertAlignment::bottom,
-};
-
-const UIBitmapDesc defaultBackButtonBitmapDesc {
-	.fileName = "backButton2.png",
-	.pos = UIZeroPos,
-	.sizing = UIBitmapSizing::fit,
-	.color = whiteColor,
-};
-
 constexpr float titleY = 160.f;
 constexpr float subTitleY = 280.f;
 constexpr float button0_y = 560;
 constexpr float button1_y = 680;
 constexpr float button2_y = 800;
-constexpr float button3_y = 440;
+constexpr float button3_y = 920;
+const Color     button0_color = { 255.f, 255.f, 131.f, 255.f };
+const Color     button1_color = { 192.f, 222.f, 255.f, 255.f };
+const Color     button2_color = { 153.f, 219.f, 175.f, 255.f };
+const Color     button3_color = { 131.f, 255.f, 255.f, 255.f };
 const float     text0_y = 450;
 const float     text1_y = 510;
+const Color     panel0_color = { 192.f, 222.f, 255.f, 255.f };
 
 Wind::UIText MakeTitleText(Wind::StringId label) {
 	const UITextDesc desc {
@@ -92,10 +88,11 @@ Wind::UIText MakeDynScreenText(float y) {
 	return Wind::UIText { desc };
 }
 
-Wind::UIButton MakeMenuButton(float y, Wind::StringId label) {
+Wind::UIButton MakeMenuButton(float y, Wind::StringId label, const Color& color) {
+#if 0
 	UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(0, y),
-		.size = UIAbsoluteSize(440.f, 100.f),
+		.size = UIAbsoluteSize(520.f, 100.f),
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::top,
 		.background = "UI/buttonOrange.png",
@@ -114,9 +111,41 @@ Wind::UIButton MakeMenuButton(float y, Wind::StringId label) {
 		.font = "mediumFont",
 		.stringId = label,
 		.style = {
-	whiteColor,
-	yellowColor,
+	.color = whiteColor,
+	.outlineColor = whiteColor,
+	.shadowColor = { 0.f, 0.f, 0.f, 100.f },
+	.shadow = true,
+	.shadowOffset = { 0.f, 8.f },
 },
+#else
+	UIButtonDesc buttonDesc = {
+		.pos = UIAbsolutePos(0, y),
+		.size = UIAbsoluteSize(520.f, 100.f),
+		.horizontalAlignment = UIHorizAlignment::center,
+		.verticalAlignment = UIVertAlignment::top,
+		.background = "UI/button.png",
+		.backgroundColor = color,
+		._9patch = 16.f,
+	};
+	/*	const UIBitmapDesc iconDesc {
+	        .fileName = "button.png",
+	        .pos = UIZeroPos,
+	        .size = UIParentSize,
+	        .color = { 131.f, 255.f, 255.f, 255.f },
+	    };*/
+	const UITextDesc labelDesc {
+		.horizontalAlignment = UIHorizAlignment::center,
+		.verticalAlignment = UIVertAlignment::center,
+		.font = "mediumFont",
+		.stringId = label,
+		.style = {
+	.color = whiteColor,
+	.outlineColor = blackColor,
+	.shadowColor = { 0.f, 0.f, 0.f, 100.f },
+	.shadow = true,
+	.shadowOffset = { 0.f, 2.f },
+},
+#endif
 	};
 	return Wind::UIButton { buttonDesc, /*iconDesc,*/ labelDesc };
 }
@@ -124,25 +153,28 @@ Wind::UIButton MakeMenuButton(float y, Wind::StringId label) {
 Wind::UIButton MakeQuitButton() {
 	UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(32, -32),
-		.size = UIAbsoluteSize(48, 48),
+		.size = UIAbsoluteSize(96, 96),
 		.horizontalAlignment = UIHorizAlignment::left,
 		.verticalAlignment = UIVertAlignment::bottom,
 		.background = "icons/X.png",
-		.backgroundColor = whiteColor, //{ 131.f, 255.f, 255.f, 255.f },
+		.backgroundColor = redColor, //{ 131.f, 255.f, 255.f, 255.f },
 	};
 	return Wind::UIButton { buttonDesc }; //, /*iconDesc,*/ labelDesc };
 }
 
 Wind::UIButton MakeBackButton() {
+	return MakeMenuButton(button3_y, GameStringId::back, button3_color);
+#if 0
 	UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(32, -32),
-		.size = UIAbsoluteSize(48, 48),
+		.size = UIAbsoluteSize(96, 96),
 		.horizontalAlignment = UIHorizAlignment::left,
 		.verticalAlignment = UIVertAlignment::bottom,
-		.background = "icons/back.png",
+		.background = "icons/backButton.png",
 		.backgroundColor = whiteColor, //{ 131.f, 255.f, 255.f, 255.f },
 	};
 	return Wind::UIButton { buttonDesc }; //, /*iconDesc,*/ labelDesc };
+#endif
 }
 
 Wind::UIButton MakeCloseButton() {
@@ -157,14 +189,14 @@ Wind::UIButton MakeCloseButton() {
 	return Wind::UIButton { buttonDesc }; //, /*iconDesc,*/ labelDesc };
 }
 
-Wind::UIButton MakeToggleButton(float y, Wind::StringId label) {
+Wind::UIButton MakeToggleButton(float y, Wind::StringId label, const Color& color) {
 	UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(0, y),
-		.size = UIAbsoluteSize(420.f, 100.f),
+		.size = UIAbsoluteSize(520.f, 100.f),
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::top,
-		.background = "button.png",
-		.backgroundColor = { 131.f, 255.f, 255.f, 255.f },
+		.background = "UI/button.png",
+		.backgroundColor = color,
 		._9patch = 16.f,
 		.toggleMode = true,
 		.toggled = true,
@@ -173,7 +205,7 @@ Wind::UIButton MakeToggleButton(float y, Wind::StringId label) {
 	const UIBitmapDesc iconDesc {
 		.fileName = "icons/check.png",
 		.pos = UIAbsolutePos(-padding, 0.f),
-		.size = UIAbsoluteSize(64, 64),
+		.size = UIAbsoluteSize(48, 48),
 		.horizontalAlignment = UIHorizAlignment::right,
 		.verticalAlignment = UIVertAlignment::center,
 		.sizing = UIBitmapSizing::user,

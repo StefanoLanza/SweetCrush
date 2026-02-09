@@ -38,8 +38,8 @@ UIButton MakeBoosterButton(float x) {
 		.size = UIAbsoluteSize(100.f, 100.f),
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::bottom,
-		.background = "button.png",
-		.backgroundColor = Color { 255, 229, 102, 255 },
+		.background = "UI/button.png",
+		.backgroundColor = button2_color,
 		._9patch = 16.f,
 	};
 	return UIButton { desc };

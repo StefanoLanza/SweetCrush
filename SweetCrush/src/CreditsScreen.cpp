@@ -6,8 +6,6 @@
 
 #include <engine/Engine.h>
 #include <engine/Input.h>
-#include <engine/TextRender.h>
-#include <engine/UI.h>
 
 using namespace Wind;
 
@@ -17,21 +15,33 @@ constexpr UICanvasDesc canvasDesc {
 	.background = "gameartguppy/background.png",
 };
 
+const UIPanelDesc panelDesc {
+	.pos = UIAbsolutePos(0.f, 0.f),
+	.size = UIAbsoluteSize(560.f, 500.f),
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::center,
+	.background = "UI/button.png",
+	.backgroundColor = panel0_color,
+	._9patch = 16.f,
+};
+
 } // namespace
 
 CreditsScreen::CreditsScreen()
     : mTitle { MakeTitleText(GameStringId::credits) }
-    , mCodeBy { MakeScreenText(GameStringId::codeBy, 560) }
-    , mGraphicsBy { MakeScreenText(GameStringId::graphicsBy, 620) }
-    , mMusicBy { MakeScreenText(GameStringId::musicBy, 680) }
-    , mVersion { MakeScreenText(GameStringId::version, 840) }
+    , mCodeBy { MakeScreenText(GameStringId::codeBy, 100) }
+    , mGraphicsBy { MakeScreenText(GameStringId::graphicsBy, 180) }
+    , mMusicBy { MakeScreenText(GameStringId::musicBy, 260) }
+    , mVersion { MakeScreenText(GameStringId::version, 380) }
     , mBackButton { MakeBackButton() }
-    , mCanvas(canvasDesc) {
+    , mCanvas(canvasDesc)
+    , mPanel(panelDesc) {
 	mCanvas.AddText(mTitle);
-	mCanvas.AddText(mCodeBy);
-	mCanvas.AddText(mGraphicsBy);
-	mCanvas.AddText(mMusicBy);
-	mCanvas.AddText(mVersion);
+	mCanvas.AddPanel(mPanel);
+	mPanel.AddText(mCodeBy);
+	mPanel.AddText(mGraphicsBy);
+	mPanel.AddText(mMusicBy);
+	mPanel.AddText(mVersion);
 	mCanvas.AddButton(mBackButton);
 }
 

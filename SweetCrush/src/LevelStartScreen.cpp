@@ -24,6 +24,16 @@ constexpr UICanvasDesc canvasDesc {
 	.background = "gameartguppy/background.png",
 };
 
+const UIPanelDesc panelDesc {
+	.pos = UIAbsolutePos(0.f, 0.f),
+	.size = UIAbsoluteSize(560.f, 400.f),
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::center,
+	.background = "UI/button.png",
+	.backgroundColor = panel0_color,
+	._9patch = 16.f,
+};
+
 } // namespace
 
 LevelStartScreen::LevelStartScreen(const MatchStats& matchStats, const GameDataModule& gameDataModule, const GameRenderer& gameRenderer)
@@ -31,13 +41,17 @@ LevelStartScreen::LevelStartScreen(const MatchStats& matchStats, const GameDataM
     , mGameDataModule(gameDataModule)
     , mGameRenderer(gameRenderer)
     , mTitle { MakeTitleText(GameStringId::level) }
-    , mPlayButton { MakeMenuButton(button2_y, GameStringId::play) }
+    , mPlayButton { MakeMenuButton(button3_y, GameStringId::play) }
     , mCanvas(canvasDesc)
-    , mGoalText { MakeDynScreenText(text0_y) } {
+	, mPanel(panelDesc)
+    , mGoalText { MakeScreenText(GameStringId::goal, 40.f) }
+    , mGoalDesc { MakeDynScreenText(100.f) } {
 	// Setup UI
 	mCanvas.AddText(mTitle);
 	mCanvas.AddButton(mPlayButton);
-	mCanvas.AddText(mGoalText);
+	mCanvas.AddPanel(mPanel);
+	mPanel.AddText(mGoalText);
+	mPanel.AddText(mGoalDesc);
 }
 
 const char* LevelStartScreen::GetName() const {
@@ -60,13 +74,14 @@ ScreenEvent LevelStartScreen::Tick(float dt, const Input& input) {
 void LevelStartScreen::Draw(UIRenderer& uiRenderer, float dt) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 
+	float y = mPanel.Rect().pos.y + 220.f;
 	const Level& level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
 	switch (level.goal.id) {
 	case GoalId::breakIce:
-		DrawIceBlocks(level, text0_y + 120.f);
+		DrawIceBlocks(level, y);
 		break;
 	case GoalId::collectMatches: {
-		DrawPieces(level, text0_y + 120.f);
+		DrawPieces(level, y);
 		break;
 	}
 	case GoalId::removeJellies:
@@ -109,7 +124,7 @@ void LevelStartScreen::Enter(const ScreenNavArgs& args) {
 		assert(false);
 		break;
 	}
-	mGoalText.SetText(tmp);
+	mGoalDesc.SetText(tmp);
 }
 
 void LevelStartScreen::Exit() {

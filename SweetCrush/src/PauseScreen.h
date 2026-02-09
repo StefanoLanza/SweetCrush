@@ -17,7 +17,6 @@ public:
 	void              ParseConfig(const char* varName, const char* varValue) override;
 
 public:
-	Wind::UIText   mTitle;
 	Wind::UIButton mRestartLevelButton;
 	Wind::UIButton mEndGameButton;
 	Wind::UIButton mSettingsButton;
