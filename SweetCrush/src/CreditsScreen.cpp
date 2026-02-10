@@ -29,9 +29,9 @@ const UIPanelDesc panelDesc {
 
 CreditsScreen::CreditsScreen()
     : mTitle { MakeTitleText(GameStringId::credits) }
-    , mCodeBy { MakeScreenText(GameStringId::codeBy, 100) }
-    , mGraphicsBy { MakeScreenText(GameStringId::graphicsBy, 180) }
-    , mMusicBy { MakeScreenText(GameStringId::musicBy, 260) }
+    , mCodeBy { MakeScreenText(GameStringId::codeBy, 80) }
+    , mGraphicsBy { MakeScreenText(GameStringId::graphicsBy, 160) }
+    , mMusicBy { MakeScreenText(GameStringId::musicBy, 240) }
     , mVersion { MakeScreenText(GameStringId::version, 380) }
     , mBackButton { MakeBackButton() }
     , mCanvas(canvasDesc)

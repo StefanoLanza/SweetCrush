@@ -294,8 +294,6 @@ void PlayScreen::Enter(const ScreenNavArgs& args) {
 }
 
 void PlayScreen::Exit() {
-	mActionMgr.Clear(); // stop showing score and other effects
-	mBlockingActionCounter = 0;
 	PauseMusic();
 }
 
@@ -550,6 +548,9 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 }
 
 void PlayScreen::SetupNewBoardAnimation() {
+	mActionMgr.Clear();
+	mBlockingActionCounter = 0;
+
 	Random rnd;
 	for (Cell& cell : mBoard.GetCells()) {
 		CellVisual& visual = GetVisual(cell);
