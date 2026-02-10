@@ -22,7 +22,7 @@ public:
 	struct BitmapProgram {
 		ProgramHandle mHandle = nullProgram;
 		GLint         mColor = 0;
-		GLint         mPosRect = 0;
+		GLint         mCoords = 0;
 		GLint         mUVRect = 0;
 		GLint         mTexture = 0;
 		GLint         m9Patch = 0;
@@ -58,15 +58,15 @@ UIRenderer::Impl::Impl(Graphics& graphics, UITextRenderer& textRenderer)
 	};
 	mPipelineBlending = graphics.NewPipeline(pipelineState);
 
-	mBitmapProgram.mHandle = graphics.NewProgram(SHADERS_FOLDER "ui/uiQuad.vs", SHADERS_FOLDER "ui/uiQuad.fs");
+	mBitmapProgram.mHandle = graphics.NewProgram(SHADERS_FOLDER "ui/uiBitmap.vs", SHADERS_FOLDER "ui/uiBitmap.fs");
 	if (mBitmapProgram.mHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(mBitmapProgram.mHandle);
 		mBitmapProgram.mColor = program.GetUniformLocation("color");
-		mBitmapProgram.mPosRect = program.GetUniformLocation("posRect");
+		mBitmapProgram.mCoords = program.GetUniformLocation("coords");
 		mBitmapProgram.mUVRect = program.GetUniformLocation("uvRect");
 		mBitmapProgram.mTexture = program.GetUniformLocation("inputTexture");
 		mBitmapProgram.m9Patch = program.GetUniformLocation("_9Patch");
-		mBitmapProgram.mValid = (mBitmapProgram.mColor != -1 && mBitmapProgram.mPosRect != -1 && mBitmapProgram.m9Patch != -1 &&
+		mBitmapProgram.mValid = (mBitmapProgram.mColor != -1 && mBitmapProgram.mCoords != -1 && mBitmapProgram.m9Patch != -1 &&
 		                         mBitmapProgram.mUVRect != -1 && mBitmapProgram.mTexture != -1);
 	}
 
@@ -97,7 +97,7 @@ void UIRenderer::Impl::DrawBitmap(const UIRect& rect, const Texture& texture, co
 	const float textureHeight = static_cast<float>(texture.Height());
 
 	const int uniforms[] = {
-		mBitmapProgram.mPosRect,
+		mBitmapProgram.mCoords,
 		mBitmapProgram.mUVRect,
 		mBitmapProgram.mColor,
 		mBitmapProgram.m9Patch,
@@ -106,7 +106,7 @@ void UIRenderer::Impl::DrawBitmap(const UIRect& rect, const Texture& texture, co
 		{ rect.pos.x, rect.pos.y, rect.size.x, rect.size.y },
 		{ 0.f, 0.f, 1.f, 1.f },
 		{ prms.color.r / 255.f, prms.color.g / 255.f, prms.color.b / 255.f, prms.color.a / 255.f },
-		{ prms._9patch, prms._9patch / textureWidth, prms._9patch / textureHeight, 0.f },
+		{ prms._9patch, prms._9patch / textureWidth, prms._9patch / textureHeight, prms.grayscale / 100.f, },
 	};
 
 	bool blending = false;

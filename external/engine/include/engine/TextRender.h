@@ -25,7 +25,7 @@ struct TextStyle {
 	Color shadowColor = blackColor;
 	bool  shadow = false;
 	Vec2  shadowOffset = { 0.f, 4.f };
-	float scale = 1.f;
+	Vec2  scale = { 1.f, 1.f };
 };
 
 struct TextDrawArgs {
@@ -54,7 +54,7 @@ private:
 	GLint mColor = -1;
 	GLint mOutlineColor = -1;
 	GLint mCoords = -1;
-	GLint mPosOffset  = -1;
+	GLint mPosOffset = -1;
 	GLint mTexture = -1;
 };
 

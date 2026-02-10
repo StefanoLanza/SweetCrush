@@ -8,6 +8,7 @@ namespace {
 const char* eng[] = {
 	"",
 	"SWEET CRUSH",
+	"Tap to start the game",
 	"SCORE",
 	"START",
 	"PLAY",
@@ -56,6 +57,7 @@ const char* eng[] = {
 const char* esp[] = {
 	"",
 	"SWEET CRUSH",
+	"Tap to start the game",
 	"PUNTUACION",
 	"EMPEZAR",
 	"JUEGA",
@@ -104,6 +106,7 @@ const char* esp[] = {
 const char* ita[] = {
 	"",
 	"SWEET CRUSH",
+	"Tap to start the game",
 	"PUNTEGGIO",
 	"INIZIA",
 	"GIOCA",

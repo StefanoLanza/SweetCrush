@@ -5,6 +5,7 @@
 enum GameStringId {
 	empty,
 	title,
+	tap,
 	score,
 	start,
 	play,

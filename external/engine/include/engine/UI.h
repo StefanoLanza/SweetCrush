@@ -67,6 +67,7 @@ constexpr UIRect UIZeroRect { 0.f, 0.f, 0.f, 0.f };
 	UIHorizAlignment horizontalAlignment = UIHorizAlignment::center; \
 	UIVertAlignment  verticalAlignment = UIVertAlignment::center;    \
 	float            padding = 0.f;                                  \
+	float            margin = 0.f;                                   \
 	float            borderWidth = 0.f;
 
 enum class UITextSizing {
@@ -142,7 +143,7 @@ struct UICanvasDesc {
 
 struct UIBitmapStyle {
 	Color color = whiteColor;
-	float scale = 1.f;
+	Vec2  scale = { 1.f, 1.f };
 };
 
 class UIText final {
@@ -200,6 +201,7 @@ struct UIButtonStyle {
 	UIBitmapStyle mIconStyle;
 	TextStyle     mLabelStyle;
 	Vec2          offset { 0.f, 0.f };
+	float         grayScale = 0.f;
 };
 
 class UIButton final {

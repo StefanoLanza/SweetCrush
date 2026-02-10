@@ -20,7 +20,7 @@ const UIPanelDesc panelDesc {
 	.size = UIAbsoluteSize(560.f, 500.f),
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::center,
-	.background = "UI/button.png",
+	.background = "UI/panel.png",
 	.backgroundColor = panel0_color,
 	._9patch = 16.f,
 };

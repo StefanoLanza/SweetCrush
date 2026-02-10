@@ -12,7 +12,7 @@ void main() {
 	vec2 uv1 = vTexCoord + misc.xy * (-misc.z) * displ;
 	float b0 = step(max(abs(uv0.x - 0.5), abs(uv0.y - 0.5)), 0.5); // add border
 	float b1 = step(max(abs(uv1.x - 0.5), abs(uv1.y - 0.5)), 0.5); // add border
-	float b2 = step(max(abs(uv1.x - 0.5), abs(uv1.y - 0.5)), 0.525); // add border
+	float b2 = step(max(abs(uv1.x - 0.5), abs(uv1.y - 0.5)), misc.w); // add border
     vec4 tex0 = texture(texture0, uv0);
     vec4 tex1 = texture(texture1, uv1);
 	tex1 = mix(vec4(0.), tex1,  b1);

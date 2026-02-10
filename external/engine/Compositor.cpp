@@ -174,7 +174,7 @@ void UICompositor::Slide(unsigned first, unsigned second, float dirx, float diry
         mSlideProgram.mMisc,
 	};
 	const Vec4 uniforms[] {
-		{ dirx, diry, progress, 0.f },
+		{ dirx, diry, progress, 0.5f + 4.f / mGraphics.GetTargetWidth() },
 	};
 	Composite(mSlideProgram, first, second, uniformLocations, uniforms, std::size(uniformLocations));
 }

@@ -9,8 +9,9 @@ namespace Wind {
 class SdlWindow final {
 public:
 	SdlWindow(const char* title, int width, int height, const char* iconFile, bool fullscreen);
-	
+
 	operator SDL_Window*() const;
+	void SetIcon(const char* iconFile);
 	void Show();
 	int  GetWidth() const;
 	int  GetHeight() const;

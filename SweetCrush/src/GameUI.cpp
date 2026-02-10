@@ -18,12 +18,15 @@ constexpr TextStyle titleTextStyle {
 	.outlineColor = blackColor,
 	.shadowColor = { 0.f, 0.f, 0.f, 100.f },
 	.shadow = true,
-	.shadowOffset = { 0.f, 8.f },
+	.shadowOffset = { 0.f, 4.f },
 };
 
 constexpr TextStyle defaultTextStyle {
-	whiteColor,
-	blackColor,
+	.color = whiteColor,
+	.outlineColor = blackColor,
+	.shadowColor = { 0.f, 0.f, 0.f, 100.f },
+	.shadow = true,
+	.shadowOffset = { 0.f, 4.f },
 };
 
 constexpr float titleY = 160.f;
@@ -123,6 +126,7 @@ Wind::UIButton MakeMenuButton(float y, Wind::StringId label, const Color& color)
 		.size = UIAbsoluteSize(520.f, 100.f),
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::top,
+		.padding = 16.f,
 		.background = "UI/button.png",
 		.backgroundColor = color,
 		._9patch = 16.f,
@@ -138,13 +142,7 @@ Wind::UIButton MakeMenuButton(float y, Wind::StringId label, const Color& color)
 		.verticalAlignment = UIVertAlignment::center,
 		.font = "mediumFont",
 		.stringId = label,
-		.style = {
-	.color = whiteColor,
-	.outlineColor = blackColor,
-	.shadowColor = { 0.f, 0.f, 0.f, 100.f },
-	.shadow = true,
-	.shadowOffset = { 0.f, 2.f },
-},
+		.style = defaultTextStyle,
 #endif
 	};
 	return Wind::UIButton { buttonDesc, /*iconDesc,*/ labelDesc };

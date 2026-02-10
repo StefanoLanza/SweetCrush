@@ -66,8 +66,8 @@ void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, co
 		chars[idx].quad = {
 			pos.x + static_cast<float>(g.xoffset) + advance,
 			pos.y + static_cast<float>(g.yoffset),
-			static_cast<float>(g.width * style.scale),
-			static_cast<float>(g.height * style.scale),
+			static_cast<float>(g.width * style.scale.x),
+			static_cast<float>(g.height * style.scale.y),
 		};
 		chars[idx].uvs = {
 			static_cast<float>(g.x) / fontTexWidth,
@@ -75,7 +75,7 @@ void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, co
 			static_cast<float>(g.width) / fontTexWidth,
 			static_cast<float>(g.height) / fontTexHeight,
 		};
-		advance += g.xadvance * style.scale;
+		advance += g.xadvance * style.scale.x;
 	}
 
 	const int   uniforms[] = { mPosOffset, mColor, mOutlineColor };

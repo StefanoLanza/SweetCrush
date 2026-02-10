@@ -20,6 +20,9 @@ const UITheme defaultTheme {
 		.scale = 1.f,
 	},
 	.bitmapStyle {},
+	.disabledButtonStyle {
+		.grayScale = 100.f,
+	},
 	.idleButtonStyle {},
 	.pressedButtonStyle {
 	    .mIconStyle { .scale = 1.0f },
@@ -181,12 +184,31 @@ void UIButton::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	if (! mVisible) {
 		return;
 	}
+
+	const UIButtonStyle* style = nullptr;
+	switch (mState) {
+	case UIButtonState::disabled:
+		style = &defaultTheme.disabledButtonStyle;
+		break;
+	case UIButtonState::idle:
+		style = &defaultTheme.idleButtonStyle;
+		break;
+	case UIButtonState::pressed:
+		style = &defaultTheme.pressedButtonStyle;
+		break;
+	case UIButtonState::hovered:
+		style = &defaultTheme.hoveredButtonStyle;
+		break;
+	};
+	assert(style);
+
 	if (mBackground) {
 		const UIDrawParams prm {
 			.color = mDesc.backgroundColor,
 			.blendMode = UIBlendMode::Auto,
 			.priority = drawOrder,
 			._9patch = mDesc._9patch,
+			.grayscale = style->grayScale,
 		};
 		renderer.DrawBitmap(mRect, *mBackground, prm);
 	}
@@ -309,8 +331,8 @@ void UIText::ComputeRect(const UIRect& parentRect) {
 		const char* str = Text();
 
 		const UISize textSize {
-			.aWidth = static_cast<float>(mFont->CalculateStringWidth(str) * mTextStyle.scale),
-			.aHeight = static_cast<float>(mFont->GetHeight() * mTextStyle.scale),
+			.aWidth = static_cast<float>(mFont->CalculateStringWidth(str) * mTextStyle.scale.x),
+			.aHeight = static_cast<float>(mFont->GetHeight() * mTextStyle.scale.y),
 			.rWidth = 0.f,
 			.rHeight = 0.f,
 		};
@@ -379,8 +401,8 @@ void UIBitmap::ComputeRect(const UIRect& parentRect) {
 	if (mDesc.sizing == UIBitmapSizing::fit) {
 		if (mBitmap) {
 			UISize size;
-			size.aWidth = static_cast<float>(mBitmap->Width()) * mStyle.scale;
-			size.aHeight = static_cast<float>(mBitmap->Height()) * mStyle.scale;
+			size.aWidth = static_cast<float>(mBitmap->Width()) * mStyle.scale.x;
+			size.aHeight = static_cast<float>(mBitmap->Height()) * mStyle.scale.y;
 			size.rWidth = 0.f;
 			size.rHeight = 0.f;
 			mRect = AlignRect(mDesc.pos, size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
@@ -394,8 +416,8 @@ void UIBitmap::ComputeRect(const UIRect& parentRect) {
 	}
 	else if (mDesc.sizing == UIBitmapSizing::user) {
 		UISize size = mDesc.size;
-		size.aWidth *= mStyle.scale;
-		size.aHeight *= mStyle.scale;
+		size.aWidth *= mStyle.scale.x;
+		size.aHeight *= mStyle.scale.y;
 		mRect = AlignRect(mDesc.pos, size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 	}
 }

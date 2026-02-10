@@ -18,6 +18,7 @@ struct UIDrawParams {
 	UIBlendMode blendMode = UIBlendMode::Auto;
 	unsigned    priority = 0;
 	float       _9patch = 0.f; // pixels
+	float       grayscale = 0.f;
 };
 
 class UIRenderer final {

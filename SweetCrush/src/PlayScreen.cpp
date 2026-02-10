@@ -250,6 +250,10 @@ void PlayScreen::SelectBooster(const Input& input) {
 	if (mSelectedBooster >= 0) {
 		mSelectedBoosterCoord = input.GetMappedMouseCoord();
 	}
+
+	for (int i = 0; i < MaxBoosterTypesPerLevel; ++i) {
+		mBoosterButtons[i].SetEnabled(mBoosterCount[i] > 0);
+	}
 }
 
 void PlayScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
@@ -490,10 +494,10 @@ void PlayScreen::CheckLevelCompletion() {
 
 void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 	const UITextRenderer& textRenderer = mEngine.GetTextRenderer();
-	const TextStyle     textStyle { whiteColor, blackColor };
-	const TextStyle     textStyle1 { redColor, blackColor };
-	const Level&        level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
-	char                tmp[256];
+	const TextStyle       textStyle { whiteColor, blackColor };
+	const TextStyle       textStyle1 { redColor, blackColor };
+	const Level&          level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
+	char                  tmp[256];
 
 	snprintf(tmp, sizeof(tmp), "Score %04d", mMatchStats.score);
 	mScoreText.SetText(tmp);
@@ -535,7 +539,14 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 			else {
 				coords = mBoosterButtons[i].GetRect().pos + mBoosterButtons[i].GetRect().size * 0.5f + Vec2 { 8.f, 0.f };
 			}
-			mGameRenderer.DrawIcon(boosterIcons[level.boosterIds[i]], coords, 0.f, whiteColor, GameDrawOrder::overUI);
+
+			BitmapExtParams prm;
+			prm.pivot = BitmapPivot::center;
+			prm.drawOrder = GameDrawOrder::overUI;
+			prm.blending = true;
+			prm.grayscale = (mBoosterCount[i] == 0) ? 100.f : 0.f;
+			mEngine.GetBitmapRenderer().DrawBitmapEx(*gameTextures[boosterIcons[level.boosterIds[i]]], coords, prm);
+
 			snprintf(tmp, sizeof(tmp), "%d", mBoosterCount[i]);
 			textRenderer.Write(*mFonts[1], tmp, mBoosterButtons[i].GetRect().pos + Vec2 { 12.f, 12.f }, defaultTextStyle, TextDirection::leftToRight,
 			                   GameDrawOrder::overUI);

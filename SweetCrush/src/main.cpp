@@ -35,13 +35,15 @@ int main(int argc, char* argv[]) {
 	}
 #endif
 	Wind::Sdl       sdl { SDL_INIT_VIDEO | SDL_INIT_EVENTS };
-	Wind::SdlWindow window { "SweetCrush", gameConfig.windowWidth, gameConfig.windowHeight, ASSETS_FOLDER "icon.png", gameConfig.fullscreen };
+	Wind::SdlWindow window { "SweetCrush", gameConfig.windowWidth, gameConfig.windowHeight, nullptr, gameConfig.fullscreen };
 	Wind::Engine    engine { window };
 	GameRenderer    gameRenderer { engine };
 	Wind::INIParser parser;
 	Game            game { engine, gameRenderer, gameConfig, gameDataModule, parser };
 	parser.ParseFile(ASSETS_FOLDER "game.ini");
-	
+	// SDL bug: set icon *after* all systems have been initialized, to show it correctly in the task manager on Windows
+	// https://discourse.libsdl.org/t/sdl-setwindowicon-not-setting-taskbar-icon/62049/19
+	window.SetIcon(ASSETS_FOLDER "icon.png");
 	game.Run();
 
 	return 0;

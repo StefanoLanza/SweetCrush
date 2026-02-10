@@ -23,8 +23,9 @@ private:
 	// Uniforms
 	GLint mColor = 0;
 	GLint mRotation = 0;
-	GLint mPosRect = 0;
+	GLint mCoords = 0;
 	GLint mUVRect = 0;
+	GLint mMisc = 0;
 	GLint mTexture = 0;
 };
 
@@ -41,10 +42,11 @@ BitmapRenderer::Impl::Impl(Graphics& graphics)
 		const GlProgram& program = graphics.GetProgram(mProgramHandle);
 		mColor = program.GetUniformLocation("color");
 		mRotation = program.GetUniformLocation("rotation");
-		mPosRect = program.GetUniformLocation("posRect");
+		mCoords = program.GetUniformLocation("posRect");
 		mUVRect = program.GetUniformLocation("uvRect");
+		mMisc = program.GetUniformLocation("misc");
 		mTexture = program.GetUniformLocation("inputTexture");
-		mValidPrograms = (mColor != -1 && mPosRect != -1 && mUVRect != -1 && mTexture != -1);
+		mValidPrograms = (mColor != -1 && mCoords != -1 && mUVRect != -1 && mMisc != -1 && mTexture != -1);
 	}
 }
 
@@ -65,13 +67,14 @@ void BitmapRenderer::Impl::DrawBitmapEx(const Texture& bitmap, float x, float y,
 	const float pivot_y = rectHeight * prm.pivot.y;
 
 	const int uniforms[] = {
-		mPosRect, mUVRect, mColor, mRotation,
+		mCoords, mUVRect, mColor, mRotation, mMisc,
 	};
 	const float uniformData[][4] = {
 		{ x - pivot_x, y - pivot_y, rectWidth, rectHeight },
 		{ prm.texRect.left, prm.texRect.top, prm.texRect.right, prm.texRect.bottom },
 		{ prm.color.r / 255.f, prm.color.g / 255.f, prm.color.b / 255.f, prm.color.a / 255.f },
 		{ std::cos(prm.orientation), std::sin(prm.orientation), x, y },
+		{ prm.grayscale / 100.f, 0.f, 0.f, 0.f },
 	};
 
 	if (prm.blending) {
@@ -86,7 +89,7 @@ void BitmapRenderer::Impl::DrawBitmapEx(const Texture& bitmap, float x, float y,
 	DrawCall drawCall;
 	drawCall.uniformLocations = uniforms;
 	drawCall.uniforms = uniformData;
-	drawCall.numUniforms = sizeof(uniformData) / 16;
+	drawCall.numUniforms = std::size(uniforms);
 	drawCall.textures = textureIds;
 	drawCall.numTextures = 1;
 	drawCall.program = mProgramHandle;

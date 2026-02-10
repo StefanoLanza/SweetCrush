@@ -23,6 +23,7 @@ struct BitmapExtParams {
 	Rect     texRect = defaultTexCoord;
 	Color    color = whiteColor;
 	uint32_t drawOrder = 0;
+	float    grayscale = 0.f;
 	bool     blending = false;
 };
 
