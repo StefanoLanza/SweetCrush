@@ -20,16 +20,16 @@ const UITheme defaultTheme {
 		.scale = 1.f,
 	},
 	.bitmapStyle {},
-	.disabledButtonStyle {
-		.grayScale = 100.f,
+	.buttonStyle {
+		.idle {},
+		.disabled {
+			.grayScale = 100.f,
+		},
+		.hovered {},
+		.pressed {
+			.offset { 2.f, 2.f },
+		},
 	},
-	.idleButtonStyle {},
-	.pressedButtonStyle {
-	    .mIconStyle { .scale = 1.0f },
-	    .mLabelStyle { .scale = 1.0f },
-		.offset { 2.f, 2.f },
-	},
-	.hoveredButtonStyle {},
 };
 
 const UITheme* uiTheme = &defaultTheme;
@@ -79,7 +79,6 @@ UIButton::UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, s
     , mRect {}
     , mState { UIButtonState::idle }
     , mVisible { true }
-    , mToggled { mDesc.toggled }
     , mClicked { false } {
 }
 
@@ -110,6 +109,27 @@ void UIButton::SetVisible(bool visible) {
 
 bool UIButton::IsVisible() const {
 	return mVisible;
+}
+
+const UIButtonSubStyle* UIButton::GetStyle() const {
+	const UIButtonStyle*    style = &defaultTheme.buttonStyle;
+	const UIButtonSubStyle* subStyle = &style->idle;
+	switch (mState) {
+	case UIButtonState::disabled:
+		subStyle = &style->disabled;
+		break;
+	case UIButtonState::idle:
+		subStyle = &style->idle;
+		break;
+	case UIButtonState::pressed:
+		subStyle = &style->pressed;
+		break;
+	case UIButtonState::hovered:
+		subStyle = &style->hovered;
+		break;
+	};
+	assert(subStyle);
+	return subStyle;
 }
 
 UIButtonState UIButton::RefreshState(const Input& input) {
@@ -154,18 +174,7 @@ UIButtonState UIButton::RefreshState(const Input& input) {
 }
 
 bool UIButton::IsClicked() const {
-	assert(! mDesc.toggleMode);
 	return mClicked;
-}
-
-bool UIButton::IsToggled() const {
-	assert(mDesc.toggleMode);
-	return mToggled;
-}
-
-void UIButton::SetToggled(bool value) {
-	assert(mDesc.toggleMode);
-	mToggled = value;
 }
 
 void UIButton::LoadAssets(Graphics& graphics, FontManager& fontManager) {
@@ -185,23 +194,7 @@ void UIButton::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 		return;
 	}
 
-	const UIButtonStyle* style = nullptr;
-	switch (mState) {
-	case UIButtonState::disabled:
-		style = &defaultTheme.disabledButtonStyle;
-		break;
-	case UIButtonState::idle:
-		style = &defaultTheme.idleButtonStyle;
-		break;
-	case UIButtonState::pressed:
-		style = &defaultTheme.pressedButtonStyle;
-		break;
-	case UIButtonState::hovered:
-		style = &defaultTheme.hoveredButtonStyle;
-		break;
-	};
-	assert(style);
-
+	auto style = GetStyle();
 	if (mBackground) {
 		const UIDrawParams prm {
 			.color = mDesc.backgroundColor,
@@ -213,41 +206,17 @@ void UIButton::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 		renderer.DrawBitmap(mRect, *mBackground, prm);
 	}
 	if (mIcon) {
-		if ((mDesc.toggleMode == false) || (mDesc.toggleMode && mToggled)) {
-			mIcon->Draw(renderer, drawOrder + 1);
-		}
+		mIcon->Draw(renderer, drawOrder + 1);
 	}
 	if (mLabel) {
 		mLabel->Draw(renderer.GetTextRenderer(), drawOrder + 2); // text over bitmap
 	}
 }
 
-void UIButton::UpdateRect(const UIRect& parentRect) {
-	const UIButtonStyle* style = nullptr;
-	switch (mState) {
-	case UIButtonState::disabled:
-		style = &defaultTheme.disabledButtonStyle;
-		break;
-	case UIButtonState::idle:
-		style = &defaultTheme.idleButtonStyle;
-		break;
-	case UIButtonState::pressed:
-		style = &defaultTheme.pressedButtonStyle;
-		break;
-	case UIButtonState::hovered:
-		style = &defaultTheme.hoveredButtonStyle;
-		break;
-	};
-	assert(style);
-	if (mLabel) {
-		//FIXME mLabel->SetStyle(style->mLabelStyle);
-	}
-	if (mIcon) {
-		mIcon->SetStyle(style->mIconStyle);
-	}
-
+void UIButton::ComputeRect(const UIRect& parentRect) {
+	auto style = GetStyle();
 	mRect = AlignRect(mDesc.pos, mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
-	mRect = ScaleRect(mRect, mDesc.scale);
+	mRect = ScaleRect(mRect, style->scale);
 	mRect.pos = mRect.pos + style->offset;
 
 	UIRect paddedRect = AddPadding(mRect, mDesc.padding);
@@ -258,14 +227,6 @@ void UIButton::UpdateRect(const UIRect& parentRect) {
 	if (mLabel) {
 		mLabel->ComputeRect(paddedRect);
 	}
-}
-
-UIBitmap* UIButton::GetBitmap() const {
-	return mIcon.get();
-}
-
-UIText* UIButton::GetText() const {
-	return mLabel.get();
 }
 
 const UIRect& UIButton::GetRect() const {
@@ -290,17 +251,65 @@ bool UIButton::HandleInput(const Input& input) {
 	// TODO Make it configurable ?
 	bool clicked = (currState == UIButtonState::pressed) && (newState == UIButtonState::hovered);
 	mClicked = clicked;
-	if (mDesc.toggleMode && clicked) {
+	return (currState == UIButtonState::pressed);
+}
+
+UICheckBox::UICheckBox(const UICheckBoxDesc& desc, const UICheckBoxStyle* style)
+    : mDesc(desc)
+    , mStyle(style)
+    , mRect {}
+    , mVisible { true }
+    , mToggled { mDesc.toggled } {
+}
+
+void UICheckBox::SetVisible(bool visible) {
+	mVisible = visible;
+}
+
+bool UICheckBox::IsVisible() const {
+	return mVisible;
+}
+
+bool UICheckBox::IsChecked() const {
+	return mToggled;
+}
+
+void UICheckBox::SetChecked(bool value) {
+	mToggled = value;
+}
+
+void UICheckBox::ComputeRect(const UIRect& parentRect) {
+#if 0
+	auto style = GetStyle();
+	mRect = AlignRect(mDesc.pos, mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
+	mRect = ScaleRect(mRect, style->scale);
+	mRect.pos = mRect.pos + style->offset;
+#endif
+}
+
+bool UICheckBox::HandleInput(const Input& input) {
+	// TODO Make it configurable ?
+	bool clicked = false; //(currState == UIButtonState::pressed) && (newState == UIButtonState::hovered);
+	if (clicked) {
 		mToggled = ! mToggled;
 	}
-	return (currState == UIButtonState::pressed);
+	return true;
 }
 
 UIText::UIText(const UITextDesc& desc)
     : mDesc(desc)
     , mRect {}
     , mText {}
-    , mTextStyle { mDesc.style } {
+    , mTextStyle { mDesc.style }
+    , mVisible { true } {
+}
+
+void UIText::SetVisible(bool visible) {
+	mVisible = visible;
+}
+
+bool UIText::IsVisible() const {
+	return mVisible;
 }
 
 void UIText::Load(FontManager& fontManager) {
@@ -465,6 +474,33 @@ void UIContainer::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 	}
 }
 
+void UIContainer::UpdateLayout(const UIRect& parentRect) const {
+	// Update children
+	for (auto& panel : mPanels) {
+		if (panel->IsVisible()) {
+			panel->ComputeRect(parentRect);
+		}
+	}
+	for (auto& bitmap : mBitmaps) {
+		bitmap->ComputeRect(parentRect);
+	}
+	for (auto& button : mButtons) {
+		if (button->IsVisible()) {
+			button->ComputeRect(parentRect);
+		}
+	}
+	for (auto& text : mTexts) {
+		if (text->IsVisible()) {
+			text->ComputeRect(parentRect);
+		}
+	}
+	for (auto& checkBox : mCheckboxes) {
+		if (checkBox->IsVisible()) {
+			checkBox->ComputeRect(parentRect);
+		}
+	}
+}
+
 UIPanel::UIPanel(const UIPanelDesc& desc)
     : mDesc(desc)
     , mRect {}
@@ -539,24 +575,7 @@ void UIPanel::ComputeRect(const UIRect& parentRect) {
 	const UIRect rect = AlignRect(mDesc.pos, mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 	mRect = rect;
 	UIRect paddedRect = AddPadding(rect, mDesc.padding);
-
-	// Update children
-	for (auto& panel : mPanels) {
-		if (panel->IsVisible()) {
-			panel->ComputeRect(paddedRect);
-		}
-	}
-	for (auto& bitmap : mBitmaps) {
-		bitmap->ComputeRect(paddedRect);
-	}
-	for (auto& button : mButtons) {
-		if (button->IsVisible()) {
-			button->UpdateRect(paddedRect);
-		}
-	}
-	for (auto& text : mTexts) {
-		text->ComputeRect(paddedRect);
-	}
+	UpdateLayout(paddedRect);
 }
 
 UICanvas::UICanvas()
@@ -591,6 +610,10 @@ void UICanvas::AddBitmap(UIBitmap& bitmap) {
 
 void UICanvas::AddText(UIText& text) {
 	mPanel.AddText(text);
+}
+
+void UICanvas::Add(UICheckBox& button) {
+	// TODO mPanel.AddButton();
 }
 
 void UICanvas::Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder) {

@@ -21,16 +21,16 @@ constexpr UICanvasDesc canvasDesc {
 SettingsScreen::SettingsScreen(GameSettings& gameSettings)
     : mGameConfig(gameSettings)
     , mTitle { MakeTitleText(GameStringId::settings) }
-    , mMusicButton { MakeToggleButton(button0_y, GameStringId::music, button0_color) }
-    , mSfxButton { MakeToggleButton(button1_y, GameStringId::sfx, button1_color) }
+    , mMusicButton { MakeCheckBox(button0_y, GameStringId::music, button0_color) }
+    , mSfxButton { MakeCheckBox(button1_y, GameStringId::sfx, button1_color) }
     , mLanguageButton { MakeMenuButton(button2_y, GameStringId::languageScreen, button2_color) }
     , mBackButton { MakeBackButton() }
     , mCanvas(canvasDesc) {
 	// Build UI
 	mCanvas.AddText(mTitle);
 	mCanvas.AddButton(mLanguageButton);
-	mCanvas.AddButton(mMusicButton);
-	mCanvas.AddButton(mSfxButton);
+	mCanvas.Add(mMusicButton);
+	mCanvas.Add(mSfxButton);
 	mCanvas.AddButton(mBackButton);
 }
 
@@ -45,8 +45,8 @@ void SettingsScreen::LoadAssets(Engine& engine) {
 ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
 	mCanvas.HandleInput(input);
 
-	mGameConfig.musicOn = mMusicButton.IsToggled();
-	mGameConfig.sfxOn = mSfxButton.IsToggled();
+	mGameConfig.musicOn = mMusicButton.IsChecked();
+	mGameConfig.sfxOn = mSfxButton.IsChecked();
 
 	if (mLanguageButton.IsClicked()) {
 		SetNextLanguage();
@@ -68,8 +68,8 @@ void SettingsScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 }
 
 void SettingsScreen::Enter(const ScreenNavArgs& args) {
-	mMusicButton.SetToggled(mGameConfig.musicOn);
-	mSfxButton.SetToggled(mGameConfig.sfxOn);
+	mMusicButton.SetChecked(mGameConfig.musicOn);
+	mSfxButton.SetChecked(mGameConfig.sfxOn);
 }
 
 void SettingsScreen::Exit() {
@@ -80,5 +80,5 @@ void SettingsScreen::ParseConfig(const char* varName, const char* varValue) {
 
 void SettingsScreen::RefreshLanguageButton() {
 	GameStringId stringId = GameStringId::nextLanguage;
-	mLanguageButton.GetText()->SetText(static_cast<StringId>(stringId));
+	//TODO mLanguageButton.GetText()->SetText(static_cast<StringId>(stringId));
 }

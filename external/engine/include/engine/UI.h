@@ -6,6 +6,7 @@
 #include "TextRender.h"
 
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace Wind {
@@ -70,6 +71,11 @@ constexpr UIRect UIZeroRect { 0.f, 0.f, 0.f, 0.f };
 	float            margin = 0.f;                                   \
 	float            borderWidth = 0.f;
 
+#define UIBackgroundDesc                      \
+	const char* background = nullptr;         \
+	Color       backgroundColor = whiteColor; \
+	float       _9patch = 0.f; // pixels
+
 enum class UITextSizing {
 	fit,
 	stretch,
@@ -104,34 +110,19 @@ struct UIBitmapDesc {
 
 struct UIButtonDesc {
 	UIBaseDesc;
-	const char* background = nullptr;
-	Color       backgroundColor = whiteColor;
-	float       scale = 1.f;
-	float       _9patch = 0.f; // pixels
-	bool        keepPressedOutside = false;
-	bool        toggleMode = false;
-	bool        toggled = true;
+	UIBackgroundDesc;
+	bool keepPressedOutside = false;
+};
+
+struct UICheckBoxDesc {
+	UIBaseDesc;
+	UIBackgroundDesc;
+	bool toggled = true;
 };
 
 struct UIPanelDesc {
 	UIBaseDesc;
-	const char* background = nullptr;
-	Color       backgroundColor = whiteColor;
-	float       _9patch = 0.f; // pixels
-};
-
-struct UIGridDesc {
-	UIBaseDesc;
-	const char* background = nullptr;
-	Color       backgroundColor = whiteColor;
-	int         cols = 1;
-	int         rows = 1;
-};
-
-struct UIStackDesc {
-	UIBaseDesc;
-	const char* background = nullptr;
-	Color       backgroundColor = whiteColor;
+	UIBackgroundDesc;
 };
 
 struct UICanvasDesc {
@@ -146,10 +137,31 @@ struct UIBitmapStyle {
 	Vec2  scale = { 1.f, 1.f };
 };
 
+class UIContainer {
+public:
+	void AddPanel(UIPanel& panel);
+	void AddButton(UIButton& button);
+	void AddBitmap(UIBitmap& bitmap);
+	void AddText(UIText& text);
+	void Add(UICheckBox& checkBox);
+	void LoadAssets(Graphics& graphics, FontManager& fontManager);
+	void UpdateLayout(const UIRect& parentRect) const;
+
+protected:
+	// TODO Virtual ?
+	std::vector<UIPanel*>    mPanels;
+	std::vector<UIBitmap*>   mBitmaps;
+	std::vector<UIButton*>   mButtons;
+	std::vector<UIText*>     mTexts;
+	std::vector<UICheckBox*> mCheckboxes;
+};
+
 class UIText final {
 public:
 	explicit UIText(const UITextDesc& desc);
 
+	void             SetVisible(bool visible);
+	bool             IsVisible() const;
 	void             Load(FontManager& fontManager);
 	void             Draw(const UITextRenderer& textRenderer, unsigned drawOrder) const;
 	void             ComputeRect(const UIRect& parentRect);
@@ -167,6 +179,7 @@ private:
 	UIRect     mRect;
 	char       mText[32];
 	TextStyle  mTextStyle;
+	bool       mVisible;
 };
 
 class UIBitmap {
@@ -197,11 +210,17 @@ enum class UIButtonState {
 	pressed,
 };
 
+struct UIButtonSubStyle {
+	Vec2  offset { 0.f, 0.f };
+	float scale = 1.f;
+	float grayScale = 0.f;
+};
+
 struct UIButtonStyle {
-	UIBitmapStyle mIconStyle;
-	TextStyle     mLabelStyle;
-	Vec2          offset { 0.f, 0.f };
-	float         grayScale = 0.f;
+	UIButtonSubStyle idle;
+	UIButtonSubStyle disabled;
+	UIButtonSubStyle hovered;
+	UIButtonSubStyle pressed;
 };
 
 class UIButton final {
@@ -215,13 +234,9 @@ public:
 	void                SetVisible(bool visible);
 	bool                IsVisible() const;
 	bool                IsClicked() const;
-	bool                IsToggled() const;
-	void                SetToggled(bool value);
 	void                LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void                Draw(const UIRenderer& renderer, unsigned drawOrder) const;
-	void                UpdateRect(const UIRect& parentRect);
-	UIBitmap*           GetBitmap() const;
-	UIText*             GetText() const;
+	void                ComputeRect(const UIRect& parentRect);
 	const UIRect&       GetRect() const;
 	UIButtonState       GetState() const;
 	const UIButtonDesc& GetDesc() const;
@@ -230,7 +245,8 @@ public:
 
 private:
 	UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text);
-	UIButtonState RefreshState(const Input& input);
+	UIButtonState           RefreshState(const Input& input);
+	const UIButtonSubStyle* GetStyle() const;
 
 private:
 	UIButtonDesc              mDesc;
@@ -240,23 +256,39 @@ private:
 	UIRect                    mRect;
 	UIButtonState             mState;
 	bool                      mVisible;
-	bool                      mToggled;
 	bool                      mClicked;
 };
 
-class UIContainer {
-public:
-	void AddPanel(UIPanel& panel);
-	void AddButton(UIButton& button);
-	void AddBitmap(UIBitmap& bitmap);
-	void AddText(UIText& text);
-	void LoadAssets(Graphics& graphics, FontManager& fontManager);
+struct UICheckBoxStyle {
+	Vec2  offset { 0.f, 0.f };
+	float grayScale = 0.f;
+};
 
-protected:
-	std::vector<UIPanel*>  mPanels;
-	std::vector<UIBitmap*> mBitmaps;
-	std::vector<UIButton*> mButtons;
-	std::vector<UIText*>   mTexts;
+class UICheckBox final : public UIContainer {
+public:
+	explicit UICheckBox(const UICheckBoxDesc& desc, const UICheckBoxStyle* style);
+
+	void          SetEnabled(bool enabled);
+	void          SetVisible(bool visible);
+	bool          IsVisible() const;
+	bool          IsChecked() const;
+	void          SetChecked(bool value);
+	void          LoadAssets(Graphics& graphics, FontManager& fontManager);
+	void          Draw(const UIRenderer& renderer, unsigned drawOrder) const;
+	void          ComputeRect(const UIRect& parentRect);
+	const UIRect& GetRect() const;
+	bool          HandleInput(const Input& input);
+
+private:
+	void RefreshState(const Input& input);
+
+private:
+	UICheckBoxDesc         mDesc;
+	const UICheckBoxStyle* mStyle;
+	TexturePtr             mBackground;
+	UIRect                 mRect;
+	bool                   mVisible;
+	bool                   mToggled;
 };
 
 class UIPanel final : public UIContainer {
@@ -288,6 +320,7 @@ public:
 	void AddButton(UIButton& button);
 	void AddBitmap(UIBitmap& bitmap);
 	void AddText(UIText& text);
+	void Add(UICheckBox& checkBox);
 	void LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder);
 	void HandleInput(const Input& input) const;
@@ -308,10 +341,7 @@ private:
 struct UITheme {
 	TextStyle     textStyle;
 	UIBitmapStyle bitmapStyle;
-	UIButtonStyle disabledButtonStyle;
-	UIButtonStyle idleButtonStyle;
-	UIButtonStyle pressedButtonStyle;
-	UIButtonStyle hoveredButtonStyle;
+	UIButtonStyle buttonStyle;
 };
 
 void SetTheme(const UITheme* theme);

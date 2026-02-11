@@ -26,6 +26,7 @@ class UICanvas;
 class UIPanel;
 class UIBitmap;
 class UIText;
+class UICheckBox;
 class UIRenderer;
 class FontManager;
 using TexturePtr = std::shared_ptr<Texture>;

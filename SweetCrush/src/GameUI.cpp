@@ -187,22 +187,22 @@ Wind::UIButton MakeCloseButton() {
 	return Wind::UIButton { buttonDesc }; //, /*iconDesc,*/ labelDesc };
 }
 
-Wind::UIButton MakeToggleButton(float y, Wind::StringId label, const Color& color) {
-	UIButtonDesc buttonDesc = {
+Wind::UICheckBox MakeCheckBox(float y, Wind::StringId label, const Color& color) {
+	UICheckBoxDesc buttonDesc = {
 		.pos = UIAbsolutePos(0, y),
 		.size = UIAbsoluteSize(520.f, 100.f),
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::top,
+		.padding = 48.f,
 		.background = "UI/button.png",
 		.backgroundColor = color,
 		._9patch = 16.f,
-		.toggleMode = true,
 		.toggled = true,
 	};
-	const float        padding = 48.f;
+#if 0
 	const UIBitmapDesc iconDesc {
 		.fileName = "icons/check.png",
-		.pos = UIAbsolutePos(-padding, 0.f),
+		.pos = UIAbsolutePos(0.f, 0.f),
 		.size = UIAbsoluteSize(48, 48),
 		.horizontalAlignment = UIHorizAlignment::right,
 		.verticalAlignment = UIVertAlignment::center,
@@ -210,13 +210,14 @@ Wind::UIButton MakeToggleButton(float y, Wind::StringId label, const Color& colo
 		.color = greenColor,
 	};
 	const UITextDesc labelDesc {
-		.pos = { padding, 0.f },
+		.pos = { 0.f, 0.f },
 		.horizontalAlignment = UIHorizAlignment::left,
 		.verticalAlignment = UIVertAlignment::center,
 		.font = "mediumFont",
 		.stringId = label,
 	};
-	return Wind::UIButton { buttonDesc, iconDesc, labelDesc };
+#endif
+	return Wind::UICheckBox { buttonDesc, nullptr }; //iconDesc, labelDesc };
 }
 
 Wind::UICanvas MakeCanvas() {

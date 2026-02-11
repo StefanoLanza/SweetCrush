@@ -22,11 +22,11 @@ private:
 	void RefreshLanguageButton();
 
 private:
-	GameSettings&  mGameConfig;
-	Wind::UIText   mTitle;
-	Wind::UIButton mMusicButton;
-	Wind::UIButton mSfxButton;
-	Wind::UIButton mLanguageButton;
-	Wind::UIButton mBackButton;
-	Wind::UICanvas mCanvas;
+	GameSettings&    mGameConfig;
+	Wind::UIText     mTitle;
+	Wind::UICheckBox mMusicButton;
+	Wind::UICheckBox mSfxButton;
+	Wind::UIButton   mLanguageButton;
+	Wind::UIButton   mBackButton;
+	Wind::UICanvas   mCanvas;
 };
