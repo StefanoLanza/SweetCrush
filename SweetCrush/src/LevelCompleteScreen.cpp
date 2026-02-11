@@ -28,9 +28,9 @@ LevelCompleteScreen::LevelCompleteScreen(MatchStats& matchStats)
     , mNextLevelButton { MakeMenuButton(button2_y, GameStringId::nextLevel) }
     , mCanvas(canvasDesc) {
 	// Setup UI
-	mCanvas.AddText(mTitle);
-	mCanvas.AddText(mSubTitle);
-	mCanvas.AddButton(mNextLevelButton);
+	mCanvas.Add(mTitle);
+	mCanvas.Add(mSubTitle);
+	mCanvas.Add(mNextLevelButton);
 }
 
 const char* LevelCompleteScreen::GetName() const {

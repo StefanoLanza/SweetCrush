@@ -27,11 +27,11 @@ SettingsScreen::SettingsScreen(GameSettings& gameSettings)
     , mBackButton { MakeBackButton() }
     , mCanvas(canvasDesc) {
 	// Build UI
-	mCanvas.AddText(mTitle);
-	mCanvas.AddButton(mLanguageButton);
-	mCanvas.Add(mMusicButton);
-	mCanvas.Add(mSfxButton);
-	mCanvas.AddButton(mBackButton);
+	mCanvas.Add(mTitle);
+	mCanvas.Add(mLanguageButton);
+	// TODO mCanvas.Add(mMusicButton);
+	// TODO mCanvas.Add(mSfxButton);
+	mCanvas.Add(mBackButton);
 }
 
 const char* SettingsScreen::GetName() const {

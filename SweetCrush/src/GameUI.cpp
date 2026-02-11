@@ -13,6 +13,13 @@ const UIBitmapDesc buttonBitmapDesc {
 	.color = { 131.f, 255.f, 255.f, 255.f },
 };
 
+const Wind::UIBitmapDesc noIconDesc {};
+
+const UITextDesc noLabelDesc {
+	.stringId = GameStringId::empty,
+	//.visible = false, // TODO
+};
+
 constexpr TextStyle titleTextStyle {
 	.color = yellowColor,
 	.outlineColor = blackColor,
@@ -131,12 +138,10 @@ Wind::UIButton MakeMenuButton(float y, Wind::StringId label, const Color& color)
 		.backgroundColor = color,
 		._9patch = 16.f,
 	};
-	/*	const UIBitmapDesc iconDesc {
-	        .fileName = "button.png",
-	        .pos = UIZeroPos,
-	        .size = UIParentSize,
-	        .color = { 131.f, 255.f, 255.f, 255.f },
-	    };*/
+	const UIBitmapDesc iconDesc {
+		.pos = UIZeroPos, .size = UIParentSize, .color = { 131.f, 255.f, 255.f, 255.f },
+		//.visible = false, // TODO
+	};
 	const UITextDesc labelDesc {
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::center,
@@ -145,19 +150,7 @@ Wind::UIButton MakeMenuButton(float y, Wind::StringId label, const Color& color)
 		.style = defaultTextStyle,
 #endif
 	};
-	return Wind::UIButton { buttonDesc, /*iconDesc,*/ labelDesc };
-}
-
-Wind::UIButton MakeQuitButton() {
-	UIButtonDesc buttonDesc = {
-		.pos = UIAbsolutePos(32, -32),
-		.size = UIAbsoluteSize(96, 96),
-		.horizontalAlignment = UIHorizAlignment::left,
-		.verticalAlignment = UIVertAlignment::bottom,
-		.background = "icons/X.png",
-		.backgroundColor = redColor, //{ 131.f, 255.f, 255.f, 255.f },
-	};
-	return Wind::UIButton { buttonDesc }; //, /*iconDesc,*/ labelDesc };
+	return Wind::UIButton { buttonDesc, iconDesc, labelDesc };
 }
 
 Wind::UIButton MakeBackButton() {
@@ -176,7 +169,7 @@ Wind::UIButton MakeBackButton() {
 }
 
 Wind::UIButton MakeCloseButton() {
-	UIButtonDesc buttonDesc = {
+	const UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(-32, 32),
 		.size = UIAbsoluteSize(48, 48),
 		.horizontalAlignment = UIHorizAlignment::right,
@@ -184,7 +177,24 @@ Wind::UIButton MakeCloseButton() {
 		.background = "icons/X.png",
 		.backgroundColor = whiteColor, //{ 131.f, 255.f, 255.f, 255.f },
 	};
-	return Wind::UIButton { buttonDesc }; //, /*iconDesc,*/ labelDesc };
+	const UIBitmapDesc iconDesc {
+		.fileName = "icons/check.png",
+		.pos = UIAbsolutePos(0.f, 0.f),
+		.size = UIAbsoluteSize(48, 48),
+		.horizontalAlignment = UIHorizAlignment::right,
+		.verticalAlignment = UIVertAlignment::center,
+		.sizing = UIBitmapSizing::user,
+		.color = greenColor,
+	};
+	const UITextDesc labelDesc {
+		.pos = { 0.f, 0.f },
+		.horizontalAlignment = UIHorizAlignment::left,
+		.verticalAlignment = UIVertAlignment::center,
+		.font = "mediumFont",
+		.stringId = GameStringId::empty,
+		//.visible = false, // TODO
+	};
+	return Wind::UIButton { buttonDesc, iconDesc, labelDesc };
 }
 
 Wind::UICheckBox MakeCheckBox(float y, Wind::StringId label, const Color& color) {
@@ -217,7 +227,7 @@ Wind::UICheckBox MakeCheckBox(float y, Wind::StringId label, const Color& color)
 		.stringId = label,
 	};
 #endif
-	return Wind::UICheckBox { buttonDesc, nullptr }; //iconDesc, labelDesc };
+	return Wind::UICheckBox { buttonDesc, nullptr }; // iconDesc, labelDesc };
 }
 
 Wind::UICanvas MakeCanvas() {

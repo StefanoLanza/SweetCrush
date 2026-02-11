@@ -139,10 +139,10 @@ struct UIBitmapStyle {
 
 class UIContainer {
 public:
-	void AddPanel(UIPanel& panel);
-	void AddButton(UIButton& button);
-	void AddBitmap(UIBitmap& bitmap);
-	void AddText(UIText& text);
+	void Add(UIPanel& panel);
+	void Add(UIButton& button);
+	void Add(UIBitmap& bitmap);
+	void Add(UIText& text);
 	void Add(UICheckBox& checkBox);
 	void LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void UpdateLayout(const UIRect& parentRect) const;
@@ -316,10 +316,10 @@ public:
 	UICanvas();
 	explicit UICanvas(const UICanvasDesc& desc);
 
-	void AddPanel(UIPanel& panel);
-	void AddButton(UIButton& button);
-	void AddBitmap(UIBitmap& bitmap);
-	void AddText(UIText& text);
+	void Add(UIPanel& panel);
+	void Add(UIButton& button);
+	void Add(UIBitmap& bitmap);
+	void Add(UIText& text);
 	void Add(UICheckBox& checkBox);
 	void LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder);

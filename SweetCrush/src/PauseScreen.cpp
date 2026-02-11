@@ -36,11 +36,11 @@ PauseScreen::PauseScreen()
 //    , mCloseButton { MakeCloseButton() }
     , mPanel { panelDesc }
     , mCanvas(canvasDesc) {
-	mCanvas.AddPanel(mPanel);
-	mPanel.AddButton(mCloseButton);
-	mPanel.AddButton(mRestartLevelButton);
-	// mPanel.AddButton(mSettingsButton);
-	mPanel.AddButton(mEndGameButton);
+	mCanvas.Add(mPanel);
+	mPanel.Add(mCloseButton);
+	mPanel.Add(mRestartLevelButton);
+	// mPanel.Add(mSettingsButton.GetPanel());
+	mPanel.Add(mEndGameButton);
 }
 
 const char* PauseScreen::GetName() const {
@@ -62,7 +62,7 @@ ScreenEvent PauseScreen::Tick(float /*dt*/, const Wind::Input& input) {
 		return GoBack(false);
 	}
 	if (mEndGameButton.IsClicked()) {
-		return GoTo(GameScreenIds::mainMenu);
+		return GoTo(GameScreenIds::mainMenu, ScreenTransition::slideBottom);
 	}
 	else if (mRestartLevelButton.IsClicked()) {
 		return GoBack(true);

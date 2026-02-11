@@ -23,8 +23,8 @@ IntroScreen::IntroScreen(Engine& engine, const GameRenderer& gameRenderer)
     , mCanvas { MakeCanvas() }
     , mAccumTime(0) {
 	// Setup UI
-	mCanvas.AddText(mTitle);
-	mCanvas.AddText(mTapText);
+	mCanvas.Add(mTitle);
+	mCanvas.Add(mTapText);
 }
 
 const char* IntroScreen::GetName() const {

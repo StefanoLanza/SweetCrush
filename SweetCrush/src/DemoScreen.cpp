@@ -32,7 +32,7 @@ DemoScreen::DemoScreen(Engine& engine, const GameRenderer& gameRenderer)
     , mCanvas(canvasDesc)
     , mAccumTime(0) {
 	// Setup UI
-	mCanvas.AddText(mTitle);
+	mCanvas.Add(mTitle);
 }
 
 const char* DemoScreen::GetName() const {

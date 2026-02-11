@@ -1,9 +1,9 @@
 #include "EffectInfoPanel.h"
 #include "AssetDefs.h"
 #include "GameDrawOrder.h"
+#include "GameUI.h"
 #include "Localization.h"
 #include "ScreenIds.h"
-#include "GameUI.h"
 
 #include <engine/Engine.h>
 #include <engine/Input.h>
@@ -21,15 +21,15 @@ const UIButtonDesc buttonDesc {
 
 const UITextDesc textDesc[] {
 	{
-		.pos = { 0, 60 },
+	    .pos = { 0, 60 },
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "mediumFont",
 	    .stringId = GameStringId::empty,
-		.style = titleTextStyle,
+	    .style = titleTextStyle,
 	},
 	{
-		.pos = { 0.f, 160.f },
+	    .pos = { 0.f, 160.f },
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "smallFont",
@@ -70,10 +70,10 @@ EffectInfoScreen::EffectInfoScreen()
 		b = true;
 	}
 
-	mPanel.AddBitmap(mEffectIcon);
-	mPanel.AddButton(mOKButton);
-	mPanel.AddText(mTitle);
-	mPanel.AddText(mText);
+	mPanel.Add(mEffectIcon);
+	mPanel.Add(mOKButton);
+	mPanel.Add(mTitle);
+	mPanel.Add(mText);
 }
 
 void EffectInfoScreen::LoadAssets(Engine& engine) {
@@ -99,7 +99,7 @@ ScreenEvent EffectInfoScreen::Tick(float dt, const Input& input) {
 }
 
 void EffectInfoScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
-	mPanel.Draw(uiRenderer, 0); // TODO Rect
+	//FIXME mPanel.Draw(uiRenderer, 0); // TODO Rect
 }
 
 void EffectInfoScreen::Enter(const ScreenNavArgs& args) {

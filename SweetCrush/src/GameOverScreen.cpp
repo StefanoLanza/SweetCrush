@@ -30,11 +30,11 @@ GameOverScreen::GameOverScreen(MatchStats& matchStats)
     , mText0 { MakeDynScreenText(text0_y) }
     , mText1 { MakeDynScreenText(text1_y) }
     , mCanvas(canvasDesc) {
-	mCanvas.AddText(mTitle);
-	mCanvas.AddText(mText0);
-	mCanvas.AddText(mText1);
-	mCanvas.AddButton(mReplayLevelButton);
-	mCanvas.AddButton(mContinueButton);
+	mCanvas.Add(mTitle);
+	mCanvas.Add(mText0);
+	mCanvas.Add(mText1);
+	mCanvas.Add(mReplayLevelButton);
+	mCanvas.Add(mContinueButton);
 }
 
 const char* GameOverScreen::GetName() const {

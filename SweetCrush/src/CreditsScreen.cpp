@@ -36,13 +36,13 @@ CreditsScreen::CreditsScreen()
     , mBackButton { MakeBackButton() }
     , mCanvas(canvasDesc)
     , mPanel(panelDesc) {
-	mCanvas.AddText(mTitle);
-	mCanvas.AddPanel(mPanel);
-	mPanel.AddText(mCodeBy);
-	mPanel.AddText(mGraphicsBy);
-	mPanel.AddText(mMusicBy);
-	mPanel.AddText(mVersion);
-	mCanvas.AddButton(mBackButton);
+	mCanvas.Add(mTitle);
+	mCanvas.Add(mPanel);
+	mPanel.Add(mCodeBy);
+	mPanel.Add(mGraphicsBy);
+	mPanel.Add(mMusicBy);
+	mPanel.Add(mVersion);
+	mCanvas.Add(mBackButton);
 }
 
 const char* CreditsScreen::GetName() const {

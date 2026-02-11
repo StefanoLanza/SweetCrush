@@ -47,11 +47,11 @@ LevelStartScreen::LevelStartScreen(const MatchStats& matchStats, const GameDataM
     , mGoalText { MakeScreenText(GameStringId::goal, 40.f) }
     , mGoalDesc { MakeDynScreenText(100.f) } {
 	// Setup UI
-	mCanvas.AddText(mTitle);
-	mCanvas.AddButton(mPlayButton);
-	mCanvas.AddPanel(mPanel);
-	mPanel.AddText(mGoalText);
-	mPanel.AddText(mGoalDesc);
+	mCanvas.Add(mTitle);
+	mCanvas.Add(mPlayButton);
+	mCanvas.Add(mPanel);
+	mPanel.Add(mGoalText);
+	mPanel.Add(mGoalDesc);
 }
 
 const char* LevelStartScreen::GetName() const {

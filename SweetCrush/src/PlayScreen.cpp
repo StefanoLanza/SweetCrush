@@ -42,7 +42,7 @@ UIButton MakeBoosterButton(float x) {
 		.backgroundColor = button2_color,
 		._9patch = 16.f,
 	};
-	return UIButton { desc };
+	return UIButton { desc, noIconDesc, noLabelDesc };
 }
 
 const UIButtonDesc pauseButtonDesc {
@@ -106,7 +106,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
     , mBoostersPanel(boosterPanelDesc)
     , mScoreText(scoreTextDesc)
     , mTimeText(timeTextDesc)
-    , mPauseButton(pauseButtonDesc, pauseButtonBitmapDesc)
+    , mPauseButton(pauseButtonDesc, pauseButtonBitmapDesc, noLabelDesc)
     , mBoosterButtons { MakeBoosterButton(-110.f), MakeBoosterButton(0.f), MakeBoosterButton(110.f) }
     , mMatch3 { mBoard, mBoardGenerator, *mCellSelector }
     , mTime { 0.f }
@@ -115,13 +115,13 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
 	mMatch3.SetCallback([this](const Match3Event& event) { OnMatch3Event(event); });
 	mCellGraphics.resize(NumCols * NumRows);
 	// Build UI
-	mCanvas.AddPanel(mBoostersPanel);
-	mCanvas.AddButton(mPauseButton);
-	mCanvas.AddText(mScoreText);
-	mCanvas.AddText(mTimeText);
-	mBoostersPanel.AddButton(mBoosterButtons[0]); // TODO GridLayout
-	mBoostersPanel.AddButton(mBoosterButtons[1]);
-	mBoostersPanel.AddButton(mBoosterButtons[2]);
+	mCanvas.Add(mBoostersPanel);
+	mCanvas.Add(mPauseButton);
+	mCanvas.Add(mScoreText);
+	mCanvas.Add(mTimeText);
+	mBoostersPanel.Add(mBoosterButtons[0]); // TODO GridLayout
+	mBoostersPanel.Add(mBoosterButtons[1]);
+	mBoostersPanel.Add(mBoosterButtons[2]);
 }
 
 PlayScreen::~PlayScreen() = default;

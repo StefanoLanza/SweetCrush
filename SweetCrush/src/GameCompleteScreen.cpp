@@ -29,8 +29,8 @@ GameCompleteScreen::GameCompleteScreen(const MatchStats& matchStats)
     , mTitle { MakeTitleText(GameStringId::gameComplete) }
     , mContinueButton { MakeMenuButton(680.f, GameStringId::continueGame) }
     , mCanvas(canvasDesc) {
-	mCanvas.AddText(mTitle);
-	mCanvas.AddButton(mContinueButton);
+	mCanvas.Add(mTitle);
+	mCanvas.Add(mContinueButton);
 }
 
 const char* GameCompleteScreen::GetName() const {

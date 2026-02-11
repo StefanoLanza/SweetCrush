@@ -313,7 +313,12 @@ bool UIText::IsVisible() const {
 }
 
 void UIText::Load(FontManager& fontManager) {
-	mFont = fontManager.AddFont(mDesc.font);
+	if (mDesc.font) {
+		mFont = fontManager.AddFont(mDesc.font);
+	}
+	else {
+		mFont.reset();
+	}
 }
 
 void UIText::Draw(const UITextRenderer& textRenderer, unsigned drawOrder) const {
@@ -379,7 +384,12 @@ UIBitmap::UIBitmap(const UIBitmapDesc& desc, const UIBitmapStyle& style)
 }
 
 void UIBitmap::LoadGraphics(Graphics& graphics) {
-	mBitmap = graphics.LoadTexture(mDesc.fileName);
+	if (mDesc.fileName) {
+		mBitmap = graphics.LoadTexture(mDesc.fileName);
+	}
+	else {
+		mBitmap.reset();
+	}
 }
 
 void UIBitmap::SetPosition(const Vec2& pos) {
@@ -443,19 +453,19 @@ void UIBitmap::SetStyle(const UIBitmapStyle& style) {
 	mStyle = style;
 }
 
-void UIContainer::AddPanel(UIPanel& panel) {
+void UIContainer::Add(UIPanel& panel) {
 	mPanels.push_back(&panel);
 }
 
-void UIContainer::AddButton(UIButton& button) {
+void UIContainer::Add(UIButton& button) {
 	mButtons.push_back(&button);
 }
 
-void UIContainer::AddBitmap(UIBitmap& bitmap) {
+void UIContainer::Add(UIBitmap& bitmap) {
 	mBitmaps.push_back(&bitmap);
 }
 
-void UIContainer::AddText(UIText& text) {
+void UIContainer::Add(UIText& text) {
 	mTexts.push_back(&text);
 }
 
@@ -596,24 +606,24 @@ void UICanvas::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 	mPanel.LoadAssets(graphics, fontManager);
 }
 
-void UICanvas::AddPanel(UIPanel& panel) {
-	mPanel.AddPanel(panel);
+void UICanvas::Add(UIPanel& panel) {
+	mPanel.Add(panel);
 }
 
-void UICanvas::AddButton(UIButton& button) {
-	mPanel.AddButton(button);
+void UICanvas::Add(UIButton& button) {
+	mPanel.Add(button);
 }
 
-void UICanvas::AddBitmap(UIBitmap& bitmap) {
-	mPanel.AddBitmap(bitmap);
+void UICanvas::Add(UIBitmap& bitmap) {
+	mPanel.Add(bitmap);
 }
 
-void UICanvas::AddText(UIText& text) {
-	mPanel.AddText(text);
+void UICanvas::Add(UIText& text) {
+	mPanel.Add(text);
 }
 
 void UICanvas::Add(UICheckBox& button) {
-	// TODO mPanel.AddButton();
+	// TODO mPanel.Add();
 }
 
 void UICanvas::Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder) {
