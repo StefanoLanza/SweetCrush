@@ -182,10 +182,10 @@ void UIButton::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 		mBackground = graphics.LoadTexture(mDesc.background);
 	}
 	if (mIcon) {
-		mIcon->LoadGraphics(graphics);
+		mIcon->LoadAssets(graphics, fontManager);
 	}
 	if (mLabel) {
-		mLabel->Load(fontManager);
+		mLabel->LoadAssets(graphics, fontManager);
 	}
 }
 
@@ -209,7 +209,7 @@ void UIButton::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 		mIcon->Draw(renderer, drawOrder + 1);
 	}
 	if (mLabel) {
-		mLabel->Draw(renderer.GetTextRenderer(), drawOrder + 2); // text over bitmap
+		mLabel->Draw(renderer, drawOrder + 2); // text over bitmap
 	}
 }
 
@@ -278,6 +278,12 @@ void UICheckBox::SetChecked(bool value) {
 	mToggled = value;
 }
 
+void UICheckBox::LoadAssets(Graphics& graphics, FontManager& fontManager) {
+}
+
+void UICheckBox::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
+}
+
 void UICheckBox::ComputeRect(const UIRect& parentRect) {
 #if 0
 	auto style = GetStyle();
@@ -312,7 +318,7 @@ bool UIText::IsVisible() const {
 	return mVisible;
 }
 
-void UIText::Load(FontManager& fontManager) {
+void UIText::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 	if (mDesc.font) {
 		mFont = fontManager.AddFont(mDesc.font);
 	}
@@ -321,11 +327,11 @@ void UIText::Load(FontManager& fontManager) {
 	}
 }
 
-void UIText::Draw(const UITextRenderer& textRenderer, unsigned drawOrder) const {
+void UIText::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	if (mFont) {
 		const char* str = Text();
 		if (str) {
-			textRenderer.Write(*mFont, str, mRect.pos, mTextStyle, TextDirection::leftToRight, drawOrder);
+			renderer.GetTextRenderer().Write(*mFont, str, mRect.pos, mTextStyle, TextDirection::leftToRight, drawOrder);
 		}
 	}
 }
@@ -380,10 +386,19 @@ const char* UIText::Text() const {
 UIBitmap::UIBitmap(const UIBitmapDesc& desc, const UIBitmapStyle& style)
     : mDesc { desc }
     , mStyle { style }
-    , mRect {} {
+    , mRect {}
+    , mVisible { true } {
 }
 
-void UIBitmap::LoadGraphics(Graphics& graphics) {
+void UIBitmap::SetVisible(bool visible) {
+	mVisible = visible;
+}
+
+bool UIBitmap::IsVisible() const {
+	return mVisible;
+}
+
+void UIBitmap::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 	if (mDesc.fileName) {
 		mBitmap = graphics.LoadTexture(mDesc.fileName);
 	}
@@ -453,68 +468,62 @@ void UIBitmap::SetStyle(const UIBitmapStyle& style) {
 	mStyle = style;
 }
 
-void UIContainer::Add(UIPanel& panel) {
-	mPanels.push_back(&panel);
-}
 
-void UIContainer::Add(UIButton& button) {
-	mButtons.push_back(&button);
-}
-
-void UIContainer::Add(UIBitmap& bitmap) {
-	mBitmaps.push_back(&bitmap);
-}
-
-void UIContainer::Add(UIText& text) {
-	mTexts.push_back(&text);
-}
-
-void UIContainer::LoadAssets(Graphics& graphics, FontManager& fontManager) {
-	for (auto& panel : mPanels) {
-		panel->LoadAssets(graphics, fontManager);
+void UIPanel::LoadAssets(Graphics& graphics, FontManager& fontManager) {
+	if (mDesc.background) {
+		mBackground = graphics.LoadTexture(mDesc.background);
 	}
-	for (auto& bitmap : mBitmaps) {
-		bitmap->LoadGraphics(graphics);
-	}
-	for (auto& button : mButtons) {
-		button->LoadAssets(graphics, fontManager);
-	}
-	for (auto& text : mTexts) {
-		text->Load(fontManager);
-	}
-}
 
-void UIContainer::UpdateLayout(const UIRect& parentRect) const {
-	// Update children
-	for (auto& panel : mPanels) {
-		if (panel->IsVisible()) {
-			panel->ComputeRect(parentRect);
+#define Dispatch(Type)                                \
+	{                                                 \
+		auto control = static_cast<Type*>(child.ptr); \
+		control->LoadAssets(graphics, fontManager);   \
+	}
+
+	for (const auto& child : mChildren) {
+		switch (child.type) {
+		case UIControlType::Panel:
+			Dispatch(UIPanel);
+			break;
+		case UIControlType::Bitmap:
+			Dispatch(UIBitmap);
+			break;
+		case UIControlType::Text:
+			Dispatch(UIText);
+			break;
+		case UIControlType::Button:
+			Dispatch(UIButton);
+			break;
+		case UIControlType::Checkbox:
+			Dispatch(UICheckBox);
+			break;
+		default:
+			break;
 		}
 	}
-	for (auto& bitmap : mBitmaps) {
-		bitmap->ComputeRect(parentRect);
-	}
-	for (auto& button : mButtons) {
-		if (button->IsVisible()) {
-			button->ComputeRect(parentRect);
-		}
-	}
-	for (auto& text : mTexts) {
-		if (text->IsVisible()) {
-			text->ComputeRect(parentRect);
-		}
-	}
-	for (auto& checkBox : mCheckboxes) {
-		if (checkBox->IsVisible()) {
-			checkBox->ComputeRect(parentRect);
-		}
-	}
+#undef Dispatch
 }
 
 UIPanel::UIPanel(const UIPanelDesc& desc)
     : mDesc(desc)
     , mRect {}
     , mVisible(true) {
+}
+
+void UIPanel::Add(UIPanel& panel) {
+	mChildren.push_back({ &panel, UIControlType::Panel });
+}
+
+void UIPanel::Add(UIButton& button) {
+	mChildren.push_back({ &button, UIControlType::Button });
+}
+
+void UIPanel::Add(UIBitmap& bitmap) {
+	mChildren.push_back({ &bitmap, UIControlType::Bitmap });
+}
+
+void UIPanel::Add(UIText& text) {
+	mChildren.push_back({ &text, UIControlType::Text });
 }
 
 void UIPanel::SetVisible(bool visible) {
@@ -527,13 +536,6 @@ bool UIPanel::IsVisible() const {
 
 const UIRect& UIPanel::Rect() const {
 	return mRect;
-}
-
-void UIPanel::LoadAssets(Graphics& graphics, FontManager& fontManager) {
-	if (mDesc.background) {
-		mBackground = graphics.LoadTexture(mDesc.background);
-	}
-	UIContainer::LoadAssets(graphics, fontManager);
 }
 
 void UIPanel::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
@@ -551,33 +553,69 @@ void UIPanel::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	else {
 		renderer.DrawSolidRect(mRect, mDesc.backgroundColor, UIBlendMode::Off);
 	}
-	for (const auto& bitmap : mBitmaps) {
-		bitmap->Draw(renderer, drawOrder + 1);
+
+#define Dispatch(Type)                                \
+	{                                                 \
+		auto control = static_cast<Type*>(child.ptr); \
+		if (control->IsVisible()) {                   \
+			control->Draw(renderer, drawOrder + 1);   \
+		}                                             \
 	}
-	for (const auto& panel : mPanels) {
-		panel->Draw(renderer, drawOrder + 2);
+
+	for (const auto& child : mChildren) {
+		switch (child.type) {
+		case UIControlType::Panel:
+			Dispatch(UIPanel);
+			break;
+		case UIControlType::Bitmap:
+			Dispatch(UIBitmap);
+			break;
+		case UIControlType::Text:
+			Dispatch(UIText);
+			break;
+		case UIControlType::Button:
+			Dispatch(UIButton);
+			break;
+		case UIControlType::Checkbox:
+			Dispatch(UICheckBox);
+			break;
+		default:
+			break;
+		}
 	}
-	for (const auto& button : mButtons) {
-		button->Draw(renderer, drawOrder + 3);
-	}
-	for (const auto& text : mTexts) {
-		text->Draw(renderer.GetTextRenderer(), drawOrder + 4);
-	}
+#undef Dispatch
 }
 
 bool UIPanel::HandleInput(const Input& input) const {
-	// TODO Priorities?
+#define Dispatch(Type)                                \
+	{                                                 \
+		auto control = static_cast<Type*>(child.ptr); \
+		if (control->IsVisible() && ! handled) {      \
+			handled = control->HandleInput(input);    \
+		}                                             \
+	}
+
 	bool handled = false;
-	for (auto& panel : mPanels) {
-		if (panel->IsVisible() && ! handled) {
-			handled = panel->HandleInput(input);
+	for (const auto& child : mChildren) {
+		switch (child.type) {
+		case UIControlType::Panel:
+			Dispatch(UIPanel);
+			break;
+		case UIControlType::Bitmap:
+			break;
+		case UIControlType::Text:
+			break;
+		case UIControlType::Button:
+			Dispatch(UIButton);
+			break;
+		case UIControlType::Checkbox:
+			Dispatch(UICheckBox);
+			break;
+		default:
+			break;
 		}
 	}
-	for (auto& button : mButtons) {
-		if (button->IsVisible() && ! handled) {
-			handled = button->HandleInput(input);
-		}
-	}
+#undef Dispatch
 	return handled;
 }
 
@@ -586,6 +624,40 @@ void UIPanel::ComputeRect(const UIRect& parentRect) {
 	mRect = rect;
 	UIRect paddedRect = AddPadding(rect, mDesc.padding);
 	UpdateLayout(paddedRect);
+}
+
+
+void UIPanel::UpdateLayout(const UIRect& parentRect) const {
+#define Dispatch(Type)                                \
+	{                                                 \
+		auto control = static_cast<Type*>(child.ptr); \
+		if (control->IsVisible()) {                   \
+			control->ComputeRect(parentRect);         \
+		}                                             \
+	}
+
+	for (const auto& child : mChildren) {
+		switch (child.type) {
+		case UIControlType::Panel:
+			Dispatch(UIPanel);
+			break;
+		case UIControlType::Bitmap:
+			Dispatch(UIBitmap);
+			break;
+		case UIControlType::Text:
+			Dispatch(UIText);
+			break;
+		case UIControlType::Button:
+			Dispatch(UIButton);
+			break;
+		case UIControlType::Checkbox:
+			Dispatch(UICheckBox);
+			break;
+		default:
+			break;
+		}
+	}
+#undef Dispatch
 }
 
 UICanvas::UICanvas()
