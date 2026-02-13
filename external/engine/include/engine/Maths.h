@@ -46,6 +46,7 @@ struct Int2 {
 
 Vec2 operator+(const Vec2& lhs, const Vec2& rhs);
 Vec2 operator-(const Vec2& lhs, const Vec2& rhs);
+Vec2 operator*(const Vec2& lhs, const Vec2& rhs);
 Vec2 operator*(const Vec2& v, float s);
 Vec2 operator*(float s, const Vec2& v);
 Vec2 operator-(const Vec2& v);

@@ -60,7 +60,9 @@ private:
 	std::unique_ptr<TileSelector> mCellSelector;
 	Wind::UICanvas                mCanvas;
 	Wind::UIButton                mPauseButton;
+	Wind::UIPanel                 mGoalPanel;
 	Wind::UIPanel                 mBoostersPanel;
+	Wind::UIText                  mGoalText;
 	Wind::UIText                  mScoreText;
 	Wind::UIText                  mTimeText;
 	Wind::UIButton                mBoosterButtons[3];

@@ -8,6 +8,7 @@ struct UIBitmapDesc;
 struct UITextDesc;
 struct TextStyle;
 struct UISize;
+class UIPanel;
 class UIButton;
 class UIText;
 class UICheckBox;
@@ -36,6 +37,7 @@ extern const float       text0_y;
 extern const float       text1_y;
 extern const Wind::Color panel0_color;
 
+Wind::UIPanel    MakeInfoPanel();
 Wind::UIText     MakeTitleText(Wind::StringId label);
 Wind::UIText     MakeSubTitleText(Wind::StringId label);
 Wind::UIText     MakeScreenText(Wind::StringId label, float y);

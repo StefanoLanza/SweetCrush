@@ -14,7 +14,7 @@ AppConfig DefaultGameConfig() {
 	float boardWidth = config.board.cellWidthWithSpacing * NumCols + config.board.cellSpacing;
 	float boardHeight = config.board.cellHeightWithSpacing * NumRows + config.board.cellSpacing;
 	config.board.topLeftCoord.x = (RefWindowWidth - boardWidth) * 0.5f;
-	config.board.topLeftCoord.y = 300.f;
+	config.board.topLeftCoord.y = 320.f;
 	config.board.bottomRightCoord = config.board.topLeftCoord + Wind::Vec2{ boardWidth, boardHeight };
 	// config.board.topLeftCoord.y = (RefWindowHeight - config.board.cellHeightWithSpacing * NumRows - config.board.cellSpacing) - 40.f;
 	config.moveBackPieceDuration = 0.25f;
@@ -34,7 +34,6 @@ AppConfig DefaultGameConfig() {
 	// UI
 	config.ui.swapThreshold = 0.55f;
 	config.ui.startDragThreshold = 4.f;
-	config.ui.goalStartCoord = { 170.f, 200.f };
 
 	config.settings.musicOn = true;
 	config.settings.sfxOn = true;

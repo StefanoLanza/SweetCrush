@@ -15,15 +15,6 @@ constexpr UICanvasDesc canvasDesc {
 	.background = "gameartguppy/background.png",
 };
 
-const UIPanelDesc panelDesc {
-	.pos = UIAbsolutePos(0.f, 0.f),
-	.size = UIAbsoluteSize(560.f, 500.f),
-	.horizontalAlignment = UIHorizAlignment::center,
-	.verticalAlignment = UIVertAlignment::center,
-	.background = "UI/panel.png",
-	.backgroundColor = panel0_color,
-	._9patch = 16.f,
-};
 
 } // namespace
 
@@ -35,7 +26,7 @@ CreditsScreen::CreditsScreen()
     , mVersion { MakeScreenText(GameStringId::version, 380) }
     , mBackButton { MakeBackButton() }
     , mCanvas(canvasDesc)
-    , mPanel(panelDesc) {
+    , mPanel(MakeInfoPanel()) {
 	mCanvas.Add(mTitle);
 	mCanvas.Add(mPanel);
 	mPanel.Add(mCodeBy);

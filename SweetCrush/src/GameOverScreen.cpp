@@ -20,6 +20,16 @@ constexpr UICanvasDesc canvasDesc {
 	.background = "gameartguppy/background.png",
 };
 
+const UIPanelDesc panelDesc {
+	.pos = UIAbsolutePos(0.f, 0.f),
+	.size = UIAbsoluteSize(560.f, 400.f),
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::center,
+	.background = "UI/button.png",
+	.backgroundColor = panel0_color,
+	._9patch = 16.f,
+};
+
 } // namespace
 
 GameOverScreen::GameOverScreen(MatchStats& matchStats)
@@ -29,10 +39,12 @@ GameOverScreen::GameOverScreen(MatchStats& matchStats)
     , mContinueButton { MakeMenuButton(button2_y, GameStringId::toMainMenu) }
     , mText0 { MakeDynScreenText(text0_y) }
     , mText1 { MakeDynScreenText(text1_y) }
+    , mPanel { panelDesc }
     , mCanvas(canvasDesc) {
+	mPanel.Add(mText0);
+	mPanel.Add(mText1);
 	mCanvas.Add(mTitle);
-	mCanvas.Add(mText0);
-	mCanvas.Add(mText1);
+	mCanvas.Add(mPanel);
 	mCanvas.Add(mReplayLevelButton);
 	mCanvas.Add(mContinueButton);
 }

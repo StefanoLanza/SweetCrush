@@ -11,7 +11,6 @@ struct GameAnimationConfig {};
 struct UIConfig {
 	float      swapThreshold;      // [0, 1]
 	float      startDragThreshold; // pixels
-	Wind::Vec2 goalStartCoord;
 };
 
 

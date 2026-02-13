@@ -24,16 +24,6 @@ constexpr UICanvasDesc canvasDesc {
 	.background = "gameartguppy/background.png",
 };
 
-const UIPanelDesc panelDesc {
-	.pos = UIAbsolutePos(0.f, 0.f),
-	.size = UIAbsoluteSize(560.f, 400.f),
-	.horizontalAlignment = UIHorizAlignment::center,
-	.verticalAlignment = UIVertAlignment::center,
-	.background = "UI/button.png",
-	.backgroundColor = panel0_color,
-	._9patch = 16.f,
-};
-
 } // namespace
 
 LevelStartScreen::LevelStartScreen(const MatchStats& matchStats, const GameDataModule& gameDataModule, const GameRenderer& gameRenderer)
@@ -43,9 +33,9 @@ LevelStartScreen::LevelStartScreen(const MatchStats& matchStats, const GameDataM
     , mTitle { MakeTitleText(GameStringId::level) }
     , mPlayButton { MakeMenuButton(button3_y, GameStringId::play) }
     , mCanvas(canvasDesc)
-	, mPanel(panelDesc)
+    , mPanel(MakeInfoPanel())
     , mGoalText { MakeScreenText(GameStringId::goal, 40.f) }
-    , mGoalDesc { MakeDynScreenText(100.f) } {
+    , mGoalDesc { MakeDynScreenText(160.f) } {
 	// Setup UI
 	mCanvas.Add(mTitle);
 	mCanvas.Add(mPlayButton);
@@ -74,7 +64,7 @@ ScreenEvent LevelStartScreen::Tick(float dt, const Input& input) {
 void LevelStartScreen::Draw(UIRenderer& uiRenderer, float dt) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 
-	float y = mPanel.Rect().pos.y + 220.f;
+	float        y = mPanel.GetRect().pos.y + 280.f;
 	const Level& level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
 	switch (level.goal.id) {
 	case GoalId::breakIce:

@@ -29,8 +29,8 @@ SettingsScreen::SettingsScreen(GameSettings& gameSettings)
 	// Build UI
 	mCanvas.Add(mTitle);
 	mCanvas.Add(mLanguageButton);
-	// TODO mCanvas.Add(mMusicButton);
-	// TODO mCanvas.Add(mSfxButton);
+	mCanvas.Add(mMusicButton);
+	mCanvas.Add(mSfxButton);
 	mCanvas.Add(mBackButton);
 }
 

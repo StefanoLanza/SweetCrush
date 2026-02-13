@@ -14,10 +14,11 @@ const UIBitmapDesc buttonBitmapDesc {
 };
 
 const Wind::UIBitmapDesc noIconDesc {};
+const float              buttonPadding = 48.f;
 
 const UITextDesc noLabelDesc {
 	.stringId = GameStringId::empty,
-	//.visible = false, // TODO
+	.visible = false,
 };
 
 constexpr TextStyle titleTextStyle {
@@ -50,13 +51,26 @@ const float     text0_y = 450;
 const float     text1_y = 510;
 const Color     panel0_color = { 192.f, 222.f, 255.f, 255.f };
 
+Wind::UIPanel MakeInfoPanel() {
+	const UIPanelDesc desc {
+		.pos = UIAbsolutePos(0.f, 0.f),
+		.size = UIAbsoluteSize(520.f, 500.f),
+		.horizontalAlignment = UIHorizAlignment::center,
+		.verticalAlignment = UIVertAlignment::center,
+		.background = "UI/button.png",
+		.backgroundColor = panel0_color,
+		._9patch = 16.f,
+	};
+	return UIPanel { desc };
+}
+
 Wind::UIText MakeTitleText(Wind::StringId label) {
 	const UITextDesc desc {
+		.stringId = label,
 		.pos = { 0.f, titleY },
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::top,
 		.font = "screenTitle", //"bigFont",
-		.stringId = label,
 		.style = titleTextStyle,
 	};
 	return Wind::UIText { desc };
@@ -64,11 +78,11 @@ Wind::UIText MakeTitleText(Wind::StringId label) {
 
 Wind::UIText MakeSubTitleText(Wind::StringId label) {
 	const UITextDesc desc {
+		.stringId = label,
 		.pos = { 0.f, subTitleY },
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::top,
 		.font = "screenTitle",
-		.stringId = label,
 		.style = titleTextStyle,
 	};
 	return Wind::UIText { desc };
@@ -76,11 +90,11 @@ Wind::UIText MakeSubTitleText(Wind::StringId label) {
 
 Wind::UIText MakeScreenText(Wind::StringId label, float y) {
 	const UITextDesc desc {
+		.stringId = label,
 		.pos = { 0.f, y },
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::top,
 		.font = "smallFont",
-		.stringId = label,
 		.style = defaultTextStyle,
 	};
 	return Wind::UIText { desc };
@@ -88,11 +102,11 @@ Wind::UIText MakeScreenText(Wind::StringId label, float y) {
 
 Wind::UIText MakeDynScreenText(float y) {
 	const UITextDesc desc {
+		.stringId = 0,
 		.pos = { 0.f, y },
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::top,
 		.font = "smallFont",
-		.stringId = 0,
 		.style = defaultTextStyle,
 	};
 	return Wind::UIText { desc };
@@ -133,7 +147,7 @@ Wind::UIButton MakeMenuButton(float y, Wind::StringId label, const Color& color)
 		.size = UIAbsoluteSize(520.f, 100.f),
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::top,
-		.padding = 16.f,
+		.padding = buttonPadding,
 		.background = "UI/button.png",
 		.backgroundColor = color,
 		._9patch = 16.f,
@@ -143,10 +157,10 @@ Wind::UIButton MakeMenuButton(float y, Wind::StringId label, const Color& color)
 		//.visible = false, // TODO
 	};
 	const UITextDesc labelDesc {
+		.stringId = label,
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::center,
 		.font = "mediumFont",
-		.stringId = label,
 		.style = defaultTextStyle,
 #endif
 	};
@@ -187,30 +201,18 @@ Wind::UIButton MakeCloseButton() {
 		.color = greenColor,
 	};
 	const UITextDesc labelDesc {
+		.stringId = GameStringId::empty,
 		.pos = { 0.f, 0.f },
 		.horizontalAlignment = UIHorizAlignment::left,
 		.verticalAlignment = UIVertAlignment::center,
 		.font = "mediumFont",
-		.stringId = GameStringId::empty,
-		//.visible = false, // TODO
+		.visible = false,
 	};
 	return Wind::UIButton { buttonDesc, iconDesc, labelDesc };
 }
 
 Wind::UICheckBox MakeCheckBox(float y, Wind::StringId label, const Color& color) {
-	UICheckBoxDesc buttonDesc = {
-		.pos = UIAbsolutePos(0, y),
-		.size = UIAbsoluteSize(520.f, 100.f),
-		.horizontalAlignment = UIHorizAlignment::center,
-		.verticalAlignment = UIVertAlignment::top,
-		.padding = 48.f,
-		.background = "UI/button.png",
-		.backgroundColor = color,
-		._9patch = 16.f,
-		.toggled = true,
-	};
-#if 0
-	const UIBitmapDesc iconDesc {
+	const UIBitmapDesc checkedIconDesc {
 		.fileName = "icons/check.png",
 		.pos = UIAbsolutePos(0.f, 0.f),
 		.size = UIAbsoluteSize(48, 48),
@@ -219,15 +221,38 @@ Wind::UICheckBox MakeCheckBox(float y, Wind::StringId label, const Color& color)
 		.sizing = UIBitmapSizing::user,
 		.color = greenColor,
 	};
+	const UIBitmapDesc uncheckedIconDesc {
+		.fileName = "icons/check.png",
+		.pos = UIAbsolutePos(0.f, 0.f),
+		.size = UIAbsoluteSize(48, 48),
+		.horizontalAlignment = UIHorizAlignment::right,
+		.verticalAlignment = UIVertAlignment::center,
+		.sizing = UIBitmapSizing::user,
+		.color = greenColor,
+		.visible = false,
+	};
 	const UITextDesc labelDesc {
+		.stringId = label,
 		.pos = { 0.f, 0.f },
 		.horizontalAlignment = UIHorizAlignment::left,
 		.verticalAlignment = UIVertAlignment::center,
 		.font = "mediumFont",
-		.stringId = label,
 	};
-#endif
-	return Wind::UICheckBox { buttonDesc, nullptr }; // iconDesc, labelDesc };
+	UICheckBoxDesc buttonDesc = {
+		.pos = UIAbsolutePos(0, y),
+		.size = UIAbsoluteSize(520.f, 100.f),
+		.horizontalAlignment = UIHorizAlignment::center,
+		.verticalAlignment = UIVertAlignment::top,
+		.padding = buttonPadding,
+		.background = "UI/button.png",
+		.backgroundColor = color,
+		._9patch = 16.f,
+		.toggled = true,
+		.label = labelDesc,
+		.checkedIcon = checkedIconDesc,
+		.uncheckedIcon = uncheckedIconDesc,
+	};
+	return Wind::UICheckBox { buttonDesc, {} };
 }
 
 Wind::UICanvas MakeCanvas() {

@@ -83,16 +83,16 @@ enum class UITextSizing {
 };
 
 struct UITextDesc {
+	StringId         stringId = 0;
 	Vec2             pos = { 0.f, 0.f };
 	UISize           size = { 0.f, 0.f };
 	UITextSizing     sizing = UITextSizing::fit;
 	UIHorizAlignment horizontalAlignment = UIHorizAlignment::center;
 	UIVertAlignment  verticalAlignment = UIVertAlignment::center;
 	float            padding = 0.f;
-	float            borderWidth = 0.f;
 	const char*      font = nullptr;
-	StringId         stringId = 0;
 	const TextStyle& style = {};
+	bool             visible = true;
 };
 
 enum class UIBitmapSizing {
@@ -106,6 +106,7 @@ struct UIBitmapDesc {
 	UIBaseDesc;
 	UIBitmapSizing sizing = UIBitmapSizing::fit;
 	Color          color = whiteColor;
+	bool           visible = true;
 };
 
 struct UIButtonDesc {
@@ -117,7 +118,10 @@ struct UIButtonDesc {
 struct UICheckBoxDesc {
 	UIBaseDesc;
 	UIBackgroundDesc;
-	bool toggled = true;
+	bool         toggled = true;
+	UITextDesc   label;
+	UIBitmapDesc checkedIcon;
+	UIBitmapDesc uncheckedIcon;
 };
 
 struct UIPanelDesc {
@@ -145,23 +149,42 @@ enum class UIControlType {
 	Checkbox,
 };
 
-class UIPanel final {
+class UIControl {
+public:
+	explicit UIControl(bool visible)
+	    : mRect {}
+	    , mEnabled { true }
+	    , mVisible { visible } {
+	}
+	void          SetEnabled(bool enabled);
+	bool          IsEnabled() const;
+	void          SetVisible(bool visible);
+	bool          IsVisible() const;
+	const UIRect& GetRect() const;
+
+protected:
+	void SetRect(const UIRect& rect);
+
+private:
+	UIRect mRect;
+	bool   mEnabled;
+	bool   mVisible;
+};
+
+class UIPanel final : public UIControl {
 public:
 	explicit UIPanel(const UIPanelDesc& desc);
 
-	void          Add(UIPanel& panel);
-	void          Add(UIButton& button);
-	void          Add(UIBitmap& bitmap);
-	void          Add(UIText& text);
-	void          Add(UICheckBox& checkBox);
-	void          SetVisible(bool visible);
-	bool          IsVisible() const;
-	const UIRect& Rect() const;
-	void          LoadAssets(Graphics& graphics, FontManager& fontManager);
-	void          Draw(const UIRenderer& renderer, unsigned drawOrder) const;
-	bool          HandleInput(const Input& input) const;
-	void          ComputeRect(const UIRect& parentRect);
-	void          UpdateLayout(const UIRect& parentRect) const;
+	void Add(UIPanel& panel);
+	void Add(UIButton& button);
+	void Add(UIBitmap& bitmap);
+	void Add(UIText& text);
+	void Add(UICheckBox& checkBox);
+	void LoadAssets(Graphics& graphics, FontManager& fontManager);
+	void Draw(const UIRenderer& renderer, unsigned drawOrder) const;
+	bool HandleInput(const Input& input) const;
+	void ComputeRect(const UIRect& parentRect);
+	void UpdateLayout(const UIRect& parentRect) const;
 
 private:
 	struct Child {
@@ -170,18 +193,14 @@ private:
 	};
 	std::vector<Child> mChildren;
 	UIPanelDesc        mDesc;
-	UIRect             mRect;
 	TexturePtr         mBackground;
-	bool               mVisible;
 	// TODO Layout
 };
 
-class UIText final {
+class UIText final : public UIControl {
 public:
 	explicit UIText(const UITextDesc& desc);
 
-	void             SetVisible(bool visible);
-	bool             IsVisible() const;
 	void             LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void             Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	void             ComputeRect(const UIRect& parentRect);
@@ -196,18 +215,14 @@ private:
 private:
 	UITextDesc mDesc;
 	FontPtr    mFont;
-	UIRect     mRect;
 	char       mText[32];
 	TextStyle  mTextStyle;
-	bool       mVisible;
 };
 
-class UIBitmap {
+class UIBitmap : public UIControl {
 public:
 	explicit UIBitmap(const UIBitmapDesc& desc, const UIBitmapStyle& style = {});
 
-	void                SetVisible(bool visible);
-	bool                IsVisible() const;
 	void                LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void                SetPosition(const Vec2& pos);
 	void                SetColor(const Color& color);
@@ -222,12 +237,9 @@ private:
 	UIBitmapDesc  mDesc;
 	UIBitmapStyle mStyle;
 	TexturePtr    mBitmap;
-	UIRect        mRect;
-	bool          mVisible;
 };
 
 enum class UIButtonState {
-	disabled,
 	idle,
 	hovered,
 	pressed,
@@ -235,7 +247,7 @@ enum class UIButtonState {
 
 struct UIButtonSubStyle {
 	Vec2  offset { 0.f, 0.f };
-	float scale = 1.f;
+	Vec2  scale { 1.f, 1.f };
 	float grayScale = 0.f;
 };
 
@@ -246,21 +258,17 @@ struct UIButtonStyle {
 	UIButtonSubStyle pressed;
 };
 
-class UIButton final {
+class UIButton final : public UIControl {
 public:
 	explicit UIButton(const UIButtonDesc& desc);
 	UIButton(const UIButtonDesc& desc, const UIBitmapDesc& iconDesc, const UITextDesc& labelDesc);
 	UIButton(const UIButtonDesc& desc, const UITextDesc& labelDesc);
 	UIButton(const UIButtonDesc& desc, const UIBitmapDesc& iconDesc);
 
-	void                SetEnabled(bool enabled);
-	void                SetVisible(bool visible);
-	bool                IsVisible() const;
 	bool                IsClicked() const;
 	void                LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void                Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	void                ComputeRect(const UIRect& parentRect);
-	const UIRect&       GetRect() const;
 	UIButtonState       GetState() const;
 	const UIButtonDesc& GetDesc() const;
 	void                SetDesc(const UIButtonDesc&);
@@ -276,42 +284,8 @@ private:
 	TexturePtr                mBackground;
 	std::unique_ptr<UIBitmap> mIcon;
 	std::unique_ptr<UIText>   mLabel;
-	UIRect                    mRect;
 	UIButtonState             mState;
-	bool                      mVisible;
 	bool                      mClicked;
-};
-
-struct UICheckBoxStyle {
-	Vec2  offset { 0.f, 0.f };
-	float grayScale = 0.f;
-};
-
-class UICheckBox final {
-public:
-	explicit UICheckBox(const UICheckBoxDesc& desc, const UICheckBoxStyle* style);
-
-	void          SetEnabled(bool enabled);
-	void          SetVisible(bool visible);
-	bool          IsVisible() const;
-	bool          IsChecked() const;
-	void          SetChecked(bool value);
-	void          LoadAssets(Graphics& graphics, FontManager& fontManager);
-	void          Draw(const UIRenderer& renderer, unsigned drawOrder) const;
-	void          ComputeRect(const UIRect& parentRect);
-	const UIRect& GetRect() const;
-	bool          HandleInput(const Input& input);
-
-private:
-	void RefreshState(const Input& input);
-
-private:
-	UICheckBoxDesc         mDesc;
-	const UICheckBoxStyle* mStyle;
-	TexturePtr             mBackground;
-	UIRect                 mRect;
-	bool                   mVisible;
-	bool                   mToggled;
 };
 
 class UICanvas final {
@@ -330,6 +304,36 @@ public:
 
 private:
 	UIPanel mPanel;
+};
+
+struct UICheckBoxStyle {
+	Vec2  offset { 0.f, 0.f };
+	Vec2  scale { 1.f, 1.f };
+	float grayScale = 0.f;
+};
+
+class UICheckBox final : public UIControl {
+public:
+	explicit UICheckBox(const UICheckBoxDesc& desc, const UICheckBoxStyle& style);
+
+	bool IsChecked() const;
+	void SetChecked(bool value);
+	void LoadAssets(Graphics& graphics, FontManager& fontManager);
+	void Draw(const UIRenderer& renderer, unsigned drawOrder) const;
+	void ComputeRect(const UIRect& parentRect);
+	bool HandleInput(const Input& input);
+
+private:
+	void RefreshState(const Input& input);
+
+private:
+	UICheckBoxDesc  mDesc;
+	UICheckBoxStyle mStyle;
+	UIBitmap        mCheckedIcon;
+	UIBitmap        mUncheckedIcon;
+	UIText          mLabel;
+	TexturePtr      mBackground;
+	bool            mToggled;
 };
 
 class UIMouseCursor final {

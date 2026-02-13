@@ -21,25 +21,25 @@ const UIButtonDesc buttonDesc {
 
 const UITextDesc textDesc[] {
 	{
+	    .stringId = GameStringId::empty,
 	    .pos = { 0, 60 },
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "mediumFont",
-	    .stringId = GameStringId::empty,
 	    .style = titleTextStyle,
 	},
 	{
+	    .stringId = GameStringId::empty,
 	    .pos = { 0.f, 160.f },
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "smallFont",
-	    .stringId = GameStringId::empty,
 	},
 	{
+	    .stringId = GameStringId::ok,
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::center,
 	    .font = "mediumFont",
-	    .stringId = GameStringId::ok,
 	},
 };
 
