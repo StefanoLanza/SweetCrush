@@ -5,8 +5,8 @@
 #include "StringTable.h"
 #include "TextRender.h"
 
+#include <functional>
 #include <memory>
-#include <optional>
 #include <vector>
 
 namespace Wind {
@@ -60,6 +60,11 @@ constexpr inline UISize UIAbsoluteSize(float x, float y) {
 }
 
 constexpr UIRect UIZeroRect { 0.f, 0.f, 0.f, 0.f };
+
+struct UITransform {
+	Vec2 offset = { 0.f, 0.f };
+	Vec2 scale = { 1.f, 1.f };
+};
 
 // Use a macro instead of inheritance, to allow designated initializers in C++ 20
 #define UIBaseDesc                                                   \
@@ -138,7 +143,6 @@ struct UICanvasDesc {
 
 struct UIBitmapStyle {
 	Color color = whiteColor;
-	Vec2  scale = { 1.f, 1.f };
 };
 
 enum class UIControlType {
@@ -165,10 +169,12 @@ public:
 protected:
 	void SetRect(const UIRect& rect);
 
-private:
-	UIRect mRect;
-	bool   mEnabled;
-	bool   mVisible;
+protected:
+	UITransform mTransform; // TODO Compute on the fly based on styles ?
+	UITransform mFinalTransform;
+	UIRect      mRect;
+	bool        mEnabled;
+	bool        mVisible;
 };
 
 class UIPanel final : public UIControl {
@@ -183,8 +189,11 @@ public:
 	void LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	bool HandleInput(const Input& input) const;
-	void ComputeRect(const UIRect& parentRect);
-	void UpdateLayout(const UIRect& parentRect) const;
+	void ComputeRect(const UIRect& parentRect, const UITransform& transform);
+	void Tick(float dt);
+
+private:
+	void UpdateLayout(const UIRect& parentRect, const UITransform& transform) const;
 
 private:
 	struct Child {
@@ -203,7 +212,7 @@ public:
 
 	void             LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void             Draw(const UIRenderer& renderer, unsigned drawOrder) const;
-	void             ComputeRect(const UIRect& parentRect);
+	void             ComputeRect(const UIRect& parentRect, const UITransform& transform);
 	void             SetText(StringId stringId);
 	void             SetText(const char* str);
 	void             SetStyle(const TextStyle& style);
@@ -228,7 +237,7 @@ public:
 	void                SetColor(const Color& color);
 	const UIBitmapDesc& GetDesc() const;
 	void                Draw(const UIRenderer& renderer, unsigned drawOrder) const;
-	void                ComputeRect(const UIRect& parentRect);
+	void                ComputeRect(const UIRect& parentRect, const UITransform& transform);
 	void                SetBitmap(const TexturePtr& bitmap);
 	const Texture*      GetBitmap() const;
 	void                SetStyle(const UIBitmapStyle& style);
@@ -245,17 +254,14 @@ enum class UIButtonState {
 	pressed,
 };
 
-struct UIButtonSubStyle {
-	Vec2  offset { 0.f, 0.f };
-	Vec2  scale { 1.f, 1.f };
-	float grayScale = 0.f;
-};
+struct UIButtonStyle;
+using UIButtonAction = std::function<bool(UITransform& transform, float t)>;
 
 struct UIButtonStyle {
-	UIButtonSubStyle idle;
-	UIButtonSubStyle disabled;
-	UIButtonSubStyle hovered;
-	UIButtonSubStyle pressed;
+	float          grayScale = 0.f;
+	UIButtonAction onIdle;
+	UIButtonAction onPressed;
+	UIButtonAction onHovered;
 };
 
 class UIButton final : public UIControl {
@@ -265,19 +271,18 @@ public:
 	UIButton(const UIButtonDesc& desc, const UITextDesc& labelDesc);
 	UIButton(const UIButtonDesc& desc, const UIBitmapDesc& iconDesc);
 
-	bool                IsClicked() const;
-	void                LoadAssets(Graphics& graphics, FontManager& fontManager);
-	void                Draw(const UIRenderer& renderer, unsigned drawOrder) const;
-	void                ComputeRect(const UIRect& parentRect);
-	UIButtonState       GetState() const;
-	const UIButtonDesc& GetDesc() const;
-	void                SetDesc(const UIButtonDesc&);
-	bool                HandleInput(const Input& input);
+	bool          IsClicked() const;
+	void          LoadAssets(Graphics& graphics, FontManager& fontManager);
+	void          Draw(const UIRenderer& renderer, unsigned drawOrder) const;
+	void          ComputeRect(const UIRect& parentRect, const UITransform& transform);
+	UIButtonState GetState() const;
+	bool          HandleInput(const Input& input);
+	void          Tick(float dt);
 
 private:
 	UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text);
-	UIButtonState           RefreshState(const Input& input);
-	const UIButtonSubStyle* GetStyle() const;
+	UIButtonState        RefreshState(const Input& input);
+	const UIButtonStyle* GetStyle() const;
 
 private:
 	UIButtonDesc              mDesc;
@@ -285,6 +290,7 @@ private:
 	std::unique_ptr<UIBitmap> mIcon;
 	std::unique_ptr<UIText>   mLabel;
 	UIButtonState             mState;
+	float                     mAnimTime;
 	bool                      mClicked;
 };
 
@@ -301,6 +307,7 @@ public:
 	void LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder);
 	void HandleInput(const Input& input) const;
+	void Tick(float dt);
 
 private:
 	UIPanel mPanel;
@@ -320,7 +327,7 @@ public:
 	void SetChecked(bool value);
 	void LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void Draw(const UIRenderer& renderer, unsigned drawOrder) const;
-	void ComputeRect(const UIRect& parentRect);
+	void ComputeRect(const UIRect& parentRect, const UITransform& transform);
 	bool HandleInput(const Input& input);
 
 private:

@@ -75,7 +75,7 @@ const UITextDesc timeTextDesc {
 
 const UITextDesc goalTextDesc {
 	.stringId = GameStringId::goal,
-	.pos = { 0.f, 30.f },
+	.pos = { 0.f, 20.f },
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "tiny",
@@ -90,7 +90,7 @@ constexpr UIPanelDesc boosterPanelDesc {
 
 const UIPanelDesc goalPanelDesc {
 	.pos = UIAbsolutePos(0.f, 120.f),
-	.size = UIAbsoluteSize(500, 160),
+	.size = UIAbsoluteSize(500, 140),
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.background = "UI/button.png",
@@ -521,7 +521,7 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 	const Level&          level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
 	char                  tmp[256];
 
-	snprintf(tmp, sizeof(tmp), "Score %04d", mMatchStats.score);
+	snprintf(tmp, sizeof(tmp), "%04d", mMatchStats.score);
 	mScoreText.SetText(tmp);
 
 	const int time = static_cast<int>(mMatchTime);
@@ -532,7 +532,7 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 
 	if (level.goal.id == GoalId::collectMatches) {
-		Vec2 pos = mGoalPanel.GetRect().pos + Vec2 { 96.f, 110.f };
+		Vec2 pos = mGoalPanel.GetRect().pos + Vec2 { 96.f, 96.f };
 		for (int i = 0; i < 3; ++i) {
 			const int icon = pieceIcons[level.pieceIds[i]];
 			mGameRenderer.DrawIcon(icon, pos, 0.f, whiteColor, GameDrawOrder::overlays);
@@ -540,12 +540,14 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 				SDL_snprintf(tmp, sizeof(tmp), "%d", diff);
 				textRenderer.Write(*mFonts[1], tmp, pos + Vec2 { 40.f, -20.f }, textStyle, TextDirection::leftToRight, GameDrawOrder::overlays);
 			}
-			// TODO Draw tick icon
+			else {
+				mGameRenderer.DrawIcon(checkIcon, pos + Vec2(24.f, -24.f), 0.f, greenColor, GameDrawOrder::overlays + 1);
+			}
 			pos.x += 140.f;
 		}
 	}
 	else if (level.goal.id == GoalId::breakIce) {
-		Vec2 pos = mGoalPanel.GetRect().pos + Vec2 { 96.f, 110.f };
+		Vec2 pos = mGoalPanel.GetRect().pos + Vec2 { 96.f, 96.f };
 		for (int i = 0; i < mMatchStats.layerCount; ++i) {
 			mGameRenderer.DrawIcon(iceSprites[0], pos, 0.f, whiteColor, GameDrawOrder::overlays);
 			pos.x += gameTextures[iceSprites[0]]->Width() + 12;

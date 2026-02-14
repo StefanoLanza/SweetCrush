@@ -35,10 +35,10 @@ const UIPanelDesc panelDesc {
 GameOverScreen::GameOverScreen(MatchStats& matchStats)
     : mMatchStats(matchStats)
     , mTitle { MakeTitleText(GameStringId::gameOver) }
-    , mReplayLevelButton { MakeMenuButton(button1_y, GameStringId::retry) }
-    , mContinueButton { MakeMenuButton(button2_y, GameStringId::toMainMenu) }
-    , mText0 { MakeDynScreenText(text0_y) }
-    , mText1 { MakeDynScreenText(text1_y) }
+    , mReplayLevelButton { MakeMenuButton(button2_y, GameStringId::retry) }
+    , mContinueButton { MakeMenuButton(button3_y, GameStringId::toMainMenu) }
+    , mText0 { MakeDynScreenText(40.f) }
+    , mText1 { MakeDynScreenText(100.f) }
     , mPanel { panelDesc }
     , mCanvas(canvasDesc) {
 	mPanel.Add(mText0);

@@ -24,8 +24,6 @@ const char* gameTexturePath[NumGameTextures] {
 	"gameartguppy/block_ice_03.png",
 	"outline.png",
 	"glow.png",
-	"hrzStripes.png",
-	"vrtStripes.png",
 	// Boosters
 	"gameartguppy/candy_05_candycane_100.png",
 	"gameartguppy/candy_04_lollipop_100.png",
@@ -35,6 +33,8 @@ const char* gameTexturePath[NumGameTextures] {
 	"gameartguppy/pet_bird_160x160.png",
 	"gameartguppy/pet_turtle_160x160.png",
 	"gameartguppy/pet_fish_160x160.png",
+	// Icon
+	"icons/minicheck.png",
 };
 
 const SpriteID pieceIcons[NumPieceTypes] { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -48,15 +48,16 @@ const SpriteID effectIcons[NumEffects] {
 };
 
 const SpriteID boosterIcons[NumBoosters] = {
+	18,
+	19,
 	20,
-	21,
-	22,
 };
 
 const SpriteID iceSprites[3] = { 13, 14, 15 };
 const SpriteID selectionSprite = 16;
 const int      glowSprite = 17;
 const int      starSprite = 0; // FIXME
-const int      blastSprite = 23;
+const int      blastSprite = 21;
 
-const int petSprites[] = { 24, 25, 26 };
+const int petSprites[] = { 22, 23, 24 };
+const int checkIcon = 25;

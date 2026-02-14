@@ -138,10 +138,10 @@ void UICompositor::InitProgramUniforms(Program& programData, const char* fsPath,
 	programData.mHandle = graphics.NewProgram(SHADERS_FOLDER "fullscreenTriangle.vs", fsPath);
 	if (programData.mHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(programData.mHandle);
-		programData.mTexture0 = program.GetUniformLocation("texture0");
-		programData.mTexture1 = program.GetUniformLocation("texture1");
-		programData.color0 = program.GetUniformLocation("fadeColor");
-		programData.mMisc = program.GetUniformLocation("misc");
+		programData.mTexture0 = program.TryGetUniformLocation("texture0");
+		programData.mTexture1 = program.TryGetUniformLocation("texture1");
+		programData.color0 = program.TryGetUniformLocation("fadeColor");
+		programData.mMisc = program.TryGetUniformLocation("misc");
 		programData.mValid = (programData.mTexture0 != -1 && programData.mTexture1 != -1);
 	}
 	else {

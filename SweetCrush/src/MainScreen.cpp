@@ -46,6 +46,7 @@ void MainScreen::LoadAssets(Engine& engine) {
 }
 
 ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
+	mCanvas.Tick(dt);
 	mCanvas.HandleInput(input);
 	mAccumTime += dt;
 

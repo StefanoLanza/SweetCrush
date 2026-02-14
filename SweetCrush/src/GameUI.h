@@ -17,7 +17,6 @@ struct Color;
 
 } // namespace Wind
 
-extern const Wind::UIBitmapDesc buttonBitmapDesc;
 extern const Wind::UIBitmapDesc noIconDesc;
 extern const Wind::UITextDesc   noLabelDesc;
 extern const Wind::TextStyle    titleTextStyle;

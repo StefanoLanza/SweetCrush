@@ -6,13 +6,6 @@
 
 using namespace Wind;
 
-const UIBitmapDesc buttonBitmapDesc {
-	.fileName = "button.png",
-	.pos = UIZeroPos,
-	.sizing = UIBitmapSizing::stretch,
-	.color = { 131.f, 255.f, 255.f, 255.f },
-};
-
 const Wind::UIBitmapDesc noIconDesc {};
 const float              buttonPadding = 48.f;
 
@@ -213,7 +206,7 @@ Wind::UIButton MakeCloseButton() {
 
 Wind::UICheckBox MakeCheckBox(float y, Wind::StringId label, const Color& color) {
 	const UIBitmapDesc checkedIconDesc {
-		.fileName = "icons/check.png",
+		.fileName = "icons/checked.png",
 		.pos = UIAbsolutePos(0.f, 0.f),
 		.size = UIAbsoluteSize(48, 48),
 		.horizontalAlignment = UIHorizAlignment::right,
@@ -222,13 +215,13 @@ Wind::UICheckBox MakeCheckBox(float y, Wind::StringId label, const Color& color)
 		.color = greenColor,
 	};
 	const UIBitmapDesc uncheckedIconDesc {
-		.fileName = "icons/check.png",
+		.fileName = "icons/unchecked.png",
 		.pos = UIAbsolutePos(0.f, 0.f),
-		.size = UIAbsoluteSize(48, 48),
+		.size = UIAbsoluteSize(96, 96),
 		.horizontalAlignment = UIHorizAlignment::right,
 		.verticalAlignment = UIVertAlignment::center,
-		.sizing = UIBitmapSizing::user,
-		.color = greenColor,
+		.sizing = UIBitmapSizing::fit,
+		.color = whiteColor,
 		.visible = false,
 	};
 	const UITextDesc labelDesc {

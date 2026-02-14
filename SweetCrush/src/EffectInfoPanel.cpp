@@ -12,13 +12,6 @@ using namespace Wind;
 
 namespace {
 
-const UIButtonDesc buttonDesc {
-	.pos = UIAbsolutePos(0, 260),
-	.size = UIZeroSize,
-	.horizontalAlignment = UIHorizAlignment::center,
-	.verticalAlignment = UIVertAlignment::top,
-};
-
 const UITextDesc textDesc[] {
 	{
 	    .stringId = GameStringId::empty,
@@ -60,9 +53,9 @@ const UIPanelDesc panelDesc {
 } // namespace
 
 EffectInfoScreen::EffectInfoScreen()
-    : mTitle(textDesc[0])
+    : mTitle(MakeTitleText(GameStringId::empty))
     , mText(textDesc[1])
-    , mOKButton(buttonDesc, buttonBitmapDesc, textDesc[2])
+    , mOKButton(MakeMenuButton(50, GameStringId::ok))
     , mEffectIcon(effectIconDesc)
     , mPanel(panelDesc)
     , mShowHelp {} {
