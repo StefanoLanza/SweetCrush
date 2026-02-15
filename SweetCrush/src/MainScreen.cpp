@@ -19,11 +19,11 @@ MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
     : mEngine(engine)
     , mGameRenderer(gameRenderer)
     , mTitle { MakeTitleText(GameStringId::title) }
-    , mStartButton { MakeMenuButton(button0_y, GameStringId::start, button0_color) }
-    , mSettingsButton { MakeMenuButton(button1_y, GameStringId::settings, button1_color) }
-    , mCreditsButton { MakeMenuButton(button2_y, GameStringId::credits, button2_color) }
+    , mStartButton { MakeMenuButton(button0_y, GameStringId::start, button0_color, "icons/play.png") }
+    , mSettingsButton { MakeMenuButton(button1_y, GameStringId::settings, button1_color, "icons/gear.png") }
+    , mCreditsButton { MakeMenuButton(button2_y, GameStringId::credits, button2_color, "icons/info.png") }
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
-    , mQuitButton { MakeMenuButton(button3_y, GameStringId::quit, button3_color) } //MakeQuitButton() }
+    , mQuitButton { MakeMenuButton(button3_y, GameStringId::quit, button3_color, "icons/cross.png") }
 #endif
     , mCanvas { MakeCanvas() }
     , mAccumTime(0) {

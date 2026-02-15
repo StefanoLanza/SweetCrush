@@ -16,10 +16,6 @@ using namespace Wind;
 
 namespace {
 
-constexpr UICanvasDesc canvasDesc {
-	.background = "gameartguppy/background.png",
-};
-
 const UIPanelDesc panelDesc {
 	.pos = UIAbsolutePos(0.f, 0.f),
 	.size = UIAbsoluteSize(560.f, 400.f),
@@ -30,7 +26,7 @@ const UIPanelDesc panelDesc {
 	._9patch = 16.f,
 };
 
-} // namespace
+}
 
 GameOverScreen::GameOverScreen(MatchStats& matchStats)
     : mMatchStats(matchStats)
@@ -39,8 +35,8 @@ GameOverScreen::GameOverScreen(MatchStats& matchStats)
     , mContinueButton { MakeMenuButton(button3_y, GameStringId::toMainMenu) }
     , mText0 { MakeDynScreenText(40.f) }
     , mText1 { MakeDynScreenText(100.f) }
-    , mPanel { panelDesc }
-    , mCanvas(canvasDesc) {
+    , mPanel(panelDesc)
+    , mCanvas(MakeCanvas()) {
 	mPanel.Add(mText0);
 	mPanel.Add(mText1);
 	mCanvas.Add(mTitle);
@@ -57,7 +53,8 @@ void GameOverScreen::LoadAssets(Engine& engine) {
 	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
 }
 
-ScreenEvent GameOverScreen::Tick(float /*dt*/, const Input& input) {
+ScreenEvent GameOverScreen::Tick(float dt, const Input& input) {
+	mCanvas.Tick(dt);
 	mCanvas.HandleInput(input);
 	if (mContinueButton.IsClicked()) {
 		return GoTo(GameScreenIds::mainMenu, ScreenTransition::slideBottom);

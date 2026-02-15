@@ -13,20 +13,12 @@
 
 using namespace Wind;
 
-namespace {
-
-constexpr UICanvasDesc canvasDesc {
-	.background = "gameartguppy/background.png",
-};
-
-} // namespace
-
 LevelCompleteScreen::LevelCompleteScreen(MatchStats& matchStats)
     : mMatchStats(matchStats)
     , mTitle { MakeTitleText(GameStringId::level) }
     , mSubTitle { MakeSubTitleText(GameStringId::complete) }
     , mNextLevelButton { MakeMenuButton(button2_y, GameStringId::nextLevel) }
-    , mCanvas(canvasDesc) {
+    , mCanvas(MakeCanvas()) {
 	// Setup UI
 	mCanvas.Add(mTitle);
 	mCanvas.Add(mSubTitle);
@@ -42,6 +34,7 @@ void LevelCompleteScreen::LoadAssets(Engine& engine) {
 }
 
 ScreenEvent LevelCompleteScreen::Tick(float dt, const Input& input) {
+	mCanvas.Tick(dt);
 	mCanvas.HandleInput(input);
 	mAccumTime += dt;
 	if (mAccumTime > 4.f || mNextLevelButton.IsClicked()) {
@@ -58,7 +51,7 @@ void LevelCompleteScreen::Draw(UIRenderer& uiRenderer, float dt) {
 void LevelCompleteScreen::Enter([[maybe_unused]] const ScreenNavArgs& args) {
 	mAccumTime = 0.f;
 
-	char tmp[256];
+	char tmp[64];
 	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::level), mMatchStats.levelIndex + 1);
 	mTitle.SetText(tmp);
 }

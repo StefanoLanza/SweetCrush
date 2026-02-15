@@ -19,9 +19,6 @@ public:
 	void              ParseConfig(const char* varName, const char* varValue) override;
 
 private:
-	void RefreshLanguageButton();
-
-private:
 	GameSettings&    mGameConfig;
 	Wind::UIText     mTitle;
 	Wind::UICheckBox mMusicButton;

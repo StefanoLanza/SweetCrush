@@ -14,7 +14,7 @@ const UITextDesc noLabelDesc {
 	.visible = false,
 };
 
-constexpr TextStyle titleTextStyle {
+constexpr UITextStyle titleTextStyle {
 	.color = yellowColor,
 	.outlineColor = blackColor,
 	.shadowColor = { 0.f, 0.f, 0.f, 100.f },
@@ -22,7 +22,7 @@ constexpr TextStyle titleTextStyle {
 	.shadowOffset = { 0.f, 4.f },
 };
 
-constexpr TextStyle defaultTextStyle {
+constexpr UITextStyle defaultTextStyle {
 	.color = whiteColor,
 	.outlineColor = blackColor,
 	.shadowColor = { 0.f, 0.f, 0.f, 100.f },
@@ -105,7 +105,7 @@ Wind::UIText MakeDynScreenText(float y) {
 	return Wind::UIText { desc };
 }
 
-Wind::UIButton MakeMenuButton(float y, Wind::StringId label, const Color& color) {
+Wind::UIButton MakeMenuButton(float y, Wind::StringId label, const Color& color, const char* icon) {
 #if 0
 	UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(0, y),
@@ -146,8 +146,12 @@ Wind::UIButton MakeMenuButton(float y, Wind::StringId label, const Color& color)
 		._9patch = 16.f,
 	};
 	const UIBitmapDesc iconDesc {
-		.pos = UIZeroPos, .size = UIParentSize, .color = { 131.f, 255.f, 255.f, 255.f },
-		//.visible = false, // TODO
+		.fileName = icon,
+		.pos = UIZeroPos,
+		.size = UIZeroSize,
+		.horizontalAlignment = UIHorizAlignment::left,
+		.verticalAlignment = UIVertAlignment::center,
+		.sizing = UIBitmapSizing::fit,
 	};
 	const UITextDesc labelDesc {
 		.stringId = label,
@@ -206,23 +210,20 @@ Wind::UIButton MakeCloseButton() {
 
 Wind::UICheckBox MakeCheckBox(float y, Wind::StringId label, const Color& color) {
 	const UIBitmapDesc checkedIconDesc {
-		.fileName = "icons/checked.png",
+		.fileName = "icons/minicheck.png",
 		.pos = UIAbsolutePos(0.f, 0.f),
-		.size = UIAbsoluteSize(48, 48),
+		.size = UIAbsoluteSize(32, 32),
 		.horizontalAlignment = UIHorizAlignment::right,
 		.verticalAlignment = UIVertAlignment::center,
-		.sizing = UIBitmapSizing::user,
-		.color = greenColor,
+		.sizing = UIBitmapSizing::fit,
 	};
 	const UIBitmapDesc uncheckedIconDesc {
-		.fileName = "icons/unchecked.png",
+		.fileName = "icons/cross.png",
 		.pos = UIAbsolutePos(0.f, 0.f),
 		.size = UIAbsoluteSize(96, 96),
 		.horizontalAlignment = UIHorizAlignment::right,
 		.verticalAlignment = UIVertAlignment::center,
 		.sizing = UIBitmapSizing::fit,
-		.color = whiteColor,
-		.visible = false,
 	};
 	const UITextDesc labelDesc {
 		.stringId = label,

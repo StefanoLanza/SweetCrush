@@ -88,16 +88,16 @@ enum class UITextSizing {
 };
 
 struct UITextDesc {
-	StringId         stringId = 0;
-	Vec2             pos = { 0.f, 0.f };
-	UISize           size = { 0.f, 0.f };
-	UITextSizing     sizing = UITextSizing::fit;
-	UIHorizAlignment horizontalAlignment = UIHorizAlignment::center;
-	UIVertAlignment  verticalAlignment = UIVertAlignment::center;
-	float            padding = 0.f;
-	const char*      font = nullptr;
-	const TextStyle& style = {};
-	bool             visible = true;
+	StringId           stringId = 0;
+	Vec2               pos = { 0.f, 0.f };
+	UISize             size = { 0.f, 0.f };
+	UITextSizing       sizing = UITextSizing::fit;
+	UIHorizAlignment   horizontalAlignment = UIHorizAlignment::center;
+	UIVertAlignment    verticalAlignment = UIVertAlignment::center;
+	float              padding = 0.f;
+	const char*        font = nullptr;
+	const UITextStyle& style = {};
+	bool               visible = true;
 };
 
 enum class UIBitmapSizing {
@@ -193,9 +193,6 @@ public:
 	void Tick(float dt);
 
 private:
-	void UpdateLayout(const UIRect& parentRect, const UITransform& transform) const;
-
-private:
 	struct Child {
 		void*         ptr;
 		UIControlType type;
@@ -210,22 +207,22 @@ class UIText final : public UIControl {
 public:
 	explicit UIText(const UITextDesc& desc);
 
-	void             LoadAssets(Graphics& graphics, FontManager& fontManager);
-	void             Draw(const UIRenderer& renderer, unsigned drawOrder) const;
-	void             ComputeRect(const UIRect& parentRect, const UITransform& transform);
-	void             SetText(StringId stringId);
-	void             SetText(const char* str);
-	void             SetStyle(const TextStyle& style);
-	const TextStyle& GetStyle() const;
+	void               LoadAssets(Graphics& graphics, FontManager& fontManager);
+	void               Draw(const UIRenderer& renderer, unsigned drawOrder) const;
+	void               ComputeRect(const UIRect& parentRect, const UITransform& transform);
+	void               SetText(StringId stringId);
+	void               SetText(const char* str);
+	void               SetStyle(const UITextStyle& style);
+	const UITextStyle& GetStyle() const;
 
 private:
 	const char* Text() const;
 
 private:
-	UITextDesc mDesc;
-	FontPtr    mFont;
-	char       mText[32];
-	TextStyle  mTextStyle;
+	UITextDesc  mDesc;
+	FontPtr     mFont;
+	char        mText[32];
+	UITextStyle mStyle;
 };
 
 class UIBitmap : public UIControl {
@@ -255,7 +252,7 @@ enum class UIButtonState {
 };
 
 struct UIButtonStyle;
-using UIButtonAction = std::function<bool(UITransform& transform, float t)>;
+using UIButtonAction = std::function<void(UITransform& transform, float t)>;
 
 struct UIButtonStyle {
 	float          grayScale = 0.f;
@@ -353,7 +350,7 @@ private:
 };
 
 struct UITheme {
-	TextStyle     textStyle;
+	UITextStyle   textStyle;
 	UIBitmapStyle bitmapStyle;
 	UIButtonStyle buttonStyle;
 };

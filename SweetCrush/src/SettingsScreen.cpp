@@ -10,14 +10,6 @@
 
 using namespace Wind;
 
-namespace {
-
-constexpr UICanvasDesc canvasDesc {
-	.background = "gameartguppy/background.png",
-};
-
-} // namespace
-
 SettingsScreen::SettingsScreen(GameSettings& gameSettings)
     : mGameConfig(gameSettings)
     , mTitle { MakeTitleText(GameStringId::settings) }
@@ -25,7 +17,7 @@ SettingsScreen::SettingsScreen(GameSettings& gameSettings)
     , mSfxButton { MakeCheckBox(button1_y, GameStringId::sfx, button1_color) }
     , mLanguageButton { MakeMenuButton(button2_y, GameStringId::languageScreen, button2_color) }
     , mBackButton { MakeBackButton() }
-    , mCanvas(canvasDesc) {
+    , mCanvas(MakeCanvas()) {
 	// Build UI
 	mCanvas.Add(mTitle);
 	mCanvas.Add(mLanguageButton);
@@ -43,6 +35,7 @@ void SettingsScreen::LoadAssets(Engine& engine) {
 }
 
 ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
+	mCanvas.Tick(dt);
 	mCanvas.HandleInput(input);
 
 	mGameConfig.musicOn = mMusicButton.IsChecked();
@@ -76,9 +69,4 @@ void SettingsScreen::Exit() {
 }
 
 void SettingsScreen::ParseConfig(const char* varName, const char* varValue) {
-}
-
-void SettingsScreen::RefreshLanguageButton() {
-	GameStringId stringId = GameStringId::nextLanguage;
-	//TODO mLanguageButton.GetText()->SetText(static_cast<StringId>(stringId));
 }

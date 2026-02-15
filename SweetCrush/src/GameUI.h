@@ -6,7 +6,7 @@ namespace Wind {
 
 struct UIBitmapDesc;
 struct UITextDesc;
-struct TextStyle;
+struct DrawTextArgs;
 struct UISize;
 class UIPanel;
 class UIButton;
@@ -14,13 +14,13 @@ class UIText;
 class UICheckBox;
 class UICanvas;
 struct Color;
+struct UITextStyle;
 
 } // namespace Wind
 
 extern const Wind::UIBitmapDesc noIconDesc;
 extern const Wind::UITextDesc   noLabelDesc;
-extern const Wind::TextStyle    titleTextStyle;
-extern const Wind::TextStyle    defaultTextStyle;
+extern const Wind::UITextStyle defaultTextStyle;
 extern const Wind::UISize       defaultButtonSize;
 
 extern const float       titleY;
@@ -41,7 +41,7 @@ Wind::UIText     MakeTitleText(Wind::StringId label);
 Wind::UIText     MakeSubTitleText(Wind::StringId label);
 Wind::UIText     MakeScreenText(Wind::StringId label, float y);
 Wind::UIText     MakeDynScreenText(float y);
-Wind::UIButton   MakeMenuButton(float y, Wind::StringId label, const Wind::Color& color = button0_color);
+Wind::UIButton   MakeMenuButton(float y, Wind::StringId label, const Wind::Color& color = button0_color, const char* icon = nullptr);
 Wind::UIButton   MakeBackButton();
 Wind::UIButton   MakeCloseButton();
 Wind::UICheckBox MakeCheckBox(float y, Wind::StringId label, const Wind::Color& color);

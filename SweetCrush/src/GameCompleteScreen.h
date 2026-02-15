@@ -23,6 +23,7 @@ private:
 	Wind::UIText      mTitle;
 	Wind::UIButton    mContinueButton;
 	Wind::UICanvas    mCanvas;
-	Wind::FontPtr     mFont;
+	Wind::UIText      mText0;
+	Wind::UIText      mText1;
 	float             mAccumTime = 0.f;
 };

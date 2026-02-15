@@ -9,15 +9,6 @@
 
 using namespace Wind;
 
-namespace {
-
-constexpr UICanvasDesc canvasDesc {
-	.background = "gameartguppy/background.png",
-};
-
-
-} // namespace
-
 CreditsScreen::CreditsScreen()
     : mTitle { MakeTitleText(GameStringId::credits) }
     , mCodeBy { MakeScreenText(GameStringId::codeBy, 80) }
@@ -25,7 +16,7 @@ CreditsScreen::CreditsScreen()
     , mMusicBy { MakeScreenText(GameStringId::musicBy, 240) }
     , mVersion { MakeScreenText(GameStringId::version, 380) }
     , mBackButton { MakeBackButton() }
-    , mCanvas(canvasDesc)
+    , mCanvas(MakeCanvas())
     , mPanel(MakeInfoPanel()) {
 	mCanvas.Add(mTitle);
 	mCanvas.Add(mPanel);
@@ -40,7 +31,7 @@ const char* CreditsScreen::GetName() const {
 	return "CreditsScreen";
 }
 
-ScreenEvent CreditsScreen::Tick(float /*dt*/, const Wind::Input& input) {
+ScreenEvent CreditsScreen::Tick(float /*dt*/, const Input& input) {
 	mCanvas.HandleInput(input);
 #if defined(__ANDROID__) || defined(__OHOS__)
 	if (input.GetKeyJustPressed(SDLK_AC_BACK) ||
@@ -53,7 +44,8 @@ ScreenEvent CreditsScreen::Tick(float /*dt*/, const Wind::Input& input) {
 	return Continue();
 }
 
-void CreditsScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
+void CreditsScreen::Draw(UIRenderer& uiRenderer, float dt) {
+	mCanvas.Tick(dt);
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 }
 

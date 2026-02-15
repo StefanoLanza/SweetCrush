@@ -13,23 +13,26 @@ namespace Wind {
 
 namespace {
 
+void SquashButton(UITransform& transform, float t) {
+	transform.offset = { 0.f, 2.f };
+	transform.scale = { 1.05f, 1.f / 1.05f };
+}
+
+void ReleaseButton(UITransform& transform, float t) {
+	transform.offset = { 0.0, 0.f };
+	transform.scale = { 1.0f, 1.0f };
+}
+
 const UITheme defaultTheme {
 	.textStyle = {
 		.color = whiteColor,
 		.outlineColor = blackColor,
-		.scale = 1.f,
 	},
 	.bitmapStyle {},
 	.buttonStyle {
-	/*
-		.idle {},
-		.disabled {
-			.grayScale = 100.f,
-		},
-		.hovered {},
-		.pressed {
-			//.offset { 2.f, 2.f },
-		},*/
+		.onIdle = ReleaseButton,
+		.onPressed = SquashButton,
+		.onHovered = ReleaseButton,
 	},
 };
 
@@ -218,14 +221,15 @@ void UIButton::ComputeRect(const UIRect& parentRect, const UITransform& parentTr
 	// rect = ScaleRect(rect, finalTransform.scale);
 	// rect.pos = rect.pos + finalTransform.offset;
 	SetRect(rect);
-	UIRect paddedRect = AddPadding(rect, mDesc.padding);
 
+	UIRect paddedRect = AddPadding(rect, mDesc.padding);
 	if (mIcon) {
 		mIcon->ComputeRect(paddedRect, finalTransform);
 	}
 	if (mLabel) {
 		mLabel->ComputeRect(paddedRect, finalTransform);
 	}
+
 	mFinalTransform = finalTransform;
 }
 
@@ -253,18 +257,16 @@ void UIButton::Tick(float dt) {
 		if (style->onIdle) {
 			style->onIdle(mTransform, mAnimTime);
 		}
-		mTransform.offset = { 0.f, 0.f };
-		mTransform.scale = { 1.0f, 1.0f };
 		break;
 	case UIButtonState::hovered:
+		if (style->onHovered) {
+			style->onHovered(mTransform, mAnimTime);
+		}
 		break;
 	case UIButtonState::pressed:
 		if (style->onPressed) {
 			style->onPressed(mTransform, mAnimTime);
 		}
-		// FIXME
-		mTransform.offset = { 0.f, 2.f };
-		mTransform.scale = { 1.05f, 1.f / 1.05f };
 		break;
 	}
 	mAnimTime += dt;
@@ -274,7 +276,7 @@ UIText::UIText(const UITextDesc& desc)
     : UIControl { desc.visible }
     , mDesc(desc)
     , mText {}
-    , mTextStyle { mDesc.style } {
+    , mStyle { mDesc.style } {
 }
 
 void UIText::LoadAssets(Graphics& graphics, FontManager& fontManager) {
@@ -290,9 +292,7 @@ void UIText::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	if (mFont) {
 		const char* str = Text();
 		if (str) {
-			const UIRect rect = TransformRect(mRect, mFinalTransform);
-			// FIXME mTextStyle.scale = mFinalTransform.scale;
-			renderer.GetTextRenderer().Write(*mFont, str, rect.pos, mTextStyle, TextDirection::leftToRight, drawOrder);
+			renderer.GetTextRenderer().Write(*mFont, str, mRect.pos, mStyle, mFinalTransform, TextDirection::leftToRight, drawOrder);
 		}
 	}
 }
@@ -308,11 +308,11 @@ void UIText::ComputeRect(const UIRect& parentRect, const UITransform& parentTran
 	}
 	else {
 		if (mFont) {
-			mTextStyle.scale = finalTransform.scale;
 			const char*  str = Text();
+			// FIXME Keep centered when scaled. Apply scale here or when drawing text ? Check math
 			const UISize textSize {
 				.aWidth = static_cast<float>(mFont->CalculateStringWidth(str)), // * finalTransform.scale.x),
-				.aHeight = static_cast<float>(mFont->GetHeight()), // * finalTransform.scale.y),
+				.aHeight = static_cast<float>(mFont->GetHeight()),              // * finalTransform.scale.y),
 				.rWidth = 0.f,
 				.rHeight = 0.f,
 			};
@@ -338,12 +338,12 @@ void UIText::SetText(const char* str) {
 	}
 }
 
-void UIText::SetStyle(const TextStyle& style) {
-	mTextStyle = style;
+void UIText::SetStyle(const UITextStyle& style) {
+	mStyle = style;
 }
 
-const TextStyle& UIText::GetStyle() const {
-	return mTextStyle;
+const UITextStyle& UIText::GetStyle() const {
+	return mStyle;
 }
 
 const char* UIText::Text() const {
@@ -598,15 +598,12 @@ void UIPanel::ComputeRect(const UIRect& parentRect, const UITransform& transform
 	const UIRect rect = AlignRect(mDesc.pos, mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 	SetRect(rect);
 	UIRect paddedRect = AddPadding(rect, mDesc.padding);
-	UpdateLayout(paddedRect, transform);
-}
 
-void UIPanel::UpdateLayout(const UIRect& parentRect, const UITransform& transform) const {
 #define Dispatch(Type)                                   \
 	{                                                    \
 		auto control = static_cast<Type*>(child.ptr);    \
 		if (control->IsVisible()) {                      \
-			control->ComputeRect(parentRect, transform); \
+			control->ComputeRect(paddedRect, transform); \
 		}                                                \
 	}
 
@@ -733,8 +730,8 @@ void UICheckBox::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 void UICheckBox::ComputeRect(const UIRect& parentRect, const UITransform& transform) {
 	auto   style = mStyle; // GetStyle();
 	UIRect rect = AlignRect(mDesc.pos, mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
-	//rect.pos = rect.pos + style.offset;
-	//rect = ScaleRect(rect, style.scale);
+	// rect.pos = rect.pos + style.offset;
+	// rect = ScaleRect(rect, style.scale);
 	SetRect(rect);
 
 	rect = AddPadding(rect, mDesc.padding); // TODO Scaled ?

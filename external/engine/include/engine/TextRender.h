@@ -8,39 +8,32 @@
 
 namespace Wind {
 
-enum class TextAlignment {
-	left,
-	right,
-	center,
-};
-
 enum class TextDirection {
 	leftToRight,
 	rightToLeft,
 };
 
-struct TextStyle {
+struct UITextStyle {
 	Color color = whiteColor;
 	Color outlineColor = blackColor;
 	Color shadowColor = blackColor;
 	bool  shadow = false;
 	Vec2  shadowOffset = { 0.f, 4.f };
-	Vec2  scale = { 1.f, 1.f };
 };
 
 struct TextDrawArgs {
-	TextAlignment horizontalAlignment = TextAlignment::left;
-	TextDirection dir = TextDirection::leftToRight;
+	TextDirection direction = TextDirection::leftToRight;
 };
+
+struct UITransform;
 
 class UITextRenderer final {
 public:
 	explicit UITextRenderer(Graphics& graphics);
 	~UITextRenderer();
 
-	void Write(const Font& font, std::string_view text, Vec2 pos, const TextStyle& style, TextDirection direction, unsigned drawOrder) const;
-	void WriteAligned(const Font& font, std::string_view text, Vec2 pos, TextAlignment horizontalAlignment, TextDirection direction,
-	                  const TextStyle& style, unsigned drawOrder) const;
+	void Write(const Font& font, std::string_view text, Vec2 pos, const UITextStyle& style, const UITransform& transform, TextDirection direction,
+	           unsigned drawOrder) const;
 
 private:
 	static constexpr int maxCharsPerDraw = 256;

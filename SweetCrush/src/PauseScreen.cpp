@@ -21,7 +21,7 @@ const UIPanelDesc panelDesc {
 	.size = UIAbsoluteSize(600.f, 500.f),
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::center,
-	.background = "UI/panel.png",
+	.background = "UI/button.png",
 	.backgroundColor = panel0_color,
 	._9patch = 16.f,
 };
@@ -51,7 +51,8 @@ void PauseScreen::LoadAssets(Engine& engine) {
 	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
 }
 
-ScreenEvent PauseScreen::Tick(float /*dt*/, const Wind::Input& input) {
+ScreenEvent PauseScreen::Tick(float dt, const Wind::Input& input) {
+	mCanvas.Tick(dt);
 	mCanvas.HandleInput(input);
 #if defined(__ANDROID__) || defined(__OHOS__)
 	if (input.GetKeyJustPressed(SDLK_AC_BACK)

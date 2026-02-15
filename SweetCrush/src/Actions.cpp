@@ -10,6 +10,7 @@
 #include <engine/BitmapRender.h>
 #include <engine/Easings.h>
 #include <engine/TextRender.h>
+#include <engine/UI.h>
 
 #include <cassert>
 #include <cmath>
@@ -80,7 +81,7 @@ ActionFunc DrawMatchScore(int score, const Cell& cell, const UITextRenderer& tex
 		char tmp[64];
 		snprintf(tmp, sizeof(tmp), "%d", score);
 		float y = xy.y - t * scrollSpeed;
-		textRenderer.Write(font, tmp, Vec2 { xy.x, y }, defaultTextStyle, TextDirection::leftToRight, GameDrawOrder::overlays);
+		textRenderer.Write(font, tmp, Vec2 { xy.x, y }, defaultTextStyle, UITransform{}, TextDirection::leftToRight, GameDrawOrder::overlays);
 		return false;
 	};
 }

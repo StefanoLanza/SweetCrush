@@ -18,21 +18,13 @@
 
 using namespace Wind;
 
-namespace {
-
-constexpr UICanvasDesc canvasDesc {
-	.background = "gameartguppy/background.png",
-};
-
-} // namespace
-
 LevelStartScreen::LevelStartScreen(const MatchStats& matchStats, const GameDataModule& gameDataModule, const GameRenderer& gameRenderer)
     : mMatchStats(matchStats)
     , mGameDataModule(gameDataModule)
     , mGameRenderer(gameRenderer)
     , mTitle { MakeTitleText(GameStringId::level) }
     , mPlayButton { MakeMenuButton(button3_y, GameStringId::play) }
-    , mCanvas(canvasDesc)
+    , mCanvas(MakeCanvas())
     , mPanel(MakeInfoPanel())
     , mGoalText { MakeScreenText(GameStringId::goal, 40.f) }
     , mGoalDesc { MakeDynScreenText(160.f) } {
@@ -53,6 +45,7 @@ void LevelStartScreen::LoadAssets(Engine& engine) {
 }
 
 ScreenEvent LevelStartScreen::Tick(float dt, const Input& input) {
+	mCanvas.Tick(dt);
 	mCanvas.HandleInput(input);
 	mAccumTime += dt;
 	if (mAccumTime > 6.f || mPlayButton.IsClicked()) {

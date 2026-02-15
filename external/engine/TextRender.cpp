@@ -5,6 +5,7 @@
 #include "GlProgram.h"
 #include "Graphics.h"
 #include "Texture.h"
+#include "UI.h"
 
 namespace Wind {
 
@@ -38,7 +39,7 @@ UITextRenderer::UITextRenderer(Graphics& graphics)
 
 UITextRenderer::~UITextRenderer() = default;
 
-void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, const TextStyle& style, TextDirection direction,
+void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, const UITextStyle& style, const UITransform& transform, TextDirection direction,
                            unsigned drawOrder) const {
 	if (! mValidProgram) {
 		return;
@@ -57,6 +58,7 @@ void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, co
 	const float fontTexHeight = static_cast<float>(font.GetTexture().Height());
 	Char*       chars = static_cast<Char*>(instanceData.data);
 	float       advance = 0.f;
+	pos  = pos + transform.offset;
 	for (int idx = 0; idx < (int)text.length(); ++idx) {
 		int ridx = idx;
 		if (direction == TextDirection::rightToLeft) {
@@ -64,10 +66,10 @@ void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, co
 		}
 		const Glyph& g = font.FindGlyph(text[ridx]);
 		chars[idx].quad = {
-			pos.x + static_cast<float>(g.xoffset) + advance,
-			pos.y + static_cast<float>(g.yoffset),
-			static_cast<float>(g.width * style.scale.x),
-			static_cast<float>(g.height * style.scale.y),
+			pos.x + static_cast<float>(g.xoffset) * transform.scale.x + advance,
+			pos.y + static_cast<float>(g.yoffset) * transform.scale.y,
+			static_cast<float>(g.width * transform.scale.x),
+			static_cast<float>(g.height * transform.scale.y),
 		};
 		chars[idx].uvs = {
 			static_cast<float>(g.x) / fontTexWidth,
@@ -75,7 +77,7 @@ void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, co
 			static_cast<float>(g.width) / fontTexWidth,
 			static_cast<float>(g.height) / fontTexHeight,
 		};
-		advance += g.xadvance * style.scale.x;
+		advance += g.xadvance * transform.scale.x;
 	}
 
 	const int   uniforms[] = { mPosOffset, mColor, mOutlineColor };
@@ -85,7 +87,7 @@ void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, co
 		{ style.outlineColor.r / 255.f, style.outlineColor.g / 255.f, style.outlineColor.b / 255.f, style.outlineColor.a / 255.f },
 	};
 	const float shadowUniformData[][4] = {
-		{ style.shadowOffset.x, style.shadowOffset.y, 0.f, 0.f },
+		{ style.shadowOffset.x , style.shadowOffset.y, 0.f, 0.f },
 		{ style.shadowColor.r / 255.f, style.shadowColor.g / 255.f, style.shadowColor.b / 255.f, style.shadowColor.a / 255.f },
 		{ style.shadowColor.r / 255.f, style.shadowColor.g / 255.f, style.shadowColor.b / 255.f, 1.f },
 	};
@@ -112,17 +114,6 @@ void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, co
 
 	drawCall.uniforms = uniformData;
 	mGraphics.Draw(drawCall);
-}
-
-void UITextRenderer::WriteAligned(const Font& font, std::string_view text, Vec2 pos, TextAlignment horizontalAlignment, TextDirection direction,
-                                  const TextStyle& style, unsigned drawOrder) const {
-	if (horizontalAlignment == TextAlignment::center) {
-		pos.x += 0.5f * (mGraphics.GetTargetWidth() - font.CalculateStringWidth(text));
-	}
-	else if (horizontalAlignment == TextAlignment::right) {
-		pos.x += (mGraphics.GetTargetWidth() - font.CalculateStringWidth(text));
-	}
-	Write(font, text, pos, style, direction, drawOrder);
 }
 
 } // namespace Wind

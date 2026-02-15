@@ -15,24 +15,10 @@ namespace {
 const UITextDesc textDesc[] {
 	{
 	    .stringId = GameStringId::empty,
-	    .pos = { 0, 60 },
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::top,
-	    .font = "mediumFont",
-	    .style = titleTextStyle,
-	},
-	{
-	    .stringId = GameStringId::empty,
 	    .pos = { 0.f, 160.f },
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "smallFont",
-	},
-	{
-	    .stringId = GameStringId::ok,
-	    .horizontalAlignment = UIHorizAlignment::center,
-	    .verticalAlignment = UIVertAlignment::center,
-	    .font = "mediumFont",
 	},
 };
 
@@ -54,7 +40,7 @@ const UIPanelDesc panelDesc {
 
 EffectInfoScreen::EffectInfoScreen()
     : mTitle(MakeTitleText(GameStringId::empty))
-    , mText(textDesc[1])
+    , mText(textDesc[0])
     , mOKButton(MakeMenuButton(50, GameStringId::ok))
     , mEffectIcon(effectIconDesc)
     , mPanel(panelDesc)
@@ -78,6 +64,7 @@ const char* EffectInfoScreen::GetName() const {
 }
 
 ScreenEvent EffectInfoScreen::Tick(float dt, const Input& input) {
+	mPanel.Tick(dt);
 	mPanel.HandleInput(input);
 	if (mOKButton.IsClicked() ||
 #if defined(_WIN32) || defined(__linux__)
@@ -92,7 +79,7 @@ ScreenEvent EffectInfoScreen::Tick(float dt, const Input& input) {
 }
 
 void EffectInfoScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
-	//FIXME mPanel.Draw(uiRenderer, 0); // TODO Rect
+	//FIXME mPanel.Write(uiRenderer, 0); // TODO Rect
 }
 
 void EffectInfoScreen::Enter(const ScreenNavArgs& args) {
