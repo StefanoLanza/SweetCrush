@@ -29,10 +29,10 @@ const UIPanelDesc panelDesc {
 } // namespace
 
 PauseScreen::PauseScreen()
-    : mRestartLevelButton { MakeMenuButton(80, GameStringId::restartLevel, button0_color) }
-    , mEndGameButton { MakeMenuButton(200, GameStringId::endGame, button2_color) }
-    , mSettingsButton { MakeMenuButton(440, GameStringId::settings, button1_color) }
-    , mCloseButton { MakeMenuButton(320, GameStringId::continueGame, button3_color) }
+    : mRestartLevelButton { MakeMenuButton(80, GameStringId::restartLevel, button0_color, "icons/replay.png") }
+    , mEndGameButton { MakeMenuButton(200, GameStringId::endGame, button2_color, "icons/cross.png") }
+    , mSettingsButton { MakeMenuButton(440, GameStringId::settings, button1_color, "icons/gear.png") }
+    , mCloseButton { MakeMenuButton(320, GameStringId::continueGame, button3_color, "icons/back.png") }
 //    , mCloseButton { MakeCloseButton() }
     , mPanel { panelDesc }
     , mCanvas(canvasDesc) {

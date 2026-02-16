@@ -37,7 +37,7 @@ const char* eng[] = {
 	"You completed all levels",
 	"PAUSE",
 	"CONTINUE",
-	"RESTART LEVEL",
+	"RESTART",
 	"END GAME",
 	"OK",
 	"COMPLETE",

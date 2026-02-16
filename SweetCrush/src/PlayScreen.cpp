@@ -73,14 +73,6 @@ const UITextDesc timeTextDesc {
 	.font = "smallFont",
 };
 
-const UITextDesc goalTextDesc {
-	.stringId = GameStringId::goal,
-	.pos = { 0.f, 0.f },
-	.horizontalAlignment = UIHorizAlignment::center,
-	.verticalAlignment = UIVertAlignment::top,
-	.font = "smallFont",
-};
-
 const UIPanelDesc topPanelDesc {
 	.pos = UIAbsolutePos(0.f, 40.f),
 	.size = UIAbsoluteSize(580, 140),
@@ -122,7 +114,6 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
     , mCanvas(MakeCanvas())
     , mTopPanel(topPanelDesc)
     , mBottomPanel(bottomPanelDesc)
-    , mGoalText(goalTextDesc)
     , mScoreText(scoreTextDesc)
     , mTimeText(timeTextDesc)
     , mPauseButton(pauseButtonDesc, pauseButtonBitmapDesc, noLabelDesc)
@@ -139,7 +130,6 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
 	mCanvas.Add(mScoreText);
 	mCanvas.Add(mTimeText);
 	mCanvas.Add(mTopPanel);
-	mTopPanel.Add(mGoalText);
 	mBottomPanel.Add(mBoosterButtons[0]); // TODO GridLayout
 	mBottomPanel.Add(mBoosterButtons[1]);
 	mBottomPanel.Add(mBoosterButtons[2]);
@@ -524,23 +514,23 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 
 	if (level.goal.id == GoalId::collectMatches) {
-		Vec2 pos = mTopPanel.GetRect().pos + Vec2 { 200.f, 100.f };
+		Vec2 pos = mTopPanel.GetRect().pos + Vec2 { 220.f, 40.f };
 		for (int i = 0; i < 3; ++i) {
 			const int icon = pieceIcons[level.pieceIds[i]];
 			mGameRenderer.DrawIcon(icon, pos, 0.f, whiteColor, GameDrawOrder::overlays);
 			if (int diff = level.goal.collectMatches.count[i] - mMatchStats.targetPieceCount[i]; diff > 0) {
 				SDL_snprintf(tmp, sizeof(tmp), "%d", diff);
-				textRenderer.Write(*mFonts[1], tmp, pos + Vec2 { 0.f, 40.f }, textStyle, UITransform {}, TextDirection::leftToRight,
+				textRenderer.Write(*mFonts[1], tmp, pos + Vec2 { -10.f, 40.f }, textStyle, UITransform {}, TextDirection::leftToRight,
 				                   GameDrawOrder::overlays);
 			}
 			else {
-				mGameRenderer.DrawIcon(checkIcon, pos + Vec2(0.f, 48.f), 0.f, whiteColor, GameDrawOrder::overlays + 1);
+				mGameRenderer.DrawIcon(checkIcon, pos + Vec2(0.f, 50.f), 0.f, whiteColor, GameDrawOrder::overlays + 1);
 			}
-			pos.x += 100.f;
+			pos.x += 80.f;
 		}
 	}
 	else if (level.goal.id == GoalId::breakIce) {
-		Vec2 pos = mTopPanel.GetRect().pos + Vec2 { 96.f, 96.f };
+		Vec2 pos = mTopPanel.GetRect().pos + Vec2 { 96.f, 40.f };
 		for (int i = 0; i < mMatchStats.layerCount; ++i) {
 			mGameRenderer.DrawIcon(iceSprites[0], pos, 0.f, whiteColor, GameDrawOrder::overlays);
 			pos.x += gameTextures[iceSprites[0]]->Width() + 12;

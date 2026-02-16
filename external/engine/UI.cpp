@@ -1,4 +1,5 @@
 #include "UI.h"
+#include "Easings.h"
 #include "Engine.h"
 #include "Font.h"
 #include "FontManager.h"
@@ -7,20 +8,33 @@
 #include "StringTable.h"
 #include "Texture.h"
 #include "UIRenderer.h"
+
 #include <cassert>
 
 namespace Wind {
 
 namespace {
 
-void SquashButton(UITransform& transform, float t) {
-	transform.offset = { 0.f, 2.f };
-	transform.scale = { 1.05f, 1.f / 1.05f };
+inline Vec2 Spring(Vec2 curr, Vec2 target, float dt) {
+	const float stiffness = 0.1f;
+	const float damping = 0.8f;
+	Vec2 distance = target - curr;
+	Vec2 force = distance * stiffness; // Pull toward target
+	// Apply friction to the velocity so it settles
+	Vec2 velocity = force * damping; //(velocity + force) * damping; 
+	// Update the actual position
+	return curr + velocity * dt;
 }
 
-void ReleaseButton(UITransform& transform, float t) {
+void SquashButton(UITransform& transform, float dt) {
+	constexpr float f = 1.2f;
+	transform.offset = { 0.f, 0.f }; // FIXME
+	transform.scale = { f, 1.f / f };
+}
+
+void ReleaseButton(UITransform& transform, float dt) {
 	transform.offset = { 0.0, 0.f };
-	transform.scale = { 1.0f, 1.0f };
+	transform.scale = { 1.f, 1.f }; //Spring(transform.scale, { 1.f, 1.f }, dt); // LerpEase({ 1.05f, 1.f / 1.05f }, { 1.0f, 1.0f }, std::clamp(t, 0.f, 1.f), EaseOutBounce);;
 }
 
 const UITheme defaultTheme {
@@ -65,14 +79,15 @@ UIRect AddPadding(const UIRect& rect, float padding) {
 
 UIRect TransformRect(const UIRect& rect, const UITransform& transform) {
 	Vec2 center = rect.pos + rect.size * 0.5f;
-	Vec2 newExtents = rect.size * transform.scale * 0.5;
-	return { center - newExtents + transform.offset, newExtents * 2.f };
+	Vec2 size = rect.size * transform.scale;
+	return { center - size * 0.5f + transform.offset, size };
 }
 
 UITransform ConcatenateTransforms(const UITransform& parent, const UITransform& child) {
 	return UITransform {
 		.offset = parent.offset + parent.scale * child.offset,
 		.scale = parent.scale * child.scale,
+		.rotation = parent.rotation + child.rotation,
 	};
 }
 
@@ -102,44 +117,29 @@ void UIControl::SetRect(const UIRect& rect) {
 	mRect = rect;
 }
 
-UIButton::UIButton(const UIButtonDesc& desc)
-    : UIButton(desc, nullptr, nullptr) {
-}
-
-UIButton::UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text)
+UIButton::UIButton(const UIButtonDesc& desc, const UIBitmapDesc& iconDesc, const UITextDesc& labelDesc, const UIButtonStyle* style)
     : UIControl { true }
     , mDesc(desc)
-    , mIcon(std::move(bitmap))
-    , mLabel(std::move(text))
+    , mStyle { style }
+    , mIcon(std::make_unique<UIBitmap>(iconDesc))
+    , mLabel(std::make_unique<UIText>(labelDesc))
     , mState { UIButtonState::idle }
     , mAnimTime { 0.f }
     , mClicked { false } {
 }
 
-UIButton::UIButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc, const UITextDesc& labelDesc)
-    : UIButton(desc, std::make_unique<UIBitmap>(bitmapDesc), std::make_unique<UIText>(labelDesc)) {
-}
-
-UIButton::UIButton(const UIButtonDesc& desc, const UIBitmapDesc& bitmapDesc)
-    : UIButton(desc, std::make_unique<UIBitmap>(bitmapDesc), nullptr) {
-}
-
-UIButton::UIButton(const UIButtonDesc& desc, const UITextDesc& labelDesc)
-    : UIButton(desc, nullptr, std::make_unique<UIText>(labelDesc)) {
-}
-
 const UIButtonStyle* UIButton::GetStyle() const {
-	const UIButtonStyle* style = &defaultTheme.buttonStyle; // TODO Config
-	return style;
+	return mStyle ? mStyle : &defaultTheme.buttonStyle;
 }
 
 UIButtonState UIButton::RefreshState(const Input& input) {
-	// TODO Transform
+	const UIRect transformedRect = mRect; //FIXME TransformRect(mRect, mFinalTransform);
+	// TODO Handle rotation
 	const Rect r {
-		.left = GetRect().pos.x,
-		.top = GetRect().pos.y,
-		.right = r.left + GetRect().size.x,
-		.bottom = r.top + GetRect().size.y,
+		.left = transformedRect.pos.x,
+		.top = transformedRect.pos.y,
+		.right = r.left + transformedRect.size.x,
+		.bottom = r.top + transformedRect.size.y,
 	};
 	const bool          mouseOver = RectContainsPoint(r, input.GetMappedMouseCoord());
 	const bool          mouseDown = input.GetMouseButtonDown(MouseButton::left) || input.GetFingerDown();
@@ -238,10 +238,6 @@ UIButtonState UIButton::GetState() const {
 }
 
 bool UIButton::HandleInput(const Input& input) {
-	if (! IsEnabled()) {
-		return false;
-	}
-
 	UIButtonState currState = mState;
 	UIButtonState newState = RefreshState(input);
 	// TODO Make it configurable ?
@@ -255,17 +251,17 @@ void UIButton::Tick(float dt) {
 	switch (mState) {
 	case UIButtonState::idle:
 		if (style->onIdle) {
-			style->onIdle(mTransform, mAnimTime);
+			style->onIdle(mTransform, dt);
 		}
 		break;
 	case UIButtonState::hovered:
 		if (style->onHovered) {
-			style->onHovered(mTransform, mAnimTime);
+			style->onHovered(mTransform, dt);
 		}
 		break;
 	case UIButtonState::pressed:
 		if (style->onPressed) {
-			style->onPressed(mTransform, mAnimTime);
+			style->onPressed(mTransform, dt);
 		}
 		break;
 	}
@@ -292,7 +288,8 @@ void UIText::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	if (mFont) {
 		const char* str = Text();
 		if (str) {
-			renderer.GetTextRenderer().Write(*mFont, str, mRect.pos, mStyle, mFinalTransform, TextDirection::leftToRight, drawOrder);
+			const UIRect transformedRect = TransformRect(mRect, mFinalTransform);
+			renderer.GetTextRenderer().Write(*mFont, str, transformedRect.pos, mStyle, mFinalTransform, TextDirection::leftToRight, drawOrder);
 		}
 	}
 }
@@ -308,7 +305,7 @@ void UIText::ComputeRect(const UIRect& parentRect, const UITransform& parentTran
 	}
 	else {
 		if (mFont) {
-			const char*  str = Text();
+			const char* str = Text();
 			// FIXME Keep centered when scaled. Apply scale here or when drawing text ? Check math
 			const UISize textSize {
 				.aWidth = static_cast<float>(mFont->CalculateStringWidth(str)), // * finalTransform.scale.x),

@@ -11,10 +11,10 @@ using namespace Wind;
 
 CreditsScreen::CreditsScreen()
     : mTitle { MakeTitleText(GameStringId::credits) }
-    , mCodeBy { MakeScreenText(GameStringId::codeBy, 80) }
-    , mGraphicsBy { MakeScreenText(GameStringId::graphicsBy, 160) }
-    , mMusicBy { MakeScreenText(GameStringId::musicBy, 240) }
-    , mVersion { MakeScreenText(GameStringId::version, 380) }
+    , mCodeBy { MakeScreenText(GameStringId::codeBy, 60) }
+    , mGraphicsBy { MakeScreenText(GameStringId::graphicsBy, 140) }
+    , mMusicBy { MakeScreenText(GameStringId::musicBy, 220) }
+    , mVersion { MakeScreenText(GameStringId::version, 300) }
     , mBackButton { MakeBackButton() }
     , mCanvas(MakeCanvas())
     , mPanel(MakeInfoPanel()) {

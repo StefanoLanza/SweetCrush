@@ -24,7 +24,7 @@ private:
 	Wind::UIText   mText0;
 	Wind::UIText   mText1;
 	Wind::UIButton mReplayLevelButton;
-	Wind::UIButton mContinueButton;
+	Wind::UIButton mEndButton;
 	Wind::UIPanel  mPanel;
 	Wind::UICanvas mCanvas;
 };

@@ -62,8 +62,9 @@ constexpr inline UISize UIAbsoluteSize(float x, float y) {
 constexpr UIRect UIZeroRect { 0.f, 0.f, 0.f, 0.f };
 
 struct UITransform {
-	Vec2 offset = { 0.f, 0.f };
-	Vec2 scale = { 1.f, 1.f };
+	Vec2  offset = { 0.f, 0.f };
+	Vec2  scale = { 1.f, 1.f };
+	float rotation = 0.f;
 };
 
 // Use a macro instead of inheritance, to allow designated initializers in C++ 20
@@ -252,7 +253,7 @@ enum class UIButtonState {
 };
 
 struct UIButtonStyle;
-using UIButtonAction = std::function<void(UITransform& transform, float t)>;
+using UIButtonAction = std::function<void(UITransform& transform, float dt)>;
 
 struct UIButtonStyle {
 	float          grayScale = 0.f;
@@ -263,10 +264,7 @@ struct UIButtonStyle {
 
 class UIButton final : public UIControl {
 public:
-	explicit UIButton(const UIButtonDesc& desc);
-	UIButton(const UIButtonDesc& desc, const UIBitmapDesc& iconDesc, const UITextDesc& labelDesc);
-	UIButton(const UIButtonDesc& desc, const UITextDesc& labelDesc);
-	UIButton(const UIButtonDesc& desc, const UIBitmapDesc& iconDesc);
+	UIButton(const UIButtonDesc& desc, const UIBitmapDesc& iconDesc, const UITextDesc& labelDesc, const UIButtonStyle* style = nullptr);
 
 	bool          IsClicked() const;
 	void          LoadAssets(Graphics& graphics, FontManager& fontManager);
@@ -283,6 +281,7 @@ private:
 
 private:
 	UIButtonDesc              mDesc;
+	const UIButtonStyle*      mStyle;
 	TexturePtr                mBackground;
 	std::unique_ptr<UIBitmap> mIcon;
 	std::unique_ptr<UIText>   mLabel;

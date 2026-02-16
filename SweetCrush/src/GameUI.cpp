@@ -47,7 +47,7 @@ const Color     panel0_color = { 192.f, 222.f, 255.f, 255.f };
 Wind::UIPanel MakeInfoPanel() {
 	const UIPanelDesc desc {
 		.pos = UIAbsolutePos(0.f, 0.f),
-		.size = UIAbsoluteSize(520.f, 500.f),
+		.size = UIAbsoluteSize(520.f, 400.f),
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::center,
 		.background = "UI/button.png",
@@ -165,7 +165,7 @@ Wind::UIButton MakeMenuButton(float y, Wind::StringId label, const Color& color,
 }
 
 Wind::UIButton MakeBackButton() {
-	return MakeMenuButton(button3_y, GameStringId::back, button3_color);
+	return MakeMenuButton(button3_y, GameStringId::back, button3_color, "icons/back.png");
 #if 0
 	UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(32, -32),

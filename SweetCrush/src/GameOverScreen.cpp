@@ -18,7 +18,7 @@ namespace {
 
 const UIPanelDesc panelDesc {
 	.pos = UIAbsolutePos(0.f, 0.f),
-	.size = UIAbsoluteSize(560.f, 400.f),
+	.size = UIAbsoluteSize(520.f, 300.f),
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::center,
 	.background = "UI/button.png",
@@ -31,8 +31,8 @@ const UIPanelDesc panelDesc {
 GameOverScreen::GameOverScreen(MatchStats& matchStats)
     : mMatchStats(matchStats)
     , mTitle { MakeTitleText(GameStringId::gameOver) }
-    , mReplayLevelButton { MakeMenuButton(button2_y, GameStringId::retry) }
-    , mContinueButton { MakeMenuButton(button3_y, GameStringId::toMainMenu) }
+    , mReplayLevelButton { MakeMenuButton(button2_y, GameStringId::retry, button0_color, "icons/replay.png") }
+    , mEndButton { MakeMenuButton(button3_y, GameStringId::toMainMenu, button1_color, "icons/cross.png") }
     , mText0 { MakeDynScreenText(40.f) }
     , mText1 { MakeDynScreenText(100.f) }
     , mPanel(panelDesc)
@@ -42,7 +42,7 @@ GameOverScreen::GameOverScreen(MatchStats& matchStats)
 	mCanvas.Add(mTitle);
 	mCanvas.Add(mPanel);
 	mCanvas.Add(mReplayLevelButton);
-	mCanvas.Add(mContinueButton);
+	mCanvas.Add(mEndButton);
 }
 
 const char* GameOverScreen::GetName() const {
@@ -56,7 +56,7 @@ void GameOverScreen::LoadAssets(Engine& engine) {
 ScreenEvent GameOverScreen::Tick(float dt, const Input& input) {
 	mCanvas.Tick(dt);
 	mCanvas.HandleInput(input);
-	if (mContinueButton.IsClicked()) {
+	if (mEndButton.IsClicked()) {
 		return GoTo(GameScreenIds::mainMenu, ScreenTransition::slideBottom);
 	}
 	else if (mReplayLevelButton.IsClicked()) {
