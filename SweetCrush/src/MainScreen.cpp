@@ -15,6 +15,19 @@
 
 using namespace Wind;
 
+namespace {
+
+const UITextDesc versionDesc {
+	.stringId = GameStringId::version,
+	.pos = { 0.f, 0.f },
+	.horizontalAlignment = UIHorizAlignment::right,
+	.verticalAlignment = UIVertAlignment::bottom,
+	.font = "smallFont",
+	.style = defaultTextStyle,
+};
+
+}
+
 MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
     : mEngine(engine)
     , mGameRenderer(gameRenderer)
@@ -26,6 +39,7 @@ MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
     , mQuitButton { MakeMenuButton(button3_y, GameStringId::quit, button3_color, "icons/cross.png") }
 #endif
     , mCanvas { MakeCanvas() }
+    , mVersion { versionDesc }
     , mAccumTime(0) {
 	// Setup UI
 	mCanvas.Add(mTitle);
@@ -35,6 +49,7 @@ MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
 	mCanvas.Add(mQuitButton);
 #endif
+	mCanvas.Add(mVersion);
 }
 
 const char* MainScreen::GetName() const {
@@ -115,13 +130,13 @@ void MainScreen::ParseConfig(const char* varName, const char* varValue) {
 }
 
 void MainScreen::AnimateUI() {
-//	float t = std::min(1.f, mAccumTime * 3.f);
-//	auto  desc = mSettingsButton.GetDesc();
+	//	float t = std::min(1.f, mAccumTime * 3.f);
+	//	auto  desc = mSettingsButton.GetDesc();
 	//	mQuitButton.GetDesc Bitmap()->SetColor(Color { desc.color.r, desc.color.g, desc.color.b, 255.f * t });
 	// desc.scale = LerpEase(0.85f, 1.f, t, EaseOutBounce);
-	//desc.pos.ax = LerpEase(-400.f, 0.f, t, EaseOutCubic);
+	// desc.pos.ax = LerpEase(-400.f, 0.f, t, EaseOutCubic);
 	// mSettingsButton.SetDesc(desc);
-	//desc = mStartButton.GetDesc();
-	//desc.pos.ax = LerpEase(400.f, 0.f, t, EaseOutCubic);
+	// desc = mStartButton.GetDesc();
+	// desc.pos.ax = LerpEase(400.f, 0.f, t, EaseOutCubic);
 	// mStartButton.SetDesc(desc);
 }

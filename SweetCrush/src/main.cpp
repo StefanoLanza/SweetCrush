@@ -3,11 +3,14 @@
 #include <engine/IniParser.h>
 #include <engine/Sdl.h>
 #include <engine/SdlWindow.h>
+#include <engine/UI.h>
 
 #include "Game.h"
 #include "AppConfig.h"
 #include "GameDataModule.h"
 #include "GameRenderer.h"
+#include "GameUI.h"
+
 
 #include <algorithm>
 #include <cstring>
@@ -34,6 +37,7 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 #endif
+	SetUITheme(&uiTheme);
 	Wind::Sdl       sdl { SDL_INIT_VIDEO | SDL_INIT_EVENTS };
 	Wind::SdlWindow window { "SweetCrush", gameConfig.windowWidth, gameConfig.windowHeight, nullptr, gameConfig.fullscreen };
 	Wind::Engine    engine { window };

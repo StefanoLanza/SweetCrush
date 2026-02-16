@@ -14,7 +14,7 @@ CreditsScreen::CreditsScreen()
     , mCodeBy { MakeScreenText(GameStringId::codeBy, 60) }
     , mGraphicsBy { MakeScreenText(GameStringId::graphicsBy, 140) }
     , mMusicBy { MakeScreenText(GameStringId::musicBy, 220) }
-    , mVersion { MakeScreenText(GameStringId::version, 300) }
+    , mFontBy { MakeScreenText(GameStringId::fontBy, 300) }
     , mBackButton { MakeBackButton() }
     , mCanvas(MakeCanvas())
     , mPanel(MakeInfoPanel()) {
@@ -23,7 +23,8 @@ CreditsScreen::CreditsScreen()
 	mPanel.Add(mCodeBy);
 	mPanel.Add(mGraphicsBy);
 	mPanel.Add(mMusicBy);
-	mPanel.Add(mVersion);
+	mPanel.Add(mFontBy);
+	//mPanel.Add(mVersion);
 	mCanvas.Add(mBackButton);
 }
 

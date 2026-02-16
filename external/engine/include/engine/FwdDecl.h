@@ -10,7 +10,6 @@ class Graphics;
 class Input;
 class Audio;
 class BitmapRenderer;
-class UITextRenderer;
 class Blitter;
 class Sdl;
 class SdlWindow;
@@ -20,14 +19,7 @@ class SdlMusic;
 class GlProgram;
 class GlFrameBuffer;
 class Font;
-struct UIRect;
-class UIButton;
-class UICanvas;
-class UIPanel;
-class UIBitmap;
-class UIText;
-class UICheckBox;
-class UIRenderer;
+struct Color;
 class FontManager;
 using TexturePtr = std::shared_ptr<Texture>;
 using FontPtr = std::shared_ptr<Font>;
@@ -41,5 +33,24 @@ struct Vec2;
 struct Vec3;
 struct Vec4;
 class INIParser;
+
+// UI
+struct UIRect;
+class UIPanel;
+class UIBitmap;
+class UIText;
+class UICanvas;
+class UIButton;
+class UICheckBox;
+class UIRenderer;
+struct UIBitmapDesc;
+struct UITextDesc;
+struct UISize;
+class UIText;
+class UICheckBox;
+class UICanvas;
+struct UITextStyle;
+class UITextRenderer;
+struct UITheme;
 
 } // namespace Wind

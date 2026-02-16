@@ -15,41 +15,12 @@ namespace Wind {
 
 namespace {
 
-inline Vec2 Spring(Vec2 curr, Vec2 target, float dt) {
-	const float stiffness = 0.1f;
-	const float damping = 0.8f;
-	Vec2        distance = target - curr;
-	Vec2        force = distance * stiffness; // Pull toward target
-	// Apply friction to the velocity so it settles
-	Vec2 velocity = force * damping; //(velocity + force) * damping;
-	// Update the actual position
-	return curr + velocity * dt;
-}
-
-void SquashButton(UITransform& transform, float dt) {
-	constexpr float f = 1.02f;
-	transform.offset = { 0.f, 0.f }; // FIXME
-	transform.scale = { f, 1.f / f };
-}
-
-void ReleaseButton(UITransform& transform, float dt) {
-	transform.offset = { 0.0, 0.f };
-	transform.scale = {
-		1.f, 1.f
-	}; // Spring(transform.scale, { 1.f, 1.f }, dt); // LerpEase({ 1.05f, 1.f / 1.05f }, { 1.0f, 1.0f }, std::clamp(t, 0.f, 1.f), EaseOutBounce);;
-}
-
 const UITheme defaultTheme {
 	.textStyle = {
 		.color = whiteColor,
 		.outlineColor = blackColor,
 	},
-	.bitmapStyle {},
-	.buttonStyle {
-		.onIdle = ReleaseButton,
-		.onPressed = SquashButton,
-		.onHovered = ReleaseButton,
-	},
+	.buttonStyle {},
 };
 
 const UITheme* uiTheme = &defaultTheme;
@@ -132,7 +103,7 @@ UIButton::UIButton(const UIButtonDesc& desc, const UIBitmapDesc& iconDesc, const
 }
 
 const UIButtonStyle* UIButton::GetStyle() const {
-	return mStyle ? mStyle : &defaultTheme.buttonStyle;
+	return mStyle ? mStyle : &uiTheme->buttonStyle;
 }
 
 UIButtonState UIButton::RefreshState(const Input& input) {
@@ -269,6 +240,11 @@ void UIButton::Tick(float dt) {
 		break;
 	}
 	mAnimTime += dt;
+}
+
+void UIButton::SetLabel(const char* label) {
+	assert(label);
+	mLabel->SetText(label);
 }
 
 UIText::UIText(const UITextDesc& desc)
@@ -632,8 +608,8 @@ void UIPanel::ComputeRect(const UIRect& parentRect, const UITransform& transform
 UICanvas::UICanvas(const UICanvasDesc& desc)
     : mPanel(UIPanelDesc {
           .pos = UIZeroPos,
-          .size = UIParentSize,
-		  .padding = desc.padding,
+		  .size = { 0.f, 0.f, 1.f, 1.f },
+          .padding = desc.padding,
           .background = desc.background,
           .backgroundColor = desc.backgroundColor,
       }) {
@@ -768,7 +744,7 @@ void UIMouseCursor::Draw(const UIRenderer& renderer, const Vec2& mouseCoords, un
 	}
 }
 
-void SetTheme(const UITheme* theme) {
+void SetUITheme(const UITheme* theme) {
 	uiTheme = theme ? theme : &defaultTheme;
 }
 

@@ -6,8 +6,47 @@
 
 using namespace Wind;
 
-const Wind::UIBitmapDesc noIconDesc {};
+const UIBitmapDesc noIconDesc {};
 const float              buttonPadding = 48.f;
+
+namespace {
+
+inline Vec2 Spring(Vec2 curr, Vec2 target, float dt) {
+	const float stiffness = 0.1f;
+	const float damping = 0.8f;
+	Vec2        distance = target - curr;
+	Vec2        force = distance * stiffness; // Pull toward target
+	// Apply friction to the velocity so it settles
+	Vec2 velocity = force * damping; //(velocity + force) * damping;
+	// Update the actual position
+	return curr + velocity * dt;
+}
+
+void SquashButton(UITransform& transform, float dt) {
+	constexpr float f = 1.025f;
+	transform.offset = { 0.f, 4.f };
+	transform.scale = { f, 1.f / f };
+}
+
+void ReleaseButton(UITransform& transform, float dt) {
+	transform.offset = { 0.0, 0.f };
+	transform.scale = { 1.f, 1.f };
+	// Spring(transform.scale, { 1.f, 1.f }, dt); // LerpEase({ 1.05f, 1.f / 1.05f }, { 1.0f, 1.0f }, std::clamp(t, 0.f, 1.f), EaseOutBounce);;
+}
+
+} // namespace
+
+const UITheme uiTheme {
+	.textStyle = {
+		.color = whiteColor,
+		.outlineColor = blackColor,
+	},
+	.buttonStyle {
+		.onIdle = ReleaseButton,
+		.onPressed = SquashButton,
+		.onHovered = ReleaseButton,
+	},
+};
 
 const UITextDesc noLabelDesc {
 	.stringId = GameStringId::empty,
@@ -27,15 +66,15 @@ constexpr UITextStyle defaultTextStyle {
 	.outlineColor = blackColor,
 	.shadowColor = { 0.f, 0.f, 0.f, 100.f },
 	.shadow = true,
-	.shadowOffset = { 0.f, 4.f },
+	.shadowOffset = { 0.f, 0.f },
 };
 
 constexpr float titleY = 140.f;
 constexpr float subTitleY = 280.f;
-constexpr float button0_y = 560;
-constexpr float button1_y = 680;
-constexpr float button2_y = 800;
-constexpr float button3_y = 920;
+constexpr float button0_y = 540;
+constexpr float button1_y = 660;
+constexpr float button2_y = 780;
+constexpr float button3_y = 900;
 const Color     button0_color = { 255.f, 255.f, 131.f, 255.f };
 const Color     button1_color = { 192.f, 222.f, 255.f, 255.f };
 const Color     button2_color = { 153.f, 219.f, 175.f, 255.f };
@@ -45,7 +84,7 @@ const float     text1_y = 510;
 const Color     panel0_color = { 192.f, 222.f, 255.f, 255.f };
 const Color     panel1_color = { 192.f, 222.f, 255.f, 127.f };
 
-Wind::UIPanel MakeInfoPanel() {
+UIPanel MakeInfoPanel() {
 	const UIPanelDesc desc {
 		.pos = UIAbsolutePos(0.f, 0.f),
 		.size = UIAbsoluteSize(520.f, 400.f),
@@ -58,31 +97,19 @@ Wind::UIPanel MakeInfoPanel() {
 	return UIPanel { desc };
 }
 
-Wind::UIText MakeTitleText(Wind::StringId label) {
+UIText MakeTitleText(StringId label, float y) {
 	const UITextDesc desc {
 		.stringId = label,
-		.pos = { 0.f, titleY },
+		.pos = { 0.f, y },
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::top,
-		.font = "screenTitle", //"bigFont",
+		.font = "title",
 		.style = titleTextStyle,
 	};
-	return Wind::UIText { desc };
+	return UIText { desc };
 }
 
-Wind::UIText MakeSubTitleText(Wind::StringId label) {
-	const UITextDesc desc {
-		.stringId = label,
-		.pos = { 0.f, subTitleY },
-		.horizontalAlignment = UIHorizAlignment::center,
-		.verticalAlignment = UIVertAlignment::top,
-		.font = "screenTitle",
-		.style = titleTextStyle,
-	};
-	return Wind::UIText { desc };
-}
-
-Wind::UIText MakeScreenText(Wind::StringId label, float y) {
+UIText MakeScreenText(StringId label, float y) {
 	const UITextDesc desc {
 		.stringId = label,
 		.pos = { 0.f, y },
@@ -91,10 +118,10 @@ Wind::UIText MakeScreenText(Wind::StringId label, float y) {
 		.font = "smallFont",
 		.style = defaultTextStyle,
 	};
-	return Wind::UIText { desc };
+	return UIText { desc };
 }
 
-Wind::UIText MakeDynScreenText(float y) {
+UIText MakeDynScreenText(float y) {
 	const UITextDesc desc {
 		.stringId = 0,
 		.pos = { 0.f, y },
@@ -103,40 +130,11 @@ Wind::UIText MakeDynScreenText(float y) {
 		.font = "smallFont",
 		.style = defaultTextStyle,
 	};
-	return Wind::UIText { desc };
+	return UIText { desc };
 }
 
-Wind::UIButton MakeMenuButton(float y, Wind::StringId label, const Color& color, const char* icon) {
-#if 0
-	UIButtonDesc buttonDesc = {
-		.pos = UIAbsolutePos(0, y),
-		.size = UIAbsoluteSize(520.f, 100.f),
-		.horizontalAlignment = UIHorizAlignment::center,
-		.verticalAlignment = UIVertAlignment::top,
-		.background = "UI/buttonOrange.png",
-		.backgroundColor = whiteColor, //{ 131.f, 255.f, 255.f, 255.f },
-		._9patch = 0.f,                // 16.f,
-	};
-	/*	const UIBitmapDesc iconDesc {
-	        .fileName = "button.png",
-	        .pos = UIZeroPos,
-	        .size = UIParentSize,
-	        .color = { 131.f, 255.f, 255.f, 255.f },
-	    };*/
-	const UITextDesc labelDesc {
-		.horizontalAlignment = UIHorizAlignment::center,
-		.verticalAlignment = UIVertAlignment::center,
-		.font = "mediumFont",
-		.stringId = label,
-		.style = {
-	.color = whiteColor,
-	.outlineColor = whiteColor,
-	.shadowColor = { 0.f, 0.f, 0.f, 100.f },
-	.shadow = true,
-	.shadowOffset = { 0.f, 8.f },
-},
-#else
-	UIButtonDesc buttonDesc = {
+UIButton MakeMenuButton(float y, StringId label, const Color& color, const char* icon) {
+	const UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(0, y),
 		.size = UIAbsoluteSize(520.f, 100.f),
 		.horizontalAlignment = UIHorizAlignment::center,
@@ -160,12 +158,11 @@ Wind::UIButton MakeMenuButton(float y, Wind::StringId label, const Color& color,
 		.verticalAlignment = UIVertAlignment::center,
 		.font = "mediumFont",
 		.style = defaultTextStyle,
-#endif
 	};
-	return Wind::UIButton { buttonDesc, iconDesc, labelDesc };
+	return UIButton { buttonDesc, iconDesc, labelDesc };
 }
 
-Wind::UIButton MakeBackButton() {
+UIButton MakeBackButton() {
 	return MakeMenuButton(button3_y, GameStringId::back, button3_color, "icons/back.png");
 #if 0
 	UIButtonDesc buttonDesc = {
@@ -176,11 +173,11 @@ Wind::UIButton MakeBackButton() {
 		.background = "icons/backButton.png",
 		.backgroundColor = whiteColor, //{ 131.f, 255.f, 255.f, 255.f },
 	};
-	return Wind::UIButton { buttonDesc }; //, /*iconDesc,*/ labelDesc };
+	return UIButton { buttonDesc }; //, /*iconDesc,*/ labelDesc };
 #endif
 }
 
-Wind::UIButton MakeCloseButton() {
+UIButton MakeCloseButton() {
 	const UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(-32, 32),
 		.size = UIAbsoluteSize(48, 48),
@@ -206,10 +203,10 @@ Wind::UIButton MakeCloseButton() {
 		.font = "mediumFont",
 		.visible = false,
 	};
-	return Wind::UIButton { buttonDesc, iconDesc, labelDesc };
+	return UIButton { buttonDesc, iconDesc, labelDesc };
 }
 
-Wind::UICheckBox MakeCheckBox(float y, Wind::StringId label, const Color& color) {
+UICheckBox MakeCheckBox(float y, StringId label, const Color& color) {
 	const UIBitmapDesc checkedIconDesc {
 		.fileName = "icons/minicheck.png",
 		.pos = UIAbsolutePos(0.f, 0.f),
@@ -247,13 +244,13 @@ Wind::UICheckBox MakeCheckBox(float y, Wind::StringId label, const Color& color)
 		.checkedIcon = checkedIconDesc,
 		.uncheckedIcon = uncheckedIconDesc,
 	};
-	return Wind::UICheckBox { buttonDesc, {} };
+	return UICheckBox { buttonDesc, {} };
 }
 
-Wind::UICanvas MakeCanvas() {
+UICanvas MakeCanvas() {
 	constexpr UICanvasDesc desc {
 		.background = "gameartguppy/background.png",
-		.padding = 16.f,
+		.padding = 32.f,
 	};
 	return UICanvas { desc };
 }

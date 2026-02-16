@@ -16,7 +16,7 @@ using namespace Wind;
 LevelCompleteScreen::LevelCompleteScreen(MatchStats& matchStats)
     : mMatchStats(matchStats)
     , mTitle { MakeTitleText(GameStringId::level) }
-    , mSubTitle { MakeSubTitleText(GameStringId::complete) }
+    , mSubTitle { MakeTitleText(GameStringId::complete, subTitleY) }
     , mNextLevelButton { MakeMenuButton(button2_y, GameStringId::nextLevel) }
     , mCanvas(MakeCanvas()) {
 	// Setup UI

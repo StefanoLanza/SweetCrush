@@ -44,13 +44,7 @@ struct UIRect {
 };
 
 constexpr UIPos  UIZeroPos = { 0.f, 0.f, 0.f, 0.f };
-constexpr UISize UIZeroSize = {
-	0.f,
-	0.f,
-	0.f,
-	0.f,
-};
-constexpr UISize UIParentSize = { 0.f, 0.f, 1.f, 1.f };
+constexpr UISize UIZeroSize = { 0.f, 0.f, 0.f, 0.f };
 
 constexpr inline UIPos UIAbsolutePos(float x, float y) {
 	return { x, y, 0.f, 0.f };
@@ -275,6 +269,7 @@ public:
 	UIButtonState GetState() const;
 	bool          HandleInput(const Input& input);
 	void          Tick(float dt);
+	void          SetLabel(const char* label);
 
 private:
 	UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text);
@@ -352,10 +347,9 @@ private:
 
 struct UITheme {
 	UITextStyle   textStyle;
-	UIBitmapStyle bitmapStyle;
 	UIButtonStyle buttonStyle;
 };
 
-void SetTheme(const UITheme* theme);
+void SetUITheme(const UITheme* theme);
 
 } // namespace Wind

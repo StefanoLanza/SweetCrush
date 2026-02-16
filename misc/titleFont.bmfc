@@ -2,11 +2,11 @@
 fileVersion=1
 
 # font settings
-fontName=Orange Juice
+fontName=Daily Vibes
 fontFile=
 charSet=0
-fontSize=24
-aa=4
+fontSize=86
+aa=1
 scaleH=100
 useSmoothing=1
 isBold=0
@@ -27,15 +27,15 @@ paddingDown=0
 paddingUp=0
 paddingRight=0
 paddingLeft=0
-spacingHoriz=0
-spacingVert=0
+spacingHoriz=1
+spacingVert=1
 useFixedHeight=0
 forceZero=0
 widthPaddingFactor=0.00
 
 # output file
-outWidth=256
-outHeight=128
+outWidth=512
+outHeight=256
 outBitDepth=32
 fontDescFormat=2
 fourChnlPacked=0
@@ -51,9 +51,9 @@ invG=0
 invB=0
 
 # outline
-outlineThickness=1
+outlineThickness=2
 
 # selected chars
-chars=0-0,33,37,40-42,47-58,65-90,92,96-122
+chars=32,48-57,65-90
 
 # imported icon images

@@ -21,7 +21,7 @@ private:
 	Wind::UIText   mCodeBy;
 	Wind::UIText   mGraphicsBy;
 	Wind::UIText   mMusicBy;
-	Wind::UIText   mVersion;
+	Wind::UIText   mFontBy;
 	Wind::UIButton mBackButton;
 	Wind::UICanvas mCanvas;
 	Wind::UIPanel  mPanel;

@@ -34,23 +34,30 @@ namespace {
 
 UIButton MakeBoosterButton(float x) {
 	const UIButtonDesc desc {
-		.pos = UIAbsolutePos(x, -10),
-		.size = UIAbsoluteSize(100.f, 100.f),
+		.pos = UIAbsolutePos(x, 0),
+		.size = UIAbsoluteSize(120.f, 120.f),
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::bottom,
-		//.background = "UI/button.png",
-		//.backgroundColor = button2_color,
-		//._9patch = 16.f,
+		.padding = 16.f,
+		.background = "UI/button.png",
+		.backgroundColor = { 255.f, 187.f, 99.f, 127.5f },
+		._9patch = 16.f,
 	};
-	return UIButton { desc, noIconDesc, noLabelDesc };
+	const UITextDesc labelDesc {
+		.horizontalAlignment = UIHorizAlignment::left,
+		.verticalAlignment = UIVertAlignment::top,
+		.font = "tiny",
+		.style = defaultTextStyle,
+	};
+
+	return UIButton { desc, noIconDesc, labelDesc };
 }
 
-// TODO HAve a panel, with padding 
 const UIButtonDesc pauseButtonDesc {
-	.pos = UIAbsolutePos(-32, 32),
+	.pos = UIAbsolutePos(0, 0),
 	.size = UIAbsoluteSize(48.f, 47.f),
 	.horizontalAlignment = UIHorizAlignment::right,
-	.verticalAlignment = UIVertAlignment::top,
+	.verticalAlignment = UIVertAlignment::bottom,
 };
 
 const UIBitmapDesc pauseButtonBitmapDesc {
@@ -58,16 +65,34 @@ const UIBitmapDesc pauseButtonBitmapDesc {
 	.sizing = UIBitmapSizing::stretch,
 };
 
+const UITextDesc scoreHeaderDesc {
+	.stringId = GameStringId::score,
+	.pos = { 0.f, 0.f },
+	.horizontalAlignment = UIHorizAlignment::right,
+	.verticalAlignment = UIVertAlignment::top,
+	.font = "smallFont",
+	.style = defaultTextStyle,
+};
+
 const UITextDesc scoreTextDesc {
 	.pos = { 0.f, 40.f },
-	.horizontalAlignment = UIHorizAlignment::center,
+	.horizontalAlignment = UIHorizAlignment::right,
+	.verticalAlignment = UIVertAlignment::top,
+	.font = "smallFont",
+	.style = defaultTextStyle,
+};
+
+const UITextDesc timeHeaderDesc {
+	.stringId = GameStringId::time_,
+	.pos = { 0.f, 0.f },
+	.horizontalAlignment = UIHorizAlignment::left,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "smallFont",
 	.style = defaultTextStyle,
 };
 
 const UITextDesc timeTextDesc {
-	.pos = { 40.f, 40.f },
+	.pos = { 0.f, 40.f },
 	.horizontalAlignment = UIHorizAlignment::left,
 	.verticalAlignment = UIVertAlignment::top,
 	.font = "smallFont",
@@ -75,8 +100,8 @@ const UITextDesc timeTextDesc {
 };
 
 const UIPanelDesc topPanelDesc {
-	.pos = UIAbsolutePos(0.f, 120.f),
-	.size = UISize(0, 120, 1, 0),
+	.pos = UIAbsolutePos(0.f, 100.f),
+	.size = UISize(400, 140, 0, 0),
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.background = "UI/button.png",
@@ -89,7 +114,7 @@ const UIPanelDesc bottomPanelDesc {
 	.size = UISize(0, 120, 1, 0),
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::bottom,
-	.background = "UI/button.png",
+	//.background = "UI/button.png",
 	.backgroundColor = panel1_color,
 	._9patch = 16.f,
 };
@@ -115,7 +140,9 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
     , mCanvas(MakeCanvas())
     , mTopPanel(topPanelDesc)
     , mBottomPanel(bottomPanelDesc)
+    , mScoreHeader(scoreHeaderDesc)
     , mScoreText(scoreTextDesc)
+    , mTimeHeader(timeHeaderDesc)
     , mTimeText(timeTextDesc)
     , mPauseButton(pauseButtonDesc, pauseButtonBitmapDesc, noLabelDesc)
     , mBoosterButtons { MakeBoosterButton(-130.f), MakeBoosterButton(0.f), MakeBoosterButton(130.f) }
@@ -128,7 +155,9 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
 	// Build UI
 	mCanvas.Add(mBottomPanel);
 	mCanvas.Add(mPauseButton);
+	mCanvas.Add(mScoreHeader);
 	mCanvas.Add(mScoreText);
+	mCanvas.Add(mTimeHeader);
 	mCanvas.Add(mTimeText);
 	mCanvas.Add(mTopPanel);
 	mBottomPanel.Add(mBoosterButtons[0]); // TODO GridLayout
@@ -517,7 +546,7 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 
 	if (level.goal.id == GoalId::collectMatches) {
-		Vec2 pos = mTopPanel.GetRect().pos + Vec2 { 200.f, 40.f };
+		Vec2 pos = mTopPanel.GetRect().pos + Vec2 { 100.f, 50.f };
 		for (int i = 0; i < 3; ++i) {
 			const int icon = pieceIcons[level.pieceIds[i]];
 			mGameRenderer.DrawIcon(icon, pos, 0.f, whiteColor, GameDrawOrder::overlays);
@@ -532,7 +561,7 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 		}
 	}
 	else if (level.goal.id == GoalId::breakIce) {
-		Vec2 pos = mTopPanel.GetRect().pos + Vec2 { 96.f, 40.f };
+		Vec2 pos = mTopPanel.GetRect().pos + Vec2 { 96.f, 50.f };
 		for (int i = 0; i < mMatchStats.layerCount; ++i) {
 			mGameRenderer.DrawIcon(iceSprites[0], pos, 0.f, whiteColor, GameDrawOrder::overlays);
 			pos.x += gameTextures[iceSprites[0]]->Width() + 12;
@@ -558,7 +587,7 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 			mEngine.GetBitmapRenderer().DrawBitmapEx(*gameTextures[boosterIcons[level.boosterIds[i]]], coords, prm);
 
 			snprintf(tmp, sizeof(tmp), "%d", mBoosterCount[i]);
-			textRenderer.Write(*mFonts[1], tmp, mBoosterButtons[i].GetRect().pos + mBoosterButtons[i].GetRect().size - Vec2 { 20.f, 20.f }, defaultTextStyle, GameDrawOrder::overUI);
+			mBoosterButtons[i].SetLabel(tmp);
 			mBoosterButtons[i].SetVisible(true);
 		}
 		else {
