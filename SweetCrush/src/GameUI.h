@@ -35,6 +35,7 @@ extern const Wind::Color button3_color;
 extern const float       text0_y;
 extern const float       text1_y;
 extern const Wind::Color panel0_color;
+extern const Wind::Color panel1_color;
 
 Wind::UIPanel    MakeInfoPanel();
 Wind::UIText     MakeTitleText(Wind::StringId label);

@@ -40,6 +40,7 @@ struct UISize {
 struct UIRect {
 	Vec2 pos;
 	Vec2 size;
+	Vec2 axis;
 };
 
 constexpr UIPos  UIZeroPos = { 0.f, 0.f, 0.f, 0.f };
@@ -138,6 +139,7 @@ struct UIPanelDesc {
 struct UICanvasDesc {
 	const char* background = nullptr;
 	Color       backgroundColor = whiteColor;
+	float       padding = 0.f;
 };
 
 #undef UIBaseDesc
@@ -292,7 +294,6 @@ private:
 
 class UICanvas final {
 public:
-	UICanvas();
 	explicit UICanvas(const UICanvasDesc& desc);
 
 	void Add(UIPanel& panel);
@@ -325,6 +326,7 @@ public:
 	void Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	void ComputeRect(const UIRect& parentRect, const UITransform& transform);
 	bool HandleInput(const Input& input);
+	void Tick(float dt);
 
 private:
 	void RefreshState(const Input& input);

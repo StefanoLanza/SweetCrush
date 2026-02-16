@@ -13,7 +13,7 @@ class UIRenderer::Impl {
 public:
 	explicit Impl(Graphics& graphics, UITextRenderer& textRenderer);
 
-	void DrawBitmap(const UIRect& rect, const Texture& surface, const UIDrawParams& prms) const;
+	void DrawBitmap(const UIRect& rect, const Texture& surface, const UIDrawBitmapArgs& prms) const;
 	void DrawSolidRect(const UIRect& rect, const Color& color, UIBlendMode blendMode) const;
 	void DrawLine(const Vec2& start, const Vec2& end, float thickness, const Color& color, unsigned priority) const;
 	void DrawBorder(const UIRect& rect, float thickness, const Color& color, unsigned priority) const;
@@ -88,7 +88,7 @@ UIRenderer::Impl::Impl(Graphics& graphics, UITextRenderer& textRenderer)
 	}
 }
 
-void UIRenderer::Impl::DrawBitmap(const UIRect& rect, const Texture& texture, const UIDrawParams& prms) const {
+void UIRenderer::Impl::DrawBitmap(const UIRect& rect, const Texture& texture, const UIDrawBitmapArgs& prms) const {
 	if (! mBitmapProgram.mValid) {
 		return;
 	}
@@ -106,7 +106,12 @@ void UIRenderer::Impl::DrawBitmap(const UIRect& rect, const Texture& texture, co
 		{ rect.pos.x, rect.pos.y, rect.size.x, rect.size.y },
 		{ 0.f, 0.f, 1.f, 1.f },
 		{ prms.color.r / 255.f, prms.color.g / 255.f, prms.color.b / 255.f, prms.color.a / 255.f },
-		{ prms._9patch, prms._9patch / textureWidth, prms._9patch / textureHeight, prms.grayscale / 100.f, },
+		{
+		    prms._9patch,
+		    prms._9patch / textureWidth,
+		    prms._9patch / textureHeight,
+		    prms.grayscale / 100.f,
+		},
 	};
 
 	bool blending = false;
@@ -220,7 +225,7 @@ const UITextRenderer& UIRenderer::GetTextRenderer() const {
 	return mPimpl->mTextRenderer;
 }
 
-void UIRenderer::DrawBitmap(const UIRect& rect, const Texture& texture, const UIDrawParams& prms) const {
+void UIRenderer::DrawBitmap(const UIRect& rect, const Texture& texture, const UIDrawBitmapArgs& prms) const {
 	mPimpl->DrawBitmap(rect, texture, prms);
 }
 

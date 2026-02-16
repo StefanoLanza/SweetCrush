@@ -18,23 +18,25 @@ namespace {
 inline Vec2 Spring(Vec2 curr, Vec2 target, float dt) {
 	const float stiffness = 0.1f;
 	const float damping = 0.8f;
-	Vec2 distance = target - curr;
-	Vec2 force = distance * stiffness; // Pull toward target
+	Vec2        distance = target - curr;
+	Vec2        force = distance * stiffness; // Pull toward target
 	// Apply friction to the velocity so it settles
-	Vec2 velocity = force * damping; //(velocity + force) * damping; 
+	Vec2 velocity = force * damping; //(velocity + force) * damping;
 	// Update the actual position
 	return curr + velocity * dt;
 }
 
 void SquashButton(UITransform& transform, float dt) {
-	constexpr float f = 1.2f;
+	constexpr float f = 1.02f;
 	transform.offset = { 0.f, 0.f }; // FIXME
 	transform.scale = { f, 1.f / f };
 }
 
 void ReleaseButton(UITransform& transform, float dt) {
 	transform.offset = { 0.0, 0.f };
-	transform.scale = { 1.f, 1.f }; //Spring(transform.scale, { 1.f, 1.f }, dt); // LerpEase({ 1.05f, 1.f / 1.05f }, { 1.0f, 1.0f }, std::clamp(t, 0.f, 1.f), EaseOutBounce);;
+	transform.scale = {
+		1.f, 1.f
+	}; // Spring(transform.scale, { 1.f, 1.f }, dt); // LerpEase({ 1.05f, 1.f / 1.05f }, { 1.0f, 1.0f }, std::clamp(t, 0.f, 1.f), EaseOutBounce);;
 }
 
 const UITheme defaultTheme {
@@ -77,18 +79,19 @@ UIRect AddPadding(const UIRect& rect, float padding) {
 	return { rect.pos.x + padding, rect.pos.y + padding, rect.size.x - padding * 2.f, rect.size.y - padding * 2.f };
 }
 
-UIRect TransformRect(const UIRect& rect, const UITransform& transform) {
-	Vec2 center = rect.pos + rect.size * 0.5f;
-	Vec2 size = rect.size * transform.scale;
-	return { center - size * 0.5f + transform.offset, size };
-}
-
 UITransform ConcatenateTransforms(const UITransform& parent, const UITransform& child) {
 	return UITransform {
 		.offset = parent.offset + parent.scale * child.offset,
 		.scale = parent.scale * child.scale,
 		.rotation = parent.rotation + child.rotation,
 	};
+}
+
+UIRect TransformRect(const UIRect& rect, const UITransform& transform) {
+	Vec2 center = rect.pos + rect.size * 0.5f;
+	Vec2 size = rect.size * transform.scale;
+	Vec2 axis = { std::cos(transform.rotation), std::sin(transform.rotation) };
+	return { center - size * 0.5f + transform.offset, size, axis };
 }
 
 } // namespace
@@ -133,7 +136,7 @@ const UIButtonStyle* UIButton::GetStyle() const {
 }
 
 UIButtonState UIButton::RefreshState(const Input& input) {
-	const UIRect transformedRect = mRect; //FIXME TransformRect(mRect, mFinalTransform);
+	const UIRect transformedRect = mRect; // FIXME TransformRect(mRect, mFinalTransform);
 	// TODO Handle rotation
 	const Rect r {
 		.left = transformedRect.pos.x,
@@ -196,8 +199,8 @@ void UIButton::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 void UIButton::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	auto style = GetStyle();
 	if (mBackground) {
-		UIRect             rect = TransformRect(mRect, mFinalTransform);
-		const UIDrawParams prm {
+		UIRect                 rect = TransformRect(mRect, mFinalTransform);
+		const UIDrawBitmapArgs prm {
 			.color = mDesc.backgroundColor,
 			.blendMode = UIBlendMode::Auto,
 			.priority = drawOrder,
@@ -289,7 +292,7 @@ void UIText::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 		const char* str = Text();
 		if (str) {
 			const UIRect transformedRect = TransformRect(mRect, mFinalTransform);
-			renderer.GetTextRenderer().Write(*mFont, str, transformedRect.pos, mStyle, mFinalTransform, TextDirection::leftToRight, drawOrder);
+			renderer.GetTextRenderer().Write(*mFont, str, transformedRect, mStyle, drawOrder);
 		}
 	}
 }
@@ -305,16 +308,14 @@ void UIText::ComputeRect(const UIRect& parentRect, const UITransform& parentTran
 	}
 	else {
 		if (mFont) {
-			const char* str = Text();
-			// FIXME Keep centered when scaled. Apply scale here or when drawing text ? Check math
+			const char*  str = Text();
 			const UISize textSize {
-				.aWidth = static_cast<float>(mFont->CalculateStringWidth(str)), // * finalTransform.scale.x),
-				.aHeight = static_cast<float>(mFont->GetHeight()),              // * finalTransform.scale.y),
+				.aWidth = static_cast<float>(mFont->CalculateStringWidth(str)),
+				.aHeight = static_cast<float>(mFont->GetHeight()),
 				.rWidth = 0.f,
 				.rHeight = 0.f,
 			};
-			Vec2 pos = mDesc.pos; // + finalTransform.offset;
-			rect = AlignRect(UIAbsolutePos(pos.x, pos.y), textSize, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
+			rect = AlignRect(UIAbsolutePos(mDesc.pos.x, mDesc.pos.y), textSize, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 		}
 		else {
 			rect = UIZeroRect;
@@ -376,14 +377,14 @@ const UIBitmapDesc& UIBitmap::GetDesc() const {
 
 void UIBitmap::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	if (mBitmap) {
-		const Color        tintedColor = Mul(mDesc.color, mStyle.color);
-		const UIDrawParams prm {
+		const Color            tintedColor = Mul(mDesc.color, mStyle.color);
+		const UIDrawBitmapArgs prm {
 			.color = tintedColor,
 			.blendMode = UIBlendMode::Auto,
 			.priority = drawOrder,
 		};
-		// TODO transform
-		renderer.DrawBitmap(GetRect(), *mBitmap, prm);
+		const UIRect transformedRect = TransformRect(mRect, mFinalTransform);
+		renderer.DrawBitmap(transformedRect, *mBitmap, prm);
 	}
 }
 
@@ -492,7 +493,7 @@ void UIPanel::Add(UICheckBox& checkBox) {
 void UIPanel::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	assert(IsVisible());
 	if (mBackground) {
-		UIDrawParams prms;
+		UIDrawBitmapArgs prms;
 		prms.blendMode = UIBlendMode::Auto;
 		prms.color = mDesc.backgroundColor;
 		prms.priority = drawOrder;
@@ -582,7 +583,7 @@ void UIPanel::Tick(float dt) {
 			Dispatch(UIButton);
 			break;
 		case UIControlType::Checkbox:
-			// Dispatch(UICheckBox);
+			Dispatch(UICheckBox);
 			break;
 		default:
 			break;
@@ -628,15 +629,11 @@ void UIPanel::ComputeRect(const UIRect& parentRect, const UITransform& transform
 #undef Dispatch
 }
 
-UICanvas::UICanvas()
-    : mPanel({ UIZeroPos, UIParentSize }) {
-	mPanel.SetVisible(true);
-}
-
 UICanvas::UICanvas(const UICanvasDesc& desc)
     : mPanel(UIPanelDesc {
           .pos = UIZeroPos,
           .size = UIParentSize,
+		  .padding = desc.padding,
           .background = desc.background,
           .backgroundColor = desc.backgroundColor,
       }) {
@@ -711,7 +708,7 @@ void UICheckBox::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 void UICheckBox::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	assert(IsVisible());
 	if (mBackground) {
-		const UIDrawParams prm {
+		const UIDrawBitmapArgs prm {
 			.color = mDesc.backgroundColor, .blendMode = UIBlendMode::Auto, .priority = drawOrder, ._9patch = mDesc._9patch,
 			//.grayscale = style.grayScale,
 		};
@@ -754,13 +751,16 @@ bool UICheckBox::HandleInput(const Input& input) {
 	return false;
 }
 
+void UICheckBox::Tick(float dt) {
+}
+
 void UIMouseCursor::SetCursor(const char* fileName, Graphics& graphics) {
 	mMousePointer = graphics.LoadTexture(fileName);
 }
 
 void UIMouseCursor::Draw(const UIRenderer& renderer, const Vec2& mouseCoords, unsigned drawOrder) {
 	if (mMousePointer) {
-		const UIDrawParams prm {
+		const UIDrawBitmapArgs prm {
 			.blendMode = UIBlendMode::On,
 			.priority = drawOrder,
 		};

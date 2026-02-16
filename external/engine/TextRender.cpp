@@ -20,7 +20,7 @@ UITextRenderer::UITextRenderer(Graphics& graphics)
 		mColor = program.GetUniformLocation("color");
 		mOutlineColor = program.GetUniformLocation("outlineColor");
 		mTexture = program.GetUniformLocation("inputTexture");
-		mValidProgram = (mCoords >= 0 && mPosOffset >= 0 &&mColor >= 0 && mOutlineColor >= 0 && mTexture >= 0);
+		mValidProgram = (mCoords >= 0 && mPosOffset >= 0 && mColor >= 0 && mOutlineColor >= 0 && mTexture >= 0);
 	}
 
 	const PipelineState pipelineState {
@@ -39,12 +39,28 @@ UITextRenderer::UITextRenderer(Graphics& graphics)
 
 UITextRenderer::~UITextRenderer() = default;
 
-void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, const UITextStyle& style, const UITransform& transform, TextDirection direction,
-                           unsigned drawOrder) const {
+void UITextRenderer::Write(const Font& font, std::string_view text, const UIRect& rect, const UITextStyle& style, unsigned drawOrder) const {
 	if (! mValidProgram) {
 		return;
 	}
 
+	float textWidth = static_cast<float>(font.CalculateStringWidth(text));
+	float textHeight = static_cast<float>(font.GetHeight());
+	Vec2  scale { rect.size.x / textWidth, rect.size.y / textHeight };
+	WriteImpl(font, text, rect.pos, scale, style, drawOrder);
+}
+
+void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, const UITextStyle& style, unsigned drawOrder) const {
+	if (! mValidProgram) {
+		return;
+	}
+	WriteImpl(font, text, pos, { 1.f, 1.f }, style, drawOrder);
+}
+
+void UITextRenderer::WriteImpl(const Font& font, std::string_view text, Vec2 pos, Vec2 scale, const UITextStyle& style, unsigned drawOrder) const {
+	if (! mValidProgram) {
+		return;
+	}
 	struct Char {
 		Rect quad;
 		Rect uvs;
@@ -58,18 +74,14 @@ void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, co
 	const float fontTexHeight = static_cast<float>(font.GetTexture().Height());
 	Char*       chars = static_cast<Char*>(instanceData.data);
 	float       advance = 0.f;
-	pos  = pos + transform.offset;
 	for (int idx = 0; idx < (int)text.length(); ++idx) {
-		int ridx = idx;
-		if (direction == TextDirection::rightToLeft) {
-			ridx = (int)text.length() - 1 - idx;
-		}
+		int          ridx = idx;
 		const Glyph& g = font.FindGlyph(text[ridx]);
 		chars[idx].quad = {
-			pos.x + static_cast<float>(g.xoffset) * transform.scale.x + advance,
-			pos.y + static_cast<float>(g.yoffset) * transform.scale.y,
-			static_cast<float>(g.width * transform.scale.x),
-			static_cast<float>(g.height * transform.scale.y),
+			pos.x + static_cast<float>(g.xoffset) * scale.x + advance,
+			pos.y + static_cast<float>(g.yoffset) * scale.y,
+			static_cast<float>(g.width * scale.x),
+			static_cast<float>(g.height * scale.y),
 		};
 		chars[idx].uvs = {
 			static_cast<float>(g.x) / fontTexWidth,
@@ -77,7 +89,7 @@ void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, co
 			static_cast<float>(g.width) / fontTexWidth,
 			static_cast<float>(g.height) / fontTexHeight,
 		};
-		advance += g.xadvance * transform.scale.x;
+		advance += g.xadvance * scale.x;
 	}
 
 	const int   uniforms[] = { mPosOffset, mColor, mOutlineColor };
@@ -87,7 +99,7 @@ void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, co
 		{ style.outlineColor.r / 255.f, style.outlineColor.g / 255.f, style.outlineColor.b / 255.f, style.outlineColor.a / 255.f },
 	};
 	const float shadowUniformData[][4] = {
-		{ style.shadowOffset.x , style.shadowOffset.y, 0.f, 0.f },
+		{ style.shadowOffset.x, style.shadowOffset.y, 0.f, 0.f },
 		{ style.shadowColor.r / 255.f, style.shadowColor.g / 255.f, style.shadowColor.b / 255.f, style.shadowColor.a / 255.f },
 		{ style.shadowColor.r / 255.f, style.shadowColor.g / 255.f, style.shadowColor.b / 255.f, 1.f },
 	};

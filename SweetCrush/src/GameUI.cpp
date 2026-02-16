@@ -30,7 +30,7 @@ constexpr UITextStyle defaultTextStyle {
 	.shadowOffset = { 0.f, 4.f },
 };
 
-constexpr float titleY = 160.f;
+constexpr float titleY = 140.f;
 constexpr float subTitleY = 280.f;
 constexpr float button0_y = 560;
 constexpr float button1_y = 680;
@@ -43,6 +43,7 @@ const Color     button3_color = { 255.f, 187.f, 99.f, 255.f };
 const float     text0_y = 450;
 const float     text1_y = 510;
 const Color     panel0_color = { 192.f, 222.f, 255.f, 255.f };
+const Color     panel1_color = { 192.f, 222.f, 255.f, 127.f };
 
 Wind::UIPanel MakeInfoPanel() {
 	const UIPanelDesc desc {
@@ -252,6 +253,7 @@ Wind::UICheckBox MakeCheckBox(float y, Wind::StringId label, const Color& color)
 Wind::UICanvas MakeCanvas() {
 	constexpr UICanvasDesc desc {
 		.background = "gameartguppy/background.png",
+		.padding = 16.f,
 	};
 	return UICanvas { desc };
 }

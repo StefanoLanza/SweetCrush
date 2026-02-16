@@ -13,7 +13,7 @@ enum class UIBlendMode {
 	Auto,
 };
 
-struct UIDrawParams {
+struct UIDrawBitmapArgs {
 	Color       color = whiteColor;
 	UIBlendMode blendMode = UIBlendMode::Auto;
 	unsigned    priority = 0;
@@ -21,13 +21,15 @@ struct UIDrawParams {
 	float       grayscale = 0.f;
 };
 
+struct UITransform;
+
 class UIRenderer final {
 public:
 	explicit UIRenderer(Graphics& graphics, UITextRenderer& textRenderer);
 	~UIRenderer();
 
 	const UITextRenderer& GetTextRenderer() const;
-	void                  DrawBitmap(const UIRect& rect, const Texture& texture, const UIDrawParams& prms) const;
+	void                  DrawBitmap(const UIRect& rect, const Texture& texture, const UIDrawBitmapArgs& args) const;
 	void                  DrawSolidRect(const UIRect& rect, const Color& color, UIBlendMode blendMode) const;
 	void                  DrawLine(const Vec2& start, const Vec2& end, float thickness, const Color& color, unsigned priority) const;
 	void                  DrawBorder(const UIRect& rect, float thickness, const Color& color, unsigned priority) const;
