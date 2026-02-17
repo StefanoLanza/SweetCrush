@@ -70,6 +70,7 @@ void UITextRenderer::WriteImpl(const Font& font, std::string_view text, Vec2 pos
 		return;
 	}
 
+	const float margin = 0.5f;
 	const float fontTexWidth = static_cast<float>(font.GetTexture().Width());
 	const float fontTexHeight = static_cast<float>(font.GetTexture().Height());
 	Char*       chars = static_cast<Char*>(instanceData.data);
@@ -78,16 +79,16 @@ void UITextRenderer::WriteImpl(const Font& font, std::string_view text, Vec2 pos
 		int          ridx = idx;
 		const Glyph& g = font.FindGlyph(text[ridx]);
 		chars[idx].quad = {
-			pos.x + static_cast<float>(g.xoffset) * scale.x + advance,
-			pos.y + static_cast<float>(g.yoffset) * scale.y,
-			static_cast<float>(g.width * scale.x),
-			static_cast<float>(g.height * scale.y),
+			pos.x + static_cast<float>(g.xoffset - margin) * scale.x + advance,
+			pos.y + static_cast<float>(g.yoffset - margin) * scale.y,
+			static_cast<float>(g.width + 2.0 * margin) * scale.x,
+			static_cast<float>(g.height + 2.0 * margin) * scale.y,
 		};
 		chars[idx].uvs = {
-			static_cast<float>(g.x) / fontTexWidth,
-			static_cast<float>(g.y) / fontTexHeight,
-			static_cast<float>(g.width) / fontTexWidth,
-			static_cast<float>(g.height) / fontTexHeight,
+			static_cast<float>(g.x - margin) / fontTexWidth,
+			static_cast<float>(g.y - margin) / fontTexHeight,
+			static_cast<float>(g.width + 2.f * margin) / fontTexWidth,
+			static_cast<float>(g.height + 2.f * margin) / fontTexHeight,
 		};
 		advance += g.xadvance * scale.x;
 	}

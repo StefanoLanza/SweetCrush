@@ -8,7 +8,6 @@
 
 #include <engine/Engine.h>
 #include <engine/UI.h>
-#include <engine/UIRenderer.h>
 
 #include <cstdio>
 
@@ -39,7 +38,7 @@ ScreenEvent GameCompleteScreen::Tick(float dt, const Wind::Input& input) {
 	mCanvas.Tick(dt);
 	mCanvas.HandleInput(input);
 	mAccumTime += dt;
-	if (mAccumTime > 4.f || mContinueButton.IsClicked()) {
+	if (mAccumTime > 6.f || mContinueButton.IsClicked()) {
 		return GoTo(GameScreenIds::mainMenu);
 	}
 	return Continue();
