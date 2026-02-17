@@ -140,7 +140,7 @@ UIButton MakeMenuButton(float y, StringId label, const Color& color, const char*
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::top,
 		.padding = buttonPadding,
-		.background = "UI/button.png",
+		.background = "UI/button_rectangle_flat.png",
 		.backgroundColor = color,
 		._9patch = 16.f,
 	};

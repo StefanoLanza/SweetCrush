@@ -32,7 +32,7 @@ const char* eng[] = {
 	"Version 0.1.0",
 	"BACK",
 	"LEVEL",
-	"GOAL",
+	"Goal",
 	"Your score is",
 	"Your final score is",
 	"You reached level",
