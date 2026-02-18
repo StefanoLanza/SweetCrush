@@ -121,10 +121,7 @@ struct UIButtonDesc {
 struct UICheckBoxDesc {
 	UIBaseDesc;
 	UIBackgroundDesc;
-	bool         toggled = true;
-	UITextDesc   label;
-	UIBitmapDesc checkedIcon;
-	UIBitmapDesc uncheckedIcon;
+	bool toggled = true;
 };
 
 struct UIPanelDesc {
@@ -222,7 +219,7 @@ private:
 	UITextStyle mStyle;
 };
 
-class UIBitmap : public UIControl {
+class UIBitmap final : public UIControl {
 public:
 	explicit UIBitmap(const UIBitmapDesc& desc, const UIBitmapStyle& style = {});
 
@@ -267,6 +264,8 @@ public:
 	bool          IsClicked() const;
 	void          Add(UIBitmap&& bitmap);
 	void          Add(UIText&& text);
+	UIBitmap&     GetBitmap(size_t idx);
+	UIText&       GetText(size_t idx);
 	void          LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void          Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	void          ComputeRect(const UIRect& parentRect, const UITransform& transform);
@@ -276,7 +275,6 @@ public:
 	void          SetLabel(const char* label);
 
 private:
-	UIButton(const UIButtonDesc& desc, std::unique_ptr<UIBitmap> bitmap, std::unique_ptr<UIText> text);
 	UIButtonState        RefreshState(const Input& input);
 	const UIButtonStyle* GetStyle() const;
 
@@ -317,30 +315,33 @@ struct UICheckBoxStyle {
 
 class UICheckBox final : public UIControl {
 public:
-	explicit UICheckBox(const UICheckBoxDesc& desc, const UICheckBoxStyle& style);
+	explicit UICheckBox(const UICheckBoxDesc& desc, const UICheckBoxStyle* style = nullptr);
 
-	void SetEnabled(bool enabled);
-	bool IsEnabled() const;
-	bool IsChecked() const;
-	void SetChecked(bool value);
-	void LoadAssets(Graphics& graphics, FontManager& fontManager);
-	void Draw(const UIRenderer& renderer, unsigned drawOrder) const;
-	void ComputeRect(const UIRect& parentRect, const UITransform& transform);
-	bool HandleInput(const Input& input);
-	void Tick(float dt);
+	void      SetEnabled(bool enabled);
+	bool      IsEnabled() const;
+	bool      IsChecked() const;
+	void      SetChecked(bool value);
+	void      Add(UIBitmap&& bitmap);
+	void      Add(UIText&& text);
+	UIBitmap& GetBitmap(size_t idx);
+	UIText&   GetText(size_t idx);
+	void      LoadAssets(Graphics& graphics, FontManager& fontManager);
+	void      Draw(const UIRenderer& renderer, unsigned drawOrder) const;
+	void      ComputeRect(const UIRect& parentRect, const UITransform& transform);
+	bool      HandleInput(const Input& input);
+	void      Tick(float dt);
 
 private:
 	void RefreshState(const Input& input);
 
 private:
-	UICheckBoxDesc  mDesc;
-	UICheckBoxStyle mStyle;
-	UIBitmap        mCheckedIcon;
-	UIBitmap        mUncheckedIcon;
-	UIText          mLabel;
-	TexturePtr      mBackground;
-	bool            mToggled;
-	bool            mEnabled;
+	UICheckBoxDesc         mDesc;
+	const UICheckBoxStyle* mStyle;
+	std::vector<UIBitmap>  mBitmaps;
+	std::vector<UIText>    mTexts;
+	TexturePtr             mBackground;
+	bool                   mToggled;
+	bool                   mEnabled;
 };
 
 class UIMouseCursor final {

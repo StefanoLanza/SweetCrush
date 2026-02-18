@@ -4,7 +4,6 @@
 #include <engine/StringTable.h>
 
 extern const Wind::UITextStyle defaultTextStyle;
-extern const Wind::UISize      defaultButtonSize;
 
 extern const float         titleY;
 extern const float         subTitleY;
@@ -29,5 +28,5 @@ Wind::UIText     MakeDynScreenText(float y);
 Wind::UIButton   MakeMenuButton(float y, Wind::StringId label, const Wind::Color& color = button0_color, const char* icon = nullptr);
 Wind::UIButton   MakeBackButton();
 Wind::UIButton   MakeCloseButton();
-Wind::UICheckBox MakeCheckBox(float y, Wind::StringId label, const Wind::Color& color);
+Wind::UIButton MakeCheckBox(float y, Wind::StringId label, const Wind::Color& color);
 Wind::UICanvas   MakeCanvas();

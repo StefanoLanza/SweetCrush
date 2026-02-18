@@ -63,7 +63,7 @@ UIRect TransformRect(const UIRect& rect, const Vec2& pivot01, const UITransform&
 	Vec2 pivot = rect.pos + rect.size * pivot01;
 	Vec2 size = rect.size * transform.scale;
 	Vec2 axis = { std::cos(transform.rotation), std::sin(transform.rotation) };
-	return { pivot - (size.x * pivot01.x) * axis - (size.y * pivot01.y) * Vec2{ -axis.y, axis.x } + transform.offset, size, axis };
+	return { pivot - (size.x * pivot01.x) * axis - (size.y * pivot01.y) * Vec2 { -axis.y, axis.x } + transform.offset, size, axis };
 }
 
 } // namespace
@@ -128,6 +128,8 @@ UIButtonState UIButton::RefreshState(const Input& input) {
 	const bool          mouseDown = input.GetMouseButtonDown(MouseButton::left) || input.GetFingerDown();
 	const UIButtonState currState = mState;
 	switch (mState) {
+	case UIButtonState::disabled:
+		break;
 	case UIButtonState::idle:
 		if (mouseOver) {
 			mState = UIButtonState::hovered;
@@ -172,6 +174,14 @@ void UIButton::Add(UIText&& text) {
 	mTexts.emplace_back(std::move(text));
 }
 
+UIBitmap& UIButton::GetBitmap(size_t idx) {
+	return mBitmaps[idx];
+}
+
+UIText& UIButton::GetText(size_t idx) {
+	return mTexts[idx];
+}
+
 void UIButton::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 	if (mDesc.background) {
 		mBackground = graphics.LoadTexture(mDesc.background);
@@ -198,10 +208,14 @@ void UIButton::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 		renderer.DrawBitmap(rect, *mBackground, prm);
 	}
 	for (auto& bitmap : mBitmaps) {
-		bitmap.Draw(renderer, drawOrder + 1);
+		if (bitmap.IsVisible()) {
+			bitmap.Draw(renderer, drawOrder + 1);
+		}
 	}
 	for (auto& text : mTexts) {
-		text.Draw(renderer, drawOrder + 2); // text over bitmap
+		if (text.IsVisible()) {
+			text.Draw(renderer, drawOrder + 2); // text over bitmap
+		}
 	}
 }
 
@@ -243,6 +257,8 @@ void UIButton::Tick(float dt) {
 	}
 	auto style = GetStyle();
 	switch (mState) {
+	case UIButtonState::disabled:
+		break;
 	case UIButtonState::idle:
 		if (style->onIdle) {
 			style->onIdle(mTransform, dt);
@@ -671,15 +687,20 @@ void UICanvas::Tick(float dt) {
 	mPanel.Tick(dt);
 }
 
-UICheckBox::UICheckBox(const UICheckBoxDesc& desc, const UICheckBoxStyle& style)
+UICheckBox::UICheckBox(const UICheckBoxDesc& desc, const UICheckBoxStyle* style)
     : UIControl { true }
     , mDesc(desc)
     , mStyle(style)
-    , mCheckedIcon { desc.checkedIcon }
-    , mUncheckedIcon { desc.uncheckedIcon }
-    , mLabel { desc.label }
     , mToggled { mDesc.toggled }
     , mEnabled { true } {
+}
+
+void UICheckBox::SetEnabled(bool enabled) {
+	mEnabled = enabled;
+}
+
+bool UICheckBox::IsEnabled() const {
+	return mEnabled;
 }
 
 bool UICheckBox::IsChecked() const {
@@ -690,13 +711,32 @@ void UICheckBox::SetChecked(bool value) {
 	mToggled = value;
 }
 
+void UICheckBox::Add(UIBitmap&& bitmap) {
+	mBitmaps.emplace_back(std::move(bitmap));
+}
+
+void UICheckBox::Add(UIText&& text) {
+	mTexts.emplace_back(std::move(text));
+}
+
+UIBitmap& UICheckBox::GetBitmap(size_t idx) {
+	return mBitmaps[idx];
+}
+
+UIText& UICheckBox::GetText(size_t idx) {
+	return mTexts[idx];
+}
+
 void UICheckBox::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 	if (mDesc.background) {
 		mBackground = graphics.LoadTexture(mDesc.background);
 	}
-	mCheckedIcon.LoadAssets(graphics, fontManager);
-	mUncheckedIcon.LoadAssets(graphics, fontManager);
-	mLabel.LoadAssets(graphics, fontManager);
+	for (auto& bitmap : mBitmaps) {
+		bitmap.LoadAssets(graphics, fontManager);
+	}
+	for (auto& text : mTexts) {
+		text.LoadAssets(graphics, fontManager);
+	}
 }
 
 void UICheckBox::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
@@ -708,24 +748,41 @@ void UICheckBox::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 		};
 		renderer.DrawBitmap(GetRect(), *mBackground, prm);
 	}
-	const UIBitmap* icon = mToggled ? &mCheckedIcon : &mUncheckedIcon;
-	if (icon->IsVisible()) {
-		icon->Draw(renderer, drawOrder + 1);
+
+	for (auto& bitmap : mBitmaps) {
+		if (bitmap.IsVisible()) {
+			bitmap.Draw(renderer, drawOrder + 1);
+		}
 	}
-	mLabel.Draw(renderer, drawOrder + 1);
+	for (auto& text : mTexts) {
+		if (text.IsVisible()) {
+			text.Draw(renderer, drawOrder + 2);
+		}
+	}
 }
 
-void UICheckBox::ComputeRect(const UIRect& parentRect, const UITransform& transform) {
-	auto   style = mStyle; // GetStyle();
+void UICheckBox::ComputeRect(const UIRect& parentRect, const UITransform& parentTransform) {
+	UITransform finalTransform = ConcatenateTransforms(parentTransform, mTransform);
+	mFinalTransform = finalTransform;
+
+	// auto   style = GetStyle();
 	UIRect rect = AlignRect(mDesc.pos, mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 	// rect.pos = rect.pos + style.offset;
 	// rect = ScaleRect(rect, style.scale);
 	SetRect(rect);
 
-	rect = AddPadding(rect, mDesc.padding); // TODO Scaled ?
-	mCheckedIcon.ComputeRect(rect, transform);
-	mUncheckedIcon.ComputeRect(rect, transform);
-	mLabel.ComputeRect(rect, transform);
+	rect = AddPadding(rect, mDesc.padding);
+
+	for (auto& bitmap : mBitmaps) {
+		if (bitmap.IsVisible()) {
+			bitmap.ComputeRect(rect, finalTransform);
+		}
+	}
+	for (auto& text : mTexts) {
+		if (text.IsVisible()) {
+			text.ComputeRect(rect, finalTransform);
+		}
+	}
 }
 
 bool UICheckBox::HandleInput(const Input& input) {

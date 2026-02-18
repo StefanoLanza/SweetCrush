@@ -74,6 +74,13 @@ const UIBitmapDesc pauseButtonBitmapDesc {
 	.sizing = UIBitmapSizing::stretch,
 };
 
+const UIBitmapDesc infoIconDesc {
+	.fileName = "icons/info.png",
+	.horizontalAlignment = UIHorizAlignment::right,
+	.verticalAlignment = UIVertAlignment::top,
+	.sizing = UIBitmapSizing::fit,
+};
+
 const UITextDesc scoreHeaderDesc {
 	.stringId = GameStringId::score,
 	.pos = { 0.f, 0.f },
@@ -122,13 +129,13 @@ const UIPanelDesc topPanelDesc {
 	.size = UISize(320, 120, 0, 0),
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
-	.background = "UI/button.png",
+	//.background = "UI/button.png",
 	.backgroundColor = panel1_color,
 	._9patch = 16.f,
 };
 
 const UIPanelDesc bottomPanelDesc {
-	.pos = { 0.f, 0.f, 0.f, 0.f },
+	.pos = { 0.f, -80.f, 0.f, 0.f },
 	.size = UISize(400, 120, 0, 0),
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::bottom,
@@ -158,6 +165,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
     , mCanvas(MakeCanvas())
     , mTopPanel(topPanelDesc)
 	, mGoalText(goalTextDesc)
+	, mInfoIcon(infoIconDesc)
     , mBottomPanel(bottomPanelDesc)
     , mScoreHeader(scoreHeaderDesc)
     , mScoreText(scoreTextDesc)
@@ -183,6 +191,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
 	mBottomPanel.Add(mBoosterButtons[0]); // TODO GridLayout
 	mBottomPanel.Add(mBoosterButtons[1]);
 	mBottomPanel.Add(mBoosterButtons[2]);
+	mBottomPanel.Add(mInfoIcon);
 	mPauseButton.Add(UIBitmap{pauseButtonBitmapDesc});
 }
 
@@ -567,7 +576,7 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 
 	if (level.goal.id == GoalId::collectMatches) {
-		Vec2 pos = mTopPanel.GetRect().pos + Vec2 { 60.f, 50.f };
+		Vec2 pos = mTopPanel.GetRect().pos + Vec2 { 80.f, 50.f };
 		for (int i = 0; i < 3; ++i) {
 			const int icon = pieceIcons[level.pieceIds[i]];
 			mGameRenderer.DrawIcon(icon, pos, 0.f, whiteColor, GameDrawOrder::overlays);
@@ -578,7 +587,7 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 			else {
 				mGameRenderer.DrawIcon(checkIcon, pos + Vec2(0.f, 50.f), 0.f, whiteColor, GameDrawOrder::overlays + 1);
 			}
-			pos.x += 100.f;
+			pos.x += 80.f;
 		}
 	}
 	else if (level.goal.id == GoalId::breakIce) {

@@ -19,10 +19,13 @@ public:
 	void              ParseConfig(const char* varName, const char* varValue) override;
 
 private:
+	void RefreshUI();
+
+private:
 	GameSettings&    mGameConfig;
 	Wind::UIText     mTitle;
-	Wind::UICheckBox mMusicButton;
-	Wind::UICheckBox mSfxButton;
+	Wind::UIButton mMusicButton;
+	Wind::UIButton mSfxButton;
 	Wind::UIButton   mLanguageButton;
 	Wind::UIButton   mBackButton;
 	Wind::UICanvas   mCanvas;

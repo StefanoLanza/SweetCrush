@@ -62,6 +62,7 @@ private:
 	Wind::UIButton                mPauseButton;
 	Wind::UIPanel                 mTopPanel;
 	Wind::UIText                  mGoalText;
+	Wind::UIBitmap                mInfoIcon;
 	Wind::UIPanel                 mBottomPanel;
 	Wind::UIText                  mScoreHeader;
 	Wind::UIText                  mScoreText;

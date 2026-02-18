@@ -38,8 +38,13 @@ ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& i
 	mCanvas.Tick(dt);
 	mCanvas.HandleInput(input);
 
-	mGameConfig.musicOn = mMusicButton.IsChecked();
-	mGameConfig.sfxOn = mSfxButton.IsChecked();
+	if (mMusicButton.IsClicked()) {
+		mGameConfig.musicOn = !mGameConfig.musicOn;
+	}
+	if (mSfxButton.IsClicked()) {
+		mGameConfig.sfxOn = !mGameConfig.sfxOn;
+	}
+	RefreshUI();
 
 	if (mLanguageButton.IsClicked()) {
 		SetNextLanguage();
@@ -61,12 +66,20 @@ void SettingsScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 }
 
 void SettingsScreen::Enter(const ScreenNavArgs& args) {
-	mMusicButton.SetChecked(mGameConfig.musicOn);
-	mSfxButton.SetChecked(mGameConfig.sfxOn);
+	RefreshUI();
 }
 
 void SettingsScreen::Exit() {
 }
 
 void SettingsScreen::ParseConfig(const char* varName, const char* varValue) {
+}
+
+void SettingsScreen::RefreshUI() {
+	bool musicOn = mGameConfig.musicOn;
+	bool sfxOn = mGameConfig.sfxOn;
+	mMusicButton.GetBitmap(0).SetVisible(musicOn);
+	mMusicButton.GetBitmap(1).SetVisible(! musicOn);
+	mSfxButton.GetBitmap(0).SetVisible(sfxOn);
+	mSfxButton.GetBitmap(1).SetVisible(! sfxOn);
 }

@@ -6,7 +6,7 @@
 
 using namespace Wind;
 
-const float        buttonPadding = 48.f;
+const float buttonPadding = 48.f;
 
 namespace {
 
@@ -134,7 +134,7 @@ UIButton MakeMenuButton(float y, StringId label, const Color& color, const char*
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::top,
 		.padding = buttonPadding,
-		.background = "UI/button_rectangle_flat.png",
+		.background = "UI/button.png",
 		.backgroundColor = color,
 		._9patch = 16.f,
 	};
@@ -198,6 +198,7 @@ UIButton MakeCloseButton() {
 		.horizontalAlignment = UIHorizAlignment::left,
 		.verticalAlignment = UIVertAlignment::center,
 		.font = "mediumFont",
+		.style = defaultTextStyle,
 		.visible = false,
 	};
 	UIButton button { buttonDesc };
@@ -206,11 +207,10 @@ UIButton MakeCloseButton() {
 	return button;
 }
 
-UICheckBox MakeCheckBox(float y, StringId label, const Color& color) {
+UIButton MakeCheckBox(float y, StringId label, const Color& color) {
 	const UIBitmapDesc checkedIconDesc {
 		.fileName = "icons/minicheck.png",
 		.pos = UIAbsolutePos(0.f, 0.f),
-		.size = UIAbsoluteSize(32, 32),
 		.horizontalAlignment = UIHorizAlignment::right,
 		.verticalAlignment = UIVertAlignment::center,
 		.sizing = UIBitmapSizing::fit,
@@ -218,10 +218,10 @@ UICheckBox MakeCheckBox(float y, StringId label, const Color& color) {
 	const UIBitmapDesc uncheckedIconDesc {
 		.fileName = "icons/cross.png",
 		.pos = UIAbsolutePos(0.f, 0.f),
-		.size = UIAbsoluteSize(96, 96),
 		.horizontalAlignment = UIHorizAlignment::right,
 		.verticalAlignment = UIVertAlignment::center,
 		.sizing = UIBitmapSizing::fit,
+		.visible = false,
 	};
 	const UITextDesc labelDesc {
 		.stringId = label,
@@ -229,8 +229,9 @@ UICheckBox MakeCheckBox(float y, StringId label, const Color& color) {
 		.horizontalAlignment = UIHorizAlignment::left,
 		.verticalAlignment = UIVertAlignment::center,
 		.font = "mediumFont",
+		.style = defaultTextStyle,
 	};
-	UICheckBoxDesc buttonDesc = {
+	UIButtonDesc checkboxDesc = {
 		.pos = UIAbsolutePos(0, y),
 		.size = UIAbsoluteSize(520.f, 100.f),
 		.horizontalAlignment = UIHorizAlignment::center,
@@ -239,12 +240,13 @@ UICheckBox MakeCheckBox(float y, StringId label, const Color& color) {
 		.background = "UI/button.png",
 		.backgroundColor = color,
 		._9patch = 16.f,
-		.toggled = true,
-		.label = labelDesc,
-		.checkedIcon = checkedIconDesc,
-		.uncheckedIcon = uncheckedIconDesc,
+		//.toggled = true,
 	};
-	return UICheckBox { buttonDesc, {} };
+	UIButton checkBox { checkboxDesc };
+	checkBox.Add(UIText { labelDesc });
+	checkBox.Add(UIBitmap { checkedIconDesc });
+	checkBox.Add(UIBitmap { uncheckedIconDesc });
+	return checkBox;
 }
 
 UICanvas MakeCanvas() {
