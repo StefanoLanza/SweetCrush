@@ -464,9 +464,6 @@ void UIPanel::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 		case UIControlType::Button:
 			Dispatch(UIButton);
 			break;
-		case UIControlType::Checkbox:
-			Dispatch(UICheckBox);
-			break;
 		default:
 			break;
 		}
@@ -493,10 +490,6 @@ void UIPanel::Add(UIBitmap& bitmap) {
 
 void UIPanel::Add(UIText& text) {
 	mChildren.push_back({ &text, UIControlType::Text });
-}
-
-void UIPanel::Add(UICheckBox& checkBox) {
-	mChildren.push_back({ &checkBox, UIControlType::Checkbox });
 }
 
 void UIPanel::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
@@ -535,9 +528,6 @@ void UIPanel::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 		case UIControlType::Button:
 			Dispatch(UIButton);
 			break;
-		case UIControlType::Checkbox:
-			Dispatch(UICheckBox);
-			break;
 		default:
 			break;
 		}
@@ -563,9 +553,6 @@ bool UIPanel::HandleInput(const Input& input) const {
 		case UIControlType::Button:
 			Dispatch(UIButton);
 			break;
-		case UIControlType::Checkbox:
-			Dispatch(UICheckBox);
-			break;
 		default:
 			break;
 		}
@@ -588,9 +575,6 @@ void UIPanel::Tick(float dt) {
 			break;
 		case UIControlType::Button:
 			Dispatch(UIButton);
-			break;
-		case UIControlType::Checkbox:
-			Dispatch(UICheckBox);
 			break;
 		default:
 			break;
@@ -625,9 +609,6 @@ void UIPanel::ComputeRect(const UIRect& parentRect, const UITransform& transform
 			break;
 		case UIControlType::Button:
 			Dispatch(UIButton);
-			break;
-		case UIControlType::Checkbox:
-			Dispatch(UICheckBox);
 			break;
 		default:
 			break;
@@ -666,10 +647,6 @@ void UICanvas::Add(UIText& text) {
 	mPanel.Add(text);
 }
 
-void UICanvas::Add(UICheckBox& checkBox) {
-	mPanel.Add(checkBox);
-}
-
 void UICanvas::Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder) {
 	const UIRect canvasRect {
 		0.f, 0.f, (float)canvasWidth, (float)canvasHeight, 1.f, 0.f,
@@ -685,130 +662,6 @@ void UICanvas::HandleInput(const Input& input) const {
 
 void UICanvas::Tick(float dt) {
 	mPanel.Tick(dt);
-}
-
-UICheckBox::UICheckBox(const UICheckBoxDesc& desc, const UICheckBoxStyle* style)
-    : UIControl { true }
-    , mDesc(desc)
-    , mStyle(style)
-    , mToggled { mDesc.toggled }
-    , mEnabled { true } {
-}
-
-void UICheckBox::SetEnabled(bool enabled) {
-	mEnabled = enabled;
-}
-
-bool UICheckBox::IsEnabled() const {
-	return mEnabled;
-}
-
-bool UICheckBox::IsChecked() const {
-	return mToggled;
-}
-
-void UICheckBox::SetChecked(bool value) {
-	mToggled = value;
-}
-
-void UICheckBox::Add(UIBitmap&& bitmap) {
-	mBitmaps.emplace_back(std::move(bitmap));
-}
-
-void UICheckBox::Add(UIText&& text) {
-	mTexts.emplace_back(std::move(text));
-}
-
-UIBitmap& UICheckBox::GetBitmap(size_t idx) {
-	return mBitmaps[idx];
-}
-
-UIText& UICheckBox::GetText(size_t idx) {
-	return mTexts[idx];
-}
-
-void UICheckBox::LoadAssets(Graphics& graphics, FontManager& fontManager) {
-	if (mDesc.background) {
-		mBackground = graphics.LoadTexture(mDesc.background);
-	}
-	for (auto& bitmap : mBitmaps) {
-		bitmap.LoadAssets(graphics, fontManager);
-	}
-	for (auto& text : mTexts) {
-		text.LoadAssets(graphics, fontManager);
-	}
-}
-
-void UICheckBox::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
-	assert(IsVisible());
-	if (mBackground) {
-		const UIDrawBitmapArgs prm {
-			.color = mDesc.backgroundColor, .blendMode = UIBlendMode::Auto, .priority = drawOrder, ._9patch = mDesc._9patch,
-			//.grayscale = style.grayScale,
-		};
-		renderer.DrawBitmap(GetRect(), *mBackground, prm);
-	}
-
-	for (auto& bitmap : mBitmaps) {
-		if (bitmap.IsVisible()) {
-			bitmap.Draw(renderer, drawOrder + 1);
-		}
-	}
-	for (auto& text : mTexts) {
-		if (text.IsVisible()) {
-			text.Draw(renderer, drawOrder + 2);
-		}
-	}
-}
-
-void UICheckBox::ComputeRect(const UIRect& parentRect, const UITransform& parentTransform) {
-	UITransform finalTransform = ConcatenateTransforms(parentTransform, mTransform);
-	mFinalTransform = finalTransform;
-
-	// auto   style = GetStyle();
-	UIRect rect = AlignRect(mDesc.pos, mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
-	// rect.pos = rect.pos + style.offset;
-	// rect = ScaleRect(rect, style.scale);
-	SetRect(rect);
-
-	rect = AddPadding(rect, mDesc.padding);
-
-	for (auto& bitmap : mBitmaps) {
-		if (bitmap.IsVisible()) {
-			bitmap.ComputeRect(rect, finalTransform);
-		}
-	}
-	for (auto& text : mTexts) {
-		if (text.IsVisible()) {
-			text.ComputeRect(rect, finalTransform);
-		}
-	}
-}
-
-bool UICheckBox::HandleInput(const Input& input) {
-	if (! mEnabled) {
-		return false;
-	}
-	const UIRect& rect = GetRect();
-	const Rect    r {
-		   .left = rect.pos.x,
-		   .top = rect.pos.y,
-		   .right = r.left + rect.size.x,
-		   .bottom = r.top + rect.size.y,
-	};
-	const bool over = RectContainsPoint(r, input.GetMappedMouseCoord());
-	const bool pressed = input.GetMouseButtonPressed(MouseButton::left) || input.GetFingerPressed();
-	if (over && pressed) {
-		mToggled = ! mToggled;
-		return true;
-	}
-	return false;
-}
-
-void UICheckBox::Tick(float dt) {
-	if (! mEnabled) {
-		return;
-	}
 }
 
 void UIMouseCursor::SetCursor(const char* fileName, Graphics& graphics) {

@@ -118,12 +118,6 @@ struct UIButtonDesc {
 	bool keepPressedOutside = false;
 };
 
-struct UICheckBoxDesc {
-	UIBaseDesc;
-	UIBackgroundDesc;
-	bool toggled = true;
-};
-
 struct UIPanelDesc {
 	UIBaseDesc;
 	UIBackgroundDesc;
@@ -146,7 +140,6 @@ enum class UIControlType {
 	Bitmap,
 	Text,
 	Button,
-	Checkbox,
 };
 
 class UIControl {
@@ -179,7 +172,6 @@ public:
 	void Add(UIButton& button);
 	void Add(UIBitmap& bitmap);
 	void Add(UIText& text);
-	void Add(UICheckBox& checkBox);
 	void LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	bool HandleInput(const Input& input) const;
@@ -297,7 +289,6 @@ public:
 	void Add(UIButton& button);
 	void Add(UIBitmap& bitmap);
 	void Add(UIText& text);
-	void Add(UICheckBox& checkBox);
 	void LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder);
 	void HandleInput(const Input& input) const;
@@ -305,43 +296,6 @@ public:
 
 private:
 	UIPanel mPanel;
-};
-
-struct UICheckBoxStyle {
-	Vec2  offset { 0.f, 0.f };
-	Vec2  scale { 1.f, 1.f };
-	float grayScale = 0.f;
-};
-
-class UICheckBox final : public UIControl {
-public:
-	explicit UICheckBox(const UICheckBoxDesc& desc, const UICheckBoxStyle* style = nullptr);
-
-	void      SetEnabled(bool enabled);
-	bool      IsEnabled() const;
-	bool      IsChecked() const;
-	void      SetChecked(bool value);
-	void      Add(UIBitmap&& bitmap);
-	void      Add(UIText&& text);
-	UIBitmap& GetBitmap(size_t idx);
-	UIText&   GetText(size_t idx);
-	void      LoadAssets(Graphics& graphics, FontManager& fontManager);
-	void      Draw(const UIRenderer& renderer, unsigned drawOrder) const;
-	void      ComputeRect(const UIRect& parentRect, const UITransform& transform);
-	bool      HandleInput(const Input& input);
-	void      Tick(float dt);
-
-private:
-	void RefreshState(const Input& input);
-
-private:
-	UICheckBoxDesc         mDesc;
-	const UICheckBoxStyle* mStyle;
-	std::vector<UIBitmap>  mBitmaps;
-	std::vector<UIText>    mTexts;
-	TexturePtr             mBackground;
-	bool                   mToggled;
-	bool                   mEnabled;
 };
 
 class UIMouseCursor final {
