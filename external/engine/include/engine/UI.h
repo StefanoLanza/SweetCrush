@@ -38,7 +38,7 @@ struct UISize {
 };
 
 struct UIRect {
-	Vec2 pos;
+	Vec2 pos; // top-left corner
 	Vec2 size;
 	Vec2 axis;
 };
@@ -66,6 +66,7 @@ struct UITransform {
 #define UIBaseDesc                                                   \
 	UIPos            pos = UIZeroPos;                                \
 	UISize           size = UIZeroSize;                              \
+	Vec2             pivot = { 0.5f, 0.5f };                         \
 	UIHorizAlignment horizontalAlignment = UIHorizAlignment::center; \
 	UIVertAlignment  verticalAlignment = UIVertAlignment::center;    \
 	float            padding = 0.f;                                  \
@@ -87,6 +88,7 @@ struct UITextDesc {
 	StringId           stringId = 0;
 	Vec2               pos = { 0.f, 0.f };
 	UISize             size = { 0.f, 0.f };
+	Vec2               pivot = { 0.5f, 0.5f };
 	UITextSizing       sizing = UITextSizing::fit;
 	UIHorizAlignment   horizontalAlignment = UIHorizAlignment::center;
 	UIVertAlignment    verticalAlignment = UIVertAlignment::center;
@@ -154,14 +156,13 @@ class UIControl {
 public:
 	explicit UIControl(bool visible)
 	    : mRect {}
-	    , mEnabled { true }
 	    , mVisible { visible } {
 	}
-	void          SetEnabled(bool enabled);
-	bool          IsEnabled() const;
-	void          SetVisible(bool visible);
-	bool          IsVisible() const;
-	const UIRect& GetRect() const;
+	void               SetVisible(bool visible);
+	bool               IsVisible() const;
+	const UIRect&      GetRect() const;
+	UITransform&       GetTransform();
+	const UITransform& GetTransform() const;
 
 protected:
 	void SetRect(const UIRect& rect);
@@ -170,7 +171,6 @@ protected:
 	UITransform mTransform; // TODO Compute on the fly based on styles ?
 	UITransform mFinalTransform;
 	UIRect      mRect;
-	bool        mEnabled;
 	bool        mVisible;
 };
 
@@ -227,7 +227,6 @@ public:
 	explicit UIBitmap(const UIBitmapDesc& desc, const UIBitmapStyle& style = {});
 
 	void                LoadAssets(Graphics& graphics, FontManager& fontManager);
-	void                SetPosition(const Vec2& pos);
 	void                SetColor(const Color& color);
 	const UIBitmapDesc& GetDesc() const;
 	void                Draw(const UIRenderer& renderer, unsigned drawOrder) const;
@@ -246,6 +245,7 @@ enum class UIButtonState {
 	idle,
 	hovered,
 	pressed,
+	disabled,
 };
 
 struct UIButtonStyle;
@@ -260,9 +260,13 @@ struct UIButtonStyle {
 
 class UIButton final : public UIControl {
 public:
-	UIButton(const UIButtonDesc& desc, const UIBitmapDesc& iconDesc, const UITextDesc& labelDesc, const UIButtonStyle* style = nullptr);
+	UIButton(const UIButtonDesc& desc, const UIButtonStyle* style = nullptr);
 
+	void          SetEnabled(bool enabled);
+	bool          IsEnabled() const;
 	bool          IsClicked() const;
+	void          Add(UIBitmap&& bitmap);
+	void          Add(UIText&& text);
 	void          LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void          Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	void          ComputeRect(const UIRect& parentRect, const UITransform& transform);
@@ -277,14 +281,14 @@ private:
 	const UIButtonStyle* GetStyle() const;
 
 private:
-	UIButtonDesc              mDesc;
-	const UIButtonStyle*      mStyle;
-	TexturePtr                mBackground;
-	std::unique_ptr<UIBitmap> mIcon;
-	std::unique_ptr<UIText>   mLabel;
-	UIButtonState             mState;
-	float                     mAnimTime;
-	bool                      mClicked;
+	UIButtonDesc          mDesc;
+	const UIButtonStyle*  mStyle;
+	TexturePtr            mBackground;
+	std::vector<UIBitmap> mBitmaps;
+	std::vector<UIText>   mTexts;
+	UIButtonState         mState;
+	float                 mAnimTime;
+	bool                  mClicked;
 };
 
 class UICanvas final {
@@ -315,6 +319,8 @@ class UICheckBox final : public UIControl {
 public:
 	explicit UICheckBox(const UICheckBoxDesc& desc, const UICheckBoxStyle& style);
 
+	void SetEnabled(bool enabled);
+	bool IsEnabled() const;
 	bool IsChecked() const;
 	void SetChecked(bool value);
 	void LoadAssets(Graphics& graphics, FontManager& fontManager);
@@ -334,6 +340,7 @@ private:
 	UIText          mLabel;
 	TexturePtr      mBackground;
 	bool            mToggled;
+	bool            mEnabled;
 };
 
 class UIMouseCursor final {

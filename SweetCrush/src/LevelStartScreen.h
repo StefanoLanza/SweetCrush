@@ -24,6 +24,7 @@ public:
 private:
 	void DrawPieces(const Level& level, float yCoord) const;
 	void DrawIceBlocks(const Level& level, float yCoord) const;
+	void AnimateUI();
 
 private:
 	const MatchStats&     mMatchStats;
@@ -33,6 +34,7 @@ private:
 	Wind::UIButton        mPlayButton;
 	Wind::UICanvas        mCanvas;
 	Wind::UIPanel         mPanel;
+	Wind::UIBitmap        mPet;
 	Wind::UIText          mGoalText;
 	Wind::UIText          mGoalDesc;
 	float                 mAccumTime = 0;

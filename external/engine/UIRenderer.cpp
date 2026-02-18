@@ -23,7 +23,7 @@ public:
 		ProgramHandle mHandle = nullProgram;
 		GLint         mColor = 0;
 		GLint         mCoords = 0;
-		GLint         mUVRect = 0;
+		GLint         mRotationAxis = 0;
 		GLint         mTexture = 0;
 		GLint         m9Patch = 0;
 		bool          mValid = false;
@@ -63,11 +63,11 @@ UIRenderer::Impl::Impl(Graphics& graphics, UITextRenderer& textRenderer)
 		const GlProgram& program = graphics.GetProgram(mBitmapProgram.mHandle);
 		mBitmapProgram.mColor = program.GetUniformLocation("color");
 		mBitmapProgram.mCoords = program.GetUniformLocation("coords");
-		mBitmapProgram.mUVRect = program.GetUniformLocation("uvRect");
+		mBitmapProgram.mRotationAxis = program.GetUniformLocation("rotationAxis");
 		mBitmapProgram.mTexture = program.GetUniformLocation("inputTexture");
 		mBitmapProgram.m9Patch = program.GetUniformLocation("_9Patch");
 		mBitmapProgram.mValid = (mBitmapProgram.mColor != -1 && mBitmapProgram.mCoords != -1 && mBitmapProgram.m9Patch != -1 &&
-		                         mBitmapProgram.mUVRect != -1 && mBitmapProgram.mTexture != -1);
+		                         mBitmapProgram.mRotationAxis != -1 && mBitmapProgram.mTexture != -1);
 	}
 
 	mLineProgram.mHandle = graphics.NewProgram(SHADERS_FOLDER "ui/uiLine.vs", SHADERS_FOLDER "ui/uiLine.fs");
@@ -98,13 +98,13 @@ void UIRenderer::Impl::DrawBitmap(const UIRect& rect, const Texture& texture, co
 
 	const int uniforms[] = {
 		mBitmapProgram.mCoords,
-		mBitmapProgram.mUVRect,
+		mBitmapProgram.mRotationAxis,
 		mBitmapProgram.mColor,
 		mBitmapProgram.m9Patch,
 	};
 	const float uniformData[][4] = {
 		{ rect.pos.x, rect.pos.y, rect.size.x, rect.size.y },
-		{ 0.f, 0.f, 1.f, 1.f },
+		{ rect.axis.x, rect.axis.y, 1.f, 1.f },
 		{ prms.color.r / 255.f, prms.color.g / 255.f, prms.color.b / 255.f, prms.color.a / 255.f },
 		{
 		    prms._9patch,

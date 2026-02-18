@@ -105,17 +105,6 @@ void MainScreen::Draw(UIRenderer& uiRenderer, float dt) {
 		x += dx;
 		phase += 6.28f / static_cast<float>(NumPieceTypes);
 	}
-
-#if 0
-	{
-		BitmapExtParams prm;
-		prm.orientation = std::sin(0.f + (float)mTime * 2.f) * 0.05f;
-		prm.drawOrder = GameDrawOrder::overUI;
-		prm.pivot = { 0.4f, 1.f };
-		prm.blending = true;
-		mEngine.GetBitmapRenderer().DrawBitmapEx(*gameTextures[petSprites[0]], { RefWindowWidth - 100.f, RefWindowHeight - 0.f }, prm);
-	}
-#endif
 }
 
 void MainScreen::Enter(const ScreenNavArgs& args) {

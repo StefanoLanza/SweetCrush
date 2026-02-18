@@ -39,7 +39,7 @@ UIButton MakeBoosterButton(float x) {
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::bottom,
 		.padding = 20.f,
-		.background = "UI/button_round_flat.png",
+		//.background = "UI/button_round_flat.png",
 		.backgroundColor = panel1_color,
 		._9patch = 16.f,
 	};
@@ -56,13 +56,16 @@ UIButton MakeBoosterButton(float x) {
 		.verticalAlignment = UIVertAlignment::center,
 		.sizing = UIBitmapSizing::fit,
 	};
-	return UIButton { desc, iconDesc, labelDesc };
+	UIButton button { desc };
+	button.Add(UIBitmap{iconDesc});
+	button.Add(UIText{labelDesc });
+	return button;
 }
 
 const UIButtonDesc pauseButtonDesc {
 	.pos = UIAbsolutePos(0, 0),
 	.size = UIAbsoluteSize(48.f, 47.f),
-	.horizontalAlignment = UIHorizAlignment::right,
+	.horizontalAlignment = UIHorizAlignment::left,
 	.verticalAlignment = UIVertAlignment::bottom,
 };
 
@@ -126,10 +129,10 @@ const UIPanelDesc topPanelDesc {
 
 const UIPanelDesc bottomPanelDesc {
 	.pos = { 0.f, 0.f, 0.f, 0.f },
-	.size = UISize(0, 120, 1, 0),
+	.size = UISize(400, 120, 0, 0),
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::bottom,
-	//.background = "UI/button.png",
+	.background = "UI/button.png",
 	.backgroundColor = panel1_color,
 	._9patch = 16.f,
 };
@@ -160,7 +163,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
     , mScoreText(scoreTextDesc)
     , mTimeHeader(timeHeaderDesc)
     , mTimeText(timeTextDesc)
-    , mPauseButton(pauseButtonDesc, pauseButtonBitmapDesc, noLabelDesc)
+    , mPauseButton(pauseButtonDesc)
     , mBoosterButtons { MakeBoosterButton(-130.f), MakeBoosterButton(0.f), MakeBoosterButton(130.f) }
     , mMatch3 { mBoard, mBoardGenerator, *mCellSelector }
     , mTime { 0.f }
@@ -180,6 +183,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
 	mBottomPanel.Add(mBoosterButtons[0]); // TODO GridLayout
 	mBottomPanel.Add(mBoosterButtons[1]);
 	mBottomPanel.Add(mBoosterButtons[2]);
+	mPauseButton.Add(UIBitmap{pauseButtonBitmapDesc});
 }
 
 PlayScreen::~PlayScreen() = default;

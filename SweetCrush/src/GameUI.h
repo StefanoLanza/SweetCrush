@@ -3,10 +3,8 @@
 #include <engine/FwdDecl.h>
 #include <engine/StringTable.h>
 
-extern const Wind::UIBitmapDesc noIconDesc;
-extern const Wind::UITextDesc   noLabelDesc;
-extern const Wind::UITextStyle  defaultTextStyle;
-extern const Wind::UISize       defaultButtonSize;
+extern const Wind::UITextStyle defaultTextStyle;
+extern const Wind::UISize      defaultButtonSize;
 
 extern const float         titleY;
 extern const float         subTitleY;

@@ -18,6 +18,29 @@
 
 using namespace Wind;
 
+//	"gameartguppy/pet_turtle_160x160.png",
+//"gameartguppy/pet_fish_160x160.png",
+
+const UIBitmapDesc petDesc {
+	.fileName = "gameartguppy/pet_bird_160x160.png",
+	.pos = UIZeroPos,
+	.size = UIZeroSize,
+	.pivot = { 0.45f, 1.0f },
+	.horizontalAlignment = UIHorizAlignment::right,
+	.verticalAlignment = UIVertAlignment::bottom,
+	.sizing = UIBitmapSizing::fit,
+};
+#if 0
+	{
+		BitmapExtParams prm;
+		prm.orientation = std::sin(0.f + (float)mTime * 2.f) * 0.05f;
+		prm.drawOrder = GameDrawOrder::overUI;
+		prm.pivot = { 0.4f, 1.f };
+		prm.blending = true;
+		mEngine.GetBitmapRenderer().DrawBitmapEx(*gameTextures[petSprites[0]], { RefWindowWidth - 100.f, RefWindowHeight - 0.f }, prm);
+	}
+#endif
+
 LevelStartScreen::LevelStartScreen(const MatchStats& matchStats, const GameDataModule& gameDataModule, const GameRenderer& gameRenderer)
     : mMatchStats(matchStats)
     , mGameDataModule(gameDataModule)
@@ -26,6 +49,7 @@ LevelStartScreen::LevelStartScreen(const MatchStats& matchStats, const GameDataM
     , mPlayButton { MakeMenuButton(button3_y, GameStringId::play) }
     , mCanvas(MakeCanvas())
     , mPanel(MakeInfoPanel())
+    , mPet(petDesc)
     , mGoalText { MakeScreenText(GameStringId::goal, 40.f) }
     , mGoalDesc { MakeDynScreenText(160.f) } {
 	// Setup UI
@@ -34,6 +58,7 @@ LevelStartScreen::LevelStartScreen(const MatchStats& matchStats, const GameDataM
 	mCanvas.Add(mPanel);
 	mPanel.Add(mGoalText);
 	mPanel.Add(mGoalDesc);
+	mPanel.Add(mPet);
 }
 
 const char* LevelStartScreen::GetName() const {
@@ -51,6 +76,7 @@ ScreenEvent LevelStartScreen::Tick(float dt, const Input& input) {
 	if (mAccumTime > 6.f || mPlayButton.IsClicked()) {
 		return GoTo(GameScreenIds::play, ScreenTransition::slideTop);
 	}
+	AnimateUI();
 	return Continue();
 }
 
@@ -138,4 +164,8 @@ void LevelStartScreen::DrawIceBlocks(const Level& level, float yCoord) const {
 		mGameRenderer.DrawIcon(iceSprites[0], Vec2 { x, yCoord }, 0.f, whiteColor, GameDrawOrder::overlays);
 		x += dx;
 	}
+}
+
+void LevelStartScreen::AnimateUI() {
+	mPet.GetTransform().rotation = 0.2f * (0.5f + 0.5f * std::sin(mAccumTime));
 }

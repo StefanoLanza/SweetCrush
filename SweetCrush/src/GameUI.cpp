@@ -6,8 +6,7 @@
 
 using namespace Wind;
 
-const UIBitmapDesc noIconDesc {};
-const float              buttonPadding = 48.f;
+const float        buttonPadding = 48.f;
 
 namespace {
 
@@ -46,11 +45,6 @@ const UITheme uiTheme {
 		.onPressed = SquashButton,
 		.onHovered = ReleaseButton,
 	},
-};
-
-const UITextDesc noLabelDesc {
-	.stringId = GameStringId::empty,
-	.visible = false,
 };
 
 constexpr UITextStyle titleTextStyle {
@@ -159,7 +153,10 @@ UIButton MakeMenuButton(float y, StringId label, const Color& color, const char*
 		.font = "mediumFont",
 		.style = defaultTextStyle,
 	};
-	return UIButton { buttonDesc, iconDesc, labelDesc };
+	UIButton button { buttonDesc };
+	button.Add(UIBitmap { iconDesc });
+	button.Add(UIText { labelDesc });
+	return button;
 }
 
 UIButton MakeBackButton() {
@@ -203,7 +200,10 @@ UIButton MakeCloseButton() {
 		.font = "mediumFont",
 		.visible = false,
 	};
-	return UIButton { buttonDesc, iconDesc, labelDesc };
+	UIButton button { buttonDesc };
+	button.Add(UIBitmap { iconDesc });
+	button.Add(UIText { labelDesc });
+	return button;
 }
 
 UICheckBox MakeCheckBox(float y, StringId label, const Color& color) {

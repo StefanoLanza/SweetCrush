@@ -29,10 +29,6 @@ const char* gameTexturePath[NumGameTextures] {
 	"gameartguppy/candy_04_lollipop_100.png",
 	"gameartguppy/candy_09_gummibear_100.png",
 	"blast.png",
-	// Pets
-	"gameartguppy/pet_bird_160x160.png",
-	"gameartguppy/pet_turtle_160x160.png",
-	"gameartguppy/pet_fish_160x160.png",
 	// Icon
 	"icons/minicheck.png",
 };
@@ -59,5 +55,4 @@ const int      glowSprite = 17;
 const int      starSprite = 0; // FIXME
 const int      blastSprite = 21;
 
-const int petSprites[] = { 22, 23, 24 };
-const int checkIcon = 25;
+const int checkIcon = 22;
