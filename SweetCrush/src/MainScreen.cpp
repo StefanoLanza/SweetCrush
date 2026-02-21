@@ -1,17 +1,13 @@
 #include "MainScreen.h"
 #include "AssetDefs.h"
 #include "Constants.h"
-#include "GameDrawOrder.h"
-#include "GameRenderer.h"
 #include "GameUI.h"
 #include "Localization.h"
 #include "ScreenIds.h"
 
-#include <engine/BitmapRender.h>
 #include <engine/Easings.h>
 #include <engine/Engine.h>
 #include <engine/Input.h>
-#include <engine/UIRenderer.h>
 
 using namespace Wind;
 
@@ -26,11 +22,19 @@ const UITextDesc versionDesc {
 	.style = defaultTextStyle,
 };
 
-}
+const UIPanelDesc pastryPanelDesc {
+	.pos = UIAbsolutePos(0.f, 250.f),
+	.size = { 0.f, 96.f, 1.f, 0.f },
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::top,
+	.backgroundColor = transparentColor,
+	.cols = 9,
+};
 
-MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
+} // namespace
+
+MainScreen::MainScreen(Engine& engine)
     : mEngine(engine)
-    , mGameRenderer(gameRenderer)
     , mTitle { MakeTitleText(GameStringId::title) }
     , mStartButton { MakeMenuButton(button0_y, GameStringId::start, button0_color, "icons/play.png") }
     , mSettingsButton { MakeMenuButton(button1_y, GameStringId::settings, button1_color, "icons/gear.png") }
@@ -39,6 +43,7 @@ MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
     , mQuitButton { MakeMenuButton(button3_y, GameStringId::quit, button3_color, "icons/cross.png") }
 #endif
     , mCanvas { MakeCanvas() }
+    , mPastryPanel { pastryPanelDesc }
     , mVersion { versionDesc }
     , mAccumTime(0) {
 	// Setup UI
@@ -50,6 +55,17 @@ MainScreen::MainScreen(Engine& engine, const GameRenderer& gameRenderer)
 	mCanvas.Add(mQuitButton);
 #endif
 	mCanvas.Add(mVersion);
+	mCanvas.Add(mPastryPanel);
+
+	for (int i = 0; i < NumPieceTypes; ++i) {
+		UIBitmapDesc iconDesc;
+		iconDesc.horizontalAlignment = UIHorizAlignment::center;
+		iconDesc.verticalAlignment = UIVertAlignment::center;
+		iconDesc.fileName = gameTexturePath[i];
+		iconDesc.sizing = UIBitmapSizing::fit;
+		iconDesc.pivot = { 0.5f, 0.5f };
+		mPastryPanel.Add(iconDesc);
+	}
 }
 
 const char* MainScreen::GetName() const {
@@ -91,18 +107,12 @@ ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
 void MainScreen::Draw(UIRenderer& uiRenderer, float dt) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 
-	constexpr float dx = TileWidth + 2;
-	float           phase = mAccumTime * 4.f;
-	float           x = (RefWindowWidth - (NumPieceTypes - 1) * dx) * 0.5f;
-
+	// Rotate and oscillate pastry icons
+	float phase = mAccumTime * 4.f;
 	for (int i = 0; i < NumPieceTypes; ++i) {
-		BitmapExtParams prm;
-		prm.pivot = BitmapPivot::center;
-		prm.orientation = std::sin(phase * .25f + (float)i) * 0.5f;
-		prm.drawOrder = GameDrawOrder::overUI;
-		prm.blending = true;
-		mEngine.GetBitmapRenderer().DrawBitmapEx(*gameTextures[pieceIcons[i]], { x, 380.f + std::cos(phase) * 4.f }, prm);
-		x += dx;
+		UITransform& iconTransform = mPastryPanel.GetControl(i).GetTransform();
+		iconTransform.rotation = std::sin(phase * .25f + (float)i) * 0.5f;
+		iconTransform.offset.y = std::cos(phase) * 4.f;
 		phase += 6.28f / static_cast<float>(NumPieceTypes);
 	}
 }

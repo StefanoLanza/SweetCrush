@@ -121,6 +121,7 @@ struct UIButtonDesc {
 struct UIPanelDesc {
 	UIBaseDesc;
 	UIBackgroundDesc;
+	int cols = 0;
 };
 
 struct UICanvasDesc {
@@ -171,7 +172,10 @@ public:
 	void Add(UIPanel& panel);
 	void Add(UIButton& button);
 	void Add(UIBitmap& bitmap);
+	void Add(const UIBitmapDesc& bitmapDesc);
 	void Add(UIText& text);
+	UIControl& GetControl(int idx) const;
+	UIBitmap& GetBitmap(int idx) const;
 	void LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	bool HandleInput(const Input& input) const;
@@ -182,6 +186,7 @@ private:
 	struct Child {
 		void*         ptr;
 		UIControlType type;
+		bool          owned;
 	};
 	std::vector<Child> mChildren;
 	UIPanelDesc        mDesc;

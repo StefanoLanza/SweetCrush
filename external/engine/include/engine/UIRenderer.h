@@ -30,9 +30,9 @@ public:
 
 	const UITextRenderer& GetTextRenderer() const;
 	void                  DrawBitmap(const UIRect& rect, const Texture& texture, const UIDrawBitmapArgs& args) const;
-	void                  DrawSolidRect(const UIRect& rect, const Color& color, UIBlendMode blendMode) const;
+	void                  DrawSolidRect(const UIRect& rect, const Color& color, UIBlendMode blendMode, unsigned drawOrder) const;
 	void                  DrawLine(const Vec2& start, const Vec2& end, float thickness, const Color& color, unsigned priority) const;
-	void                  DrawBorder(const UIRect& rect, float thickness, const Color& color, unsigned priority) const;
+	void                  DrawBorder(const UIRect& rect, float thickness, const Color& color, unsigned drawOrder) const;
 
 private:
 	class Impl;

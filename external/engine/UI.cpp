@@ -477,19 +477,32 @@ UIPanel::UIPanel(const UIPanelDesc& desc)
 }
 
 void UIPanel::Add(UIPanel& panel) {
-	mChildren.push_back({ &panel, UIControlType::Panel });
+	mChildren.push_back({ &panel, UIControlType::Panel, false });
 }
 
 void UIPanel::Add(UIButton& button) {
-	mChildren.push_back({ &button, UIControlType::Button });
+	mChildren.push_back({ &button, UIControlType::Button, false });
 }
 
 void UIPanel::Add(UIBitmap& bitmap) {
-	mChildren.push_back({ &bitmap, UIControlType::Bitmap });
+	mChildren.push_back({ &bitmap, UIControlType::Bitmap, false });
+}
+
+void UIPanel::Add(const UIBitmapDesc& bitmapDesc) {
+	mChildren.push_back({ new UIBitmap { bitmapDesc }, UIControlType::Bitmap, true });
 }
 
 void UIPanel::Add(UIText& text) {
 	mChildren.push_back({ &text, UIControlType::Text });
+}
+
+UIControl& UIPanel::GetControl(int idx) const {
+	return *static_cast<UIControl*>(mChildren[idx].ptr);
+}
+
+UIBitmap& UIPanel::GetBitmap(int idx) const {
+	assert(mChildren[idx].type == UIControlType::Bitmap);
+	return *static_cast<UIBitmap*>(mChildren[idx].ptr);
 }
 
 void UIPanel::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
@@ -503,7 +516,9 @@ void UIPanel::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 		renderer.DrawBitmap(GetRect(), *mBackground, prms);
 	}
 	else {
-		renderer.DrawSolidRect(GetRect(), mDesc.backgroundColor, UIBlendMode::Off);
+		if (drawOrder == 0 || mDesc.backgroundColor.a > 0.f) {
+			renderer.DrawSolidRect(GetRect(), mDesc.backgroundColor, (drawOrder == 0) ? UIBlendMode::Off : UIBlendMode::On, drawOrder);
+		}
 	}
 
 #define Dispatch(Type)                                \
@@ -588,14 +603,23 @@ void UIPanel::ComputeRect(const UIRect& parentRect, const UITransform& transform
 	SetRect(rect);
 	UIRect paddedRect = AddPadding(rect, mDesc.padding);
 
-#define Dispatch(Type)                                   \
-	{                                                    \
-		auto control = static_cast<Type*>(child.ptr);    \
-		if (control->IsVisible()) {                      \
-			control->ComputeRect(paddedRect, transform); \
-		}                                                \
+	UIRect subRect = paddedRect;
+	if (mDesc.cols > 0) {
+		int numRows = ((int)mChildren.size() + mDesc.cols - 1) / mDesc.cols;
+		subRect.size.x = paddedRect.size.x / (float)mDesc.cols;
+		subRect.size.y = paddedRect.size.y / (float)numRows;
+	}
+	const Vec2 firstColPos = subRect.pos;
+
+#define Dispatch(Type)                                \
+	{                                                 \
+		auto control = static_cast<Type*>(child.ptr); \
+		if (control->IsVisible()) {                   \
+			control->ComputeRect(subRect, transform); \
+		}                                             \
 	}
 
+	int col = 0;
 	for (const auto& child : mChildren) {
 		switch (child.type) {
 		case UIControlType::Panel:
@@ -612,6 +636,17 @@ void UIPanel::ComputeRect(const UIRect& parentRect, const UITransform& transform
 			break;
 		default:
 			break;
+		}
+		if (mDesc.cols > 1) {
+			++col;
+			if (col == mDesc.cols) {
+				col = 0;
+				subRect.pos.x = firstColPos.x;
+				subRect.pos.y += subRect.size.y;
+			}
+			else {
+				subRect.pos.x += subRect.size.x;
+			}
 		}
 	}
 #undef Dispatch

@@ -38,7 +38,7 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
     , mCompositor { engine.GetGraphics(), RefWindowWidth, RefWindowHeight }
     , mUIRenderer { engine.GetGraphics(), engine.GetTextRenderer() } {
 	// Note: match order of GameScreenId
-	mScreens[0] = std::make_unique<MainScreen>(engine, gameRenderer);
+	mScreens[0] = std::make_unique<MainScreen>(engine);
 	mScreens[1] = std::make_unique<CreditsScreen>();
 	mScreens[2] = std::make_unique<SettingsScreen>(mGameSettings);
 	mScreens[3] = std::make_unique<PlayScreen>(engine, gameRenderer, gameConfig, mGameSettings, mMatchStats, gameDataModule);

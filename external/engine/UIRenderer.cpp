@@ -14,7 +14,7 @@ public:
 	explicit Impl(Graphics& graphics, UITextRenderer& textRenderer);
 
 	void DrawBitmap(const UIRect& rect, const Texture& surface, const UIDrawBitmapArgs& prms) const;
-	void DrawSolidRect(const UIRect& rect, const Color& color, UIBlendMode blendMode) const;
+	void DrawSolidRect(const UIRect& rect, const Color& color, UIBlendMode blendMode, unsigned drawOrder) const;
 	void DrawLine(const Vec2& start, const Vec2& end, float thickness, const Color& color, unsigned priority) const;
 	void DrawBorder(const UIRect& rect, float thickness, const Color& color, unsigned priority) const;
 
@@ -144,7 +144,7 @@ void UIRenderer::Impl::DrawBitmap(const UIRect& rect, const Texture& texture, co
 	mGraphics.Draw(drawCall);
 }
 
-void UIRenderer::Impl::DrawSolidRect(const UIRect& rect, const Color& color, UIBlendMode blendMode) const {
+void UIRenderer::Impl::DrawSolidRect(const UIRect& rect, const Color& color, UIBlendMode blendMode, unsigned drawOrder) const {
 	if (! mRectProgram.mValid) {
 		return;
 	}
@@ -178,7 +178,7 @@ void UIRenderer::Impl::DrawSolidRect(const UIRect& rect, const Color& color, UIB
 		.numUniforms = std::size(uniforms),
 		.program = mRectProgram.mHandle,
 		.mesh = quadMesh,
-		.drawOrder = 0, // TODO
+		.drawOrder = drawOrder,
 	};
 	mGraphics.Draw(drawCall);
 }
@@ -229,22 +229,22 @@ void UIRenderer::DrawBitmap(const UIRect& rect, const Texture& texture, const UI
 	mPimpl->DrawBitmap(rect, texture, prms);
 }
 
-void UIRenderer::DrawSolidRect(const UIRect& rect, const Color& color, UIBlendMode blendMode) const {
-	mPimpl->DrawSolidRect(rect, color, blendMode);
+void UIRenderer::DrawSolidRect(const UIRect& rect, const Color& color, UIBlendMode blendMode, unsigned drawOrder) const {
+	mPimpl->DrawSolidRect(rect, color, blendMode, drawOrder);
 }
 
-void UIRenderer::DrawLine(const Vec2& start, const Vec2& end, float thickness, const Color& color, unsigned priority) const {
+void UIRenderer::DrawLine(const Vec2& start, const Vec2& end, float thickness, const Color& color, unsigned drawOrder) const {
 	if (color.a <= 0.f) {
 		return;
 	}
-	mPimpl->DrawLine(start, end, thickness, color, priority);
+	mPimpl->DrawLine(start, end, thickness, color, drawOrder);
 }
 
-void UIRenderer::DrawBorder(const UIRect& rect, float thickness, const Color& color, unsigned priority) const {
+void UIRenderer::DrawBorder(const UIRect& rect, float thickness, const Color& color, unsigned drawOrder) const {
 	if (color.a <= 0.f) {
 		return;
 	}
-	mPimpl->DrawBorder(rect, thickness, color, priority);
+	mPimpl->DrawBorder(rect, thickness, color, drawOrder);
 }
 
 } // namespace Wind

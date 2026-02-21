@@ -11,6 +11,7 @@ constexpr int NumBoardTiles = 1;
 constexpr int NumObstacleTypes = 1;
 constexpr int NumBoosters = 3;
 
+extern const char*      gameTexturePath[NumGameTextures];
 extern Wind::TexturePtr gameTextures[NumGameTextures];
 extern const char*      gameTexturePath[NumGameTextures];
 extern const SpriteID   boardTileIcons[NumBoardTiles];
@@ -21,7 +22,7 @@ extern const SpriteID   boosterIcons[NumBoosters];
 
 extern const SpriteID iceSprites[3];
 extern const SpriteID selectionSprite;
-extern const int glowSprite;
-extern const int blastSprite;
-extern const int starSprite;
-extern const int checkIcon;
+extern const int      glowSprite;
+extern const int      blastSprite;
+extern const int      starSprite;
+extern const int      checkIcon;

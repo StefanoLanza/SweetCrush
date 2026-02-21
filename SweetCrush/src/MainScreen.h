@@ -8,7 +8,7 @@ class GameRenderer;
 
 class MainScreen final : public Wind::Screen {
 public:
-	explicit MainScreen(Wind::Engine& engine, const GameRenderer& gameRenderer);
+	explicit MainScreen(Wind::Engine& engine);
 
 	const char*       GetName() const override;
 	void              LoadAssets(Wind::Engine& engine) override;
@@ -23,8 +23,8 @@ private:
 
 private:
 	Wind::Engine&       mEngine;
-	const GameRenderer& mGameRenderer;
 	Wind::UICanvas      mCanvas;
+	Wind::UIPanel       mPastryPanel;
 	Wind::UIText        mTitle;
 	Wind::UIButton      mStartButton;
 	Wind::UIButton      mSettingsButton;

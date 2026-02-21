@@ -10,6 +10,10 @@ Vec2 operator+(const Vec2& lhs, const Vec2& rhs) {
 	return { lhs.x + rhs.x, lhs.y + rhs.y };
 }
 
+Vec2 operator+(const Vec2& lhs, float s) {
+	return { lhs.x + s, lhs.y + s };
+}
+
 Vec2 operator-(const Vec2& lhs, const Vec2& rhs) {
 	return { lhs.x - rhs.x, lhs.y - rhs.y };
 }
@@ -24,6 +28,18 @@ Vec2 operator*(const Vec2& v, float s) {
 
 Vec2 operator*(float s, const Vec2& v) {
 	return v * s;
+}
+
+Vec2 operator/(const Vec2& lhs, const Vec2& rhs) {
+	return { lhs.x / rhs.x, lhs.y / rhs.y };
+}
+
+Vec2 operator/(const Vec2& v, float s) {
+	return { v.x / s, v.y / s };
+}
+
+Vec2 operator/(float s, const Vec2& v) {
+	return v / s;
 }
 
 Vec2 operator-(const Vec2& v) {
