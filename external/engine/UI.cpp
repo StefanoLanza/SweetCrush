@@ -166,12 +166,14 @@ bool UIButton::IsClicked() const {
 	return mClicked;
 }
 
-void UIButton::Add(UIBitmap&& bitmap) {
-	mBitmaps.emplace_back(std::move(bitmap));
+UIBitmap& UIButton::Add(const UIBitmapDesc& bitmapDesc) {
+	mBitmaps.emplace_back(bitmapDesc);
+	return mBitmaps.back();
 }
 
-void UIButton::Add(UIText&& text) {
-	mTexts.emplace_back(std::move(text));
+UIText& UIButton::Add(const UITextDesc& textDesc) {
+	mTexts.emplace_back(textDesc);
+	return mTexts.back();
 }
 
 UIBitmap& UIButton::GetBitmap(size_t idx) {
@@ -439,6 +441,85 @@ void UIBitmap::SetStyle(const UIBitmapStyle& style) {
 	mStyle = style;
 }
 
+UIPanel::UIPanel(const UIPanelDesc& desc)
+    : UIControl { true }
+    , mDesc(desc) {
+}
+
+UIPanel::~UIPanel() {
+#define Dispatch(Type) delete static_cast<Type*>(child.ptr);
+	for (auto& child : mChildren) {
+		if (child.owned) {
+			switch (child.type) {
+			case UIControlType::Panel:
+				Dispatch(UIPanel);
+				break;
+			case UIControlType::Bitmap:
+				Dispatch(UIBitmap);
+				break;
+			case UIControlType::Text:
+				Dispatch(UIText);
+				break;
+			case UIControlType::Button:
+				Dispatch(UIButton);
+				break;
+			default:
+				break;
+			}
+		}
+	}
+#undef Dispatch
+}
+
+void UIPanel::Add(UIPanel& panel) {
+	mChildren.push_back({ &panel, UIControlType::Panel, false });
+}
+
+void UIPanel::Add(UIButton& button) {
+	mChildren.push_back({ &button, UIControlType::Button, false });
+}
+
+UIButton* UIPanel::Add(UIButton&& button) {
+	auto newButton = new UIButton { std::move(button) };
+	mChildren.push_back({ newButton, UIControlType::Button, true });
+	return newButton;
+}
+
+void UIPanel::Add(UIBitmap& bitmap) {
+	mChildren.push_back({ &bitmap, UIControlType::Bitmap, false });
+}
+
+UIBitmap* UIPanel::Add(const UIBitmapDesc& bitmapDesc) {
+	auto bitmap = new UIBitmap { bitmapDesc };
+	mChildren.push_back({ bitmap, UIControlType::Bitmap, true });
+	return bitmap;
+}
+
+void UIPanel::Add(UIText& text) {
+	mChildren.push_back({ &text, UIControlType::Text });
+}
+
+UIText* UIPanel::Add(const UITextDesc& textDesc) {
+	auto text = new UIText { textDesc };
+	mChildren.push_back({ text, UIControlType::Text, true });
+	return text;
+}
+
+UIPanel* UIPanel::Add(const UIPanelDesc& panelDesc) {
+	auto panel = new UIPanel { panelDesc };
+	mChildren.push_back({ panel, UIControlType::Panel, true });
+	return panel;
+}
+
+UIControl& UIPanel::GetControl(int idx) const {
+	return *static_cast<UIControl*>(mChildren[idx].ptr);
+}
+
+UIBitmap& UIPanel::GetBitmap(int idx) const {
+	assert(mChildren[idx].type == UIControlType::Bitmap);
+	return *static_cast<UIBitmap*>(mChildren[idx].ptr);
+}
+
 void UIPanel::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 	if (mDesc.background) {
 		mBackground = graphics.LoadTexture(mDesc.background);
@@ -469,40 +550,6 @@ void UIPanel::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 		}
 	}
 #undef Dispatch
-}
-
-UIPanel::UIPanel(const UIPanelDesc& desc)
-    : UIControl { true }
-    , mDesc(desc) {
-}
-
-void UIPanel::Add(UIPanel& panel) {
-	mChildren.push_back({ &panel, UIControlType::Panel, false });
-}
-
-void UIPanel::Add(UIButton& button) {
-	mChildren.push_back({ &button, UIControlType::Button, false });
-}
-
-void UIPanel::Add(UIBitmap& bitmap) {
-	mChildren.push_back({ &bitmap, UIControlType::Bitmap, false });
-}
-
-void UIPanel::Add(const UIBitmapDesc& bitmapDesc) {
-	mChildren.push_back({ new UIBitmap { bitmapDesc }, UIControlType::Bitmap, true });
-}
-
-void UIPanel::Add(UIText& text) {
-	mChildren.push_back({ &text, UIControlType::Text });
-}
-
-UIControl& UIPanel::GetControl(int idx) const {
-	return *static_cast<UIControl*>(mChildren[idx].ptr);
-}
-
-UIBitmap& UIPanel::GetBitmap(int idx) const {
-	assert(mChildren[idx].type == UIControlType::Bitmap);
-	return *static_cast<UIBitmap*>(mChildren[idx].ptr);
 }
 
 void UIPanel::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
@@ -674,12 +721,28 @@ void UICanvas::Add(UIButton& button) {
 	mPanel.Add(button);
 }
 
+UIButton* UICanvas::Add(UIButton&& button) {
+	return mPanel.Add(std::move(button));
+}
+
 void UICanvas::Add(UIBitmap& bitmap) {
 	mPanel.Add(bitmap);
 }
 
 void UICanvas::Add(UIText& text) {
 	mPanel.Add(text);
+}
+
+UIText* UICanvas::Add(const UITextDesc& textDesc) {
+	return mPanel.Add(textDesc);
+}
+
+UIBitmap* UICanvas::Add(const UIBitmapDesc& bitmapDesc) {
+	return mPanel.Add(bitmapDesc);
+}
+
+UIPanel* UICanvas::Add(const UIPanelDesc& panelDesc) {
+	return mPanel.Add(panelDesc);
 }
 
 void UICanvas::Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder) {

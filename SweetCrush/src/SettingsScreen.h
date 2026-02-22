@@ -22,11 +22,10 @@ private:
 	void RefreshUI();
 
 private:
-	GameSettings&    mGameConfig;
-	Wind::UIText     mTitle;
+	GameSettings&  mGameConfig;
 	Wind::UIButton mMusicButton;
 	Wind::UIButton mSfxButton;
-	Wind::UIButton   mLanguageButton;
-	Wind::UIButton   mBackButton;
-	Wind::UICanvas   mCanvas;
+	Wind::UIButton mLanguageButton;
+	Wind::UIButton mBackButton;
+	Wind::UICanvas mCanvas;
 };

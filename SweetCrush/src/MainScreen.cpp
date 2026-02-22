@@ -35,28 +35,19 @@ const UIPanelDesc pastryPanelDesc {
 
 MainScreen::MainScreen(Engine& engine)
     : mEngine(engine)
-    , mTitle { MakeTitleText(GameStringId::title) }
-    , mStartButton { MakeMenuButton(button0_y, GameStringId::start, button0_color, "icons/play.png") }
-    , mSettingsButton { MakeMenuButton(button1_y, GameStringId::settings, button1_color, "icons/gear.png") }
-    , mCreditsButton { MakeMenuButton(button2_y, GameStringId::credits, button2_color, "icons/info.png") }
-#if ! defined(__ANDROID__) && ! defined(__OHOS__)
-    , mQuitButton { MakeMenuButton(button3_y, GameStringId::quit, button3_color, "icons/cross.png") }
-#endif
     , mCanvas { MakeCanvas() }
-    , mPastryPanel { pastryPanelDesc }
-    , mVersion { versionDesc }
     , mAccumTime(0) {
 	// Setup UI
-	mCanvas.Add(mTitle);
-	mCanvas.Add(mStartButton);
-	mCanvas.Add(mSettingsButton);
-	mCanvas.Add(mCreditsButton);
+	mCanvas.Add(GetTitleTextDesc(GameStringId::title));
+	mStartButton = mCanvas.Add(MakeMenuButton(button0_y, GameStringId::start, button0_color, "icons/play.png"));
+	mSettingsButton = mCanvas.Add(MakeMenuButton(button1_y, GameStringId::settings, button1_color, "icons/gear.png"));
+	mCreditsButton = mCanvas.Add(MakeMenuButton(button2_y, GameStringId::credits, button2_color, "icons/info.png"));
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
-	mCanvas.Add(mQuitButton);
+	mQuitButton = mCanvas.Add(MakeMenuButton(button3_y, GameStringId::quit, button3_color, "icons/cross.png"));
 #endif
-	mCanvas.Add(mVersion);
-	mCanvas.Add(mPastryPanel);
+	mCanvas.Add(versionDesc);
 
+	mPastryPanel = mCanvas.Add(pastryPanelDesc);
 	for (int i = 0; i < NumPieceTypes; ++i) {
 		UIBitmapDesc iconDesc;
 		iconDesc.horizontalAlignment = UIHorizAlignment::center;
@@ -64,7 +55,7 @@ MainScreen::MainScreen(Engine& engine)
 		iconDesc.fileName = gameTexturePath[i];
 		iconDesc.sizing = UIBitmapSizing::fit;
 		iconDesc.pivot = { 0.5f, 0.5f };
-		mPastryPanel.Add(iconDesc);
+		mPastryPanel->Add(iconDesc);
 	}
 }
 
@@ -81,13 +72,13 @@ ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
 	mCanvas.HandleInput(input);
 	mAccumTime += dt;
 
-	if (mStartButton.IsClicked()) {
+	if (mStartButton->IsClicked()) {
 		return GoTo(GameScreenIds::levelStart, ScreenTransition::slideTop);
 	}
-	else if (mSettingsButton.IsClicked()) {
+	else if (mSettingsButton->IsClicked()) {
 		return GoTo(GameScreenIds::settings, ScreenTransition::slideLeft);
 	}
-	else if (mCreditsButton.IsClicked()) {
+	else if (mCreditsButton->IsClicked()) {
 		return GoTo(GameScreenIds::credits, ScreenTransition::slideLeft);
 	}
 
@@ -97,7 +88,7 @@ ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
 	if (input.GetKeyJustPressed(SDLK_AC_BACK)) {
 		mEngine.Quit();
 #elif defined(_WIN32) || defined(__linux__)
-	if (input.GetKeyJustPressed(SDLK_ESCAPE) || mQuitButton.IsClicked()) {
+	if (input.GetKeyJustPressed(SDLK_ESCAPE) || mQuitButton->IsClicked()) {
 #endif
 		mEngine.Quit();
 	}
@@ -110,7 +101,7 @@ void MainScreen::Draw(UIRenderer& uiRenderer, float dt) {
 	// Rotate and oscillate pastry icons
 	float phase = mAccumTime * 4.f;
 	for (int i = 0; i < NumPieceTypes; ++i) {
-		UITransform& iconTransform = mPastryPanel.GetControl(i).GetTransform();
+		UITransform& iconTransform = mPastryPanel->GetControl(i).GetTransform();
 		iconTransform.rotation = std::sin(phase * .25f + (float)i) * 0.5f;
 		iconTransform.offset.y = std::cos(phase) * 4.f;
 		phase += 6.28f / static_cast<float>(NumPieceTypes);

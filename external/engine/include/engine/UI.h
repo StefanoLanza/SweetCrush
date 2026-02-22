@@ -168,19 +168,23 @@ protected:
 class UIPanel final : public UIControl {
 public:
 	explicit UIPanel(const UIPanelDesc& desc);
+	~UIPanel();
 
-	void Add(UIPanel& panel);
-	void Add(UIButton& button);
-	void Add(UIBitmap& bitmap);
-	void Add(const UIBitmapDesc& bitmapDesc);
-	void Add(UIText& text);
+	void       Add(UIPanel& panel);
+	void       Add(UIButton& button);
+	UIButton*  Add(UIButton&& button);
+	void       Add(UIBitmap& bitmap);
+	UIBitmap*  Add(const UIBitmapDesc& bitmapDesc);
+	void       Add(UIText& text);
+	UIText*    Add(const UITextDesc& textDesc);
+	UIPanel*   Add(const UIPanelDesc& panelDesc);
 	UIControl& GetControl(int idx) const;
-	UIBitmap& GetBitmap(int idx) const;
-	void LoadAssets(Graphics& graphics, FontManager& fontManager);
-	void Draw(const UIRenderer& renderer, unsigned drawOrder) const;
-	bool HandleInput(const Input& input) const;
-	void ComputeRect(const UIRect& parentRect, const UITransform& transform);
-	void Tick(float dt);
+	UIBitmap&  GetBitmap(int idx) const;
+	void       LoadAssets(Graphics& graphics, FontManager& fontManager);
+	void       Draw(const UIRenderer& renderer, unsigned drawOrder) const;
+	bool       HandleInput(const Input& input) const;
+	void       ComputeRect(const UIRect& parentRect, const UITransform& transform);
+	void       Tick(float dt);
 
 private:
 	struct Child {
@@ -259,8 +263,8 @@ public:
 	void          SetEnabled(bool enabled);
 	bool          IsEnabled() const;
 	bool          IsClicked() const;
-	void          Add(UIBitmap&& bitmap);
-	void          Add(UIText&& text);
+	UIBitmap&     Add(const UIBitmapDesc& bitmapDesc);
+	UIText&       Add(const UITextDesc& textDesc);
 	UIBitmap&     GetBitmap(size_t idx);
 	UIText&       GetText(size_t idx);
 	void          LoadAssets(Graphics& graphics, FontManager& fontManager);
@@ -290,14 +294,18 @@ class UICanvas final {
 public:
 	explicit UICanvas(const UICanvasDesc& desc);
 
-	void Add(UIPanel& panel);
-	void Add(UIButton& button);
-	void Add(UIBitmap& bitmap);
-	void Add(UIText& text);
-	void LoadAssets(Graphics& graphics, FontManager& fontManager);
-	void Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder);
-	void HandleInput(const Input& input) const;
-	void Tick(float dt);
+	void      Add(UIPanel& panel);
+	void      Add(UIButton& button);
+	UIButton* Add(UIButton&& button);
+	void      Add(UIBitmap& bitmap);
+	void      Add(UIText& text);
+	UIText*   Add(const UITextDesc& textDesc);
+	UIBitmap* Add(const UIBitmapDesc& bitmapDesc);
+	UIPanel*  Add(const UIPanelDesc& panelDesc);
+	void      LoadAssets(Graphics& graphics, FontManager& fontManager);
+	void      Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder);
+	void      HandleInput(const Input& input) const;
+	void      Tick(float dt);
 
 private:
 	UIPanel mPanel;

@@ -45,20 +45,16 @@ LevelStartScreen::LevelStartScreen(const MatchStats& matchStats, const GameDataM
     : mMatchStats(matchStats)
     , mGameDataModule(gameDataModule)
     , mGameRenderer(gameRenderer)
-    , mTitle { MakeTitleText(GameStringId::level) }
-    , mPlayButton { MakeMenuButton(button3_y, GameStringId::play) }
     , mCanvas(MakeCanvas())
-    , mPanel(MakeInfoPanel())
-    , mPet(petDesc)
     , mGoalText { MakeScreenText(GameStringId::goal, 40.f) }
     , mGoalDesc { MakeDynScreenText(160.f) } {
-	// Setup UI
-	mCanvas.Add(mTitle);
-	mCanvas.Add(mPlayButton);
-	mCanvas.Add(mPanel);
-	mPanel.Add(mGoalText);
-	mPanel.Add(mGoalDesc);
-	mPanel.Add(mPet);
+	// Build UI
+	mTitle = mCanvas.Add(GetTitleTextDesc(GameStringId::level));
+	mPanel = mCanvas.Add(GetInfoPanelDesc());
+	mPanel->Add(mGoalText);
+	mPanel->Add(mGoalDesc);
+	mPet = mPanel->Add(petDesc);
+	mPlayButton = mCanvas.Add(MakeMenuButton(button3_y, GameStringId::play));
 }
 
 const char* LevelStartScreen::GetName() const {
@@ -73,7 +69,7 @@ ScreenEvent LevelStartScreen::Tick(float dt, const Input& input) {
 	mCanvas.Tick(dt);
 	mCanvas.HandleInput(input);
 	mAccumTime += dt;
-	if (mAccumTime > 6.f || mPlayButton.IsClicked()) {
+	if (mAccumTime > 6.f || mPlayButton->IsClicked()) {
 		return GoTo(GameScreenIds::play, ScreenTransition::slideTop);
 	}
 	AnimateUI();
@@ -83,7 +79,7 @@ ScreenEvent LevelStartScreen::Tick(float dt, const Input& input) {
 void LevelStartScreen::Draw(UIRenderer& uiRenderer, float dt) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 
-	float        y = mPanel.GetRect().pos.y + 280.f;
+	float        y = mPanel->GetRect().pos.y + 280.f;
 	const Level& level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
 	switch (level.goal.id) {
 	case GoalId::breakIce:
@@ -110,7 +106,7 @@ void LevelStartScreen::Enter(const ScreenNavArgs& args) {
 	mAccumTime = 0.f;
 
 	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::level), mMatchStats.levelIndex + 1);
-	mTitle.SetText(tmp);
+	mTitle->SetText(tmp);
 
 	const Level& level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
 	switch (level.goal.id) {
@@ -167,5 +163,5 @@ void LevelStartScreen::DrawIceBlocks(const Level& level, float yCoord) const {
 }
 
 void LevelStartScreen::AnimateUI() {
-	mPet.GetTransform().rotation = 0.2f * (0.5f + 0.5f * std::sin(mAccumTime));
+	mPet->GetTransform().rotation = 0.2f * (0.5f + 0.5f * std::sin(mAccumTime));
 }

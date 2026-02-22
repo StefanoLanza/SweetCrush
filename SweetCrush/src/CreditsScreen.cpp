@@ -10,22 +10,15 @@
 using namespace Wind;
 
 CreditsScreen::CreditsScreen()
-    : mTitle { MakeTitleText(GameStringId::credits) }
-    , mCodeBy { MakeScreenText(GameStringId::codeBy, 60) }
-    , mGraphicsBy { MakeScreenText(GameStringId::graphicsBy, 140) }
-    , mMusicBy { MakeScreenText(GameStringId::musicBy, 220) }
-    , mFontBy { MakeScreenText(GameStringId::fontBy, 300) }
-    , mBackButton { MakeBackButton() }
-    , mCanvas(MakeCanvas())
-    , mPanel(MakeInfoPanel()) {
-	mCanvas.Add(mTitle);
-	mCanvas.Add(mPanel);
-	mPanel.Add(mCodeBy);
-	mPanel.Add(mGraphicsBy);
-	mPanel.Add(mMusicBy);
-	mPanel.Add(mFontBy);
-	//mPanel.Add(mVersion);
-	mCanvas.Add(mBackButton);
+    : mCanvas(MakeCanvas()) {
+	// Build UI
+	mCanvas.Add(GetTitleTextDesc(GameStringId::credits));
+	auto panel = mCanvas.Add(GetInfoPanelDesc());
+	panel->Add(GetScreenText(GameStringId::codeBy, 60));
+	panel->Add(GetScreenText(GameStringId::graphicsBy, 140));
+	panel->Add(GetScreenText(GameStringId::musicBy, 220));
+	panel->Add(GetScreenText(GameStringId::fontBy, 300));
+	mBackButton = mCanvas.Add(MakeBackButton());
 }
 
 const char* CreditsScreen::GetName() const {
@@ -39,7 +32,7 @@ ScreenEvent CreditsScreen::Tick(float /*dt*/, const Input& input) {
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
-	    mBackButton.IsClicked()) {
+	    mBackButton->IsClicked()) {
 		return GoBack(ScreenTransition::slideRight);
 	}
 	return Continue();

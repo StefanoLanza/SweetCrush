@@ -30,11 +30,11 @@ private:
 	const MatchStats&     mMatchStats;
 	const GameDataModule& mGameDataModule;
 	const GameRenderer&   mGameRenderer;
-	Wind::UIText          mTitle;
-	Wind::UIButton        mPlayButton;
+	Wind::UIText*         mTitle = nullptr;
+	Wind::UIPanel*        mPanel = nullptr;
+	Wind::UIButton*       mPlayButton = nullptr;
 	Wind::UICanvas        mCanvas;
-	Wind::UIPanel         mPanel;
-	Wind::UIBitmap        mPet;
+	Wind::UIBitmap*       mPet = nullptr;
 	Wind::UIText          mGoalText;
 	Wind::UIText          mGoalDesc;
 	float                 mAccumTime = 0;

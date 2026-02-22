@@ -22,16 +22,14 @@ private:
 	void AnimateUI();
 
 private:
-	Wind::Engine&       mEngine;
-	Wind::UICanvas      mCanvas;
-	Wind::UIPanel       mPastryPanel;
-	Wind::UIText        mTitle;
-	Wind::UIButton      mStartButton;
-	Wind::UIButton      mSettingsButton;
-	Wind::UIButton      mCreditsButton;
+	Wind::Engine&   mEngine;
+	Wind::UICanvas  mCanvas;
+	Wind::UIButton* mStartButton = nullptr;
+	Wind::UIButton* mSettingsButton = nullptr;
+	Wind::UIButton* mCreditsButton = nullptr;
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
-	Wind::UIButton mQuitButton;
+	Wind::UIButton* mQuitButton = nullptr;
 #endif
-	Wind::UIText mVersion;
-	float        mAccumTime;
+	Wind::UIPanel* mPastryPanel = nullptr;
+	float          mAccumTime;
 };

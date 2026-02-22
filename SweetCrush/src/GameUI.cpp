@@ -78,8 +78,8 @@ const float     text1_y = 510;
 const Color     panel0_color = { 192.f, 222.f, 255.f, 255.f };
 const Color     panel1_color = { 192.f, 222.f, 255.f, 127.f };
 
-UIPanel MakeInfoPanel() {
-	const UIPanelDesc desc {
+UIPanelDesc GetInfoPanelDesc() {
+	return {
 		.pos = UIAbsolutePos(0.f, 0.f),
 		.size = UIAbsoluteSize(520.f, 400.f),
 		.horizontalAlignment = UIHorizAlignment::center,
@@ -88,11 +88,14 @@ UIPanel MakeInfoPanel() {
 		.backgroundColor = panel0_color,
 		._9patch = 16.f,
 	};
-	return UIPanel { desc };
 }
 
-UIText MakeTitleText(StringId label, float y) {
-	const UITextDesc desc {
+UIPanel MakeInfoPanel() {
+	return UIPanel { GetInfoPanelDesc() };
+}
+
+UITextDesc GetTitleTextDesc(StringId label, float y) {
+	return {
 		.stringId = label,
 		.pos = { 0.f, y },
 		.horizontalAlignment = UIHorizAlignment::center,
@@ -100,11 +103,14 @@ UIText MakeTitleText(StringId label, float y) {
 		.font = "title",
 		.style = titleTextStyle,
 	};
-	return UIText { desc };
 }
 
-UIText MakeScreenText(StringId label, float y) {
-	const UITextDesc desc {
+UIText MakeTitleText(StringId label, float y) {
+	return UIText { GetTitleTextDesc(label, y) };
+}
+
+UITextDesc GetScreenText(StringId label, float y) {
+	return {
 		.stringId = label,
 		.pos = { 0.f, y },
 		.horizontalAlignment = UIHorizAlignment::center,
@@ -112,7 +118,10 @@ UIText MakeScreenText(StringId label, float y) {
 		.font = "smallFont",
 		.style = defaultTextStyle,
 	};
-	return UIText { desc };
+}
+
+UIText MakeScreenText(StringId label, float y) {
+	return UIText { GetScreenText(label, y) };
 }
 
 UIText MakeDynScreenText(float y) {
@@ -154,8 +163,8 @@ UIButton MakeMenuButton(float y, StringId label, const Color& color, const char*
 		.style = defaultTextStyle,
 	};
 	UIButton button { buttonDesc };
-	button.Add(UIBitmap { iconDesc });
-	button.Add(UIText { labelDesc });
+	button.Add(iconDesc);
+	button.Add(labelDesc);
 	return button;
 }
 
@@ -202,8 +211,8 @@ UIButton MakeCloseButton() {
 		.visible = false,
 	};
 	UIButton button { buttonDesc };
-	button.Add(UIBitmap { iconDesc });
-	button.Add(UIText { labelDesc });
+	button.Add(iconDesc);
+	button.Add(labelDesc);
 	return button;
 }
 
@@ -243,9 +252,9 @@ UIButton MakeCheckBox(float y, StringId label, const Color& color) {
 		//.toggled = true,
 	};
 	UIButton checkBox { checkboxDesc };
-	checkBox.Add(UIText { labelDesc });
-	checkBox.Add(UIBitmap { checkedIconDesc });
-	checkBox.Add(UIBitmap { uncheckedIconDesc });
+	checkBox.Add(labelDesc);
+	checkBox.Add(checkedIconDesc);
+	checkBox.Add(uncheckedIconDesc);
 	return checkBox;
 }
 

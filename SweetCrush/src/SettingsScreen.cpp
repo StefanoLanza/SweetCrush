@@ -6,20 +6,18 @@
 
 #include <engine/Engine.h>
 #include <engine/Input.h>
-#include <engine/UI.h>
 
 using namespace Wind;
 
 SettingsScreen::SettingsScreen(GameSettings& gameSettings)
     : mGameConfig(gameSettings)
-    , mTitle { MakeTitleText(GameStringId::settings) }
     , mMusicButton { MakeCheckBox(button0_y, GameStringId::music, button0_color) }
     , mSfxButton { MakeCheckBox(button1_y, GameStringId::sfx, button1_color) }
     , mLanguageButton { MakeMenuButton(button2_y, GameStringId::languageScreen, button2_color) }
     , mBackButton { MakeBackButton() }
     , mCanvas(MakeCanvas()) {
 	// Build UI
-	mCanvas.Add(mTitle);
+	mCanvas.Add(GetTitleTextDesc(GameStringId::settings));
 	mCanvas.Add(mLanguageButton);
 	mCanvas.Add(mMusicButton);
 	mCanvas.Add(mSfxButton);
@@ -39,10 +37,10 @@ ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& i
 	mCanvas.HandleInput(input);
 
 	if (mMusicButton.IsClicked()) {
-		mGameConfig.musicOn = !mGameConfig.musicOn;
+		mGameConfig.musicOn = ! mGameConfig.musicOn;
 	}
 	if (mSfxButton.IsClicked()) {
-		mGameConfig.sfxOn = !mGameConfig.sfxOn;
+		mGameConfig.sfxOn = ! mGameConfig.sfxOn;
 	}
 	RefreshUI();
 

@@ -43,6 +43,7 @@ class UICanvas;
 class UIButton;
 class UIRenderer;
 struct UIBitmapDesc;
+struct UIPanelDesc;
 struct UITextDesc;
 struct UISize;
 struct UITextStyle;

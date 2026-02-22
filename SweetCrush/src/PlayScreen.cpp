@@ -57,8 +57,8 @@ UIButton MakeBoosterButton(float x) {
 		.sizing = UIBitmapSizing::fit,
 	};
 	UIButton button { desc };
-	button.Add(UIBitmap{iconDesc});
-	button.Add(UIText{labelDesc });
+	button.Add(iconDesc);
+	button.Add(labelDesc);
 	return button;
 }
 
@@ -192,7 +192,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
 	mBottomPanel.Add(mBoosterButtons[1]);
 	mBottomPanel.Add(mBoosterButtons[2]);
 	mBottomPanel.Add(mInfoIcon);
-	mPauseButton.Add(UIBitmap{pauseButtonBitmapDesc});
+	mPauseButton.Add(pauseButtonBitmapDesc);
 }
 
 PlayScreen::~PlayScreen() = default;

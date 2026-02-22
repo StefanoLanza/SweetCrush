@@ -17,12 +17,6 @@ public:
 	void              ParseConfig(const char* varName, const char* varValue) override;
 
 private:
-	Wind::UIText   mTitle;
-	Wind::UIText   mCodeBy;
-	Wind::UIText   mGraphicsBy;
-	Wind::UIText   mMusicBy;
-	Wind::UIText   mFontBy;
-	Wind::UIButton mBackButton;
-	Wind::UICanvas mCanvas;
-	Wind::UIPanel  mPanel;
+	Wind::UIButton* mBackButton = nullptr;
+	Wind::UICanvas  mCanvas;
 };
