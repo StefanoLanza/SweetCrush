@@ -7,6 +7,7 @@ extern const Wind::UITextStyle defaultTextStyle;
 
 extern const float         titleY;
 extern const float         subTitleY;
+extern const float         buttonPadding;
 extern const float         button0_y;
 extern const float         button1_y;
 extern const float         button2_y;

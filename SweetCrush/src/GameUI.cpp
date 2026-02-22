@@ -240,7 +240,7 @@ UIButton MakeCheckBox(float y, StringId label, const Color& color) {
 		.font = "mediumFont",
 		.style = defaultTextStyle,
 	};
-	UIButtonDesc checkboxDesc = {
+	UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(0, y),
 		.size = UIAbsoluteSize(520.f, 100.f),
 		.horizontalAlignment = UIHorizAlignment::center,
@@ -249,9 +249,8 @@ UIButton MakeCheckBox(float y, StringId label, const Color& color) {
 		.background = "UI/button.png",
 		.backgroundColor = color,
 		._9patch = 16.f,
-		//.toggled = true,
 	};
-	UIButton checkBox { checkboxDesc };
+	UIButton checkBox { buttonDesc };
 	checkBox.Add(labelDesc);
 	checkBox.Add(checkedIconDesc);
 	checkBox.Add(uncheckedIconDesc);

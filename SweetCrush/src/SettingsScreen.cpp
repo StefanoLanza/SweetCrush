@@ -11,17 +11,13 @@ using namespace Wind;
 
 SettingsScreen::SettingsScreen(GameSettings& gameSettings)
     : mGameConfig(gameSettings)
-    , mMusicButton { MakeCheckBox(button0_y, GameStringId::music, button0_color) }
-    , mSfxButton { MakeCheckBox(button1_y, GameStringId::sfx, button1_color) }
-    , mLanguageButton { MakeMenuButton(button2_y, GameStringId::languageScreen, button2_color) }
-    , mBackButton { MakeBackButton() }
     , mCanvas(MakeCanvas()) {
 	// Build UI
 	mCanvas.Add(GetTitleTextDesc(GameStringId::settings));
-	mCanvas.Add(mLanguageButton);
-	mCanvas.Add(mMusicButton);
-	mCanvas.Add(mSfxButton);
-	mCanvas.Add(mBackButton);
+	mMusicButton = mCanvas.Add(MakeCheckBox(button0_y, GameStringId::music, button0_color));
+	mSfxButton = mCanvas.Add(MakeCheckBox(button1_y, GameStringId::sfx, button1_color));
+	mBackButton = mCanvas.Add(MakeBackButton());
+	MakeLanguageButton();
 }
 
 const char* SettingsScreen::GetName() const {
@@ -36,16 +32,21 @@ ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& i
 	mCanvas.Tick(dt);
 	mCanvas.HandleInput(input);
 
-	if (mMusicButton.IsClicked()) {
+	bool dirtyUI = false;
+	if (mMusicButton->IsClicked()) {
 		mGameConfig.musicOn = ! mGameConfig.musicOn;
+		dirtyUI = true;
 	}
-	if (mSfxButton.IsClicked()) {
+	if (mSfxButton->IsClicked()) {
 		mGameConfig.sfxOn = ! mGameConfig.sfxOn;
+		dirtyUI = true;
 	}
-	RefreshUI();
-
-	if (mLanguageButton.IsClicked()) {
+	if (mLanguageButton->IsClicked()) {
 		SetNextLanguage();
+		dirtyUI = true;
+	}
+	if (dirtyUI) {
+		RefreshUI();
 	}
 
 #if defined(__ANDROID__) || defined(__OHOS__)
@@ -53,7 +54,7 @@ ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& i
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
-	    mBackButton.IsClicked()) {
+	    mBackButton->IsClicked()) {
 		return GoBack(ScreenTransition::slideRight);
 	}
 	return Continue();
@@ -76,8 +77,53 @@ void SettingsScreen::ParseConfig(const char* varName, const char* varValue) {
 void SettingsScreen::RefreshUI() {
 	bool musicOn = mGameConfig.musicOn;
 	bool sfxOn = mGameConfig.sfxOn;
-	mMusicButton.GetBitmap(0).SetVisible(musicOn);
-	mMusicButton.GetBitmap(1).SetVisible(! musicOn);
-	mSfxButton.GetBitmap(0).SetVisible(sfxOn);
-	mSfxButton.GetBitmap(1).SetVisible(! sfxOn);
+	mMusicButton->GetBitmap(0).SetVisible(musicOn);
+	mMusicButton->GetBitmap(1).SetVisible(! musicOn);
+	mSfxButton->GetBitmap(0).SetVisible(sfxOn);
+	mSfxButton->GetBitmap(1).SetVisible(! sfxOn);
+
+	for (int i = 0; i < 3; ++i) {
+		UIBitmap& icon = mLanguageButton->GetBitmap(i);
+		icon.SetVisible(static_cast<int>(GetCurrentLanguage()) == i);
+	}
+}
+
+void SettingsScreen::MakeLanguageButton() {
+	const UIButtonDesc buttonDesc = {
+		.pos = UIAbsolutePos(0, button2_y),
+		.size = UIAbsoluteSize(520.f, 100.f),
+		.horizontalAlignment = UIHorizAlignment::center,
+		.verticalAlignment = UIVertAlignment::top,
+		.padding = buttonPadding,
+		.background = "UI/button.png",
+		.backgroundColor = button2_color,
+		._9patch = 16.f,
+	};
+	const UITextDesc labelDesc {
+		.stringId = GameStringId::languageScreen,
+		.horizontalAlignment = UIHorizAlignment::left,
+		.verticalAlignment = UIVertAlignment::center,
+		.font = "mediumFont",
+		.style = defaultTextStyle,
+	};
+
+	mLanguageButton = mCanvas.Add(buttonDesc);
+
+	UIBitmapDesc iconDesc {
+		.pos = UIAbsolutePos(16.f, 0.f),
+		.horizontalAlignment = UIHorizAlignment::right,
+		.verticalAlignment = UIVertAlignment::center,
+		.sizing = UIBitmapSizing::fit,
+	};
+	const char* languageIcons[] {
+		"icons/uk.png",
+		"icons/spain.png",
+		"icons/italy.png",
+	};
+	for (int i = 0; i < 3; ++i) {
+		iconDesc.fileName = languageIcons[i];
+		mLanguageButton->Add(iconDesc);
+	}
+
+	mLanguageButton->Add(labelDesc);
 }

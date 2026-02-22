@@ -20,12 +20,13 @@ public:
 
 private:
 	void RefreshUI();
+	void MakeLanguageButton();
 
 private:
-	GameSettings&  mGameConfig;
-	Wind::UIButton mMusicButton;
-	Wind::UIButton mSfxButton;
-	Wind::UIButton mLanguageButton;
-	Wind::UIButton mBackButton;
-	Wind::UICanvas mCanvas;
+	GameSettings&   mGameConfig;
+	Wind::UIButton* mMusicButton = nullptr;
+	Wind::UIButton* mSfxButton = nullptr;
+	Wind::UIButton* mLanguageButton = nullptr;
+	Wind::UIButton* mBackButton = nullptr;
+	Wind::UICanvas  mCanvas;
 };
