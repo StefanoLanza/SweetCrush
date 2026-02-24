@@ -653,8 +653,8 @@ void UIPanel::ComputeRect(const UIRect& parentRect, const UITransform& transform
 	UIRect subRect = paddedRect;
 	if (mDesc.cols > 0) {
 		int numRows = ((int)mChildren.size() + mDesc.cols - 1) / mDesc.cols;
-		subRect.size.x = paddedRect.size.x / (float)mDesc.cols;
-		subRect.size.y = paddedRect.size.y / (float)numRows;
+		subRect.size.x = paddedRect.size.x / (float)mDesc.cols - mDesc.colSpacing * (mDesc.cols - 1);
+		subRect.size.y = paddedRect.size.y / (float)numRows - mDesc.rowSpacing * (numRows - 1);
 	}
 	const Vec2 firstColPos = subRect.pos;
 
@@ -689,10 +689,10 @@ void UIPanel::ComputeRect(const UIRect& parentRect, const UITransform& transform
 			if (col == mDesc.cols) {
 				col = 0;
 				subRect.pos.x = firstColPos.x;
-				subRect.pos.y += subRect.size.y;
+				subRect.pos.y += subRect.size.y + mDesc.rowSpacing;
 			}
 			else {
-				subRect.pos.x += subRect.size.x;
+				subRect.pos.x += subRect.size.x + mDesc.colSpacing;
 			}
 		}
 	}

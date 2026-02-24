@@ -121,7 +121,9 @@ struct UIButtonDesc {
 struct UIPanelDesc {
 	UIBaseDesc;
 	UIBackgroundDesc;
-	int cols = 0;
+	int   cols = 0;
+	float colSpacing = 0.f;
+	float rowSpacing = 0.f;
 };
 
 struct UICanvasDesc {
