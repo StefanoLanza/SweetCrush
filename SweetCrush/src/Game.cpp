@@ -88,7 +88,7 @@ void Game::Draw(float dt) {
 	mMouseCursor.Draw(mUIRenderer, input.GetMappedMouseCoord(), GameDrawOrder::mousePointer);
 #endif
 
-	mHalfTone.Run(compositedFB, mCompositor.GetTempFramebuffer());
+	mHalfTone.Run(compositedFB, mCompositor.GetTempFramebuffer(), 4.f, 0.5f);
 
 	graphics.SetDefaultFrameBuffer();
 	mEngine.GetBlitter().Blit(mCompositor.GetTempFramebuffer().GetColorAttachment() /*compositedFB.GetColorAttachment()*/, compositedFB.GetWidth(),

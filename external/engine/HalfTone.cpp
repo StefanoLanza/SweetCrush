@@ -8,7 +8,7 @@ namespace Wind {
 class HalfTone::Impl {
 public:
 	explicit Impl(Graphics& graphics);
-	void Run(const GlFrameBuffer& src, const GlFrameBuffer& dst) const;
+	void Run(const GlFrameBuffer& src, const GlFrameBuffer& dst, float pixelSize, float radius) const;
 
 private:
 	Graphics&      mGraphics;
@@ -39,7 +39,7 @@ HalfTone::Impl::Impl(Graphics& graphics)
 	mPipeline = mGraphics.NewPipeline(pipelineState);
 }
 
-void HalfTone::Impl::Run(const GlFrameBuffer& src, const GlFrameBuffer& dst) const {
+void HalfTone::Impl::Run(const GlFrameBuffer& src, const GlFrameBuffer& dst, float pixelSize, float radius) const {
 	if (! mValidProgram) {
 		return;
 	}
@@ -51,8 +51,6 @@ void HalfTone::Impl::Run(const GlFrameBuffer& src, const GlFrameBuffer& dst) con
 		mSrcTexelSize,
 		mGridSize,
 	};
-	static float pixelSize = 32;
-	static float radius = 0.45f;
 	const Vec4 uniformData[] = {
 		{ 1.f / src.GetWidth(), 1.f / src.GetHeight(), (float)src.GetWidth(), (float)src.GetHeight() },
 		{ pixelSize, radius, 0.f, 0.f, },
@@ -77,8 +75,8 @@ HalfTone::HalfTone(Graphics& graphics)
 
 HalfTone::~HalfTone() = default;
 
-void HalfTone::Run(const GlFrameBuffer& src, const GlFrameBuffer& dst) const {
-	mPimpl->Run(src, dst);
+void HalfTone::Run(const GlFrameBuffer& src, const GlFrameBuffer& dst, float pixelSize, float radius) const {
+	mPimpl->Run(src, dst, pixelSize, radius);
 }
 
 } // namespace Wind

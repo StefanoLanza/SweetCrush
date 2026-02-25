@@ -10,7 +10,7 @@ public:
 	explicit HalfTone(Graphics& graphics);
 	~HalfTone();
 
-	void Run(const GlFrameBuffer& src, const GlFrameBuffer& dst) const;
+	void Run(const GlFrameBuffer& src, const GlFrameBuffer& dst, float pixelSize, float radius) const;
 
 private:
 	class Impl;
