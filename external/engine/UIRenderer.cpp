@@ -58,7 +58,7 @@ UIRenderer::Impl::Impl(Graphics& graphics, UITextRenderer& textRenderer)
 	};
 	mPipelineBlending = graphics.NewPipeline(pipelineState);
 
-	mBitmapProgram.mHandle = graphics.NewProgram(SHADERS_FOLDER "ui/uiBitmap.vs", SHADERS_FOLDER "ui/uiBitmap.fs");
+	mBitmapProgram.mHandle = graphics.NewProgram("ui/uiBitmap.vs", "ui/uiBitmap.fs");
 	if (mBitmapProgram.mHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(mBitmapProgram.mHandle);
 		mBitmapProgram.mColor = program.GetUniformLocation("color");
@@ -70,7 +70,7 @@ UIRenderer::Impl::Impl(Graphics& graphics, UITextRenderer& textRenderer)
 		                         mBitmapProgram.mRotationAxis != -1 && mBitmapProgram.mTexture != -1);
 	}
 
-	mLineProgram.mHandle = graphics.NewProgram(SHADERS_FOLDER "ui/uiLine.vs", SHADERS_FOLDER "ui/uiLine.fs");
+	mLineProgram.mHandle = graphics.NewProgram("ui/uiLine.vs", "ui/uiLine.fs");
 	if (mLineProgram.mHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(mLineProgram.mHandle);
 		mLineProgram.mColor = program.GetUniformLocation("color");
@@ -79,7 +79,7 @@ UIRenderer::Impl::Impl(Graphics& graphics, UITextRenderer& textRenderer)
 		mLineProgram.mValid = (mLineProgram.mColor != -1 && mLineProgram.mCoords != -1 && mLineProgram.mThickness != -1);
 	}
 
-	mRectProgram.mHandle = graphics.NewProgram(SHADERS_FOLDER "ui/uiRect.vs", SHADERS_FOLDER "ui/uiRect.fs");
+	mRectProgram.mHandle = graphics.NewProgram("ui/uiRect.vs", "ui/uiRect.fs");
 	if (mRectProgram.mHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(mRectProgram.mHandle);
 		mRectProgram.mCoords = program.GetUniformLocation("coords");

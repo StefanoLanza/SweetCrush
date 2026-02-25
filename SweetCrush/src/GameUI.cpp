@@ -94,7 +94,7 @@ UIPanel MakeInfoPanel() {
 	return UIPanel { GetInfoPanelDesc() };
 }
 
-UITextDesc GetTitleTextDesc(StringId label, float y) {
+UITextDesc MakeTitle(StringId label, float y) {
 	return {
 		.stringId = label,
 		.pos = { 0.f, y },
@@ -105,11 +105,7 @@ UITextDesc GetTitleTextDesc(StringId label, float y) {
 	};
 }
 
-UIText MakeTitleText(StringId label, float y) {
-	return UIText { GetTitleTextDesc(label, y) };
-}
-
-UITextDesc GetScreenText(StringId label, float y) {
+UITextDesc MakeScreenText(StringId label, float y) {
 	return {
 		.stringId = label,
 		.pos = { 0.f, y },
@@ -120,12 +116,8 @@ UITextDesc GetScreenText(StringId label, float y) {
 	};
 }
 
-UIText MakeScreenText(StringId label, float y) {
-	return UIText { GetScreenText(label, y) };
-}
-
-UIText MakeDynScreenText(float y) {
-	const UITextDesc desc {
+UITextDesc MakeDynScreenText(float y) {
+	return {
 		.stringId = 0,
 		.pos = { 0.f, y },
 		.horizontalAlignment = UIHorizAlignment::center,
@@ -133,7 +125,6 @@ UIText MakeDynScreenText(float y) {
 		.font = "smallFont",
 		.style = defaultTextStyle,
 	};
-	return UIText { desc };
 }
 
 UIButton MakeMenuButton(float y, StringId label, const Color& color, const char* icon) {

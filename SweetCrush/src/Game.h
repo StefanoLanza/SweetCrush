@@ -3,6 +3,7 @@
 #include <engine/ActionMgr.h>
 #include <engine/Compositor.h>
 #include <engine/FwdDecl.h>
+#include <engine/HalfTone.h> //FIXME
 #include <engine/Screen.h>
 #include <engine/ScreenManager.h>
 #include <engine/UI.h>
@@ -37,5 +38,6 @@ private:
 	Wind::UIRenderer              mUIRenderer;
 	Wind::ScreenManager           mScreenMgr;
 	Wind::UICompositor            mCompositor;
-	std::unique_ptr<Wind::Screen> mScreens[11];
+	std::unique_ptr<Wind::Screen> mScreens[10];
+	Wind::HalfTone                mHalfTone;
 };

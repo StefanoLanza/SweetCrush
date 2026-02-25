@@ -28,11 +28,10 @@ constexpr UICanvasDesc canvasDesc {
 DemoScreen::DemoScreen(Engine& engine, const GameRenderer& gameRenderer)
     : mEngine(engine)
     , mGameRenderer(gameRenderer)
-    , mTitle { MakeTitleText(GameStringId::title) }
     , mCanvas(canvasDesc)
     , mAccumTime(0) {
 	// Setup UI
-	mCanvas.Add(mTitle);
+	mCanvas.Add(MakeTitle(GameStringId::title));
 }
 
 const char* DemoScreen::GetName() const {

@@ -26,7 +26,7 @@ private:
 
 Bloom::Impl::Impl(Graphics& graphics)
     : mGraphics { graphics }
-    , mProgramHandle { graphics.NewProgram(SHADERS_FOLDER "blit.vs", SHADERS_FOLDER "blit.fs") }
+    , mProgramHandle { graphics.NewProgram("blit.vs", "blit.fs") }
     , mValidProgram { false } {
 	if (mProgramHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(mProgramHandle);

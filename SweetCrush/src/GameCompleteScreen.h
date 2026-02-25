@@ -20,7 +20,6 @@ public:
 
 private:
 	const MatchStats& mMatchStats;
-	Wind::UIText      mTitle;
 	Wind::UIButton    mContinueButton;
 	Wind::UICanvas    mCanvas;
 	Wind::UIText      mText0;

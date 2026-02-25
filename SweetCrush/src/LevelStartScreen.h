@@ -34,7 +34,6 @@ private:
 	Wind::UIPanel*        mPanel = nullptr;
 	Wind::UIButton*       mPlayButton = nullptr;
 	Wind::UICanvas        mCanvas;
-	Wind::UIBitmap*       mPet = nullptr;
 	Wind::UIText          mGoalText;
 	Wind::UIText          mGoalDesc;
 	float                 mAccumTime = 0;

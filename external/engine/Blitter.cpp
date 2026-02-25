@@ -34,8 +34,8 @@ private:
 
 Blitter::Impl::Impl(Graphics& graphics)
     : mGraphics { graphics } {
-	InitProgram(mPrograms[0], graphics, SHADERS_FOLDER "blit.fs");
-	InitProgram(mPrograms[1], graphics, SHADERS_FOLDER "blitCubic.fs");
+	InitProgram(mPrograms[0], graphics, "blit.fs");
+	InitProgram(mPrograms[1], graphics, "blitCubic.fs");
 
 	glGenSamplers(2, mSamplers);
 	// Sampler 0: Point (Nearest) Filtering
@@ -51,7 +51,7 @@ Blitter::Impl::Impl(Graphics& graphics)
 }
 
 void Blitter::Impl::InitProgram(BlitProgram& blitProgram, Graphics& graphics, const char* fs) const {
-	blitProgram.mHandle = graphics.NewProgram(SHADERS_FOLDER "blit.vs", SHADERS_FOLDER "blit.fs");
+	blitProgram.mHandle = graphics.NewProgram("blit.vs", "blit.fs");
 	if (blitProgram.mHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(blitProgram.mHandle);
 		blitProgram.mPosRect = program.GetUniformLocation("posRect");

@@ -10,19 +10,19 @@ class EffectInfoScreen final : public Wind::Screen {
 public:
 	explicit EffectInfoScreen();
 
-	const char*            GetName() const override;
+	const char*       GetName() const override;
 	Wind::ScreenEvent Tick(float dt, const Wind::Input& input) override;
-	void                   LoadAssets(Wind::Engine& engine) override;
-	void                   Draw(Wind::UIRenderer& uiRenderer, float dt) override;
-	void                   Enter(const Wind::ScreenNavArgs& args) override;
-	void                   Exit() override;
-	void                   ParseConfig(const char* varName, const char* varValue) override;
+	void              LoadAssets(Wind::Engine& engine) override;
+	void              Draw(Wind::UIRenderer& uiRenderer, float dt) override;
+	void              Enter(const Wind::ScreenNavArgs& args) override;
+	void              Exit() override;
+	void              ParseConfig(const char* varName, const char* varValue) override;
 
 private:
 	void ShowHelp(EffectType type);
 
 private:
-	Wind::UIText   mTitle;
+	Wind::UIText*  mTitle = nullptr;
 	Wind::UIText   mText;
 	Wind::UIButton mOKButton;
 	Wind::UIBitmap mEffectIcon;

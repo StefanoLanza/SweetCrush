@@ -25,7 +25,7 @@ private:
 
 Blur::Impl::Impl(Graphics& graphics)
     : mGraphics { graphics }
-    , mProgramHandle { graphics.NewProgram(SHADERS_FOLDER "blur.vs", SHADERS_FOLDER "blur.fs") }
+    , mProgramHandle { graphics.NewProgram("postprocess/blur.vs", "postprocess/blur.fs") }
     , mValidProgram { false } {
 	if (mProgramHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(mProgramHandle);

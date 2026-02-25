@@ -26,7 +26,7 @@ public:
 		pipelineState.mDstAlpha = GL_ONE;
 		mPipelineAdditive = graphics.NewPipeline(pipelineState);
 
-		mTileProgram.mProgramHandle = graphics.NewProgram(SHADERS_FOLDER "tile.vs", SHADERS_FOLDER "tile.fs");
+		mTileProgram.mProgramHandle = graphics.NewProgram("tile.vs", "tile.fs");
 		if (mTileProgram.mProgramHandle != nullProgram) {
 			const GlProgram& program = graphics.GetProgram(mTileProgram.mProgramHandle);
 			mTileProgram.mCoords = program.GetAttribLocation("tileCoords");
@@ -34,7 +34,7 @@ public:
 			mTileProgram.mValid = (mTileProgram.mCoords != -1 && mTileProgram.mTexture != -1);
 		}
 
-		mIconProgram.mProgramHandle = graphics.NewProgram(SHADERS_FOLDER "piece.vs", SHADERS_FOLDER "piece.fs");
+		mIconProgram.mProgramHandle = graphics.NewProgram("piece.vs", "piece.fs");
 		if (mIconProgram.mProgramHandle != nullProgram) {
 			const GlProgram& program = graphics.GetProgram(mIconProgram.mProgramHandle);
 			mIconProgram.mTransform = program.GetUniformLocation("transform");
@@ -44,7 +44,7 @@ public:
 			mIconProgram.mValid = (mIconProgram.mTransform != -1 && mIconProgram.mTileSize != -1 && mIconProgram.mTexture != -1);
 		}
 
-		mTrailProgram.mProgramHandle = graphics.NewProgram(SHADERS_FOLDER "trail.vs", SHADERS_FOLDER "trail.fs");
+		mTrailProgram.mProgramHandle = graphics.NewProgram("trail.vs", "trail.fs");
 		if (mTrailProgram.mProgramHandle != nullProgram) {
 			const GlProgram& program = graphics.GetProgram(mTrailProgram.mProgramHandle);
 			mTrailProgram.mCoords = program.GetUniformLocation("coords");
@@ -54,7 +54,7 @@ public:
 			mTrailProgram.mValid = (mTrailProgram.mCoords != -1 && mTrailProgram.mTexture != -1);
 		}
 
-		mBlastProgram.mProgramHandle = graphics.NewProgram(SHADERS_FOLDER "blast.vs", SHADERS_FOLDER "blast.fs");
+		mBlastProgram.mProgramHandle = graphics.NewProgram("blast.vs", "blast.fs");
 		if (mBlastProgram.mProgramHandle != nullProgram) {
 			const GlProgram& program = graphics.GetProgram(mBlastProgram.mProgramHandle);
 			mBlastProgram.mCoords = program.GetUniformLocation("coords");

@@ -82,6 +82,7 @@ public:
 	TexturePtr       LoadTexture(std::string_view fileName, TextureInfo texInfo = TextureInfo {});
 	void             SetFrameBuffer(const GlFrameBuffer& frameBuffer);
 	void             SetDefaultFrameBuffer();
+	GlFrameBuffer    GetDefaultFrameBuffer() const;
 	void             ClearDefaultFrameBuffer(float r, float g, float b, float a);
 	void             Flush();
 	void             BeginFrame();

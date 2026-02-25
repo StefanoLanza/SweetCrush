@@ -19,12 +19,10 @@ public:
 	void              ParseConfig(const char* varName, const char* varValue) override;
 
 private:
-	MatchStats&    mMatchStats;
-	Wind::UIText   mTitle;
-	Wind::UIText   mText0;
-	Wind::UIText   mText1;
-	Wind::UIButton mReplayLevelButton;
-	Wind::UIButton mEndButton;
-	Wind::UIPanel  mPanel;
-	Wind::UICanvas mCanvas;
+	MatchStats&     mMatchStats;
+	Wind::UICanvas  mCanvas;
+	Wind::UIText*   mText0 = nullptr;
+	Wind::UIText*   mText1 = nullptr;
+	Wind::UIButton* mReplayLevelButton = nullptr;
+	Wind::UIButton* mEndButton = nullptr;
 };

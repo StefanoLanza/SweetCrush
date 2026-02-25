@@ -65,9 +65,9 @@ private:
 	Wind::UIText*                 mScoreText;
 	Wind::UIText*                 mTimeText;
 	Wind::UIButton*               mBoosterButtons[3];
+	Wind::UIBitmap*               mPet = nullptr;
 	Match3                        mMatch3;
 	std::vector<CellVisual>       mCellGraphics;
-	float                         mMatchTime;
 	float                         mTime;
 	Wind::FontPtr                 mFonts[3];
 	Wind::MusicPtr                mMusic;

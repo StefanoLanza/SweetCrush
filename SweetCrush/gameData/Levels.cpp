@@ -80,7 +80,7 @@ const Level levels[numLevels] {
 	    .pieceIds { 1, 2, 3, 4, 5 },
 	    .goal { .id = GoalId::breakIce, .breakIce { .iceBlocksCount = 0 } },
 	    .seed = 24234,
-	    .availableTime = 600.f,
+	    .availableMoves = 24,
 	    .boardDef = &testLevelGrid,
 	    .boardMask = nullptr,
 	},
@@ -89,33 +89,33 @@ const Level levels[numLevels] {
 #else
 
 const Level levels[numLevels] {
-    // #0
+	// #0
 	{ .pieceIds { 0, 1, 3, 4, 5 },
 	  .goal { GoalId::collectMatches, { 12, 12, 12 } },
 	  .seed = 24234,
-	  .availableTime = 60.f,
+	  .availableMoves = 24,
 	  //.boardMask = (const char*)crossMask,
 	  .boosterIds { 0, 1, 2 },
 	  .boosterCount { 2, 3, 4 } },
-    // #1
+	// #1
 	{ .pieceIds { 1, 2, 3, 5, 6 },
 	  .goal { GoalId::collectMatches, { 15, 15, 15 } },
 	  .seed = 224234,
-	  .availableTime = 60.f,
+	  .availableMoves = 24,
 	  .boosterIds { 0, 1, 2 },
 	  .boosterCount { 2, 3, 4 } },
-    // #2
+	// #2
 	{ .pieceIds { 0, 5, 3, 4, 7 },
 	  .goal { GoalId::collectMatches, { 18, 18, 18 } },
 	  .seed = 324234,
-	  .availableTime = 60.f,
+	  .availableMoves = 24,
 	  .boosterIds { 0, 1, 2 },
 	  .boosterCount { 2, 3, 4 } },
-    // #3
+	// #3
 	{ .pieceIds { 3, 4, 8, 5, 6 },
 	  .goal { GoalId::collectMatches, { 21, 21, 21 } },
 	  .seed = 324234,
-	  .availableTime = 60.f,
+	  .availableMoves = 24,
 	  .boosterIds { 0, 1, 2 },
 	  .boosterCount { 2, 3, 4 } },
 };

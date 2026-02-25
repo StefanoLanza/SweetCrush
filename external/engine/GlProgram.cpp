@@ -1,4 +1,6 @@
 #include "GlProgram.h"
+
+#include "Config.h"
 #include <SDL3/SDL.h>
 #include <cassert>
 #include <malloc.h>
@@ -34,8 +36,11 @@ GLuint CompileShaderFromFile(const char* fileName, const char* defines, GLenum t
 
 	const char* version = "#version 310 es\n";
 
+	char path[256];
+	SDL_snprintf(path, sizeof path, "%s%s", SHADERS_FOLDER, fileName);
+
 	GLuint              program = 0;
-	SDL_IOStream* const f = SDL_IOFromFile(fileName, "rb");
+	SDL_IOStream* const f = SDL_IOFromFile(path, "rb");
 	if (f) {
 		const Sint64 length = SDL_GetIOSize(f);
 		if (length > 0) {
@@ -50,12 +55,12 @@ GLuint CompileShaderFromFile(const char* fileName, const char* defines, GLenum t
 			program = CompileShader(sources, 3, type);
 		}
 		else {
-			SDL_LogError(0, "Zero length file %s", fileName);
+			SDL_LogError(0, "Zero length file %s", path);
 		}
 		SDL_CloseIO(f);
 	}
 	else {
-		SDL_LogError(0, "Cannot open file %s", fileName);
+		SDL_LogError(0, "Cannot open file %s", path);
 	}
 	return program;
 }

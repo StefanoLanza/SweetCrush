@@ -499,6 +499,12 @@ void UIPanel::Add(UIText& text) {
 	mChildren.push_back({ &text, UIControlType::Text });
 }
 
+UIText* UIPanel::Add(UIText&& text) {
+	auto newText = new UIText { std::move(text) };
+	mChildren.push_back({ newText, UIControlType::Text, true });
+	return newText;
+}
+
 UIText* UIPanel::Add(const UITextDesc& textDesc) {
 	auto text = new UIText { textDesc };
 	mChildren.push_back({ text, UIControlType::Text, true });
@@ -648,13 +654,31 @@ void UIPanel::Tick(float dt) {
 void UIPanel::ComputeRect(const UIRect& parentRect, const UITransform& transform) {
 	const UIRect rect = AlignRect(mDesc.pos, mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
 	SetRect(rect);
-	UIRect paddedRect = AddPadding(rect, mDesc.padding);
+	const UIRect paddedRect = AddPadding(rect, mDesc.padding);
 
 	UIRect subRect = paddedRect;
-	if (mDesc.cols > 0) {
-		int numRows = ((int)mChildren.size() + mDesc.cols - 1) / mDesc.cols;
-		subRect.size.x = paddedRect.size.x / (float)mDesc.cols - mDesc.colSpacing * (mDesc.cols - 1);
-		subRect.size.y = paddedRect.size.y / (float)numRows - mDesc.rowSpacing * (numRows - 1);
+	float  stretchedRowHeight = 0.f;
+	if (mDesc.grid.cols > 0) {
+		int numRows = ((int)mChildren.size() + mDesc.grid.cols - 1) / mDesc.grid.cols;
+		subRect.size.x = paddedRect.size.x / (float)mDesc.grid.cols - mDesc.grid.colSpacing * (mDesc.grid.cols - 1);
+		if (mDesc.grid.rowHeight != nullptr) {
+			float totalFixedRowHeight = 0.f;
+			int   numStretchedRows = 0;
+			for (int i = 0; i < numRows; ++i) {
+				if (mDesc.grid.rowHeight[i] > 0.f) {
+					totalFixedRowHeight += mDesc.grid.rowHeight[i];
+				}
+				else {
+					++numStretchedRows;
+				}
+			}
+			stretchedRowHeight = (paddedRect.size.y - totalFixedRowHeight) / numStretchedRows;
+			subRect.size.y = mDesc.grid.rowHeight[0] > 0.f ? mDesc.grid.rowHeight[0] : stretchedRowHeight;
+		}
+		else {
+			// Equally spaced
+			subRect.size.y = paddedRect.size.y / (float)numRows - mDesc.grid.rowSpacing * (numRows - 1);
+		}
 	}
 	const Vec2 firstColPos = subRect.pos;
 
@@ -666,6 +690,7 @@ void UIPanel::ComputeRect(const UIRect& parentRect, const UITransform& transform
 		}                                             \
 	}
 
+	int row = 0;
 	int col = 0;
 	for (const auto& child : mChildren) {
 		switch (child.type) {
@@ -684,15 +709,19 @@ void UIPanel::ComputeRect(const UIRect& parentRect, const UITransform& transform
 		default:
 			break;
 		}
-		if (mDesc.cols > 1) {
+		if (mDesc.grid.cols > 1) {
 			++col;
-			if (col == mDesc.cols) {
+			if (col == mDesc.grid.cols) {
 				col = 0;
+				++row;
 				subRect.pos.x = firstColPos.x;
-				subRect.pos.y += subRect.size.y + mDesc.rowSpacing;
+				subRect.pos.y += subRect.size.y + mDesc.grid.rowSpacing;
+				if (mDesc.grid.rowHeight != nullptr) {
+					subRect.size.y = mDesc.grid.rowHeight[row] > 0.f ? mDesc.grid.rowHeight[row] : stretchedRowHeight;
+				}
 			}
 			else {
-				subRect.pos.x += subRect.size.x + mDesc.colSpacing;
+				subRect.pos.x += subRect.size.x + mDesc.grid.colSpacing;
 			}
 		}
 	}

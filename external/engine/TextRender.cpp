@@ -1,5 +1,4 @@
 #include "TextRender.h"
-#include "Config.h"
 #include "Font.h"
 #include "Gl.h"
 #include "GlProgram.h"
@@ -11,7 +10,7 @@ namespace Wind {
 
 UITextRenderer::UITextRenderer(Graphics& graphics)
     : mGraphics { graphics }
-    , mProgramHandle { graphics.NewProgram(SHADERS_FOLDER "ui/font.vs", SHADERS_FOLDER "ui/font.fs") }
+    , mProgramHandle { graphics.NewProgram("ui/font.vs", "ui/font.fs") }
     , mValidProgram { false } {
 	if (mProgramHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(mProgramHandle);

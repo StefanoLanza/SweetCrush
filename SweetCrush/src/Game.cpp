@@ -12,7 +12,6 @@
 
 // Game screens
 #include "CreditsScreen.h"
-#include "DemoScreen.h"
 #include "EffectInfoPanel.h"
 #include "GameCompleteScreen.h"
 #include "GameDrawOrder.h"
@@ -36,7 +35,8 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
     , mGameSettings {}
     , mMatchStats {}
     , mCompositor { engine.GetGraphics(), RefWindowWidth, RefWindowHeight }
-    , mUIRenderer { engine.GetGraphics(), engine.GetTextRenderer() } {
+    , mUIRenderer { engine.GetGraphics(), engine.GetTextRenderer() }
+    , mHalfTone { engine.GetGraphics() } {
 	// Note: match order of GameScreenId
 	mScreens[0] = std::make_unique<MainScreen>(engine);
 	mScreens[1] = std::make_unique<CreditsScreen>();
@@ -48,7 +48,6 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
 	mScreens[7] = std::make_unique<LevelCompleteScreen>(mMatchStats);
 	mScreens[8] = std::make_unique<EffectInfoScreen>();
 	mScreens[9] = std::make_unique<LevelStartScreen>(mMatchStats, gameDataModule, gameRenderer);
-	mScreens[10] = std::make_unique<DemoScreen>(engine, gameRenderer);
 
 	for (const auto& screen : mScreens) {
 		iniParser.AddListener(screen->GetName(),
@@ -89,8 +88,11 @@ void Game::Draw(float dt) {
 	mMouseCursor.Draw(mUIRenderer, input.GetMappedMouseCoord(), GameDrawOrder::mousePointer);
 #endif
 
+	mHalfTone.Run(compositedFB, mCompositor.GetTempFramebuffer());
+
 	graphics.SetDefaultFrameBuffer();
-	mEngine.GetBlitter().Blit(compositedFB.GetColorAttachment(), compositedFB.GetWidth(), compositedFB.GetHeight(), BlitFilter::point);
+	mEngine.GetBlitter().Blit(mCompositor.GetTempFramebuffer().GetColorAttachment() /*compositedFB.GetColorAttachment()*/, compositedFB.GetWidth(),
+	                          compositedFB.GetHeight(), BlitFilter::point);
 
 	graphics.Flush();
 }

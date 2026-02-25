@@ -58,6 +58,7 @@ struct EffectEvent {
 struct Match3Event {
 	enum class Id {
 		swap,
+		undoSwap,
 		match,
 		removePiece,
 		newPiece,

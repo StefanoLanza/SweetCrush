@@ -118,12 +118,18 @@ struct UIButtonDesc {
 	bool keepPressedOutside = false;
 };
 
+struct UIGridDesc {
+	int          cols = 0;
+	float        colSpacing = 0.f;
+	float        rowSpacing = 0.f;
+	const float* colWidth = nullptr;  // 0 means stretch
+	const float* rowHeight = nullptr; // 0 means stretch
+};
+
 struct UIPanelDesc {
 	UIBaseDesc;
 	UIBackgroundDesc;
-	int   cols = 0;
-	float colSpacing = 0.f;
-	float rowSpacing = 0.f;
+	UIGridDesc grid;
 };
 
 struct UICanvasDesc {
@@ -178,6 +184,7 @@ public:
 	void       Add(UIBitmap& bitmap);
 	UIBitmap*  Add(const UIBitmapDesc& bitmapDesc);
 	void       Add(UIText& text);
+	UIText*    Add(UIText&& text);
 	UIText*    Add(const UITextDesc& textDesc);
 	UIPanel*   Add(const UIPanelDesc& panelDesc);
 	UIControl& GetControl(int idx) const;

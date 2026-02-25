@@ -13,7 +13,7 @@ SettingsScreen::SettingsScreen(GameSettings& gameSettings)
     : mGameConfig(gameSettings)
     , mCanvas(MakeCanvas()) {
 	// Build UI
-	mCanvas.Add(GetTitleTextDesc(GameStringId::settings));
+	mCanvas.Add(MakeTitle(GameStringId::settings));
 	mMusicButton = mCanvas.Add(MakeCheckBox(button0_y, GameStringId::music, button0_color));
 	mSfxButton = mCanvas.Add(MakeCheckBox(button1_y, GameStringId::sfx, button1_color));
 	mBackButton = mCanvas.Add(MakeBackButton());

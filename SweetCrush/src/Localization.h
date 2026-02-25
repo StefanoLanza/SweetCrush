@@ -7,6 +7,7 @@ enum GameStringId {
 	title,
 	tap,
 	time_,
+	moves,
 	score,
 	start,
 	play,

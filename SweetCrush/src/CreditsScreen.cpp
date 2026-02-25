@@ -12,12 +12,12 @@ using namespace Wind;
 CreditsScreen::CreditsScreen()
     : mCanvas(MakeCanvas()) {
 	// Build UI
-	mCanvas.Add(GetTitleTextDesc(GameStringId::credits));
+	mCanvas.Add(MakeTitle(GameStringId::credits));
 	auto panel = mCanvas.Add(GetInfoPanelDesc());
-	panel->Add(GetScreenText(GameStringId::codeBy, 60));
-	panel->Add(GetScreenText(GameStringId::graphicsBy, 140));
-	panel->Add(GetScreenText(GameStringId::musicBy, 220));
-	panel->Add(GetScreenText(GameStringId::fontBy, 300));
+	panel->Add(MakeScreenText(GameStringId::codeBy, 60));
+	panel->Add(MakeScreenText(GameStringId::graphicsBy, 140));
+	panel->Add(MakeScreenText(GameStringId::musicBy, 220));
+	panel->Add(MakeScreenText(GameStringId::fontBy, 300));
 	mBackButton = mCanvas.Add(MakeBackButton());
 }
 

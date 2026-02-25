@@ -18,29 +18,6 @@
 
 using namespace Wind;
 
-//	"gameartguppy/pet_turtle_160x160.png",
-//"gameartguppy/pet_fish_160x160.png",
-
-const UIBitmapDesc petDesc {
-	.fileName = "gameartguppy/pet_bird_160x160.png",
-	.pos = UIZeroPos,
-	.size = UIZeroSize,
-	.pivot = { 0.45f, 1.0f },
-	.horizontalAlignment = UIHorizAlignment::right,
-	.verticalAlignment = UIVertAlignment::bottom,
-	.sizing = UIBitmapSizing::fit,
-};
-#if 0
-	{
-		BitmapExtParams prm;
-		prm.orientation = std::sin(0.f + (float)mTime * 2.f) * 0.05f;
-		prm.drawOrder = GameDrawOrder::overUI;
-		prm.pivot = { 0.4f, 1.f };
-		prm.blending = true;
-		mEngine.GetBitmapRenderer().DrawBitmapEx(*gameTextures[petSprites[0]], { RefWindowWidth - 100.f, RefWindowHeight - 0.f }, prm);
-	}
-#endif
-
 LevelStartScreen::LevelStartScreen(const MatchStats& matchStats, const GameDataModule& gameDataModule, const GameRenderer& gameRenderer)
     : mMatchStats(matchStats)
     , mGameDataModule(gameDataModule)
@@ -49,11 +26,10 @@ LevelStartScreen::LevelStartScreen(const MatchStats& matchStats, const GameDataM
     , mGoalText { MakeScreenText(GameStringId::goal, 40.f) }
     , mGoalDesc { MakeDynScreenText(160.f) } {
 	// Build UI
-	mTitle = mCanvas.Add(GetTitleTextDesc(GameStringId::level));
+	mTitle = mCanvas.Add(MakeTitle(GameStringId::level));
 	mPanel = mCanvas.Add(GetInfoPanelDesc());
 	mPanel->Add(mGoalText);
 	mPanel->Add(mGoalDesc);
-	mPet = mPanel->Add(petDesc);
 	mPlayButton = mCanvas.Add(MakeMenuButton(button3_y, GameStringId::play));
 }
 
@@ -163,5 +139,4 @@ void LevelStartScreen::DrawIceBlocks(const Level& level, float yCoord) const {
 }
 
 void LevelStartScreen::AnimateUI() {
-	mPet->GetTransform().rotation = 0.2f * (0.5f + 0.5f * std::sin(mAccumTime));
 }

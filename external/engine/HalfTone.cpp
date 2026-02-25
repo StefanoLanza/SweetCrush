@@ -1,5 +1,4 @@
 #include "HalfTone.h"
-#include "Config.h"
 #include "GlFrameBuffer.h"
 #include "GlProgram.h"
 #include "Graphics.h"
@@ -12,24 +11,32 @@ public:
 	void Run(const GlFrameBuffer& src, const GlFrameBuffer& dst) const;
 
 private:
-	Graphics&     mGraphics;
-	ProgramHandle mProgramHandle;
+	Graphics&      mGraphics;
+	ProgramHandle  mProgramHandle;
+	PipelineHandle mPipeline;
 	// Uniforms
 	GLint mTexture = -1;
 	GLint mSrcTexelSize = -1;
+	GLint mGridSize = -1;
 	bool  mValidProgram;
 };
 
 HalfTone::Impl::Impl(Graphics& graphics)
     : mGraphics { graphics }
-    , mProgramHandle { graphics.NewProgram(SHADERS_FOLDER "blur.vs", SHADERS_FOLDER "halfTone.fs") }
+    , mProgramHandle { graphics.NewProgram("postprocess/blur.vs", "postprocess/halfTone.fs") }
     , mValidProgram { false } {
 	if (mProgramHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(mProgramHandle);
 		mTexture = program.GetUniformLocation("inputTexture");
 		mSrcTexelSize = program.GetUniformLocation("texelSize");
+		mGridSize = program.GetUniformLocation("gridSize");
 		mValidProgram = (mTexture != -1 && mSrcTexelSize != -1);
 	}
+
+	PipelineState pipelineState;
+	pipelineState.mDepthEnabled = false;
+	pipelineState.mBlending = false;
+	mPipeline = mGraphics.NewPipeline(pipelineState);
 }
 
 void HalfTone::Impl::Run(const GlFrameBuffer& src, const GlFrameBuffer& dst) const {
@@ -37,24 +44,25 @@ void HalfTone::Impl::Run(const GlFrameBuffer& src, const GlFrameBuffer& dst) con
 		return;
 	}
 
-	PipelineState pipelineState;
-	pipelineState.mDepthEnabled = false;
-	pipelineState.mBlending = false;
-	PipelineHandle pipelineHandle = mGraphics.NewPipeline(pipelineState);
-	mGraphics.SetPipeline(pipelineHandle);
-
+	mGraphics.SetPipeline(mPipeline);
 	mGraphics.SetFrameBuffer(dst);
-	Vec2       srcSize { (float)1.f / src.GetWidth(), 1.f / src.GetHeight() };
-	const int  uniforms[] = { mSrcTexelSize };
-	const Vec4 uniformData[] = {
-		{ srcSize.x, srcSize.y, 0.f, 0.f },
-	};
-	const unsigned textureIds[] = { src.GetColorAttachment() };
 
-	DrawCall drawCall {
-		.uniformLocations = uniforms,
+	const int uniformLocs[] = {
+		mSrcTexelSize,
+		mGridSize,
+	};
+	static float pixelSize = 32;
+	static float radius = 0.45f;
+	const Vec4 uniformData[] = {
+		{ 1.f / src.GetWidth(), 1.f / src.GetHeight(), (float)src.GetWidth(), (float)src.GetHeight() },
+		{ pixelSize, radius, 0.f, 0.f, },
+	};
+	const GLuint textureIds[] = { src.GetColorAttachment() };
+
+	const DrawCall drawCall {
+		.uniformLocations = uniformLocs,
 		.uniforms = uniformData,
-		.numUniforms = std::size(uniforms),
+		.numUniforms = std::size(uniformLocs),
 		.textures = textureIds,
 		.numTextures = 1,
 		.program = mProgramHandle,

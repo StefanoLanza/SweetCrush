@@ -1,14 +1,11 @@
 #include "GameOverScreen.h"
 #include "Constants.h"
-#include "GameDrawOrder.h"
 #include "GameUI.h"
 #include "Localization.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
 
 #include <engine/Engine.h>
-#include <engine/UI.h>
-#include <engine/UIRenderer.h>
 
 #include <cstdio>
 
@@ -30,19 +27,14 @@ const UIPanelDesc panelDesc {
 
 GameOverScreen::GameOverScreen(MatchStats& matchStats)
     : mMatchStats(matchStats)
-    , mTitle { MakeTitleText(GameStringId::gameOver) }
-    , mReplayLevelButton { MakeMenuButton(button2_y, GameStringId::retry, button0_color, "icons/replay.png") }
-    , mEndButton { MakeMenuButton(button3_y, GameStringId::toMainMenu, button1_color, "icons/cross.png") }
-    , mText0 { MakeDynScreenText(40.f) }
-    , mText1 { MakeDynScreenText(100.f) }
-    , mPanel(panelDesc)
     , mCanvas(MakeCanvas()) {
-	mPanel.Add(mText0);
-	mPanel.Add(mText1);
-	mCanvas.Add(mTitle);
-	mCanvas.Add(mPanel);
-	mCanvas.Add(mReplayLevelButton);
-	mCanvas.Add(mEndButton);
+	// Build UI
+	mCanvas.Add(MakeTitle(GameStringId::gameOver));
+	auto panel = mCanvas.Add(panelDesc);
+	mText0 = panel->Add(MakeDynScreenText(40.f));
+	mText1 = panel->Add(MakeDynScreenText(100.f));
+	mReplayLevelButton = mCanvas.Add(MakeMenuButton(button2_y, GameStringId::retry, button0_color, "icons/replay.png"));
+	mEndButton = mCanvas.Add(MakeMenuButton(button3_y, GameStringId::toMainMenu, button1_color, "icons/cross.png"));
 }
 
 const char* GameOverScreen::GetName() const {
@@ -56,10 +48,10 @@ void GameOverScreen::LoadAssets(Engine& engine) {
 ScreenEvent GameOverScreen::Tick(float dt, const Input& input) {
 	mCanvas.Tick(dt);
 	mCanvas.HandleInput(input);
-	if (mEndButton.IsClicked()) {
+	if (mEndButton->IsClicked()) {
 		return GoTo(GameScreenIds::mainMenu, ScreenTransition::slideBottom);
 	}
-	else if (mReplayLevelButton.IsClicked()) {
+	else if (mReplayLevelButton->IsClicked()) {
 		return GoTo(GameScreenIds::play, ScreenTransition::slideBottom);
 	}
 	return Continue();
@@ -72,9 +64,9 @@ void GameOverScreen::Draw(UIRenderer& uiRenderer, float dt) {
 void GameOverScreen::Enter(const ScreenNavArgs& args) {
 	char tmp[256];
 	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourReachedLevel), mMatchStats.levelIndex + 1);
-	mText0.SetText(tmp);
+	mText0->SetText(tmp);
 	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourScoreIs), mMatchStats.score);
-	mText1.SetText(tmp);
+	mText1->SetText(tmp);
 }
 
 void GameOverScreen::Exit() {

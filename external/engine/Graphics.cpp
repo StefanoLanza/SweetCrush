@@ -565,6 +565,10 @@ void Graphics::SetDefaultFrameBuffer() {
 	mPimpl->mFBHeight = mPimpl->mWindow.GetHeight();
 }
 
+GlFrameBuffer Graphics::GetDefaultFrameBuffer() const {
+	return { mPimpl->mWindow.GetWidth(), mPimpl->mWindow.GetHeight() };
+}
+
 void Graphics::ClearDefaultFrameBuffer(float r, float g, float b, float a) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, mPimpl->mWindow.GetWidth(), mPimpl->mWindow.GetHeight());

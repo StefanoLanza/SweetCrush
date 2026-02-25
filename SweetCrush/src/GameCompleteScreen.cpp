@@ -15,12 +15,11 @@ using namespace Wind;
 
 GameCompleteScreen::GameCompleteScreen(const MatchStats& matchStats)
     : mMatchStats(matchStats)
-    , mTitle { MakeTitleText(GameStringId::gameComplete) }
     , mContinueButton { MakeMenuButton(680.f, GameStringId::continueGame) }
     , mCanvas(MakeCanvas())
     , mText0 { MakeScreenText(GameStringId::youCompletedAllLevels, 400) }
     , mText1 { MakeDynScreenText(460) } {
-	mCanvas.Add(mTitle);
+	mCanvas.Add(MakeTitle(GameStringId::gameComplete));
 	mCanvas.Add(mContinueButton);
 	mCanvas.Add(mText0);
 	mCanvas.Add(mText1);

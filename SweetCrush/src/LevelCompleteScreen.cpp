@@ -15,13 +15,11 @@ using namespace Wind;
 
 LevelCompleteScreen::LevelCompleteScreen(MatchStats& matchStats)
     : mMatchStats(matchStats)
-    , mTitle { MakeTitleText(GameStringId::level) }
-    , mSubTitle { MakeTitleText(GameStringId::complete, subTitleY) }
     , mNextLevelButton { MakeMenuButton(button2_y, GameStringId::nextLevel) }
     , mCanvas(MakeCanvas()) {
 	// Setup UI
-	mCanvas.Add(mTitle);
-	mCanvas.Add(mSubTitle);
+	mTitle = mCanvas.Add(MakeTitle(GameStringId::level));
+	mCanvas.Add(MakeTitle(GameStringId::complete, subTitleY));
 	mCanvas.Add(mNextLevelButton);
 }
 
@@ -53,7 +51,7 @@ void LevelCompleteScreen::Enter([[maybe_unused]] const ScreenNavArgs& args) {
 
 	char tmp[64];
 	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::level), mMatchStats.levelIndex + 1);
-	mTitle.SetText(tmp);
+	mTitle->SetText(tmp);
 }
 
 void LevelCompleteScreen::Exit() {

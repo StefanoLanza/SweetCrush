@@ -24,11 +24,9 @@ extern const Wind::UITheme uiTheme;
 
 Wind::UIPanel     MakeInfoPanel();
 Wind::UIPanelDesc GetInfoPanelDesc();
-Wind::UIText      MakeTitleText(Wind::StringId label, float y = titleY);
-Wind::UITextDesc  GetTitleTextDesc(Wind::StringId label, float y = titleY);
-Wind::UITextDesc  GetScreenText(Wind::StringId label, float y);
-Wind::UIText      MakeScreenText(Wind::StringId label, float y);
-Wind::UIText      MakeDynScreenText(float y);
+Wind::UITextDesc  MakeTitle(Wind::StringId label, float y = titleY);
+Wind::UITextDesc  MakeScreenText(Wind::StringId label, float y);
+Wind::UITextDesc  MakeDynScreenText(float y);
 Wind::UIButton    MakeMenuButton(float y, Wind::StringId label, const Wind::Color& color = button0_color, const char* icon = nullptr);
 Wind::UIButton    MakeBackButton();
 Wind::UIButton    MakeCloseButton();

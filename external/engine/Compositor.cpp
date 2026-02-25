@@ -30,7 +30,7 @@ UICompositor::UICompositor(Graphics& graphics, int width, int height)
 
 #if 0
 	MaterialInfo mi;
-	mi.SetShader(SHADERS_FOLDER "fullscreenTriangle.vs", SHADERS_FOLDER "transitions/fade.fs");
+	mi.SetShader("fullscreenTriangle.vs", "transitions/fade.fs");
 	mi.AddFloat4("fadeColor", { 1.f, 2.f, 3.f, 4.f });
 	mi.AddFloat4("misc", { 1.f, 2.f, 3.f, 4.f });
 	mi.AddFloat4("boh", { 1.f, 2.f, 3.f, 4.f });
@@ -40,6 +40,10 @@ UICompositor::UICompositor(Graphics& graphics, int width, int height)
 }
 
 const GlFrameBuffer& UICompositor::GetWriteableFramebuffer() const {
+	return mFrameBuffers[mCurrDst];
+}
+
+const GlFrameBuffer& UICompositor::GetTempFramebuffer() const {
 	return mFrameBuffers[mCurrDst];
 }
 
@@ -126,16 +130,16 @@ void UICompositor::ConfigurePixelTransition(const PixelateTransition& settings) 
 
 void UICompositor::InitPrograms(Graphics& graphics) {
 	// TODO Register search paths
-	InitProgramUniforms(mFadeProgram, SHADERS_FOLDER "transitions/fade.fs", graphics);
-	InitProgramUniforms(mSlideProgram, SHADERS_FOLDER "transitions/slide.fs", graphics);
-	InitProgramUniforms(mPixelateProgram, SHADERS_FOLDER "transitions/pixelate.fs", graphics);
-	InitProgramUniforms(mDissolveProgram, SHADERS_FOLDER "transitions/dissolve.fs", graphics);
-	InitProgramUniforms(mZoomProgram, SHADERS_FOLDER "transitions/zoom.fs", graphics); // TODO merge with slide
-	InitProgramUniforms(mBlendProgram, SHADERS_FOLDER "transitions/blend.fs", graphics);
+	InitProgramUniforms(mFadeProgram, "transitions/fade.fs", graphics);
+	InitProgramUniforms(mSlideProgram, "transitions/slide.fs", graphics);
+	InitProgramUniforms(mPixelateProgram, "transitions/pixelate.fs", graphics);
+	InitProgramUniforms(mDissolveProgram, "transitions/dissolve.fs", graphics);
+	InitProgramUniforms(mZoomProgram, "transitions/zoom.fs", graphics); // TODO merge with slide
+	InitProgramUniforms(mBlendProgram, "transitions/blend.fs", graphics);
 }
 
 void UICompositor::InitProgramUniforms(Program& programData, const char* fsPath, Graphics& graphics) {
-	programData.mHandle = graphics.NewProgram(SHADERS_FOLDER "fullscreenTriangle.vs", fsPath);
+	programData.mHandle = graphics.NewProgram("fullscreenTriangle.vs", fsPath);
 	if (programData.mHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(programData.mHandle);
 		programData.mTexture0 = program.TryGetUniformLocation("texture0");

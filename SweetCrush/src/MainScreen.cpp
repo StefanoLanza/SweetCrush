@@ -28,7 +28,9 @@ const UIPanelDesc pastryPanelDesc {
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::top,
 	.backgroundColor = transparentColor,
-	.cols = 9,
+	.grid {
+	    .cols = 9,
+	},
 };
 
 } // namespace
@@ -38,7 +40,7 @@ MainScreen::MainScreen(Engine& engine)
     , mCanvas { MakeCanvas() }
     , mAccumTime(0) {
 	// Setup UI
-	mCanvas.Add(GetTitleTextDesc(GameStringId::title));
+	mCanvas.Add(MakeTitle(GameStringId::title));
 	mStartButton = mCanvas.Add(MakeMenuButton(button0_y, GameStringId::start, button0_color, "icons/play.png"));
 	mSettingsButton = mCanvas.Add(MakeMenuButton(button1_y, GameStringId::settings, button1_color, "icons/gear.png"));
 	mCreditsButton = mCanvas.Add(MakeMenuButton(button2_y, GameStringId::credits, button2_color, "icons/info.png"));

@@ -39,8 +39,7 @@ const UIPanelDesc panelDesc {
 } // namespace
 
 EffectInfoScreen::EffectInfoScreen()
-    : mTitle(MakeTitleText(GameStringId::empty))
-    , mText(textDesc[0])
+    : mText(textDesc[0])
     , mOKButton(MakeMenuButton(50, GameStringId::ok))
     , mEffectIcon(effectIconDesc)
     , mPanel(panelDesc)
@@ -51,7 +50,7 @@ EffectInfoScreen::EffectInfoScreen()
 
 	mPanel.Add(mEffectIcon);
 	mPanel.Add(mOKButton);
-	mPanel.Add(mTitle);
+	mTitle = mPanel.Add(MakeTitle(GameStringId::empty));
 	mPanel.Add(mText);
 }
 
@@ -121,7 +120,7 @@ void EffectInfoScreen::ShowHelp(EffectType effectType) {
 	default:
 		break;
 	}
-	mTitle.SetText(static_cast<StringId>(titleStringId));
+	mTitle->SetText(static_cast<StringId>(titleStringId));
 	mText.SetText(static_cast<StringId>(textStringId));
 	mEffectIcon.SetBitmap(gameTextures[effectIcons[typeIdx]]);
 	mPanel.SetVisible(true);

@@ -5,6 +5,12 @@
 
 namespace Wind {
 
+GlFrameBuffer::GlFrameBuffer(int width, int height)
+    : mFBO(0)
+    , mWidth(width)
+    , mHeight(height) {
+}
+
 GlFrameBuffer::GlFrameBuffer(int width, int height, unsigned flags)
     : mFBO(0)
     , mColor(0)

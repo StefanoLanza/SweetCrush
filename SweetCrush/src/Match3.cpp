@@ -153,7 +153,7 @@ void Match3::Update(const Wind::Input& input) {
 		else {
 			// No matches, undo swap
 			Match3Event event;
-			event.id = Match3Event::Id::swap;
+			event.id = Match3Event::Id::undoSwap;
 			event.pair = mUserSwap;
 			mCbk(event);
 

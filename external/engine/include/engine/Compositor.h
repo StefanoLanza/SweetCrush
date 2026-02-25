@@ -42,6 +42,7 @@ class UICompositor {
 public:
 	explicit UICompositor(Graphics& graphics, int width, int height);
 	const GlFrameBuffer& GetWriteableFramebuffer() const;
+	const GlFrameBuffer& GetTempFramebuffer() const;
 	void                 SetTransition(ScreenTransition newTransition);
 	const GlFrameBuffer& Execute(float dt);
 	bool                 IsIdle() const;

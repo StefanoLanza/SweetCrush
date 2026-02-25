@@ -114,7 +114,7 @@ const UITextDesc goalTextDesc {
 };
 
 const UITextDesc timeHeaderDesc {
-	.stringId = GameStringId::time_,
+	.stringId = GameStringId::moves,
 	.pos = { 0.f, 0.f },
 	.horizontalAlignment = UIHorizAlignment::right,
 	.verticalAlignment = UIVertAlignment::top,
@@ -130,6 +130,7 @@ const UITextDesc timeTextDesc {
 	.style = defaultTextStyle,
 };
 
+const float       topPanelRowHeight[] = { 48.f, 0.f };
 const UIPanelDesc topPanelDesc {
 	.pos = UIAbsolutePos(0.f, 0.f),
 	.size = { 0.f, 160.f, 1.f, 0.f },
@@ -139,8 +140,10 @@ const UIPanelDesc topPanelDesc {
 	.background = "UI/button.png",
 	.backgroundColor = panel1_color,
 	._9patch = 16.f,
-	.cols = 3,
-	//.rowSpacing = 16.f,
+	.grid {
+	    .cols = 3,
+	    .rowHeight = topPanelRowHeight,
+	},
 };
 
 const UIPanelDesc goalPanelDesc {
@@ -149,7 +152,9 @@ const UIPanelDesc goalPanelDesc {
 	.verticalAlignment = UIVertAlignment::center,
 	.padding = 0.f,
 	.backgroundColor = transparentColor,
-	.cols = 3,
+	.grid {
+	    .cols = 3,
+	},
 };
 
 const UIPanelDesc bottomPanelDesc {
@@ -161,7 +166,22 @@ const UIPanelDesc bottomPanelDesc {
 	.background = "UI/button.png",
 	.backgroundColor = panel1_color,
 	._9patch = 16.f,
-	.cols = 4,
+	.grid {
+	    .cols = 4,
+	},
+};
+
+//	"gameartguppy/pet_turtle_160x160.png",
+//"gameartguppy/pet_fish_160x160.png",
+
+const UIBitmapDesc petDesc {
+	.fileName = "gameartguppy/pet_bird_160x160.png",
+	.pos = UIZeroPos,
+	.size = UIAbsoluteSize(64, 64),
+	.pivot = { 0.45f, 1.0f },
+	.horizontalAlignment = UIHorizAlignment::right,
+	.verticalAlignment = UIVertAlignment::bottom,
+	.sizing = UIBitmapSizing::user,
 };
 
 constexpr float criticalTime = 10.f;
@@ -184,8 +204,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
     , mCellSelector { std::make_unique<TileSelector>(mBoard, gameConfig) }
     , mCanvas(MakeCanvas())
     , mMatch3 { mBoard, mBoardGenerator, *mCellSelector }
-    , mTime { 0.f }
-    , mMatchTime { 0 } {
+    , mTime { 0.f } {
 	mCellSelector->SetCallback([this](const TileSelectionEvent& event) { OnTileSelectionEvent(event); });
 	mMatch3.SetCallback([this](const Match3Event& event) { OnMatch3Event(event); });
 	mCellGraphics.resize(NumCols * NumRows);
@@ -204,6 +223,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
 		mGoalCounters[i] = goalPanel->Add(goalCounterDesc); // FIXME hidden
 	}
 	mTimeText = topPanel->Add(timeTextDesc);
+	mPet = mCanvas.Add(petDesc);
 
 	Wind::UIPanel* bottomPanel = mCanvas.Add(bottomPanelDesc);
 	mBoosterButtons[0] = bottomPanel->Add(MakeBoosterButton());
@@ -273,19 +293,11 @@ ScreenEvent PlayScreen::Tick(float dt, const Input& input) {
 
 	if (mMatch3.IsWaitingForUser()) {
 		SelectBooster(input);
-		// Decrease time only when waiting for user selection
-		mMatchTime = std::max(0.f, mMatchTime - dt);
 	}
 
-	if (mMatchTime <= 0.f) {
+	// TODO Moves
+	if (mMatchStats.moves == 0) {
 		return GoTo(GameScreenIds::gameOver);
-	}
-
-	if (mMatchTime < criticalTime) {
-		if (mMusic) {
-			mMusic->SetVolume(0.2f);
-		}
-		// TODO play clock sound
 	}
 
 	mTime += dt;
@@ -393,11 +405,11 @@ void PlayScreen::NewGame() {
 	for (int i = 0; i < mBoard.GetCellCount(); ++i) {
 		mBoard.GetCell(i).ud = &mCellGraphics[i];
 	}
-	mMatchTime = level.availableTime;
 	for (int& c : mMatchStats.targetPieceCount) {
 		c = 0;
 	}
 	mMatchStats.score = 0;
+	mMatchStats.moves = level.availableMoves;
 	mMatchStats.layerCount = mBoard.TotalLayerCount();
 	mActionMgr.Clear();
 	SetupNewBoardAnimation();
@@ -434,6 +446,20 @@ void PlayScreen::OnPieceRemoved(const Cell& cell) {
 
 void PlayScreen::OnMatch3Event(const Match3Event& event) {
 	switch (event.id) {
+	case Match3Event::Id::swap:
+		mMatchStats.moves--;
+		// Fallthrough
+	case Match3Event::Id::undoSwap: {
+		const Cell& firstCell = mBoard.GetCell(event.pair.first);
+		const Cell& secondCell = mBoard.GetCell(event.pair.second);
+		std::swap(GetVisual(firstCell), GetVisual(secondCell));
+		// Note: cells have been swapped already
+		mActionMgr.AddAction(MovePieceFromTo(*static_cast<CellVisual*>(firstCell.ud), secondCell.coords, firstCell.coords),
+		                     { .duration = mGameConfig.swapSpeed, .counter = &mBlockingActionCounter });
+		mActionMgr.AddAction(MovePieceFromTo(*static_cast<CellVisual*>(secondCell.ud), firstCell.coords, secondCell.coords),
+		                     { .duration = mGameConfig.swapSpeed, .counter = &mBlockingActionCounter });
+		break;
+	}
 	case Match3Event::Id::match: {
 		int inc = IncreaseScore(event.match);
 		mActionMgr.AddAction(DrawMatchScore(inc, *event.match.cell, mEngine.GetTextRenderer(), mGameConfig, *mFonts[1]),
@@ -465,17 +491,6 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 		mActionMgr.AddAction(FallPieceFromTo(visual, event.newPiece.cell->coords.x, mGameConfig.pieceFallYCoord, event.newPiece.cell->coords.y),
 		                     { .duration = mGameConfig.pieceFallDuration, .counter = &mBlockingActionCounter });
 		mMatchStats.layerCount += event.newPiece.cell->layers;
-		break;
-	}
-	case Match3Event::Id::swap: {
-		const Cell& firstCell = mBoard.GetCell(event.pair.first);
-		const Cell& secondCell = mBoard.GetCell(event.pair.second);
-		std::swap(GetVisual(firstCell), GetVisual(secondCell));
-		// Note: cells have been swapped already
-		mActionMgr.AddAction(MovePieceFromTo(*static_cast<CellVisual*>(firstCell.ud), secondCell.coords, firstCell.coords),
-		                     { .duration = mGameConfig.swapSpeed, .counter = &mBlockingActionCounter });
-		mActionMgr.AddAction(MovePieceFromTo(*static_cast<CellVisual*>(secondCell.ud), firstCell.coords, secondCell.coords),
-		                     { .duration = mGameConfig.swapSpeed, .counter = &mBlockingActionCounter });
 		break;
 	}
 	case Match3Event::Id::dropPiece: {
@@ -576,12 +591,17 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 	snprintf(tmp, sizeof(tmp), "%04d", mMatchStats.score);
 	mScoreText->SetText(tmp);
 
+#if 0
 	const int time = static_cast<int>(mMatchTime);
 	snprintf(tmp, sizeof(tmp), "%d:%02d", time / 60, time % 60);
 	UITextStyle textStyle = defaultTextStyle;
 	if (mMatchTime < criticalTime) {
 		textStyle.color = redColor;
 	}
+#else
+	snprintf(tmp, sizeof(tmp), "%d", mMatchStats.moves);
+	UITextStyle textStyle = defaultTextStyle;
+#endif
 	mTimeText->SetText(tmp);
 	mTimeText->SetStyle(textStyle);
 

@@ -1,8 +1,9 @@
 #pragma once
 
 struct MatchStats {
-	int  score;
-	int  levelIndex;
-	int  targetPieceCount[3];
-	int  layerCount;
+	int score;
+	int moves;
+	int levelIndex;
+	int targetPieceCount[3];
+	int layerCount;
 };
