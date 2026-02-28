@@ -44,14 +44,14 @@ enum GameStringId {
 	nextLevel,
 	gameComplete,
 	// boosters
-	hRocket,
-	hRocketDescription,
-	vRocket,
-	vRocketDescription,
-	miniBomb,
-	miniBombDescription,
-	bomb,
-	bombDescription,
+	hStriped,
+	hStripedDescription,
+	vStriped,
+	vStripedDescription,
+	colorBomb,
+	colorBombDescription,
+	wrapped,
+	wrappedDescription,
 };
 
 enum class Language {

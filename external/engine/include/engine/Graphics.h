@@ -55,13 +55,13 @@ public:
 	void DisableScissorTest();
 
 public:
-	RectI  mScissorRect {};
-	bool   mDepthEnabled = false;
-	bool   mDepthWriteEnabled = false;
-	bool   mScissorTestEnabled = false;
-	GLenum mSrcAlpha = GL_SRC_ALPHA;
-	GLenum mDstAlpha = GL_ONE_MINUS_SRC_ALPHA;
-	bool   mBlending = false;
+	RectI  scissorRect {};
+	bool   depthEnabled = false;
+	bool   depthWriteEnabled = false;
+	bool   scissorTestEnabled = false;
+	GLenum srcAlpha = GL_SRC_ALPHA;
+	GLenum dstAlpha = GL_ONE_MINUS_SRC_ALPHA;
+	bool   blending = false;
 
 	friend class Graphics;
 };
@@ -83,7 +83,9 @@ public:
 	void             SetFrameBuffer(const GlFrameBuffer& frameBuffer);
 	void             SetDefaultFrameBuffer();
 	GlFrameBuffer    GetDefaultFrameBuffer() const;
-	void             ClearDefaultFrameBuffer(float r, float g, float b, float a);
+	void             ClearColor(float r, float g, float b, float a);
+	void             ClearDepth(float value);
+	void             ClearStencil(uint8_t value);
 	void             Flush();
 	void             BeginFrame();
 	void             EndFrame();

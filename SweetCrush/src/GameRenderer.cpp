@@ -16,14 +16,14 @@ public:
 	    : mGraphics { graphics } {
 
 		PipelineState pipelineState;
-		pipelineState.mBlending = true;
-		pipelineState.mSrcAlpha = GL_SRC_ALPHA;
-		pipelineState.mDstAlpha = GL_ONE_MINUS_SRC_ALPHA;
+		pipelineState.blending = true;
+		pipelineState.srcAlpha = GL_SRC_ALPHA;
+		pipelineState.dstAlpha = GL_ONE_MINUS_SRC_ALPHA;
 		mPipelineBlending = graphics.NewPipeline(pipelineState);
 
-		pipelineState.mBlending = true;
-		pipelineState.mSrcAlpha = GL_SRC_ALPHA;
-		pipelineState.mDstAlpha = GL_ONE;
+		pipelineState.blending = true;
+		pipelineState.srcAlpha = GL_SRC_ALPHA;
+		pipelineState.dstAlpha = GL_ONE;
 		mPipelineAdditive = graphics.NewPipeline(pipelineState);
 
 		mTileProgram.mProgramHandle = graphics.NewProgram("tile.vs", "tile.fs");
@@ -138,15 +138,15 @@ public:
 			Vec2  offset { 0.f, 0.f };
 			Vec4  color { 1.f, 1.f, 1.f, 1.f };
 			float s = visual->scale;
-			if (cell.hasEffect) {
+			if (cell.effect != EffectType::none) {
 				color.x = dynColor;
 				color.y = dynColor;
 				color.z = dynColor;
-				switch (cell.effectType) {
-				case EffectType::hrocket:
+				switch (cell.effect) {
+				case EffectType::hStriped:
 					offset.x = dynOffset;
 					break;
-				case EffectType::vrocket:
+				case EffectType::vStriped:
 					offset.y = dynOffset;
 					break;
 				default:

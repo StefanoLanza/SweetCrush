@@ -83,7 +83,7 @@ void EffectInfoScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
 
 void EffectInfoScreen::Enter(const ScreenNavArgs& args) {
 	// TODO Parse
-	EffectType effectType = EffectType::hrocket;
+	EffectType effectType = EffectType::hStriped;
 	ShowHelp(effectType);
 }
 
@@ -101,28 +101,28 @@ void EffectInfoScreen::ShowHelp(EffectType effectType) {
 	GameStringId titleStringId = GameStringId::empty;
 	GameStringId textStringId = GameStringId::empty;
 	switch (effectType) {
-	case EffectType::hrocket:
-		titleStringId = GameStringId::hRocket;
-		textStringId = GameStringId::hRocketDescription;
+	case EffectType::hStriped:
+		titleStringId = GameStringId::hStriped;
+		textStringId = GameStringId::hStripedDescription;
 		break;
-	case EffectType::vrocket:
-		titleStringId = GameStringId::vRocket;
-		textStringId = GameStringId::vRocketDescription;
+	case EffectType::vStriped:
+		titleStringId = GameStringId::vStriped;
+		textStringId = GameStringId::vStripedDescription;
 		break;
-	case EffectType::bomb:
-		titleStringId = GameStringId::bomb;
-		textStringId = GameStringId::bombDescription;
+	case EffectType::wrapped:
+		titleStringId = GameStringId::wrapped;
+		textStringId = GameStringId::wrappedDescription;
 		break;
-	case EffectType::miniBomb:
-		titleStringId = GameStringId::miniBomb;
-		textStringId = GameStringId::miniBombDescription;
+	case EffectType::colorBomb:
+		titleStringId = GameStringId::colorBomb;
+		textStringId = GameStringId::colorBombDescription;
 		break;
 	default:
 		break;
 	}
 	mTitle->SetText(static_cast<StringId>(titleStringId));
 	mText.SetText(static_cast<StringId>(textStringId));
-	mEffectIcon.SetBitmap(gameTextures[effectIcons[typeIdx]]);
+	// FIXME mEffectIcon.SetBitmap(gameTextures[effectIcons[typeIdx]]);
 	mPanel.SetVisible(true);
 }
 

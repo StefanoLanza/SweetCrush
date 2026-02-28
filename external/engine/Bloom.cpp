@@ -44,8 +44,8 @@ void Bloom::Impl::Blit(const GlFrameBuffer& srcFrameBuffer) const {
 	}
 
 	PipelineState pipelineState;
-	pipelineState.mDepthEnabled = false;
-	pipelineState.mBlending = false;
+	pipelineState.depthEnabled = false;
+	pipelineState.blending = false;
 	PipelineHandle pipelineHandle = mGraphics.NewPipeline(pipelineState);
 	mGraphics.SetPipeline(pipelineHandle);
 

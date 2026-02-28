@@ -4,9 +4,11 @@
 #include <engine/Screen.h>
 #include <engine/UI.h>
 
+struct GameSettings;
+
 class CreditsScreen final : public Wind::Screen {
 public:
-	explicit CreditsScreen();
+	explicit CreditsScreen(const GameSettings& gameSettings);
 
 	const char*       GetName() const override;
 	void              LoadAssets(Wind::Engine& engine) override;
@@ -17,6 +19,7 @@ public:
 	void              ParseConfig(const char* varName, const char* varValue) override;
 
 private:
-	Wind::UIButton* mBackButton = nullptr;
-	Wind::UICanvas  mCanvas;
+	const GameSettings& mGameSettings;
+	Wind::UIButton*     mBackButton = nullptr;
+	Wind::UICanvas      mCanvas;
 };

@@ -29,4 +29,6 @@ private:
 	Wind::UIButton* mLanguageButton = nullptr;
 	Wind::UIButton* mBackButton = nullptr;
 	Wind::UICanvas  mCanvas;
+	Wind::SoundPtr  mButtonSound;
+	Wind::SoundPtr  mToggleSound;
 };

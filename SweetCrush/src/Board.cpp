@@ -79,7 +79,7 @@ bool IsSelectable(const Cell& cell) {
 }
 
 bool IsSpecial(const Cell& cell) {
-	return (cell.category == CellCategory::piece && cell.hasEffect);
+	return (cell.category == CellCategory::piece && cell.effect != EffectType::none);
 }
 
 bool Board::IsInside(int col, int row) const {

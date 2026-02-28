@@ -54,7 +54,7 @@ UIRenderer::Impl::Impl(Graphics& graphics, UITextRenderer& textRenderer)
     , mTextRenderer { textRenderer } {
 
 	const PipelineState pipelineState {
-		.mBlending = true,
+		.blending = true,
 	};
 	mPipelineBlending = graphics.NewPipeline(pipelineState);
 

@@ -38,8 +38,8 @@ Game::Game(Engine& engine, const GameRenderer& gameRenderer, const AppConfig& ga
     , mUIRenderer { engine.GetGraphics(), engine.GetTextRenderer() }
     , mHalfTone { engine.GetGraphics() } {
 	// Note: match order of GameScreenId
-	mScreens[0] = std::make_unique<MainScreen>(engine);
-	mScreens[1] = std::make_unique<CreditsScreen>();
+	mScreens[0] = std::make_unique<MainScreen>(engine, mGameSettings);
+	mScreens[1] = std::make_unique<CreditsScreen>(mGameSettings);
 	mScreens[2] = std::make_unique<SettingsScreen>(mGameSettings);
 	mScreens[3] = std::make_unique<PlayScreen>(engine, gameRenderer, gameConfig, mGameSettings, mMatchStats, gameDataModule);
 	mScreens[4] = std::make_unique<GameOverScreen>(mMatchStats);
@@ -88,10 +88,10 @@ void Game::Draw(float dt) {
 	mMouseCursor.Draw(mUIRenderer, input.GetMappedMouseCoord(), GameDrawOrder::mousePointer);
 #endif
 
-	mHalfTone.Run(compositedFB, mCompositor.GetTempFramebuffer(), 4.f, 0.5f);
+	//mHalfTone.Run(compositedFB, mCompositor.GetTempFramebuffer(), 4.f, 0.5f);
 
 	graphics.SetDefaultFrameBuffer();
-	mEngine.GetBlitter().Blit(mCompositor.GetTempFramebuffer().GetColorAttachment() /*compositedFB.GetColorAttachment()*/, compositedFB.GetWidth(),
+	mEngine.GetBlitter().Blit(compositedFB.GetColorAttachment(), compositedFB.GetWidth(),
 	                          compositedFB.GetHeight(), BlitFilter::point);
 
 	graphics.Flush();

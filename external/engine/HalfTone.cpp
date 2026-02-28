@@ -34,8 +34,8 @@ HalfTone::Impl::Impl(Graphics& graphics)
 	}
 
 	PipelineState pipelineState;
-	pipelineState.mDepthEnabled = false;
-	pipelineState.mBlending = false;
+	pipelineState.depthEnabled = false;
+	pipelineState.blending = false;
 	mPipeline = mGraphics.NewPipeline(pipelineState);
 }
 

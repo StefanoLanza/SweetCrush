@@ -1,6 +1,7 @@
 #include "GlProgram.h"
 
 #include "Config.h"
+#include "Hash.h"
 #include <SDL3/SDL.h>
 #include <cassert>
 #include <malloc.h>
@@ -88,6 +89,10 @@ GlProgram::GlProgram(const char* vertexShaderSource, const char* fragmentShaderS
     , mDefines { defines }
     , mHash { 0 }
     , mOrthoMatrixUniform { -1 } {
+	mHash = Hash(vertexShaderSource) | Hash(fragmentShaderSource);
+	if (defines) {
+		mHash |= Hash(defines);
+	}
 }
 
 bool GlProgram::Compile() {
@@ -177,7 +182,13 @@ GLint GlProgram::GetOrthoMatrixUniform() const {
 }
 
 bool GlProgram::IsEqual(const char* vertexShaderSource, const char* fragmentShaderSource, std::string_view defines) const {
-	// TODO hash
+	uint64_t hash = Hash(vertexShaderSource) | Hash(fragmentShaderSource);
+	if (defines.empty()) {
+		hash |= Hash(defines.data());
+	}
+	if (hash != mHash) {
+		return false;
+	}
 	return mVertexShaderSource == vertexShaderSource && mFragmentShaderSource == fragmentShaderSource && mDefines == defines;
 }
 

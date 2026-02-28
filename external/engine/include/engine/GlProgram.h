@@ -31,7 +31,7 @@ private:
 	std::string      mVertexShaderSource;
 	std::string      mFragmentShaderSource;
 	std::string      mDefines;
-	uint32_t         mHash;
+	uint64_t         mHash;
 	GLManagedProgram mProgram;
 
 	// Fixed uniformLocations

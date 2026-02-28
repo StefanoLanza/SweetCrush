@@ -1,9 +1,10 @@
 #pragma once
 
 enum class EffectType {
-	hrocket,
-	vrocket,
-	miniBomb,
-	bomb,
+	none,
+	hStriped,
+	vStriped,
+	wrapped,
+	colorBomb,
 };
-constexpr int NumEffects = static_cast<int>(EffectType::bomb) + 1;
+constexpr int NumEffects = static_cast<int>(EffectType::colorBomb) + 1;

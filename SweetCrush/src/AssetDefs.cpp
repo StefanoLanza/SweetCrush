@@ -16,9 +16,12 @@ const char* gameTexturePath[NumGameTextures] {
 	"gameartguppy/pastry_pie.png",
 	"gameartguppy/pastry_poptart02.png",
 	"gameartguppy/board.png",
-	"boosters/bomb_green.png", // TODO Replace
-	"boosters/bomb_blue.png",
-	"boosters/bomb_red.png",
+	// Effects
+	"gameartguppy/pastry_starcookie01.png",
+	"gameartguppy/pastry_starcookie01.png",
+	"gameartguppy/pastry_starcookie02.png",     // wrapped
+	"gameartguppy/candy_06_jawbreaker_100.png", // color bomb
+	// Ice
 	"gameartguppy/block_ice_01a.png",
 	"gameartguppy/block_ice_02.png",
 	"gameartguppy/block_ice_03.png",
@@ -36,23 +39,17 @@ const char* gameTexturePath[NumGameTextures] {
 const SpriteID pieceIcons[NumPieceTypes] { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
 const SpriteID boardTileIcons[NumBoardTiles] { 9 };
 const SpriteID obstacleIcons[NumObstacleTypes] { 0 };
-const SpriteID effectIcons[NumEffects] {
-	10,
-	11,
-	12,
-	13,
-};
+const SpriteID colorBombIcon = 13;
+const SpriteID iceSprites[3] = { 14, 15, 16 };
 
 const SpriteID boosterIcons[NumBoosters] = {
-	18,
 	19,
 	20,
+	21,
 };
 
-const SpriteID iceSprites[3] = { 13, 14, 15 };
-const SpriteID selectionSprite = 16;
-const int      glowSprite = 17;
-const int      starSprite = 0; // FIXME
-const int      blastSprite = 21;
-
-const int checkIcon = 22;
+const SpriteID selectionSprite = 17;
+const SpriteID glowSprite = 18;
+const SpriteID starSprite = 0; // FIXME
+const SpriteID blastSprite = 22;
+const SpriteID checkIcon = 23;

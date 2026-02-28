@@ -4,8 +4,10 @@
 #include "Localization.h"
 #include "ScreenIds.h"
 
+#include <engine/Audio.h>
 #include <engine/Engine.h>
 #include <engine/Input.h>
+#include <engine/SdlSound.h>
 
 using namespace Wind;
 
@@ -26,6 +28,8 @@ const char* SettingsScreen::GetName() const {
 
 void SettingsScreen::LoadAssets(Engine& engine) {
 	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
+	mButtonSound = engine.GetAudio().LoadSound("audio/click_001.ogg");
+	mToggleSound = engine.GetAudio().LoadSound("audio/click_001.ogg");
 }
 
 ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
@@ -35,14 +39,23 @@ ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& i
 	bool dirtyUI = false;
 	if (mMusicButton->IsClicked()) {
 		mGameConfig.musicOn = ! mGameConfig.musicOn;
+		if (mGameConfig.sfxOn) {
+			mToggleSound->Play();
+		}
 		dirtyUI = true;
 	}
 	if (mSfxButton->IsClicked()) {
 		mGameConfig.sfxOn = ! mGameConfig.sfxOn;
+		if (mGameConfig.sfxOn) {
+			mToggleSound->Play();
+		}
 		dirtyUI = true;
 	}
 	if (mLanguageButton->IsClicked()) {
 		SetNextLanguage();
+		if (mGameConfig.sfxOn) {
+			mToggleSound->Play();
+		}
 		dirtyUI = true;
 	}
 	if (dirtyUI) {
@@ -55,6 +68,9 @@ ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& i
 	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
 #endif
 	    mBackButton->IsClicked()) {
+		if (mGameConfig.sfxOn) {
+			mButtonSound->Play();
+		}
 		return GoBack(ScreenTransition::slideRight);
 	}
 	return Continue();

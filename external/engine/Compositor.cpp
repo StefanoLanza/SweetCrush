@@ -24,8 +24,8 @@ UICompositor::UICompositor(Graphics& graphics, int width, int height)
 	InitPrograms(graphics);
 
 	PipelineState pipelineState;
-	pipelineState.mDepthEnabled = false;
-	pipelineState.mBlending = false;
+	pipelineState.depthEnabled = false;
+	pipelineState.blending = false;
 	mPipelineHandle = mGraphics.NewPipeline(pipelineState);
 
 #if 0

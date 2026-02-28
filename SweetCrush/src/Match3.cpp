@@ -21,8 +21,7 @@ void SwapCells(Board& board, int srcIdx, int dstIdx) {
 	std::swap(src.category, dst.category);
 	std::swap(src.pieceId, dst.pieceId);
 	std::swap(src.layers, dst.layers);
-	std::swap(src.hasEffect, dst.hasEffect);
-	std::swap(src.effectType, dst.effectType);
+	std::swap(src.effect, dst.effect);
 }
 
 //  OOO
@@ -96,7 +95,7 @@ bool _AnyCombo(int l, int r, int t, int b) {
 
 enum class Match3::State {
 	selectAndSwapPieces,
-	checkMatchesAfterSwap,
+	checkSwap,
 	collapseColumns,
 	checkMatches
 };
@@ -107,13 +106,12 @@ Match3::Match3(Board& board, BoardGenerator& boardGen, TileSelector& tileSelecto
     , mTileSelector { tileSelector }
     , mState { State::selectAndSwapPieces }
     , mUserSwap { 0, 0 }
-    , mNumUserSwaps { 0 }
     , mCascadeCount { 0 } {
 }
 
 Match3::~Match3() = default;
 
-void Match3::SetCallback(Match3Callback&& cbk) {
+void Match3::SetClientCallback(Match3Callback&& cbk) {
 	mCbk = std::move(cbk);
 }
 
@@ -122,11 +120,10 @@ void Match3::ClearSelection() {
 }
 
 void Match3::Restart() {
-	// Clear lists from previous match
+	// Clear lists of previous match
 	mNewPieces.clear();
 	mTileSelector.Reset();
 	mState = State::selectAndSwapPieces;
-	mNumUserSwaps = 0;
 	mCascadeCount = 0;
 }
 
@@ -141,17 +138,19 @@ void Match3::Update(const Wind::Input& input) {
 	switch (mState) {
 	case State::selectAndSwapPieces:
 		if (SelectAndSwapPieces(input)) {
-			mNumUserSwaps++;
-			mState = State::checkMatchesAfterSwap;
+			mState = State::checkSwap;
 		}
 		// else keeping waiting for user selection
 		break;
-	case State::checkMatchesAfterSwap:
-		if (CheckMatchesAfterSwap()) {
+	case State::checkSwap:
+		if (CheckSpecialComboAfterSwap()) {
+			mState = State::collapseColumns;
+		}
+		else if (CheckMatchesAfterSwap()) {
 			mState = State::collapseColumns;
 		}
 		else {
-			// No matches, undo swap
+			// No matches or special combos, undo swap
 			Match3Event event;
 			event.id = Match3Event::Id::undoSwap;
 			event.pair = mUserSwap;
@@ -175,7 +174,7 @@ void Match3::Update(const Wind::Input& input) {
 		else {
 			// Back to user selection
 			mCascadeCount = 0;
-			mState = State::selectAndSwapPieces; // TODO remove one tick delay if no matches
+			mState = State::selectAndSwapPieces;
 		}
 		break;
 	default:
@@ -186,10 +185,6 @@ void Match3::Update(const Wind::Input& input) {
 
 bool Match3::IsWaitingForUser() const {
 	return mState == State::selectAndSwapPieces;
-}
-
-int Match3::GetNumUserSwaps() const {
-	return mNumUserSwaps;
 }
 
 bool Match3::SelectAndSwapPieces(const Wind::Input& input) {
@@ -216,32 +211,33 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 	bool       horizontalMatch = false;
 	EffectType effectType {};
 
-	// TODO Distinguish horizontal and vertical for T and L combos ?
+	// TODO 2x2 square ?
+
 	if (T3Combo(l, r, t, b)) {
 		comboType = ComboType::T3;
-		effectType = EffectType::vrocket; // FIXME
+		effectType = EffectType::wrapped;
 	}
 	else if (T4Combo(l, r, t, b)) {
 		comboType = ComboType::T4;
-		effectType = EffectType::bomb;
+		effectType = EffectType::wrapped;
 	}
 	else if (T5Combo(l, r, t, b)) {
 		comboType = ComboType::T5;
-		effectType = EffectType::bomb;
+		effectType = EffectType::colorBomb;
 	}
 	else if (LCombo(l, r, t, b)) {
 		comboType = ComboType::L;
-		effectType = EffectType::bomb;
+		effectType = EffectType::wrapped;
 	}
 	else if (_5Combo(l, r, t, b)) {
 		comboType = ComboType::C5;
 		horizontalMatch = (l + r + 1) == 5;
-		effectType = horizontalMatch ? EffectType::hrocket : EffectType::vrocket;
+		effectType = EffectType::colorBomb;
 	}
 	else if (_4Combo(l, r, t, b)) {
 		comboType = ComboType::C4;
 		horizontalMatch = (l + r + 1) == 4;
-		effectType = horizontalMatch ? EffectType::hrocket : EffectType::vrocket;
+		effectType = horizontalMatch ? EffectType::hStriped : EffectType::vStriped;
 	}
 	else if (_3Combo(l, r, t, b)) {
 		comboType = ComboType::C3;
@@ -281,31 +277,34 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 		assert(numMatches < NumRows * NumCols);
 
 #if ENABLE_EFFECTS
-		bool isSpecialCombo = comboType != ComboType::C3;
+		bool makeSpecialCandy = (comboType != ComboType::C3);
 		// In Candy Crush, if a special candy appears in a combo, it is activated and NO new special candy is created
 		for (int i = 0; i < numMatches; ++i) {
 			if (IsSpecial(mBoard.GetCell(matches[i]))) {
-				isSpecialCombo = false;
+				makeSpecialCandy = false;
 				break;
 			}
 		}
 		if (IsSpecial(mainCell)) {
-			isSpecialCombo = false;
+			makeSpecialCandy = false;
+		}
+
+		// If any candy in the matches is caged/frozen, do *not* create a special candy. Only remove the layer
+		for (int i = 0; i < numMatches; ++i) {
+			if (mBoard.GetCell(matches[i]).layers > 0) {
+				makeSpecialCandy = false;
+				break;
+			}
 		}
 #else
 		const bool isSpecialCombo = false;
 #endif
 
-		if (! isSpecialCombo) {
-			// Kill main mainCell if not specialPiece
-			KillCell(mainCellIdx, nullptr);
-		}
-		else {
+		if (makeSpecialCandy) {
+			// Special combo. Associate an effect with the piece in the main cell
 			assert(mainCell.category == CellCategory::piece);
-			mainCell.category = CellCategory::piece;
-			mainCell.hasEffect = true;
-			mainCell.effectType = effectType;
-			mainCell.layers = 0;
+			assert(mainCell.layers == 0);
+			mainCell.effect = effectType;
 
 			// Inform client
 			event.id = Match3Event::Id::newEffect;
@@ -314,9 +313,13 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 			event.specialPiece.type = effectType;
 			mCbk(event);
 		}
+		else {
+			// Kill main piece along with its matches
+			KillCell(mainCellIdx, nullptr);
+		}
 
 		for (int i = 0; i < numMatches; ++i) {
-			KillCell(matches[i], isSpecialCombo ? &mainCell : nullptr);
+			KillCell(matches[i], makeSpecialCandy ? &mainCell : nullptr);
 		}
 	}
 
@@ -328,7 +331,6 @@ bool Match3::CheckCellCombos(int cellIdx) {
 	if (cell.category != CellCategory::piece) {
 		return false; // already deleted
 	}
-
 	const int l = CountMatches(cell, mBoard, CheckDirection::left);
 	const int r = CountMatches(cell, mBoard, CheckDirection::right);
 	const int t = CountMatches(cell, mBoard, CheckDirection::top);
@@ -343,36 +345,97 @@ bool Match3::CheckMatchesAfterSwap() {
 	return res;
 }
 
-void Match3::KillCell(int cellIdx, const Cell* targetCell) {
-	Cell& cell = mBoard.GetCell(cellIdx);
-	if (cell.category == CellCategory::piece) {
-		if (cell.layers == 0) {
-			if (cell.hasEffect) {
-				TriggerEffect(cellIdx);
-			}
-			else {
-				// Inform client
-				Match3Event event {
-					.id = Match3Event::Id::removePiece,
-					.removePiece = { .cell = &cell, .targetCell = targetCell },
-				};
-				mCbk(event);
+bool Match3::CheckSpecialCombo(int first, int second) {
+	Cell& firstCell = mBoard.GetCell(first);
+	Cell& secondCell = mBoard.GetCell(second);
+	assert(firstCell.category == CellCategory::piece);
+	assert(secondCell.category == CellCategory::piece);
+	// You can activate directly two adjacent special candies
 
-				cell.category = CellCategory::empty;
-			}
-		}
-		else {
-			// Remove one layer
-			--cell.layers;
-			// Inform client
-			Match3Event event {
-				.id = Match3Event::Id::removeLayer,
-				.removeLayer = { .cell = &cell },
-			};
-			mCbk(event);
+	if (firstCell.effect == EffectType::colorBomb && secondCell.effect == EffectType::none) {
+		// TODO Every single candy of that color is removed from the entire board.
+	}
+	else if (firstCell.effect == EffectType::colorBomb && secondCell.effect == EffectType::colorBomb) {
+		// TODO Clear entire board
+	}
+	else if (firstCell.effect == EffectType::colorBomb) {
+		if (secondCell.effect == EffectType::hStriped || secondCell.effect == EffectType::vStriped) {
+			// TODO Transform all candies of secondCell.pieceId into a striped, then activate them
 		}
 	}
-	// else already deleted or hole or obstacle
+	else if (firstCell.effect == EffectType::colorBomb && secondCell.effect == EffectType::wrapped) {
+		// TODO
+		// 1 eleminate all candies of secondCell.pieceId
+		// 2 Immediately after those candies disappear, the Color Bomb chooses the next most common color currently on the board and removes all of
+		// those as well.
+	}
+
+	// TODO Replace with a table
+	else if (firstCell.effect == EffectType::hStriped && secondCell.effect == EffectType::hStriped) {
+		// hStriped + vStriped effect
+	}
+	else if (firstCell.effect == EffectType::vStriped && secondCell.effect == EffectType::vStriped) {
+		// hStriped + vStriped effect
+	}
+	else if (firstCell.effect == EffectType::hStriped && secondCell.effect == EffectType::wrapped) {
+		// TODO
+	}
+	else if (firstCell.effect == EffectType::hStriped && secondCell.effect == EffectType::vStriped) {
+	}
+	else {
+		return false; // not a valid combo
+	}
+
+	// Effects were activate manually
+	firstCell.effect = EffectType::none;
+	secondCell.effect = EffectType::none;
+
+	KillCell(first);
+	KillCell(second);
+
+	return true;
+}
+
+bool Match3::CheckSpecialComboAfterSwap() {
+	if (CheckSpecialCombo(mUserSwap.first, mUserSwap.second)) {
+		return true;
+	}
+	if (CheckSpecialCombo(mUserSwap.second, mUserSwap.first)) {
+		return true;
+	}
+	return false;
+}
+
+void Match3::KillCell(int cellIdx, const Cell* targetCell) {
+	Cell& cell = mBoard.GetCell(cellIdx);
+	if (cell.category != CellCategory::piece) {
+		return; // already deleted or hole or obstacle
+	}
+	if (cell.layers == 0) {
+		if (cell.effect != EffectType::none) {
+			TriggerEffect(cellIdx);
+		}
+		else {
+			// Inform client
+			Match3Event event {
+				.id = Match3Event::Id::removePiece,
+				.removePiece = { .cell = &cell, .targetCell = targetCell },
+			};
+			mCbk(event);
+
+			cell.category = CellCategory::empty;
+		}
+	}
+	else {
+		// Remove one layer
+		--cell.layers;
+		// Inform client
+		Match3Event event {
+			.id = Match3Event::Id::removeLayer,
+			.removeLayer = { .cell = &cell },
+		};
+		mCbk(event);
+	}
 }
 
 void Match3::CollapseColumns() {
@@ -538,41 +601,38 @@ int Match3::CollectMatches(int mainCellIdx, int deltaCol, int deltaRow, int* mat
 void Match3::TriggerEffect(int cellIdx) {
 	Cell& cell = mBoard.GetCell(cellIdx);
 	assert(cell.category == CellCategory::piece);
-	assert(cell.hasEffect);
+	assert(cell.effect != EffectType::none);
 	assert(cell.layers == 0);
 
 	// Inform client e.g. to play some special fx
 	Match3Event event {
 		.id = Match3Event::Id::triggerEffect,
-		.effect = { .mainCell = &cell, .type = cell.effectType },
+		.effect = { .mainCell = &cell, .type = cell.effect },
 	};
 	mCbk(event);
 
 	// Delete piece with specialPiece
 	// Important: do it before triggering, to avoid infinite recursion in same cases
 	cell.category = CellCategory::empty;
-	cell.hasEffect = false;
+	cell.effect = EffectType::none;
 
-	switch (cell.effectType) {
-	case EffectType::hrocket: {
-		HorizontalRocket(cell.col, cell.row);
+	switch (event.effect.type) {
+	case EffectType::hStriped: {
+		DeleteRow(cell.col, cell.row);
 	} break;
-	case EffectType::vrocket: {
-		VerticalRocket(cell.col, cell.row);
+	case EffectType::vStriped: {
+		DeleteColumn(cell.col, cell.row);
 	} break;
-	case EffectType::miniBomb:
+	case EffectType::wrapped:
 		Bomb(cell.col, cell.row, 1);
 		break;
-	case EffectType::bomb:
-		Bomb(cell.col, cell.row, 2);
-		break;
-	default:
+	case EffectType::colorBomb:
+		// TODO
 		break;
 	}
 }
 
-void Match3::HorizontalRocket(int col, int row) {
-	// Kill entire row
+void Match3::DeleteRow(int col, int row) {
 	for (int ncol = 0; ncol < mBoard.GetCols(); ++ncol) {
 		if (col != ncol) {
 			int cellIdx = mBoard.GetCellIndex(ncol, row);
@@ -581,8 +641,7 @@ void Match3::HorizontalRocket(int col, int row) {
 	}
 }
 
-void Match3::VerticalRocket(int col, int row) {
-	// Kill entire column
+void Match3::DeleteColumn(int col, int row) {
 	for (int nrow = 0; nrow < mBoard.GetRows(); ++nrow) {
 		if (row != nrow) {
 			int cellIdx = mBoard.GetCellIndex(col, nrow);
@@ -606,4 +665,7 @@ void Match3::Bomb(int col, int row, int radius) {
 			}
 		}
 	}
+}
+
+void Match3::ColorBomb(int col, int row) {
 }

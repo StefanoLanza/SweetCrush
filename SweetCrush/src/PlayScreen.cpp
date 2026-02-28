@@ -63,7 +63,7 @@ UIButton MakeBoosterButton() {
 
 const UIButtonDesc pauseButtonDesc {
 	.pos = UIAbsolutePos(0, 0),
-	.size = UIAbsoluteSize(48.f, 47.f),
+	.size = UIAbsoluteSize(64, 64),
 	.horizontalAlignment = UIHorizAlignment::center,
 	.verticalAlignment = UIVertAlignment::center,
 };
@@ -71,6 +71,7 @@ const UIButtonDesc pauseButtonDesc {
 const UIBitmapDesc pauseButtonBitmapDesc {
 	.fileName = "icons/options.png",
 	.sizing = UIBitmapSizing::stretch,
+	.color = button0_color,
 };
 
 const UIBitmapDesc goalIconDesc {
@@ -176,12 +177,21 @@ const UIPanelDesc bottomPanelDesc {
 
 const UIBitmapDesc petDesc {
 	.fileName = "gameartguppy/pet_bird_160x160.png",
-	.pos = UIZeroPos,
-	.size = UIAbsoluteSize(64, 64),
+	.pos = UIAbsolutePos(0.f, 30.f),
+	.size = UIAbsoluteSize(96, 96),
 	.pivot = { 0.45f, 1.0f },
 	.horizontalAlignment = UIHorizAlignment::right,
 	.verticalAlignment = UIVertAlignment::bottom,
 	.sizing = UIBitmapSizing::user,
+};
+
+const UIBitmapDesc speechBubbleDesc {
+	.fileName = "UI/speechBubble.png",
+	.pos = UIAbsolutePos(0.f, 30.f),
+	.size = UIAbsoluteSize(96, 96),
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::bottom,
+	.sizing = UIBitmapSizing::fit,
 };
 
 constexpr float criticalTime = 10.f;
@@ -206,11 +216,11 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
     , mMatch3 { mBoard, mBoardGenerator, *mCellSelector }
     , mTime { 0.f } {
 	mCellSelector->SetCallback([this](const TileSelectionEvent& event) { OnTileSelectionEvent(event); });
-	mMatch3.SetCallback([this](const Match3Event& event) { OnMatch3Event(event); });
+	mMatch3.SetClientCallback([this](const Match3Event& event) { OnMatch3Event(event); });
 	mCellGraphics.resize(NumCols * NumRows);
 
 	// Build UI
-	auto topPanel = mCanvas.Add(topPanelDesc); // TODO compute each row height based on content. Add row spacing
+	auto topPanel = mCanvas.Add(topPanelDesc);
 	topPanel->Add(scoreHeaderDesc);
 	topPanel->Add(goalTextDesc);
 	topPanel->Add(timeHeaderDesc);
@@ -220,10 +230,11 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
 		mGoalIcons[i] = goalPanel->Add(goalIconDesc);
 	}
 	for (int i = 0; i < 3; ++i) {
-		mGoalCounters[i] = goalPanel->Add(goalCounterDesc); // FIXME hidden
+		mGoalCounters[i] = goalPanel->Add(goalCounterDesc);
 	}
 	mTimeText = topPanel->Add(timeTextDesc);
 	mPet = mCanvas.Add(petDesc);
+	mCanvas.Add(speechBubbleDesc);
 
 	Wind::UIPanel* bottomPanel = mCanvas.Add(bottomPanelDesc);
 	mBoosterButtons[0] = bottomPanel->Add(MakeBoosterButton());
@@ -244,9 +255,7 @@ void PlayScreen::LoadAssets(Engine& engine) {
 	Audio& audio = engine.GetAudio();
 	mMusic = audio.LoadMusic("audio/music.ogg");
 	mSounds[0] = audio.LoadSound("audio/match.wav");
-	mFonts[0] = mEngine.GetFontManager().AddFont("mediumFont");
-	mFonts[1] = mEngine.GetFontManager().AddFont("tiny");
-	mFonts[2] = mEngine.GetFontManager().AddFont("smallFont");
+	mFonts[0] = mEngine.GetFontManager().AddFont("tiny");
 }
 
 ScreenEvent PlayScreen::Tick(float dt, const Input& input) {
@@ -291,8 +300,10 @@ ScreenEvent PlayScreen::Tick(float dt, const Input& input) {
 		return GoTo(GameScreenIds::pauseGame, ScreenTransition::blur);
 	}
 
+	SelectBooster(input);
+
 	if (mMatch3.IsWaitingForUser()) {
-		SelectBooster(input);
+		UseSelectedBooster(input);
 	}
 
 	// TODO Moves
@@ -306,15 +317,14 @@ ScreenEvent PlayScreen::Tick(float dt, const Input& input) {
 	}
 	// else, do not update match while animations are still running
 
+	mPet->GetTransform().rotation = 0.1f * (0.5f + 0.5f * std::sin(mTime));
+
 	return Continue();
 }
 
 void PlayScreen::SelectBooster(const Input& input) {
-	bool handled = false;
-
 	if (input.GetMouseButtonPressed(MouseButton::right)) {
 		mSelectedBooster = -1; // release
-		handled = true;
 		return;
 	}
 
@@ -324,12 +334,17 @@ void PlayScreen::SelectBooster(const Input& input) {
 			// Unselect if pressing again on same button
 			mSelectedBooster = mSelectedBooster == i ? -1 : i;
 			mMatch3.ClearSelection();
-			handled = true;
 			break;
 		}
 	}
 
-	if (! handled && mSelectedBooster >= 0) {
+	for (int i = 0; i < MaxBoosterTypesPerLevel; ++i) {
+		mBoosterButtons[i]->SetEnabled(mBoosterCount[i] > 0);
+	}
+}
+
+void PlayScreen::UseSelectedBooster(const Input& input) {
+	if (mSelectedBooster >= 0) {
 		// Check click on board
 		int cellIdx = mBoard.GetCellAtCoords(input.GetMappedMouseCoord());
 		if (input.GetMouseButtonPressed(MouseButton::left)) {
@@ -346,10 +361,6 @@ void PlayScreen::SelectBooster(const Input& input) {
 			}
 			// TODO highlight cell
 		}
-	}
-
-	for (int i = 0; i < MaxBoosterTypesPerLevel; ++i) {
-		mBoosterButtons[i]->SetEnabled(mBoosterCount[i] > 0);
 	}
 }
 
@@ -462,14 +473,14 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 	}
 	case Match3Event::Id::match: {
 		int inc = IncreaseScore(event.match);
-		mActionMgr.AddAction(DrawMatchScore(inc, *event.match.cell, mEngine.GetTextRenderer(), mGameConfig, *mFonts[1]),
+		mActionMgr.AddAction(DrawMatchScore(inc, *event.match.cell, mEngine.GetTextRenderer(), mGameConfig, *mFonts[0]),
 		                     { .duration = mGameConfig.scoreTextDuration });
 		PlaySound(0);
 		break;
 	}
 	case Match3Event::Id::removePiece: {
 		assert(event.removePiece.cell->category == CellCategory::piece);
-		assert(! event.removePiece.cell->hasEffect); // effects are handled in Match3Event::Id::triggerEffect
+		assert(event.removePiece.cell->effect == EffectType::none); // effects are handled in Match3Event::Id::triggerEffect
 		if (event.removePiece.targetCell) {
 			mActionMgr.AddAction(MovePieceTo(*static_cast<CellVisual*>(event.removePiece.cell->ud), event.removePiece.targetCell->coords),
 			                     { .duration = mGameConfig.suckPieceDuration, .counter = &mBlockingActionCounter });
@@ -507,32 +518,36 @@ void PlayScreen::OnMatch3Event(const Match3Event& event) {
 			// TODO mEffectInfoPanel.ShowHelp(event.specialPiece.type);
 		}
 		assert(event.specialPiece.cell->category == CellCategory::piece);
-		assert(event.specialPiece.cell->hasEffect);
+		assert(event.specialPiece.cell->effect != EffectType::none);
 		CellVisual* visual = static_cast<CellVisual*>(event.specialPiece.cell->ud);
-		visual->bitmapIdx = pieceIcons[event.specialPiece.pieceId];
+		if (event.specialPiece.type == EffectType::colorBomb) {
+			visual->bitmapIdx = colorBombIcon;
+		}
+		else {
+			visual->bitmapIdx = pieceIcons[event.specialPiece.pieceId];
+		}
 		visual->scale = 1.f;
 		visual->rotation = 0.f;
 		break;
 	}
 	case Match3Event::Id::triggerEffect: {
 		assert(event.effect.mainCell->category == CellCategory::piece);
-		assert(event.effect.mainCell->hasEffect);
-		// TODO Scale up
+		assert(event.effect.mainCell->effect != EffectType::none);
 		Vec2 startCoords = event.effect.mainCell->coords + Vec2 { mGameConfig.board.cellWidth, mGameConfig.board.cellHeight } * 0.5f;
-		if (event.effect.type == EffectType::hrocket) {
+		if (event.effect.type == EffectType::hStriped) {
 			mActionMgr.AddAction(DrawLaser(startCoords, { 0.f, startCoords.y }, mGameRenderer), { .duration = mGameConfig.glowTrailTime });
 			mActionMgr.AddAction(DrawLaser(startCoords, { RefWindowWidth, startCoords.y }, mGameRenderer), { .duration = mGameConfig.glowTrailTime });
 		}
-		else if (event.effect.type == EffectType::vrocket) {
+		else if (event.effect.type == EffectType::vStriped) {
 			mActionMgr.AddAction(DrawLaser(startCoords, { startCoords.x, 0.f }, mGameRenderer), { .duration = mGameConfig.glowTrailTime });
 			mActionMgr.AddAction(DrawLaser(startCoords, { startCoords.x, RefWindowHeight }, mGameRenderer),
 			                     { .duration = mGameConfig.glowTrailTime });
 		}
-		else if (event.effect.type == EffectType::miniBomb) {
+		else if (event.effect.type == EffectType::wrapped) {
 			mActionMgr.AddAction(DrawBlast(startCoords, 8.f, 128.f, mGameRenderer), { .duration = mGameConfig.glowTrailTime });
 		}
-		else if (event.effect.type == EffectType::bomb) {
-			mActionMgr.AddAction(DrawBlast(startCoords, 8.f, 256.f, mGameRenderer), { .duration = mGameConfig.glowTrailTime });
+		else if (event.effect.type == EffectType::colorBomb) {
+			// TODO mActionMgr.AddAction(DrawBlast(startCoords, 8.f, 128.f, mGameRenderer), { .duration = mGameConfig.glowTrailTime });
 		}
 		mActionMgr.AddAction(ScalePiece(GetVisual(*event.effect.mainCell), 1.f, 0.f), { .duration = mGameConfig.removePieceDuration });
 		OnPieceRemoved(*event.effect.mainCell);

@@ -98,8 +98,8 @@ void Blitter::Impl::Blit(GLuint srcTexture, int srcWidth, int srcHeight, BlitFil
 	const RectI targetRect = ComputeTargetRect(srcWidth, srcHeight);
 
 	PipelineState pipelineState;
-	pipelineState.mDepthEnabled = false;
-	pipelineState.mBlending = false;
+	pipelineState.depthEnabled = false;
+	pipelineState.blending = false;
 	pipelineState.EnableScissorTest(targetRect.left, targetRect.top, targetRect.right - targetRect.left, targetRect.bottom - targetRect.top);
 	PipelineHandle pipelineHandle = mGraphics.NewPipeline(pipelineState);
 	mGraphics.SetPipeline(pipelineHandle);

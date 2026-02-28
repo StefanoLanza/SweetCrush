@@ -35,7 +35,7 @@ BitmapRenderer::Impl::Impl(Graphics& graphics)
     , mValidPrograms { false } {
 
 	PipelineState pipelineState;
-	pipelineState.mBlending = true;
+	pipelineState.blending = true;
 	mPipelineBlending = graphics.NewPipeline(pipelineState);
 
 	if (mProgramHandle != nullProgram) {

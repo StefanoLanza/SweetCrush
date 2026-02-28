@@ -33,10 +33,9 @@ struct Cell {
 	int          col;
 	int          row;
 	int          layers;
-	EffectType   effectType;
+	EffectType   effect;
 	CellCategory category;
 	PieceId      pieceId;
-	bool         hasEffect;
 };
 
 bool IsSelectable(const Cell& cell);

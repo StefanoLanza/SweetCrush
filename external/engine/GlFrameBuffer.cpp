@@ -81,19 +81,6 @@ int GlFrameBuffer::GetHeight() const {
 	return mHeight;
 }
 
-void GlFrameBuffer::ClearColor(float r, float g, float b, float a) {
-	glBindFramebuffer(GL_FRAMEBUFFER, mFBO.get());
-	glClear(GL_COLOR_BUFFER_BIT);
-	glClearColor(r, g, b, a);
-}
-
-void GlFrameBuffer::ClearDepth(float value) {
-	glBindFramebuffer(GL_FRAMEBUFFER, mFBO.get());
-	glDepthMask(GL_TRUE);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glClearDepthf(value);
-}
-
 GlFrameBuffer::operator bool() const {
 	GLuint FBO = mFBO.get(); // resolve ambiguity in operator !=
 	return FBO != 0;

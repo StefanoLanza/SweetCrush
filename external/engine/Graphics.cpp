@@ -3,6 +3,7 @@
 #include "Gl.h"
 #include "GlFrameBuffer.h"
 #include "GlProgram.h"
+#include "Hash.h"
 #include "SdlWindow.h"
 #include "Texture.h"
 
@@ -312,7 +313,7 @@ void Graphics::Impl::Flush() {
 		if (batch.pipelineIdx != pipelineIdx) {
 			pipelineIdx = batch.pipelineIdx;
 			const PipelineState& ps = mPipelineStates[batch.pipelineIdx];
-			if (ps.mDepthEnabled) {
+			if (ps.depthEnabled) {
 				if (depthEnabled != 1) {
 					glEnable(GL_DEPTH_TEST);
 					glDepthFunc(GL_LEQUAL);
@@ -325,7 +326,7 @@ void Graphics::Impl::Flush() {
 					depthEnabled = 0;
 				}
 			}
-			if (ps.mDepthWriteEnabled) {
+			if (ps.depthWriteEnabled) {
 				if (depthWriteEnabled != 1) {
 					glDepthMask(GL_TRUE);
 					depthWriteEnabled = 1;
@@ -338,12 +339,12 @@ void Graphics::Impl::Flush() {
 				}
 			}
 
-			if (ps.mBlending) {
+			if (ps.blending) {
 				if (blendEnabled != 1) {
 					glEnable(GL_BLEND);
 					blendEnabled = 1;
 				}
-				glBlendFunc(ps.mSrcAlpha, ps.mDstAlpha); // TODO Cache
+				glBlendFunc(ps.srcAlpha, ps.dstAlpha); // TODO Cache
 			}
 			else {
 				if (blendEnabled != 0) {
@@ -352,13 +353,13 @@ void Graphics::Impl::Flush() {
 				}
 			}
 
-			if (ps.mScissorTestEnabled) {
+			if (ps.scissorTestEnabled) {
 				if (scissorTest != 1) {
 					glEnable(GL_SCISSOR_TEST);
 					scissorTest = 1;
 				}
-				glScissor(ps.mScissorRect.left, mFBHeight - (ps.mScissorRect.bottom), ps.mScissorRect.right - ps.mScissorRect.left,
-				          ps.mScissorRect.bottom - ps.mScissorRect.top);
+				glScissor(ps.scissorRect.left, mFBHeight - (ps.scissorRect.bottom), ps.scissorRect.right - ps.scissorRect.left,
+				          ps.scissorRect.bottom - ps.scissorRect.top);
 			}
 			else {
 				if (scissorTest != 0) {
@@ -531,20 +532,20 @@ void Graphics::Impl::SetTexture(int uniform, unsigned texture, unsigned sampler)
 }
 
 void PipelineState::EnableDepth() {
-	mDepthEnabled = true;
+	depthEnabled = true;
 }
 
 void PipelineState::DisableDepth() {
-	mDepthEnabled = false;
+	depthEnabled = false;
 }
 
 void PipelineState::EnableScissorTest(int x, int y, int width, int height) {
-	mScissorRect = { x, y, x + width, y + height };
-	mScissorTestEnabled = true;
+	scissorRect = { x, y, x + width, y + height };
+	scissorTestEnabled = true;
 }
 
 void PipelineState::DisableScissorTest() {
-	mScissorTestEnabled = false;
+	scissorTestEnabled = false;
 }
 
 Graphics::Graphics(const SdlWindow& window)
@@ -569,11 +570,28 @@ GlFrameBuffer Graphics::GetDefaultFrameBuffer() const {
 	return { mPimpl->mWindow.GetWidth(), mPimpl->mWindow.GetHeight() };
 }
 
-void Graphics::ClearDefaultFrameBuffer(float r, float g, float b, float a) {
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+void Graphics::ClearColor(float r, float g, float b, float a) {
+	auto& target = mPimpl->mTargets.back();
+	glBindFramebuffer(GL_FRAMEBUFFER, target.fbo);
 	glViewport(0, 0, mPimpl->mWindow.GetWidth(), mPimpl->mWindow.GetHeight());
 	glClearColor(r, g, b, a);
 	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void Graphics::ClearDepth(float value) {
+	auto& target = mPimpl->mTargets.back();
+	glBindFramebuffer(GL_FRAMEBUFFER, target.fbo);
+	glDepthMask(GL_TRUE);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glClearDepthf(value);
+}
+
+void Graphics::ClearStencil(uint8_t value) {
+	auto& target = mPimpl->mTargets.back();
+	glBindFramebuffer(GL_FRAMEBUFFER, target.fbo);
+	glStencilMask(0xff); // TODO Needed ?
+	glClear(GL_STENCIL_BUFFER_BIT);
+	glClearStencil(value);
 }
 
 void Graphics::Flush() {

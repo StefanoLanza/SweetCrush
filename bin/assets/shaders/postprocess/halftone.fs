@@ -19,12 +19,12 @@ void main() {
 	mediump vec4 color = texture(inputTexture, uvPixel);
 
 	mediump float luma = dot(vec3(0.2126, 0.7152, 0.0722), color.rgb);
-	mediump float radius = gridSize.y * (0.1 + luma);
+	mediump float radius = gridSize.y;// * (0.1 + luma);
 
 
 	vec2 cellUv = fract(offsetUv / normalizedPixelSize);
 	float dist = length(cellUv - 0.5);  
 
-	mediump float circleMask = smoothstep(radius, radius - 0.05, dist);
+	mediump float circleMask = smoothstep(radius, radius - 0.05 * fwidth(dist), dist);
     fragColor = color * circleMask;
 }

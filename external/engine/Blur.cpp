@@ -61,8 +61,8 @@ void Blur::Impl::Run(const GlFrameBuffer& src, const GlFrameBuffer& dst, const G
 	}
 
 	PipelineState pipelineState;
-	pipelineState.mDepthEnabled = false;
-	pipelineState.mBlending = false;
+	pipelineState.depthEnabled = false;
+	pipelineState.blending = false;
 	PipelineHandle pipelineHandle = mGraphics.NewPipeline(pipelineState);
 	mGraphics.SetPipeline(pipelineHandle);
 

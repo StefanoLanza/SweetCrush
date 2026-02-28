@@ -33,6 +33,7 @@ public:
 
 private:
 	void SelectBooster(const Wind::Input& input);
+	void UseSelectedBooster(const Wind::Input& input);
 	void NewGame();
 	void SetupNewBoardAnimation();
 	void OnTileSelectionEvent(const TileSelectionEvent& event);
@@ -69,7 +70,7 @@ private:
 	Match3                        mMatch3;
 	std::vector<CellVisual>       mCellGraphics;
 	float                         mTime;
-	Wind::FontPtr                 mFonts[3];
+	Wind::FontPtr                 mFonts[1];
 	Wind::MusicPtr                mMusic;
 	Wind::SoundPtr                mSounds[2];
 	int                           mBoosterCount[MaxBoosterTypesPerLevel] {};

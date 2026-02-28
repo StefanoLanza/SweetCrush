@@ -23,9 +23,9 @@ UITextRenderer::UITextRenderer(Graphics& graphics)
 	}
 
 	const PipelineState pipelineState {
-		.mDepthEnabled = false,
-		.mScissorTestEnabled = false,
-		.mBlending = true,
+		.depthEnabled = false,
+		.scissorTestEnabled = false,
+		.blending = true,
 	};
 	mPipeline = mGraphics.NewPipeline(pipelineState);
 

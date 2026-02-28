@@ -83,7 +83,7 @@ void BoardGenerator::ResetBoard(Board& board) {
 			cell.category = CellCategory::piece;
 			cell.pieceId = 0;
 			cell.layers = 0;
-			cell.hasEffect = false;
+			cell.effect = EffectType::none;
 			// board.ReplaceCell(col, row, cell, cell.ud);
 		}
 	}
@@ -96,7 +96,7 @@ void BoardGenerator::GenRandomPiece(Cell& cell, const Board& board) {
 	bool          valid = false;
 	int           attempts = 0;
 	cell.layers = 0;
-	cell.hasEffect = false;
+	cell.effect = EffectType::none;
 	do {
 		cell.pieceId = static_cast<PieceId>(mPieceIds[mRandomEngine.Next(0, mNumPieceIds - 1)]);
 		// Avoid three or more consecutive matches

@@ -1,5 +1,6 @@
 #include "CreditsScreen.h"
 #include "Constants.h"
+#include "GameSettings.h"
 #include "GameUI.h"
 #include "Localization.h"
 #include "ScreenIds.h"
@@ -9,11 +10,12 @@
 
 using namespace Wind;
 
-CreditsScreen::CreditsScreen()
-    : mCanvas(MakeCanvas()) {
+CreditsScreen::CreditsScreen(const GameSettings& gameSettings)
+    : mGameSettings(gameSettings)
+    , mCanvas(MakeCanvas()) {
 	// Build UI
 	mCanvas.Add(MakeTitle(GameStringId::credits));
-	auto panel = mCanvas.Add(GetInfoPanelDesc());
+	auto panel = mCanvas.Add(MakeInfoPanel());
 	panel->Add(MakeScreenText(GameStringId::codeBy, 60));
 	panel->Add(MakeScreenText(GameStringId::graphicsBy, 140));
 	panel->Add(MakeScreenText(GameStringId::musicBy, 220));

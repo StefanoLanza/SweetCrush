@@ -90,13 +90,12 @@ public:
 	Match3(Board& board, BoardGenerator& boardGen, TileSelector& tileSelector);
 	~Match3();
 
-	void SetCallback(Match3Callback&& cbk);
+	void SetClientCallback(Match3Callback&& cbk);
 	void ClearSelection();
 	void Restart();
 	void UseBooster(int cellIdx);
 	void Update(const Wind::Input& input);
 	bool IsWaitingForUser() const;
-	int  GetNumUserSwaps() const;
 
 private:
 	void DeleteAllPiecesOfType(int pieceId);
@@ -104,7 +103,9 @@ private:
 	bool CheckCombos(int h, int v, int t, int b, PieceId pieceId, int cellIdx);
 	bool CheckCellCombos(int cellIdx);
 	bool CheckMatchesAfterSwap();
-	void KillCell(int cellIdx, const Cell* targetCell);
+	bool CheckSpecialComboAfterSwap();
+	bool CheckSpecialCombo(int first, int second);
+	void KillCell(int cellIdx, const Cell* targetCell = nullptr);
 	void CollapseColumns();
 	void GenerateNewPieces();
 	bool CheckMatches();
@@ -113,10 +114,11 @@ private:
 	int  CollapseColumn(int col, CellPairEvent* collapseList);
 	int  CollectMatches(int mainCellIdx, int deltaCol, int deltaRow, int* matches, int numMatches) const;
 	void TriggerEffect(int cellIdx);
-	// Boosters
-	void HorizontalRocket(int col, int row);
-	void VerticalRocket(int col, int row);
+	// Effects
+	void DeleteRow(int col, int row);
+	void DeleteColumn(int col, int row);
 	void Bomb(int col, int row, int radius);
+	void ColorBomb(int col, int row);
 
 private:
 	enum class State;
@@ -129,6 +131,5 @@ private:
 	CellPairEvent    mUserSwap;
 	std::vector<int> mNewPieces;
 	std::vector<int> mCheckList;
-	int              mNumUserSwaps;
 	int              mCascadeCount;
 };

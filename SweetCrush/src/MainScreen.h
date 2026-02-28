@@ -5,10 +5,11 @@
 #include <engine/UI.h>
 
 class GameRenderer;
+struct GameSettings;
 
 class MainScreen final : public Wind::Screen {
 public:
-	explicit MainScreen(Wind::Engine& engine);
+	explicit MainScreen(Wind::Engine& engine, const GameSettings& gameSettings);
 
 	const char*       GetName() const override;
 	void              LoadAssets(Wind::Engine& engine) override;
@@ -22,11 +23,13 @@ private:
 	void AnimateUI();
 
 private:
-	Wind::Engine&   mEngine;
-	Wind::UICanvas  mCanvas;
-	Wind::UIButton* mStartButton = nullptr;
-	Wind::UIButton* mSettingsButton = nullptr;
-	Wind::UIButton* mCreditsButton = nullptr;
+	Wind::Engine&       mEngine;
+	const GameSettings& mGameSettings;
+	Wind::UICanvas      mCanvas;
+	Wind::UIButton*     mStartButton = nullptr;
+	Wind::UIButton*     mSettingsButton = nullptr;
+	Wind::UIButton*     mCreditsButton = nullptr;
+	Wind::SoundPtr      mButtonSound;
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
 	Wind::UIButton* mQuitButton = nullptr;
 #endif

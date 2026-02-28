@@ -22,8 +22,7 @@ extern const Wind::Color   panel0_color;
 extern const Wind::Color   panel1_color;
 extern const Wind::UITheme uiTheme;
 
-Wind::UIPanel     MakeInfoPanel();
-Wind::UIPanelDesc GetInfoPanelDesc();
+Wind::UIPanelDesc MakeInfoPanel();
 Wind::UITextDesc  MakeTitle(Wind::StringId label, float y = titleY);
 Wind::UITextDesc  MakeScreenText(Wind::StringId label, float y);
 Wind::UITextDesc  MakeDynScreenText(float y);

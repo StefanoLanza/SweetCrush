@@ -1,13 +1,15 @@
 #include "MainScreen.h"
 #include "AssetDefs.h"
 #include "Constants.h"
+#include "GameSettings.h"
 #include "GameUI.h"
 #include "Localization.h"
 #include "ScreenIds.h"
 
-#include <engine/Easings.h>
+#include <engine/Audio.h>
 #include <engine/Engine.h>
 #include <engine/Input.h>
+#include <engine/SdlSound.h>
 
 using namespace Wind;
 
@@ -35,8 +37,9 @@ const UIPanelDesc pastryPanelDesc {
 
 } // namespace
 
-MainScreen::MainScreen(Engine& engine)
+MainScreen::MainScreen(Engine& engine, const GameSettings& gameSettings)
     : mEngine(engine)
+    , mGameSettings(gameSettings)
     , mCanvas { MakeCanvas() }
     , mAccumTime(0) {
 	// Setup UI
@@ -67,6 +70,7 @@ const char* MainScreen::GetName() const {
 
 void MainScreen::LoadAssets(Engine& engine) {
 	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
+	mButtonSound = engine.GetAudio().LoadSound("audio/click_001.ogg");
 }
 
 ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
@@ -75,12 +79,21 @@ ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
 	mAccumTime += dt;
 
 	if (mStartButton->IsClicked()) {
+		if (mGameSettings.sfxOn) {
+			mButtonSound->Play();
+		}
 		return GoTo(GameScreenIds::levelStart, ScreenTransition::slideTop);
 	}
 	else if (mSettingsButton->IsClicked()) {
+		if (mGameSettings.sfxOn) {
+			mButtonSound->Play();
+		}
 		return GoTo(GameScreenIds::settings, ScreenTransition::slideLeft);
 	}
 	else if (mCreditsButton->IsClicked()) {
+		if (mGameSettings.sfxOn) {
+			mButtonSound->Play();
+		}
 		return GoTo(GameScreenIds::credits, ScreenTransition::slideLeft);
 	}
 

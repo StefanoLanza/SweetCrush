@@ -18,8 +18,6 @@ public:
 	GLuint GetDepthAttachment() const;
 	int    GetWidth() const;
 	int    GetHeight() const;
-	void   ClearColor(float r, float g, float b, float a);
-	void   ClearDepth(float value);
 
 	operator bool() const;
 

@@ -78,7 +78,7 @@ const float     text1_y = 510;
 const Color     panel0_color = { 192.f, 222.f, 255.f, 255.f };
 const Color     panel1_color = { 192.f, 222.f, 255.f, 127.f };
 
-UIPanelDesc GetInfoPanelDesc() {
+UIPanelDesc MakeInfoPanel() {
 	return {
 		.pos = UIAbsolutePos(0.f, 0.f),
 		.size = UIAbsoluteSize(520.f, 400.f),
@@ -88,10 +88,6 @@ UIPanelDesc GetInfoPanelDesc() {
 		.backgroundColor = panel0_color,
 		._9patch = 16.f,
 	};
-}
-
-UIPanel MakeInfoPanel() {
-	return UIPanel { GetInfoPanelDesc() };
 }
 
 UITextDesc MakeTitle(StringId label, float y) {
