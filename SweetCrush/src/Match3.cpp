@@ -335,23 +335,20 @@ bool Match3::CheckMatchesAfterSwap() {
 	return res;
 }
 
-bool Match3::CheckSpecialCombo(int first, int second) {
-	Cell& firstCell = mBoard.GetCell(first);
-	Cell& secondCell = mBoard.GetCell(second);
+bool Match3::CheckSpecialCombo(int firstIdx, int secondIdx) {
+	Cell& firstCell = mBoard.GetCell(firstIdx);
+	Cell& secondCell = mBoard.GetCell(secondIdx);
 	assert(firstCell.category == CellCategory::piece);
 	assert(secondCell.category == CellCategory::piece);
 
 	if (firstCell.effect == EffectType::colorBomb && secondCell.effect == EffectType::none) {
-		// Every single candy of that color is removed from the entire board.
-		TriggerEffect(firstCell); // FIXME targetPieceId for colorBomb is secondCell.pieceId
-		// KillCell(firstCell);
-		// KillCell(secondCell);
+		// Every single candy of that color is removed from the entire board
+		ColorBomb(firstCell, secondCell.pieceId);
 		return true;
 	}
 	else if (firstCell.effect == EffectType::colorBomb && secondCell.effect == EffectType::colorBomb) {
 		ClearBoard();
 		return true;
-		// TODO Clear entire board
 	}
 	else if (firstCell.effect == EffectType::colorBomb) {
 		if (secondCell.effect == EffectType::hStriped || secondCell.effect == EffectType::vStriped) {
@@ -381,7 +378,7 @@ bool Match3::CheckSpecialCombo(int first, int second) {
 		return false; // not a valid combo
 	}
 
-	return true;
+	return false; //FIXME true;
 }
 
 bool Match3::CheckSpecialComboAfterSwap() {
@@ -590,26 +587,15 @@ void Match3::TriggerEffect(Cell& cell) {
 	assert(cell.effect != EffectType::none);
 	assert(cell.layers == 0);
 
-	// Inform client e.g. to play some special fx
-	Match3Event event {
-		.id = Match3Event::Id::triggerEffect,
-		.effect = { .mainCell = &cell, .type = cell.effect },
-	};
-	mCbk(event);
-
-	// Delete special candy
-	// Important: do it before triggering, to avoid infinite recursion
-	cell.category = CellCategory::empty;
-	cell.effect = EffectType::none;
-
-	// Trigger effect
-	switch (event.effect.type) {
-	case EffectType::hStriped: {
+	switch (cell.effect) {
+    case EffectType::none:
+        break;
+	case EffectType::hStriped:
 		DeleteRow(cell);
-	} break;
-	case EffectType::vStriped: {
+        break;
+	case EffectType::vStriped:
 		DeleteColumn(cell);
-	} break;
+        break;
 	case EffectType::wrapped:
 		Bomb(cell, 1);
 		break;
@@ -621,6 +607,18 @@ void Match3::TriggerEffect(Cell& cell) {
 }
 
 void Match3::DeleteRow(Cell& mainCell) {
+	// Inform client e.g. to play some special fx
+	Match3Event event {
+		.id = Match3Event::Id::triggerEffect,
+		.effect = { .mainCell = &mainCell, .type = EffectType::hStriped },
+	};
+	mCbk(event);
+
+	// Delete special candy
+	// Important: do it before triggering, to avoid infinite recursion
+	mainCell.category = CellCategory::empty;
+	mainCell.effect = EffectType::none;
+
 	for (int ncol = 0; ncol < mBoard.GetCols(); ++ncol) {
 		if (mainCell.col != ncol) {
 			KillCell(mBoard.GetCell(ncol, mainCell.row));
@@ -629,6 +627,18 @@ void Match3::DeleteRow(Cell& mainCell) {
 }
 
 void Match3::DeleteColumn(Cell& mainCell) {
+	// Inform client e.g. to play some special fx
+	Match3Event event {
+		.id = Match3Event::Id::triggerEffect,
+		.effect = { .mainCell = &mainCell, .type = EffectType::vStriped },
+	};
+	mCbk(event);
+
+	// Delete special candy
+	// Important: do it before triggering, to avoid infinite recursion
+	mainCell.category = CellCategory::empty;
+	mainCell.effect = EffectType::none;
+
 	for (int nrow = 0; nrow < mBoard.GetRows(); ++nrow) {
 		if (mainCell.row != nrow) {
 			KillCell(mBoard.GetCell(mainCell.col, nrow));
@@ -637,6 +647,18 @@ void Match3::DeleteColumn(Cell& mainCell) {
 }
 
 void Match3::Bomb(Cell& mainCell, int radius) {
+	// Inform client e.g. to play some special fx
+	Match3Event event {
+		.id = Match3Event::Id::triggerEffect,
+		.effect = { .mainCell = &mainCell, .type = EffectType::wrapped },
+	};
+	mCbk(event);
+
+	// Delete special candy
+	// Important: do it before triggering, to avoid infinite recursion
+	mainCell.category = CellCategory::empty;
+	mainCell.effect = EffectType::none;
+
 	// Kill grid around bomb
 	for (int y = -radius; y <= radius; ++y) {
 		int orow = mainCell.row + y;
@@ -653,6 +675,18 @@ void Match3::Bomb(Cell& mainCell, int radius) {
 }
 
 void Match3::ColorBomb(Cell& mainCell, PieceId targetPieceId) {
+	// Inform client e.g. to play some special fx
+	Match3Event event {
+		.id = Match3Event::Id::triggerEffect,
+		.effect = { .mainCell = &mainCell, .type = EffectType::colorBomb },
+	};
+	mCbk(event);
+
+	// Delete special candy
+	// Important: do it before triggering, to avoid infinite recursion
+	mainCell.category = CellCategory::empty;
+	mainCell.effect = EffectType::none;
+
 	for (Cell& cell : mBoard.GetCells()) {
 		if (cell.category == CellCategory::piece && cell.pieceId == targetPieceId) {
 			KillCell(cell);

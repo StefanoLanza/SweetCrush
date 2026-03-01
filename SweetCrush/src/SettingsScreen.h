@@ -24,11 +24,11 @@ private:
 
 private:
 	GameSettings&   mGameConfig;
+	Wind::UICanvas  mCanvas;
 	Wind::UIButton* mMusicButton = nullptr;
 	Wind::UIButton* mSfxButton = nullptr;
 	Wind::UIButton* mLanguageButton = nullptr;
 	Wind::UIButton* mBackButton = nullptr;
-	Wind::UICanvas  mCanvas;
 	Wind::SoundPtr  mButtonSound;
 	Wind::SoundPtr  mToggleSound;
 };

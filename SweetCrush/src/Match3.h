@@ -103,7 +103,7 @@ private:
 	bool CheckCellCombos(int cellIdx);
 	bool CheckMatchesAfterSwap();
 	bool CheckSpecialComboAfterSwap();
-	bool CheckSpecialCombo(int first, int second);
+	bool CheckSpecialCombo(int firstIdx, int secondIdx);
 	void KillCell(Cell& cell, const Cell* targetCell = nullptr);
 	void CollapseColumns();
 	void GenerateNewPieces();

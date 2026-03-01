@@ -19,6 +19,7 @@ const UITextDesc textDesc[] {
 	    .horizontalAlignment = UIHorizAlignment::center,
 	    .verticalAlignment = UIVertAlignment::top,
 	    .font = "smallFont",
+        .style = defaultTextStyle,
 	},
 };
 
