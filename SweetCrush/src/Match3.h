@@ -98,14 +98,13 @@ public:
 	bool IsWaitingForUser() const;
 
 private:
-	void DeleteAllPiecesOfType(int pieceId);
 	bool SelectAndSwapPieces(const Wind::Input& input);
 	bool CheckCombos(int h, int v, int t, int b, PieceId pieceId, int cellIdx);
 	bool CheckCellCombos(int cellIdx);
 	bool CheckMatchesAfterSwap();
 	bool CheckSpecialComboAfterSwap();
 	bool CheckSpecialCombo(int first, int second);
-	void KillCell(int cellIdx, const Cell* targetCell = nullptr);
+	void KillCell(Cell& cell, const Cell* targetCell = nullptr);
 	void CollapseColumns();
 	void GenerateNewPieces();
 	bool CheckMatches();
@@ -113,12 +112,14 @@ private:
 	void SwapSelectedCells(int firstTile, int secondTile);
 	int  CollapseColumn(int col, CellPairEvent* collapseList);
 	int  CollectMatches(int mainCellIdx, int deltaCol, int deltaRow, int* matches, int numMatches) const;
-	void TriggerEffect(int cellIdx);
+	void TriggerEffect(Cell& cell);
 	// Effects
-	void DeleteRow(int col, int row);
-	void DeleteColumn(int col, int row);
-	void Bomb(int col, int row, int radius);
-	void ColorBomb(int col, int row);
+	void DeleteRow(Cell& mainCell);
+	void DeleteColumn(Cell& mainCell);
+	void Bomb(Cell& mainCell, int radius);
+	void ColorBomb(Cell& mainCell, PieceId targetPieceId);
+	void ClearBoard();
+	PieceId FindMostFrequentPiece() const;
 
 private:
 	enum class State;

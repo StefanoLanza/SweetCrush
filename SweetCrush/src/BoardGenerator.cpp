@@ -12,6 +12,10 @@ void BoardGenerator::GenRandomBoard(Board& board, uint32_t seed, const char* mas
 	mRandomEngine.Seed(seed);
 	ResetBoard(board);
 
+	for (int i = 0; i < numPieceIds; ++i) {
+		assert(pieceIds[i] < MaxPieceTypes);
+	}
+
 	assert((int)std::size(mPieceIds) >= numPieceIds);
 	std::memcpy(mPieceIds, pieceIds, numPieceIds * sizeof pieceIds[0]);
 	mNumPieceIds = numPieceIds;
@@ -37,6 +41,10 @@ void BoardGenerator::GenRandomBoard(Board& board, uint32_t seed, const char* mas
 void BoardGenerator::InitBoard(Board& board, const char* boardDef, uint32_t seed, const int pieceIds[], int numPieceIds) {
 	mRandomEngine.Seed(seed);
 	ResetBoard(board);
+
+	for (int i = 0; i < numPieceIds; ++i) {
+		assert(pieceIds[i] < MaxPieceTypes);
+	}
 
 	assert((int)std::size(mPieceIds) >= numPieceIds);
 	std::memcpy(mPieceIds, pieceIds, numPieceIds * sizeof pieceIds[0]);

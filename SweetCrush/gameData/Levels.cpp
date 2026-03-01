@@ -112,7 +112,7 @@ const Level levels[numLevels] {
 	  .boosterIds { 0, 1, 2 },
 	  .boosterCount { 2, 3, 4 } },
 	// #3
-	{ .pieceIds { 3, 4, 8, 5, 6 },
+	{ .pieceIds { 3, 4, 7, 5, 6 },
 	  .goal { GoalId::collectMatches, { 21, 21, 21 } },
 	  .seed = 324234,
 	  .availableMoves = 24,

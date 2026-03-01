@@ -130,7 +130,7 @@ void Match3::Restart() {
 void Match3::UseBooster(int cellIdx) {
 	assert(mState == State::selectAndSwapPieces);
 	// TODO handle more booster types
-	KillCell(cellIdx, nullptr);
+	KillCell(mBoard.GetCell(cellIdx), nullptr);
 	mState = State::collapseColumns;
 }
 
@@ -193,16 +193,6 @@ bool Match3::SelectAndSwapPieces(const Wind::Input& input) {
 		return TrySwap(first, second);
 	}
 	return false;
-}
-
-void Match3::DeleteAllPiecesOfType(int pieceId) {
-	int cellIdx = 0;
-	for (const Cell& cell : mBoard.GetCells()) {
-		if (cell.category == CellCategory::piece && cell.pieceId == pieceId) {
-			KillCell(cellIdx, nullptr);
-		}
-		++cellIdx;
-	}
 }
 
 bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCellIdx) {
@@ -315,11 +305,11 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 		}
 		else {
 			// Kill main piece along with its matches
-			KillCell(mainCellIdx, nullptr);
+			KillCell(mainCell, nullptr);
 		}
 
 		for (int i = 0; i < numMatches; ++i) {
-			KillCell(matches[i], makeSpecialCandy ? &mainCell : nullptr);
+			KillCell(mBoard.GetCell(matches[i]), makeSpecialCandy ? &mainCell : nullptr);
 		}
 	}
 
@@ -350,12 +340,17 @@ bool Match3::CheckSpecialCombo(int first, int second) {
 	Cell& secondCell = mBoard.GetCell(second);
 	assert(firstCell.category == CellCategory::piece);
 	assert(secondCell.category == CellCategory::piece);
-	// You can activate directly two adjacent special candies
 
 	if (firstCell.effect == EffectType::colorBomb && secondCell.effect == EffectType::none) {
-		// TODO Every single candy of that color is removed from the entire board.
+		// Every single candy of that color is removed from the entire board.
+		TriggerEffect(firstCell); // FIXME targetPieceId for colorBomb is secondCell.pieceId
+		// KillCell(firstCell);
+		// KillCell(secondCell);
+		return true;
 	}
 	else if (firstCell.effect == EffectType::colorBomb && secondCell.effect == EffectType::colorBomb) {
+		ClearBoard();
+		return true;
 		// TODO Clear entire board
 	}
 	else if (firstCell.effect == EffectType::colorBomb) {
@@ -386,13 +381,6 @@ bool Match3::CheckSpecialCombo(int first, int second) {
 		return false; // not a valid combo
 	}
 
-	// Effects were activate manually
-	firstCell.effect = EffectType::none;
-	secondCell.effect = EffectType::none;
-
-	KillCell(first);
-	KillCell(second);
-
 	return true;
 }
 
@@ -406,14 +394,13 @@ bool Match3::CheckSpecialComboAfterSwap() {
 	return false;
 }
 
-void Match3::KillCell(int cellIdx, const Cell* targetCell) {
-	Cell& cell = mBoard.GetCell(cellIdx);
+void Match3::KillCell(Cell& cell, const Cell* targetCell) {
 	if (cell.category != CellCategory::piece) {
 		return; // already deleted or hole or obstacle
 	}
 	if (cell.layers == 0) {
 		if (cell.effect != EffectType::none) {
-			TriggerEffect(cellIdx);
+			TriggerEffect(cell);
 		}
 		else {
 			// Inform client
@@ -598,8 +585,7 @@ int Match3::CollectMatches(int mainCellIdx, int deltaCol, int deltaRow, int* mat
 	return numMatches;
 }
 
-void Match3::TriggerEffect(int cellIdx) {
-	Cell& cell = mBoard.GetCell(cellIdx);
+void Match3::TriggerEffect(Cell& cell) {
 	assert(cell.category == CellCategory::piece);
 	assert(cell.effect != EffectType::none);
 	assert(cell.layers == 0);
@@ -611,61 +597,90 @@ void Match3::TriggerEffect(int cellIdx) {
 	};
 	mCbk(event);
 
-	// Delete piece with specialPiece
-	// Important: do it before triggering, to avoid infinite recursion in same cases
+	// Delete special candy
+	// Important: do it before triggering, to avoid infinite recursion
 	cell.category = CellCategory::empty;
 	cell.effect = EffectType::none;
 
+	// Trigger effect
 	switch (event.effect.type) {
 	case EffectType::hStriped: {
-		DeleteRow(cell.col, cell.row);
+		DeleteRow(cell);
 	} break;
 	case EffectType::vStriped: {
-		DeleteColumn(cell.col, cell.row);
+		DeleteColumn(cell);
 	} break;
 	case EffectType::wrapped:
-		Bomb(cell.col, cell.row, 1);
+		Bomb(cell, 1);
 		break;
 	case EffectType::colorBomb:
-		// TODO
+		// Color bomb hit by a blast. Choose most frequent candy in board
+		ColorBomb(cell, FindMostFrequentPiece());
 		break;
 	}
 }
 
-void Match3::DeleteRow(int col, int row) {
+void Match3::DeleteRow(Cell& mainCell) {
 	for (int ncol = 0; ncol < mBoard.GetCols(); ++ncol) {
-		if (col != ncol) {
-			int cellIdx = mBoard.GetCellIndex(ncol, row);
-			KillCell(cellIdx, nullptr);
+		if (mainCell.col != ncol) {
+			KillCell(mBoard.GetCell(ncol, mainCell.row));
 		}
 	}
 }
 
-void Match3::DeleteColumn(int col, int row) {
+void Match3::DeleteColumn(Cell& mainCell) {
 	for (int nrow = 0; nrow < mBoard.GetRows(); ++nrow) {
-		if (row != nrow) {
-			int cellIdx = mBoard.GetCellIndex(col, nrow);
-			KillCell(cellIdx, nullptr);
+		if (mainCell.row != nrow) {
+			KillCell(mBoard.GetCell(mainCell.col, nrow));
 		}
 	}
 }
 
-void Match3::Bomb(int col, int row, int radius) {
+void Match3::Bomb(Cell& mainCell, int radius) {
 	// Kill grid around bomb
 	for (int y = -radius; y <= radius; ++y) {
-		int orow = row + y;
+		int orow = mainCell.row + y;
 		for (int x = -radius; x <= radius; ++x) {
 			int r = x * x + y * y;
 			if (r > 0) {
-				int ocol = col + x;
+				int ocol = mainCell.col + x;
 				if (mBoard.IsInside(ocol, orow)) {
-					int cellIdx = mBoard.GetCellIndex(ocol, orow);
-					KillCell(cellIdx, nullptr);
+					KillCell(mBoard.GetCell(ocol, orow));
 				}
 			}
 		}
 	}
 }
 
-void Match3::ColorBomb(int col, int row) {
+void Match3::ColorBomb(Cell& mainCell, PieceId targetPieceId) {
+	for (Cell& cell : mBoard.GetCells()) {
+		if (cell.category == CellCategory::piece && cell.pieceId == targetPieceId) {
+			KillCell(cell);
+		}
+	}
+}
+
+void Match3::ClearBoard() {
+	// TODO Are layers removed ?
+	for (Cell& cell : mBoard.GetCells()) {
+		if (cell.category == CellCategory::piece) {
+			KillCell(cell);
+		}
+	}
+}
+
+PieceId Match3::FindMostFrequentPiece() const {
+	int     count[MaxPieceTypes] {};
+	PieceId pieceId = 0;
+	int     highestCount = 0;
+	for (const Cell& cell : mBoard.GetCells()) {
+		if (cell.category == CellCategory::piece) {
+			assert(cell.pieceId < MaxPieceTypes);
+			count[cell.pieceId]++;
+			if (count[cell.pieceId] > highestCount) {
+				pieceId = cell.pieceId;
+			}
+		}
+	}
+	return pieceId;
 }
