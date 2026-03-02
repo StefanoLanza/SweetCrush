@@ -8,19 +8,16 @@
 #include "ScreenIds.h"
 
 #include <engine/Engine.h>
-#include <engine/TextRender.h>
-#include <engine/UI.h>
 
 using namespace Wind;
 
 LevelCompleteScreen::LevelCompleteScreen(MatchStats& matchStats)
     : mMatchStats(matchStats)
-    , mNextLevelButton { MakeMenuButton(button2_y, GameStringId::nextLevel) }
     , mCanvas(MakeCanvas()) {
 	// Setup UI
 	mTitle = mCanvas.Add(MakeTitle(GameStringId::level));
 	mCanvas.Add(MakeTitle(GameStringId::complete, subTitleY));
-	mCanvas.Add(mNextLevelButton);
+	mNextLevelButton = mCanvas.Add(MakeMenuButton(button2_y, GameStringId::nextLevel));
 }
 
 const char* LevelCompleteScreen::GetName() const {
@@ -35,7 +32,7 @@ ScreenEvent LevelCompleteScreen::Tick(float dt, const Input& input) {
 	mCanvas.Tick(dt);
 	mCanvas.HandleInput(input);
 	mAccumTime += dt;
-	if (mAccumTime > 4.f || mNextLevelButton.IsClicked()) {
+	if (mAccumTime > 4.f || mNextLevelButton->IsClicked()) {
 		return GoTo(GameScreenIds::levelStart, ScreenTransition::slideTop);
 	}
 	return Continue();

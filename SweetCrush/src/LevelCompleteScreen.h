@@ -19,9 +19,9 @@ public:
 	void              ParseConfig(const char* varName, const char* varValue) override;
 
 private:
-	MatchStats&    mMatchStats;
-	Wind::UIText*  mTitle = nullptr;
-	Wind::UIButton mNextLevelButton;
-	Wind::UICanvas mCanvas;
-	float          mAccumTime = 0.f;
+	MatchStats&     mMatchStats;
+	Wind::UICanvas  mCanvas;
+	Wind::UIText*   mTitle = nullptr;
+	Wind::UIButton* mNextLevelButton = nullptr;
+	float           mAccumTime = 0.f;
 };

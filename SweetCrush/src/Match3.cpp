@@ -199,7 +199,7 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 	bool       res = true;
 	ComboType  comboType {};
 	bool       horizontalMatch = false;
-	EffectType effectType {};
+	EffectType effectType = EffectType::none;
 
 	// TODO 2x2 square ?
 
@@ -267,7 +267,7 @@ bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCe
 		assert(numMatches < NumRows * NumCols);
 
 #if ENABLE_EFFECTS
-		bool makeSpecialCandy = (comboType != ComboType::C3);
+		bool makeSpecialCandy = (effectType != EffectType::none);
 		// In Candy Crush, if a special candy appears in a combo, it is activated and NO new special candy is created
 		for (int i = 0; i < numMatches; ++i) {
 			if (IsSpecial(mBoard.GetCell(matches[i]))) {
@@ -341,6 +341,12 @@ bool Match3::CheckSpecialCombo(int firstIdx, int secondIdx) {
 	assert(firstCell.category == CellCategory::piece);
 	assert(secondCell.category == CellCategory::piece);
 
+	constexpr uint32_t crossMask = (1u << (int)EffectType::hStriped) | (1u << (int)EffectType::vStriped);
+
+	uint32_t firstMask = (1u << (int)firstCell.effect);
+	uint32_t secondMask = (1u << (int)secondCell.effect);
+	bool     crossEffect = false;
+
 	if (firstCell.effect == EffectType::colorBomb && secondCell.effect == EffectType::none) {
 		// Every single candy of that color is removed from the entire board
 		ColorBomb(firstCell, secondCell.pieceId);
@@ -362,23 +368,42 @@ bool Match3::CheckSpecialCombo(int firstIdx, int secondIdx) {
 		// those as well.
 	}
 
-	// TODO Replace with a table
+	// TODO ? (firstMask & crossMask) && (secondMask & crossMask)
+
 	else if (firstCell.effect == EffectType::hStriped && secondCell.effect == EffectType::hStriped) {
-		// hStriped + vStriped effect
+		crossEffect = true;
 	}
 	else if (firstCell.effect == EffectType::vStriped && secondCell.effect == EffectType::vStriped) {
-		// hStriped + vStriped effect
-	}
-	else if (firstCell.effect == EffectType::hStriped && secondCell.effect == EffectType::wrapped) {
-		// TODO
+		crossEffect = true;
 	}
 	else if (firstCell.effect == EffectType::hStriped && secondCell.effect == EffectType::vStriped) {
+		crossEffect = true;
+	}
+	else if (firstCell.effect == EffectType::vStriped && secondCell.effect == EffectType::hStriped) {
+		crossEffect = true;
+	}
+	else if (firstCell.effect == EffectType::hStriped && secondCell.effect == EffectType::wrapped) {
+		firstCell.effect = EffectType::none;
+		secondCell.effect = EffectType::none;
+		KillCell(firstCell);
+		KillCell(secondCell);
+		return true;
 	}
 	else {
 		return false; // not a valid combo
 	}
 
-	return false; //FIXME true;
+	if (crossEffect) {
+		// hStriped + vStriped effect
+		DeleteColumn(secondCell);
+		DeleteRow(secondCell);
+		firstCell.effect = EffectType::none;
+		secondCell.effect = EffectType::none;
+		KillCell(firstCell);
+		KillCell(secondCell);
+		return true;
+	}
+	return false;
 }
 
 bool Match3::CheckSpecialComboAfterSwap() {
@@ -588,14 +613,14 @@ void Match3::TriggerEffect(Cell& cell) {
 	assert(cell.layers == 0);
 
 	switch (cell.effect) {
-    case EffectType::none:
-        break;
+	case EffectType::none:
+		break;
 	case EffectType::hStriped:
 		DeleteRow(cell);
-        break;
+		break;
 	case EffectType::vStriped:
 		DeleteColumn(cell);
-        break;
+		break;
 	case EffectType::wrapped:
 		Bomb(cell, 1);
 		break;
