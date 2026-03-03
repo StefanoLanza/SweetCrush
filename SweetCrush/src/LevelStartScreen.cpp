@@ -55,21 +55,19 @@ ScreenEvent LevelStartScreen::Tick(float dt, const Input& input) {
 void LevelStartScreen::Draw(UIRenderer& uiRenderer, float dt) {
 	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 
-	float        y = mPanel->GetRect().pos.y + 280.f;
 	const Level& level = *mGameDataModule.GetLevel(mMatchStats.levelIndex);
 	switch (level.goal.id) {
 	case GoalId::breakIce:
-		DrawIceBlocks(level, y);
+		DrawIceBlocks(level);
 		break;
-	case GoalId::collectMatches: {
-		DrawPieces(level, y);
+	case GoalId::collectMatches:
+		DrawPieces(level);
 		break;
-	}
 	case GoalId::removeJellies:
 		// TODO
 		break;
 	case GoalId::collectAllStars:
-		// TODO
+		DrawStars(level);
 		break;
 	default:
 		assert(false);
@@ -89,17 +87,14 @@ void LevelStartScreen::Enter(const ScreenNavArgs& args) {
 	case GoalId::breakIce:
 		snprintf(tmp, sizeof(tmp), "%s", "Break all ice blocks");
 		break;
-	case GoalId::collectMatches: {
+	case GoalId::collectMatches:
 		snprintf(tmp, sizeof(tmp), "%s", "Match and remove these pieces");
 		break;
-	}
 	case GoalId::removeJellies:
 		snprintf(tmp, sizeof(tmp), "%s", "Remove all jellies");
-		// TODO
 		break;
 	case GoalId::collectAllStars:
 		snprintf(tmp, sizeof(tmp), "%s", "Collect all stars");
-		// TODO
 		break;
 	default:
 		assert(false);
@@ -114,27 +109,44 @@ void LevelStartScreen::Exit() {
 void LevelStartScreen::ParseConfig(const char* varName, const char* varValue) {
 }
 
-void LevelStartScreen::DrawPieces(const Level& level, float yCoord) const {
-	constexpr float dx = TileWidth * 2.f + 2;
-	float           phase = mAccumTime * 4.f;
-	float           x = (RefWindowWidth - (MaxMatchesPerLevel - 1) * dx) * 0.5f;
-	for (int i = 0; i < MaxMatchesPerLevel; ++i) {
-		float rotation = std::sin(phase * .25f + (float)i) * 0.5f;
-		mGameRenderer.DrawIcon(pieceIcons[level.pieceIds[i]], Vec2 { x, yCoord + std::cos(phase) * 4.f }, rotation, whiteColor,
-		                       GameDrawOrder::overlays);
-		x += dx;
-		phase += 6.28f / static_cast<float>(MaxMatchesPerLevel);
-	}
+void LevelStartScreen::DrawPieces(const Level& level) const {
+	const int      count = MaxMatchesPerLevel;
+	const uint32_t icons[MaxMatchesPerLevel] {
+		pieceIcons[level.pieceIds[0]],
+		iceSprites[level.pieceIds[1]],
+		iceSprites[level.pieceIds[2]],
+	};
+	DrawIcons(icons, count);
 }
 
-void LevelStartScreen::DrawIceBlocks(const Level& level, float yCoord) const {
-	float       phase = mAccumTime * 4.f;
-	const int   count = 4;
-	const float dx = gameTextures[iceSprites[0]]->Width() + 12 * 2.f + 2;
+void LevelStartScreen::DrawIceBlocks(const Level& level) const {
+	const int      count = 3;
+	const uint32_t icons[count] {
+		iceSprites[0],
+		iceSprites[1],
+		iceSprites[2],
+	};
+	DrawIcons(icons, count);
+}
+
+void LevelStartScreen::DrawStars(const Level& level) const {
+	const int count = 3;
+	uint32_t  icons[count] {
+        starSprite,
+        starSprite,
+        starSprite,
+	};
+	DrawIcons(icons, count);
+}
+
+void LevelStartScreen::DrawIcons(const uint32_t icons[], int count) const {
+	const float y = mPanel->GetRect().pos.y + 280.f;
+	const float phase = mAccumTime * 4.f;
+	const float dx = gameTextures[icons[0]]->Width() + 12 * 2.f + 2;
 	float       x = (RefWindowWidth - (count - 1) * dx) * 0.5f;
 	for (int i = 0; i < count; ++i) {
 		float rotation = std::sin(phase * .25f + (float)i) * 0.5f;
-		mGameRenderer.DrawIcon(iceSprites[0], Vec2 { x, yCoord + std::cos(phase) * 4.f }, rotation, whiteColor, GameDrawOrder::overlays);
+		mGameRenderer.DrawIcon(icons[i], Vec2 { x, y + std::cos(phase) * 4.f }, rotation, whiteColor, GameDrawOrder::overlays);
 		x += dx;
 	}
 }

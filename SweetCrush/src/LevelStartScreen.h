@@ -22,8 +22,10 @@ public:
 	void              ParseConfig(const char* varName, const char* varValue) override;
 
 private:
-	void DrawPieces(const Level& level, float yCoord) const;
-	void DrawIceBlocks(const Level& level, float yCoord) const;
+	void DrawPieces(const Level& level) const;
+	void DrawIceBlocks(const Level& level) const;
+	void DrawStars(const Level& level) const;
+	void DrawIcons(const uint32_t icons[], int count) const;
 	void AnimateUI();
 
 private:
