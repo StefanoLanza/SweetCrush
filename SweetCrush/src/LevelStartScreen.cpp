@@ -128,12 +128,13 @@ void LevelStartScreen::DrawPieces(const Level& level, float yCoord) const {
 }
 
 void LevelStartScreen::DrawIceBlocks(const Level& level, float yCoord) const {
-	// FIXME Count
+	float       phase = mAccumTime * 4.f;
 	const int   count = 4;
 	const float dx = gameTextures[iceSprites[0]]->Width() + 12 * 2.f + 2;
 	float       x = (RefWindowWidth - (count - 1) * dx) * 0.5f;
 	for (int i = 0; i < count; ++i) {
-		mGameRenderer.DrawIcon(iceSprites[0], Vec2 { x, yCoord }, 0.f, whiteColor, GameDrawOrder::overlays);
+		float rotation = std::sin(phase * .25f + (float)i) * 0.5f;
+		mGameRenderer.DrawIcon(iceSprites[0], Vec2 { x, yCoord + std::cos(phase) * 4.f }, rotation, whiteColor, GameDrawOrder::overlays);
 		x += dx;
 	}
 }

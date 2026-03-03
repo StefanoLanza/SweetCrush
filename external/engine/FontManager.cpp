@@ -7,6 +7,8 @@
 #include <stdexcept>
 #include <cassert>
 
+#define FONTS_FOLDER   "fonts/"
+
 namespace Wind {
 
 FontManager::FontManager(Graphics& graphics)

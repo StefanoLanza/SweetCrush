@@ -21,9 +21,7 @@ struct GoalCollectAllStars {
 	int starCount;
 };
 
-struct GoalBreakIce {
-	int iceBlocksCount; // if procedurally generated
-};
+struct GoalBreakIce {};
 
 // Remove all pieces
 struct GoalRemoveAllPieces {};

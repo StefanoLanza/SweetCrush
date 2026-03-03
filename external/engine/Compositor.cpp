@@ -8,18 +8,11 @@
 namespace Wind {
 
 UICompositor::UICompositor(Graphics& graphics, int width, int height)
-	: mGraphics{graphics}
-	, mFrameBuffers {
-	    { width, height, FBOFlags::color },
-	    { width, height, FBOFlags::color },
-	    { width, height, FBOFlags::color },
-    }
-	, mFrameBufferHalfRes { width / 2, height / 2, FBOFlags::color }
-	, mFrameBufferQuarterRes { width / 4, height / 4, FBOFlags::color }
-	, mBlur { graphics }
-	, mTransition{ScreenTransition::none}
-	, mAccumTime{0.f}
-	, mCurrDst{0}{
+    : mGraphics { graphics }
+    , mBlur { graphics }
+    , mTransition { ScreenTransition::none }
+    , mAccumTime { 0.f }
+    , mCurrDst { 0 } {
 
 	InitPrograms(graphics);
 
@@ -27,6 +20,12 @@ UICompositor::UICompositor(Graphics& graphics, int width, int height)
 	pipelineState.depthEnabled = false;
 	pipelineState.blending = false;
 	mPipelineHandle = mGraphics.NewPipeline(pipelineState);
+
+	for (int i = 0; i < 3; ++i) {
+		mFrameBuffers[i] = graphics.CreateFrameBuffer(width, height, FBOFlags::color);
+	}
+	mFrameBufferHalfRes = graphics.CreateFrameBuffer(width / 2, height / 2, FBOFlags::color);
+	mFrameBufferQuarterRes = graphics.CreateFrameBuffer(width / 4, height / 4, FBOFlags::color);
 
 #if 0
 	MaterialInfo mi;
@@ -121,7 +120,7 @@ const GlFrameBuffer& UICompositor::Execute(float dt) {
 }
 
 bool UICompositor::IsIdle() const {
-	return mTransition == ScreenTransition::none || mTransition == ScreenTransition::blur;//FIXME
+	return mTransition == ScreenTransition::none || mTransition == ScreenTransition::blur; // FIXME
 }
 
 void UICompositor::ConfigurePixelTransition(const PixelateTransition& settings) {
@@ -220,7 +219,7 @@ void UICompositor::Blur(unsigned first, unsigned second) const {
 		{ 0.f, 0.f, 0.f, 0.f },
 		{ 1.f, 1.f, 1.f, 1.f },
 	};
-	
+
 	mGraphics.SetPipeline(mPipelineHandle);
 
 	const unsigned textureIds[] = {
@@ -236,7 +235,7 @@ void UICompositor::Blur(unsigned first, unsigned second) const {
 	drawCall.mesh = triangleMesh;
 	drawCall.drawOrder = 0;
 	mGraphics.Draw(drawCall);
-	//Composite(mBlendProgram, first, second, uniformLocations, uniforms, 0);
+	// Composite(mBlendProgram, first, second, uniformLocations, uniforms, 0);
 }
 
 void UICompositor::Composite(const Program& program, unsigned first, unsigned second, const int uniformLocations[], const Vec4 uniforms[],

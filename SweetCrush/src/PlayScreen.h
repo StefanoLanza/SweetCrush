@@ -64,7 +64,7 @@ private:
 	Wind::UIBitmap*               mGoalIcons[3];
 	Wind::UIText*                 mGoalCounters[3];
 	Wind::UIText*                 mScoreText;
-	Wind::UIText*                 mTimeText;
+	Wind::UIText*                 mMovesText;
 	Wind::UIButton*               mBoosterButtons[3];
 	Wind::UIBitmap*               mPet = nullptr;
 	Match3                        mMatch3;

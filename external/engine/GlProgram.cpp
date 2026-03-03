@@ -11,6 +11,8 @@ namespace Wind {
 
 namespace {
 
+#define SHADERS_FOLDER ASSETS_FOLDER "shaders/"
+
 GLuint CompileShader(const char* sources[], int numSources, GLenum type) {
 	GLuint shader = glCreateShader(type);
 	glShaderSource(shader, numSources, sources, nullptr);

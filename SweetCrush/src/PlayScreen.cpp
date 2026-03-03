@@ -232,7 +232,7 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
 	for (int i = 0; i < 3; ++i) {
 		mGoalCounters[i] = goalPanel->Add(goalCounterDesc);
 	}
-	mTimeText = topPanel->Add(timeTextDesc);
+	mMovesText = topPanel->Add(timeTextDesc);
 	mPet = mCanvas.Add(petDesc);
 	mCanvas.Add(speechBubbleDesc);
 
@@ -606,26 +606,16 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 	snprintf(tmp, sizeof(tmp), "%04d", mMatchStats.score);
 	mScoreText->SetText(tmp);
 
-#if 0
-	const int time = static_cast<int>(mMatchTime);
-	snprintf(tmp, sizeof(tmp), "%d:%02d", time / 60, time % 60);
-	UITextStyle textStyle = defaultTextStyle;
-	if (mMatchTime < criticalTime) {
-		textStyle.color = redColor;
-	}
-#else
 	snprintf(tmp, sizeof(tmp), "%d", mMatchStats.moves);
 	UITextStyle textStyle = defaultTextStyle;
-#endif
-	mTimeText->SetText(tmp);
-	mTimeText->SetStyle(textStyle);
+	mMovesText->SetText(tmp);
+	mMovesText->SetStyle(textStyle);
 
 	if (level.goal.id == GoalId::collectMatches) {
 		for (int i = 0; i < 3; ++i) {
 			const int icon = pieceIcons[level.pieceIds[i]];
 			mGoalIcons[i]->SetVisible(true);
 			mGoalIcons[i]->SetBitmap(gameTextures[icon]);
-			// mGameRenderer.DrawIcon(icon, pos, 0.f, whiteColor, GameDrawOrder::overlays);
 			if (int diff = level.goal.collectMatches.count[i] - mMatchStats.targetPieceCount[i]; diff > 0) {
 				SDL_snprintf(tmp, sizeof(tmp), "%d", diff);
 				mGoalCounters[i]->SetText(tmp);
@@ -633,19 +623,28 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 			}
 			else {
 				mGoalCounters[i]->SetVisible(false);
-				// TODO
+				// TODO enable tick icon
 				// mGameRenderer.DrawIcon(checkIcon, pos + Vec2 { 0.f, 50.f }, 0.f, whiteColor, GameDrawOrder::overlays + 1);
 			}
 		}
 	}
 	else if (level.goal.id == GoalId::breakIce) {
-		/*
-		Vec2 pos = mGoalPanel->GetRect().pos + Vec2 { 70.f, 50.f };
-		for (int i = 0; i < mMatchStats.layerCount; ++i) {
-		    mGameRenderer.DrawIcon(iceSprites[0], pos, 0.f, whiteColor, GameDrawOrder::overlays);
-		    pos.x += gameTextures[iceSprites[0]]->Width() + 12;
-		}*/
+		mGoalIcons[0]->SetVisible(false);
+		mGoalIcons[2]->SetVisible(false);
+		mGoalCounters[0]->SetVisible(false);
+		mGoalCounters[2]->SetVisible(false);
+		mGoalIcons[1]->SetVisible(true);
+		mGoalIcons[1]->SetBitmap(gameTextures[iceSprites[0]]);
+		if (mMatchStats.layerCount > 0) {
+			SDL_snprintf(tmp, sizeof(tmp), "%d", mMatchStats.layerCount);
+			mGoalCounters[1]->SetText(tmp);
+			mGoalCounters[1]->SetVisible(true);
+		}
+		else {
+			mGoalCounters[1]->SetVisible(false);
+		}
 	}
+
 	for (int i = 0; i < MaxBoosterTypesPerLevel; ++i) {
 		constexpr Color selectedColor = { 512.f, 512.f, 512.f, 255.f };
 		if (level.boosterCount[i] > 0) {

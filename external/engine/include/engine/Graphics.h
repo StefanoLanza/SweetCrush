@@ -80,6 +80,7 @@ public:
 	ProgramHandle    NewProgram(const char* vs, const char* fs, const char* defines = "");
 	PipelineHandle   NewPipeline(const PipelineState& pipelineState);
 	TexturePtr       LoadTexture(std::string_view fileName, TextureInfo texInfo = TextureInfo {});
+	GlFrameBuffer    CreateFrameBuffer(int width, int height, unsigned flags);
 	void             SetFrameBuffer(const GlFrameBuffer& frameBuffer);
 	void             SetDefaultFrameBuffer();
 	GlFrameBuffer    GetDefaultFrameBuffer() const;

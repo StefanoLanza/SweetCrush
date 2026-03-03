@@ -11,8 +11,9 @@ enum FBOFlags : unsigned {
 
 class GlFrameBuffer final {
 public:
+	GlFrameBuffer();
 	GlFrameBuffer(int width, int height);
-	GlFrameBuffer(int width, int height, unsigned flags);
+	GlFrameBuffer(int width, int height, GLuint fbo, GLuint colorTexture, GLuint depthTexture);
 	GLuint GetFBO() const;
 	GLuint GetColorAttachment() const;
 	GLuint GetDepthAttachment() const;
