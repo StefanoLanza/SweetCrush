@@ -22,14 +22,12 @@ LevelStartScreen::LevelStartScreen(const MatchStats& matchStats, const GameDataM
     : mMatchStats(matchStats)
     , mGameDataModule(gameDataModule)
     , mGameRenderer(gameRenderer)
-    , mCanvas(MakeCanvas())
-    , mGoalText { MakeScreenText(GameStringId::goal, 40.f) }
-    , mGoalDesc { MakeDynScreenText(160.f) } {
+    , mCanvas(MakeCanvas()) {
 	// Build UI
 	mTitle = mCanvas.Add(MakeTitle(GameStringId::level));
 	mPanel = mCanvas.Add(MakeInfoPanel());
-	mPanel->Add(mGoalText);
-	mPanel->Add(mGoalDesc);
+	mPanel->Add(MakeScreenText(GameStringId::goal, 40.f));
+	mGoalDesc = mPanel->Add(MakeDynScreenText(160.f));
 	mPlayButton = mCanvas.Add(MakeMenuButton(button3_y, GameStringId::play));
 }
 
@@ -100,7 +98,7 @@ void LevelStartScreen::Enter(const ScreenNavArgs& args) {
 		assert(false);
 		break;
 	}
-	mGoalDesc.SetText(tmp);
+	mGoalDesc->SetText(tmp);
 }
 
 void LevelStartScreen::Exit() {
@@ -113,8 +111,8 @@ void LevelStartScreen::DrawPieces(const Level& level) const {
 	const int      count = MaxMatchesPerLevel;
 	const uint32_t icons[MaxMatchesPerLevel] {
 		pieceIcons[level.pieceIds[0]],
-		iceSprites[level.pieceIds[1]],
-		iceSprites[level.pieceIds[2]],
+		pieceIcons[level.pieceIds[1]],
+		pieceIcons[level.pieceIds[2]],
 	};
 	DrawIcons(icons, count);
 }

@@ -18,12 +18,11 @@ using namespace Wind;
 IntroScreen::IntroScreen(Engine& engine, const GameRenderer& gameRenderer)
     : mEngine(engine)
     , mGameRenderer(gameRenderer)
-    , mTapText { MakeScreenText(GameStringId::tap, RefWindowHeight - 80.f) }
     , mCanvas { MakeCanvas() }
     , mAccumTime(0) {
 	// Setup UI
 	mCanvas.Add( MakeTitle(GameStringId::title) );
-	mCanvas.Add(mTapText);
+	mCanvas.Add(MakeScreenText(GameStringId::tap, RefWindowHeight - 80.f));
 }
 
 const char* IntroScreen::GetName() const {

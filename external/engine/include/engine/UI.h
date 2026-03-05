@@ -178,15 +178,11 @@ public:
 	explicit UIPanel(const UIPanelDesc& desc);
 	~UIPanel();
 
-	void       Add(UIPanel& panel);
-	void       Add(UIButton& button);
-	UIButton*  Add(UIButton&& button);
-	void       Add(UIBitmap& bitmap);
-	UIBitmap*  Add(const UIBitmapDesc& bitmapDesc);
-	void       Add(UIText& text);
-	UIText*    Add(UIText&& text);
-	UIText*    Add(const UITextDesc& textDesc);
-	UIPanel*   Add(const UIPanelDesc& panelDesc);
+	UIButton*  Add(UIButton&& button, int cellIdx = -1);
+	UIText*    Add(UIText&& text, int cellIdx = -1);
+	UIBitmap*  Add(const UIBitmapDesc& bitmapDesc, int cellIdx = -1);
+	UIText*    Add(const UITextDesc& textDesc, int cellIdx = -1);
+	UIPanel*   Add(const UIPanelDesc& panelDesc, int cellIdx = -1);
 	UIControl& GetControl(int idx) const;
 	UIBitmap&  GetBitmap(int idx) const;
 	void       LoadAssets(Graphics& graphics, FontManager& fontManager);
@@ -199,12 +195,12 @@ private:
 	struct Child {
 		void*         ptr;
 		UIControlType type;
-		bool          owned;
+		int           cellIdx;
 	};
 	std::vector<Child> mChildren;
 	UIPanelDesc        mDesc;
 	TexturePtr         mBackground;
-	// TODO Layout
+	int                mAutoCellIdx;
 };
 
 class UIText final : public UIControl {
@@ -303,11 +299,7 @@ class UICanvas final {
 public:
 	explicit UICanvas(const UICanvasDesc& desc);
 
-	void      Add(UIPanel& panel);
-	void      Add(UIButton& button);
 	UIButton* Add(UIButton&& button);
-	void      Add(UIBitmap& bitmap);
-	void      Add(UIText& text);
 	UIText*   Add(const UITextDesc& textDesc);
 	UIBitmap* Add(const UIBitmapDesc& bitmapDesc);
 	UIPanel*  Add(const UIPanelDesc& panelDesc);

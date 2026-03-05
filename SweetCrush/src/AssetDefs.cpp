@@ -32,8 +32,6 @@ const char* gameTexturePath[NumGameTextures] {
 	"gameartguppy/candy_04_lollipop_100.png",
 	"gameartguppy/candy_09_gummibear_100.png",
 	"blast.png",
-	// Icon
-	"icons/minicheck.png",
 };
 
 const SpriteID pieceIcons[NumPieceTypes] { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -52,4 +50,3 @@ const SpriteID selectionSprite = 17;
 const SpriteID glowSprite = 18;
 const SpriteID starSprite = 0; // FIXME
 const SpriteID blastSprite = 22;
-const SpriteID checkIcon = 23;

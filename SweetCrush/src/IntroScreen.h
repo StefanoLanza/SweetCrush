@@ -25,6 +25,5 @@ private:
 	Wind::Engine&       mEngine;
 	const GameRenderer& mGameRenderer;
 	Wind::UICanvas      mCanvas;
-	Wind::UIText        mTapText;
 	float               mAccumTime;
 };

@@ -29,18 +29,12 @@ const UIPanelDesc panelDesc {
 } // namespace
 
 PauseScreen::PauseScreen()
-    : mRestartLevelButton { MakeMenuButton(80, GameStringId::restartLevel, button0_color, "icons/replay.png") }
-    , mEndGameButton { MakeMenuButton(200, GameStringId::endGame, button2_color, "icons/cross.png") }
-    , mSettingsButton { MakeMenuButton(440, GameStringId::settings, button1_color, "icons/gear.png") }
-    , mCloseButton { MakeMenuButton(320, GameStringId::continueGame, button3_color, "icons/back.png") }
-//    , mCloseButton { MakeCloseButton() }
-    , mPanel { panelDesc }
-    , mCanvas(canvasDesc) {
-	mCanvas.Add(mPanel);
-	mPanel.Add(mCloseButton);
-	mPanel.Add(mRestartLevelButton);
-	// mPanel.Add(mSettingsButton.GetPanel());
-	mPanel.Add(mEndGameButton);
+    : mCanvas(canvasDesc) {
+	UIPanel* panel = mCanvas.Add(panelDesc);
+	mCloseButton = panel->Add(MakeMenuButton(320, GameStringId::continueGame, button3_color, "icons/back.png"));
+	mEndGameButton = panel->Add(MakeMenuButton(200, GameStringId::endGame, button2_color, "icons/cross.png"));
+	mRestartLevelButton = panel->Add(MakeMenuButton(80, GameStringId::restartLevel, button0_color, "icons/replay.png"));
+	// mSettingsButton = panel->Add(MakeMenuButton(440, GameStringId::settings, button1_color, "icons/gear.png"));
 }
 
 const char* PauseScreen::GetName() const {
@@ -59,18 +53,18 @@ ScreenEvent PauseScreen::Tick(float dt, const Wind::Input& input) {
 #elif defined(_WIN32) || defined(__linux__)
 	if (input.GetKeyJustPressed(SDLK_ESCAPE)
 #endif
-	    || mCloseButton.IsClicked()) {
+	    || mCloseButton->IsClicked()) {
 		return GoBack(false);
 	}
-	if (mEndGameButton.IsClicked()) {
+	if (mEndGameButton->IsClicked()) {
 		return GoTo(GameScreenIds::mainMenu, ScreenTransition::slideBottom);
 	}
-	else if (mRestartLevelButton.IsClicked()) {
+	else if (mRestartLevelButton->IsClicked()) {
 		return GoBack(true);
 	}
-	else if (mSettingsButton.IsClicked()) {
-		return GoTo(GameScreenIds::settings, ScreenTransition::slideLeft);
-	}
+	/*else if (mSettingsButton->IsClicked()) {
+	    return GoTo(GameScreenIds::settings, ScreenTransition::slideLeft);
+	}*/
 	return Continue();
 }
 

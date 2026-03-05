@@ -63,6 +63,7 @@ private:
 	Wind::UIButton*               mPauseButton;
 	Wind::UIBitmap*               mGoalIcons[3];
 	Wind::UIText*                 mGoalCounters[3];
+	Wind::UIBitmap*               mTickIcon[3];
 	Wind::UIText*                 mScoreText;
 	Wind::UIText*                 mMovesText;
 	Wind::UIButton*               mBoosterButtons[3];

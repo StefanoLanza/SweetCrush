@@ -20,9 +20,9 @@ public:
 
 private:
 	const MatchStats& mMatchStats;
-	Wind::UIButton    mContinueButton;
 	Wind::UICanvas    mCanvas;
-	Wind::UIText      mText0;
-	Wind::UIText      mText1;
+	Wind::UIButton*   mContinueButton = nullptr;
+	Wind::UIText*     mText0 = nullptr;
+	Wind::UIText*     mText1 = nullptr;
 	float             mAccumTime = 0.f;
 };

@@ -88,6 +88,13 @@ const UITextDesc goalCounterDesc {
 	.style = defaultTextStyle,
 };
 
+const UIBitmapDesc tickIconDesc {
+	.fileName = "icons/minicheck.png",
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::bottom,
+	.sizing = UIBitmapSizing::fit,
+};
+
 const UITextDesc scoreHeaderDesc {
 	.stringId = GameStringId::score,
 	.pos = { 0.f, 0.f },
@@ -231,12 +238,13 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
 	}
 	for (int i = 0; i < 3; ++i) {
 		mGoalCounters[i] = goalPanel->Add(goalCounterDesc);
+		mTickIcon[i] = goalPanel->Add(tickIconDesc, 3 + i); // same cell as goal counter
 	}
 	mMovesText = topPanel->Add(timeTextDesc);
 	mPet = mCanvas.Add(petDesc);
 	mCanvas.Add(speechBubbleDesc);
 
-	Wind::UIPanel* bottomPanel = mCanvas.Add(bottomPanelDesc);
+	UIPanel* bottomPanel = mCanvas.Add(bottomPanelDesc);
 	mBoosterButtons[0] = bottomPanel->Add(MakeBoosterButton());
 	mBoosterButtons[1] = bottomPanel->Add(MakeBoosterButton());
 	mBoosterButtons[2] = bottomPanel->Add(MakeBoosterButton());
@@ -364,7 +372,7 @@ void PlayScreen::UseSelectedBooster(const Input& input) {
 	}
 }
 
-void PlayScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
+void PlayScreen::Draw(UIRenderer& uiRenderer, float dt) {
 	mActionMgr.Run(dt);
 
 	mGameRenderer.DrawBoard(mBoard, mCellSelector->GetSelectedTile(), mGameConfig, mTime);
@@ -620,11 +628,11 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 				SDL_snprintf(tmp, sizeof(tmp), "%d", diff);
 				mGoalCounters[i]->SetText(tmp);
 				mGoalCounters[i]->SetVisible(true);
+				mTickIcon[i]->SetVisible(false);
 			}
 			else {
 				mGoalCounters[i]->SetVisible(false);
-				// TODO enable tick icon
-				// mGameRenderer.DrawIcon(checkIcon, pos + Vec2 { 0.f, 50.f }, 0.f, whiteColor, GameDrawOrder::overlays + 1);
+				mTickIcon[i]->SetVisible(true);
 			}
 		}
 	}

@@ -22,10 +22,9 @@ private:
 	void ShowHelp(EffectType type);
 
 private:
-	Wind::UIText*  mTitle = nullptr;
-	Wind::UIText   mText;
-	Wind::UIButton mOKButton;
-	Wind::UIBitmap mEffectIcon;
-	Wind::UIPanel  mPanel;
-	bool           mShowHelp[NumEffects];
+	Wind::UIText*   mTitle = nullptr;
+	Wind::UIText*   mText;
+	Wind::UIButton* mOKButton;
+	Wind::UIBitmap* mEffectIcon;
+	bool            mShowHelp[NumEffects];
 };

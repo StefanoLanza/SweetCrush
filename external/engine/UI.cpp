@@ -443,77 +443,60 @@ void UIBitmap::SetStyle(const UIBitmapStyle& style) {
 
 UIPanel::UIPanel(const UIPanelDesc& desc)
     : UIControl { true }
-    , mDesc(desc) {
+    , mDesc(desc)
+    , mAutoCellIdx { 0 } {
 }
 
 UIPanel::~UIPanel() {
 #define Dispatch(Type) delete static_cast<Type*>(child.ptr);
 	for (auto& child : mChildren) {
-		if (child.owned) {
-			switch (child.type) {
-			case UIControlType::Panel:
-				Dispatch(UIPanel);
-				break;
-			case UIControlType::Bitmap:
-				Dispatch(UIBitmap);
-				break;
-			case UIControlType::Text:
-				Dispatch(UIText);
-				break;
-			case UIControlType::Button:
-				Dispatch(UIButton);
-				break;
-			default:
-				break;
-			}
+		switch (child.type) {
+		case UIControlType::Panel:
+			Dispatch(UIPanel);
+			break;
+		case UIControlType::Bitmap:
+			Dispatch(UIBitmap);
+			break;
+		case UIControlType::Text:
+			Dispatch(UIText);
+			break;
+		case UIControlType::Button:
+			Dispatch(UIButton);
+			break;
+		default:
+			break;
 		}
 	}
 #undef Dispatch
 }
 
-void UIPanel::Add(UIPanel& panel) {
-	mChildren.push_back({ &panel, UIControlType::Panel, false });
-}
-
-void UIPanel::Add(UIButton& button) {
-	mChildren.push_back({ &button, UIControlType::Button, false });
-}
-
-UIButton* UIPanel::Add(UIButton&& button) {
+UIButton* UIPanel::Add(UIButton&& button, int cellIdx) {
 	auto newButton = new UIButton { std::move(button) };
-	mChildren.push_back({ newButton, UIControlType::Button, true });
+	mChildren.push_back({ newButton, UIControlType::Button, cellIdx >= 0 ? cellIdx : mAutoCellIdx++ });
 	return newButton;
 }
 
-void UIPanel::Add(UIBitmap& bitmap) {
-	mChildren.push_back({ &bitmap, UIControlType::Bitmap, false });
-}
-
-UIBitmap* UIPanel::Add(const UIBitmapDesc& bitmapDesc) {
-	auto bitmap = new UIBitmap { bitmapDesc };
-	mChildren.push_back({ bitmap, UIControlType::Bitmap, true });
-	return bitmap;
-}
-
-void UIPanel::Add(UIText& text) {
-	mChildren.push_back({ &text, UIControlType::Text });
-}
-
-UIText* UIPanel::Add(UIText&& text) {
+UIText* UIPanel::Add(UIText&& text, int cellIdx) {
 	auto newText = new UIText { std::move(text) };
-	mChildren.push_back({ newText, UIControlType::Text, true });
+	mChildren.push_back({ newText, UIControlType::Text, cellIdx >= 0 ? cellIdx : mAutoCellIdx++ });
 	return newText;
 }
 
-UIText* UIPanel::Add(const UITextDesc& textDesc) {
+UIBitmap* UIPanel::Add(const UIBitmapDesc& bitmapDesc, int cellIdx) {
+	auto bitmap = new UIBitmap { bitmapDesc };
+	mChildren.push_back({ bitmap, UIControlType::Bitmap, cellIdx >= 0 ? cellIdx : mAutoCellIdx++ });
+	return bitmap;
+}
+
+UIText* UIPanel::Add(const UITextDesc& textDesc, int cellIdx) {
 	auto text = new UIText { textDesc };
-	mChildren.push_back({ text, UIControlType::Text, true });
+	mChildren.push_back({ text, UIControlType::Text, cellIdx >= 0 ? cellIdx : mAutoCellIdx++ });
 	return text;
 }
 
-UIPanel* UIPanel::Add(const UIPanelDesc& panelDesc) {
+UIPanel* UIPanel::Add(const UIPanelDesc& panelDesc, int cellIdx) {
 	auto panel = new UIPanel { panelDesc };
-	mChildren.push_back({ panel, UIControlType::Panel, true });
+	mChildren.push_back({ panel, UIControlType::Panel, cellIdx >= 0 ? cellIdx : mAutoCellIdx++ });
 	return panel;
 }
 
@@ -561,11 +544,12 @@ void UIPanel::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 void UIPanel::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	assert(IsVisible());
 	if (mBackground) {
-		UIDrawBitmapArgs prms;
-		prms.blendMode = UIBlendMode::Auto;
-		prms.color = mDesc.backgroundColor;
-		prms.priority = drawOrder;
-		prms._9patch = mDesc._9patch;
+		const UIDrawBitmapArgs prms {
+			.color = mDesc.backgroundColor,
+			.blendMode = UIBlendMode::Auto,
+			.priority = drawOrder,
+			._9patch = mDesc._9patch,
+		};
 		renderer.DrawBitmap(GetRect(), *mBackground, prms);
 	}
 	else {
@@ -630,12 +614,7 @@ bool UIPanel::HandleInput(const Input& input) const {
 }
 
 void UIPanel::Tick(float dt) {
-#define Dispatch(Type)                                \
-	{                                                 \
-		auto control = static_cast<Type*>(child.ptr); \
-		control->Tick(dt);                            \
-	}
-
+#define Dispatch(Type) static_cast<Type*>(child.ptr)->Tick(dt);
 	for (const auto& child : mChildren) {
 		switch (child.type) {
 		case UIControlType::Panel:
@@ -656,11 +635,20 @@ void UIPanel::ComputeRect(const UIRect& parentRect, const UITransform& transform
 	SetRect(rect);
 	const UIRect paddedRect = AddPadding(rect, mDesc.padding);
 
-	UIRect subRect = paddedRect;
-	float  stretchedRowHeight = 0.f;
+	float stretchedRowHeight = 0.f;
+	float rowHeight[16] {};
+	float colWidth[16] {};
+	int   numRows = 0;
 	if (mDesc.grid.cols > 0) {
-		int numRows = ((int)mChildren.size() + mDesc.grid.cols - 1) / mDesc.grid.cols;
-		subRect.size.x = paddedRect.size.x / (float)mDesc.grid.cols - mDesc.grid.colSpacing * (mDesc.grid.cols - 1);
+		// Compute number of rows
+		for (const auto& child : mChildren) {
+			int childRow = child.cellIdx / mDesc.grid.cols;
+			numRows = std::max(childRow + 1, numRows);
+		}
+
+		// TODO Varying Col heights
+		colWidth[0] = paddedRect.size.x / (float)mDesc.grid.cols - mDesc.grid.colSpacing * (mDesc.grid.cols - 1);
+
 		if (mDesc.grid.rowHeight != nullptr) {
 			float totalFixedRowHeight = 0.f;
 			int   numStretchedRows = 0;
@@ -669,18 +657,23 @@ void UIPanel::ComputeRect(const UIRect& parentRect, const UITransform& transform
 					totalFixedRowHeight += mDesc.grid.rowHeight[i];
 				}
 				else {
-					++numStretchedRows;
+					++numStretchedRows; // TODO relative height e.g. 1fr, 2fr in CSS
 				}
 			}
 			stretchedRowHeight = (paddedRect.size.y - totalFixedRowHeight) / numStretchedRows;
-			subRect.size.y = mDesc.grid.rowHeight[0] > 0.f ? mDesc.grid.rowHeight[0] : stretchedRowHeight;
+			for (int i = 0; i < numRows; ++i) {
+				rowHeight[i] = mDesc.grid.rowHeight[i] > 0.f ? mDesc.grid.rowHeight[i] : stretchedRowHeight;
+			}
 		}
 		else {
 			// Equally spaced
-			subRect.size.y = paddedRect.size.y / (float)numRows - mDesc.grid.rowSpacing * (numRows - 1);
+			float uniformRowHeight = paddedRect.size.y / (float)numRows - mDesc.grid.rowSpacing * (numRows - 1);
+			for (int i = 0; i < numRows; ++i) {
+				rowHeight[i] = uniformRowHeight;
+			}
 		}
 	}
-	const Vec2 firstColPos = subRect.pos;
+	const Vec2 firstColPos = paddedRect.pos;
 
 #define Dispatch(Type)                                \
 	{                                                 \
@@ -690,9 +683,21 @@ void UIPanel::ComputeRect(const UIRect& parentRect, const UITransform& transform
 		}                                             \
 	}
 
-	int row = 0;
-	int col = 0;
 	for (const auto& child : mChildren) {
+		UIRect subRect = paddedRect;
+		if (mDesc.grid.cols > 0) {
+			const int col = child.cellIdx % mDesc.grid.cols;
+			const int row = child.cellIdx / mDesc.grid.cols;
+			for (int c = 0; c < col; ++c) {
+				subRect.pos.x += colWidth[0] + mDesc.grid.colSpacing; // FIXME colWidth[c]
+			}
+			for (int r = 0; r < row; ++r) {
+				subRect.pos.y += rowHeight[r] + mDesc.grid.rowSpacing;
+			}
+			subRect.size.x = colWidth[0]; // FIXME
+			subRect.size.y = rowHeight[row];
+		}
+
 		switch (child.type) {
 		case UIControlType::Panel:
 			Dispatch(UIPanel);
@@ -708,21 +713,6 @@ void UIPanel::ComputeRect(const UIRect& parentRect, const UITransform& transform
 			break;
 		default:
 			break;
-		}
-		if (mDesc.grid.cols > 1) {
-			++col;
-			if (col == mDesc.grid.cols) {
-				col = 0;
-				++row;
-				subRect.pos.x = firstColPos.x;
-				subRect.pos.y += subRect.size.y + mDesc.grid.rowSpacing;
-				if (mDesc.grid.rowHeight != nullptr) {
-					subRect.size.y = mDesc.grid.rowHeight[row] > 0.f ? mDesc.grid.rowHeight[row] : stretchedRowHeight;
-				}
-			}
-			else {
-				subRect.pos.x += subRect.size.x + mDesc.grid.colSpacing;
-			}
 		}
 	}
 #undef Dispatch
@@ -742,24 +732,8 @@ void UICanvas::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 	mPanel.LoadAssets(graphics, fontManager);
 }
 
-void UICanvas::Add(UIPanel& panel) {
-	mPanel.Add(panel);
-}
-
-void UICanvas::Add(UIButton& button) {
-	mPanel.Add(button);
-}
-
 UIButton* UICanvas::Add(UIButton&& button) {
 	return mPanel.Add(std::move(button));
-}
-
-void UICanvas::Add(UIBitmap& bitmap) {
-	mPanel.Add(bitmap);
-}
-
-void UICanvas::Add(UIText& text) {
-	mPanel.Add(text);
 }
 
 UIText* UICanvas::Add(const UITextDesc& textDesc) {

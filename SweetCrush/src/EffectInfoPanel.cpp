@@ -40,23 +40,23 @@ const UIPanelDesc panelDesc {
 } // namespace
 
 EffectInfoScreen::EffectInfoScreen()
-    : mText(textDesc[0])
-    , mOKButton(MakeMenuButton(50, GameStringId::ok))
-    , mEffectIcon(effectIconDesc)
-    , mPanel(panelDesc)
-    , mShowHelp {} {
+    : mShowHelp {} {
 	for (bool& b : mShowHelp) {
 		b = true;
 	}
 
-	mPanel.Add(mEffectIcon);
-	mPanel.Add(mOKButton);
-	mTitle = mPanel.Add(MakeTitle(GameStringId::empty));
-	mPanel.Add(mText);
+#if 0
+	UIPanel*   panel;
+	//panelDesc
+	mEffectIcon = panel->Add(effectIconDesc);
+	mOKButton = panel->Add(MakeMenuButton(50, GameStringId::ok));
+	mTitle = panel->Add(MakeTitle(GameStringId::empty));
+	panel->Add(textDesc[0]);
+#endif
 }
 
 void EffectInfoScreen::LoadAssets(Engine& engine) {
-	mPanel.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
+	//panel->LoadAssets(engine.GetGraphics(), engine.GetFontManager());
 }
 
 const char* EffectInfoScreen::GetName() const {
@@ -64,9 +64,9 @@ const char* EffectInfoScreen::GetName() const {
 }
 
 ScreenEvent EffectInfoScreen::Tick(float dt, const Input& input) {
-	mPanel.Tick(dt);
-	mPanel.HandleInput(input);
-	if (mOKButton.IsClicked() ||
+	//mPanel->Tick(dt);
+	//mPanel->HandleInput(input);
+	if (mOKButton->IsClicked() ||
 #if defined(_WIN32) || defined(__linux__)
 	    input.GetKeyJustPressed(SDLK_ESCAPE)) {
 #else
@@ -122,9 +122,9 @@ void EffectInfoScreen::ShowHelp(EffectType effectType) {
 		break;
 	}
 	mTitle->SetText(static_cast<StringId>(titleStringId));
-	mText.SetText(static_cast<StringId>(textStringId));
-	// FIXME mEffectIcon.SetBitmap(gameTextures[effectIcons[typeIdx]]);
-	mPanel.SetVisible(true);
+	mText->SetText(static_cast<StringId>(textStringId));
+	// FIXME mEffectIcon->SetBitmap(gameTextures[effectIcons[typeIdx]]);
+	//mPanel->SetVisible(true);
 }
 
 void EffectInfoScreen::ParseConfig(const char* varName, const char* varValue) {
