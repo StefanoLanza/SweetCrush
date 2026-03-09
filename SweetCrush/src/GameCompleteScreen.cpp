@@ -16,7 +16,7 @@ GameCompleteScreen::GameCompleteScreen(const MatchStats& matchStats)
     : mMatchStats(matchStats)
     , mCanvas(MakeCanvas()) {
 	mCanvas.Add(MakeTitle(GameStringId::gameComplete));
-	mContinueButton = mCanvas.Add(MakeMenuButton(680.f, GameStringId::continueGame));
+	mContinueButton = MakeMenuButton(mCanvas.Panel(),680.f, GameStringId::continueGame);
 	mText0 = mCanvas.Add(MakeScreenText(GameStringId::youCompletedAllLevels, 400));
 	mText1 = mCanvas.Add(MakeDynScreenText(460));
 }

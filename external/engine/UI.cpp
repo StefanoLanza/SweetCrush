@@ -25,6 +25,15 @@ const UITheme defaultTheme {
 
 const UITheme* uiTheme = &defaultTheme;
 
+Rect ToRect(const UIRect& r) {
+	return {
+		.left = r.pos.x,
+		.top = r.pos.y,
+		.right = r.pos.x + r.size.x,
+		.bottom = r.pos.y + r.size.y,
+	};
+}
+
 UIRect AlignRect(const UIPos& pos, const UISize& size, const UIRect& parentRect, UIHorizAlignment horizAlignment, UIVertAlignment vertAlignment) {
 	UIRect alignedRect;
 	alignedRect.size.x = size.aWidth + parentRect.size.x * size.rWidth;
@@ -116,14 +125,8 @@ const UIButtonStyle* UIButton::GetStyle() const {
 }
 
 UIButtonState UIButton::RefreshState(const Input& input) {
-	const UIRect transformedRect = mRect; // FIXME TransformRect(mRect, mFinalTransform);
-	// TODO Handle rotation
-	const Rect r {
-		.left = transformedRect.pos.x,
-		.top = transformedRect.pos.y,
-		.right = r.left + transformedRect.size.x,
-		.bottom = r.top + transformedRect.size.y,
-	};
+	const UIRect        transformedRect = mRect;
+	const Rect          r = ToRect(transformedRect);
 	const bool          mouseOver = RectContainsPoint(r, input.GetMappedMouseCoord());
 	const bool          mouseDown = input.GetMouseButtonDown(MouseButton::left) || input.GetFingerDown();
 	const UIButtonState currState = mState;
@@ -470,18 +473,6 @@ UIPanel::~UIPanel() {
 #undef Dispatch
 }
 
-UIButton* UIPanel::Add(UIButton&& button, int cellIdx) {
-	auto newButton = new UIButton { std::move(button) };
-	mChildren.push_back({ newButton, UIControlType::Button, cellIdx >= 0 ? cellIdx : mAutoCellIdx++ });
-	return newButton;
-}
-
-UIText* UIPanel::Add(UIText&& text, int cellIdx) {
-	auto newText = new UIText { std::move(text) };
-	mChildren.push_back({ newText, UIControlType::Text, cellIdx >= 0 ? cellIdx : mAutoCellIdx++ });
-	return newText;
-}
-
 UIBitmap* UIPanel::Add(const UIBitmapDesc& bitmapDesc, int cellIdx) {
 	auto bitmap = new UIBitmap { bitmapDesc };
 	mChildren.push_back({ bitmap, UIControlType::Bitmap, cellIdx >= 0 ? cellIdx : mAutoCellIdx++ });
@@ -492,6 +483,18 @@ UIText* UIPanel::Add(const UITextDesc& textDesc, int cellIdx) {
 	auto text = new UIText { textDesc };
 	mChildren.push_back({ text, UIControlType::Text, cellIdx >= 0 ? cellIdx : mAutoCellIdx++ });
 	return text;
+}
+
+UIButton* UIPanel::Add(const UIButtonDesc& buttonDesc, int cellIdx) {
+	auto newButton = new UIButton { buttonDesc };
+	mChildren.push_back({ newButton, UIControlType::Button, cellIdx >= 0 ? cellIdx : mAutoCellIdx++ });
+	return newButton;
+}
+
+UISlider* UIPanel::Add(const UISliderDesc& sliderDesc, int cellIdx) {
+	auto slider = new UISlider { sliderDesc };
+	mChildren.push_back({ slider, UIControlType::Slider, cellIdx >= 0 ? cellIdx : mAutoCellIdx++ });
+	return slider;
 }
 
 UIPanel* UIPanel::Add(const UIPanelDesc& panelDesc, int cellIdx) {
@@ -533,6 +536,9 @@ void UIPanel::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 			break;
 		case UIControlType::Button:
 			Dispatch(UIButton);
+			break;
+		case UIControlType::Slider:
+			Dispatch(UISlider);
 			break;
 		default:
 			break;
@@ -580,6 +586,9 @@ void UIPanel::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 		case UIControlType::Button:
 			Dispatch(UIButton);
 			break;
+		case UIControlType::Slider:
+			Dispatch(UISlider);
+			break;
 		default:
 			break;
 		}
@@ -604,6 +613,9 @@ bool UIPanel::HandleInput(const Input& input) const {
 			break;
 		case UIControlType::Button:
 			Dispatch(UIButton);
+			break;
+		case UIControlType::Slider:
+			Dispatch(UISlider);
 			break;
 		default:
 			break;
@@ -711,6 +723,9 @@ void UIPanel::ComputeRect(const UIRect& parentRect, const UITransform& transform
 		case UIControlType::Button:
 			Dispatch(UIButton);
 			break;
+		case UIControlType::Slider:
+			Dispatch(UISlider);
+			break;
 		default:
 			break;
 		}
@@ -732,10 +747,6 @@ void UICanvas::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 	mPanel.LoadAssets(graphics, fontManager);
 }
 
-UIButton* UICanvas::Add(UIButton&& button) {
-	return mPanel.Add(std::move(button));
-}
-
 UIText* UICanvas::Add(const UITextDesc& textDesc) {
 	return mPanel.Add(textDesc);
 }
@@ -746,6 +757,10 @@ UIBitmap* UICanvas::Add(const UIBitmapDesc& bitmapDesc) {
 
 UIPanel* UICanvas::Add(const UIPanelDesc& panelDesc) {
 	return mPanel.Add(panelDesc);
+}
+
+UIPanel& UICanvas::Panel() {
+	return mPanel;
 }
 
 void UICanvas::Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder) {
@@ -778,6 +793,166 @@ void UIMouseCursor::Draw(const UIRenderer& renderer, const Vec2& mouseCoords, un
 		UIRect mouseRect { mouseCoords.x, mouseCoords.y, (float)mMousePointer->Width(), (float)mMousePointer->Height(), 1.f, 0.f };
 		renderer.DrawBitmap(mouseRect, *mMousePointer, prm);
 	}
+}
+
+UISlider::UISlider(const UISliderDesc& desc)
+    : UIControl { true }
+    , mDesc { desc }
+    , mState { State::dragging }
+    , mLastMouseCoord { 0.f, 0.f }
+    , mFocused { false }
+    , mAnimTime { 0.f } {
+}
+
+void UISlider::SetThumb(const UIBitmapDesc& thumbDesc) { // TODO In cosntructor ?
+	mThumb = std::make_unique<UIBitmap>(thumbDesc);
+}
+
+void UISlider::LoadAssets(Graphics& graphics, FontManager& fontManager) {
+	if (mDesc.background) {
+		mBackground = graphics.LoadTexture(mDesc.background);
+	}
+	if (mThumb) {
+		mThumb->LoadAssets(graphics, fontManager);
+	}
+#if 0
+	for (auto& bitmap : mBitmaps) {
+		bitmap.LoadAssets(graphics, fontManager);
+	}
+	for (auto& text : mTexts) {
+		text.LoadAssets(graphics, fontManager);
+	}
+#endif
+}
+
+void UISlider::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
+	// auto style = GetStyle();
+	UIRect rect = TransformRect(mRect, mDesc.pivot, mFinalTransform);
+	if (mBackground) {
+		const UIDrawBitmapArgs prm {
+			.color = mDesc.backgroundColor,
+			.blendMode = UIBlendMode::Auto,
+			.priority = drawOrder,
+			._9patch = mDesc._9patch,
+			.grayscale = false, // style->grayScale,
+		};
+		renderer.DrawBitmap(rect, *mBackground, prm);
+	}
+	else {
+		renderer.DrawSolidRect(rect, mDesc.backgroundColor, UIBlendMode::Auto, drawOrder);
+	}
+	if (mThumb) {
+		mThumb->Draw(renderer, drawOrder + 1);
+	}
+#if 0
+	for (auto& bitmap : mBitmaps) {
+		if (bitmap.IsVisible()) {
+			bitmap.Draw(renderer, drawOrder + 1);
+		}
+	}
+	for (auto& text : mTexts) {
+		if (text.IsVisible()) {
+			text.Draw(renderer, drawOrder + 2); // text over bitmap
+		}
+	}
+#endif
+}
+
+void UISlider::ComputeRect(const UIRect& parentRect, const UITransform& parentTransform) {
+	UITransform finalTransform = ConcatenateTransforms(parentTransform, mTransform);
+	UIRect      rect = AlignRect(mDesc.pos, mDesc.size, parentRect, mDesc.horizontalAlignment, mDesc.verticalAlignment);
+	SetRect(rect);
+
+	UIRect paddedRect = AddPadding(rect, mDesc.padding);
+	if (mThumb) {
+		// TODO Offset
+		mThumb->ComputeRect(paddedRect, finalTransform);
+	}
+#if 0
+	for (auto& bitmap : mBitmaps) {
+		bitmap.ComputeRect(paddedRect, finalTransform);
+	}
+	for (auto& text : mTexts) {
+		text.ComputeRect(paddedRect, finalTransform);
+	}
+#endif
+	mFinalTransform = finalTransform;
+}
+
+bool UISlider::HandleInput(const Input& input) {
+	if (mState == State::disabled) {
+		return false;
+	}
+	if (! mThumb) {
+		mState = State::idle;
+		return false;
+	}
+	Vec2       mouseCoord = input.GetMappedMouseCoord();
+	const Rect r = ToRect(mThumb->GetRect());
+	const bool mouseOver = RectContainsPoint(r, mouseCoord);
+	const bool mouseDown = input.GetMouseButtonDown(MouseButton::left) || input.GetFingerDown();
+
+	bool        handled = false;
+	const State currState = mState;
+	switch (mState) {
+	case State::idle:
+		if (mouseOver && mouseDown) {
+			mState = State::dragging;
+			mLastMouseCoord = mouseCoord;
+			handled = true;
+		}
+		break;
+	case State::dragging:
+		if (mouseDown) {
+			// TODO Move thumn
+			mThumb->GetTransform().offset.x = mouseCoord.x - mLastMouseCoord.x;
+			// TODO Clamp
+			handled = true;
+		}
+		else {
+			mState = State::idle;
+		}
+		break;
+	}
+
+	return handled;
+}
+
+void UISlider::Tick(float dt) {
+	if (mState == State::disabled) {
+		return;
+	}
+	// auto style = GetStyle();
+	switch (mState) {
+	case State::disabled:
+		break;
+	case State::idle:
+		/*		if (style->onIdle) {
+		            style->onIdle(mTransform, dt);
+		        }*/
+		break;
+	case State::hovered:
+		/*		if (style->onHovered) {
+		            style->onHovered(mTransform, dt);
+		        }*/
+		break;
+	case State::dragging:
+		/*	if (style->onPressed) {
+		        style->onPressed(mTransform, dt);
+		    }*/
+		break;
+	}
+	mAnimTime += dt;
+}
+
+void UISlider::SetValue(float v) {
+	// TODO
+}
+
+float UISlider::Snap(float v) const {
+	if (mDesc.step <= 0.f)
+		return v;
+	return std::round((v - mDesc.min) / mDesc.step) * mDesc.step + mDesc.min;
 }
 
 void SetUITheme(const UITheme* theme) {

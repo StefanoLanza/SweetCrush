@@ -48,5 +48,5 @@ const SpriteID boosterIcons[NumBoosters] = {
 
 const SpriteID selectionSprite = 17;
 const SpriteID glowSprite = 18;
-const SpriteID starSprite = 0; // FIXME
+const SpriteID starSprite = 10;
 const SpriteID blastSprite = 22;

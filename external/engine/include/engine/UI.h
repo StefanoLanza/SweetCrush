@@ -118,6 +118,14 @@ struct UIButtonDesc {
 	bool keepPressedOutside = false;
 };
 
+struct UISliderDesc {
+	UIBaseDesc;
+	UIBackgroundDesc;
+	float min = 0.f;
+	float max = 1.f;
+	float step = 0.f;
+};
+
 struct UIGridDesc {
 	int          cols = 0;
 	float        colSpacing = 0.f;
@@ -149,6 +157,7 @@ enum class UIControlType {
 	Bitmap,
 	Text,
 	Button,
+	Slider,
 };
 
 class UIControl {
@@ -178,11 +187,11 @@ public:
 	explicit UIPanel(const UIPanelDesc& desc);
 	~UIPanel();
 
-	UIButton*  Add(UIButton&& button, int cellIdx = -1);
-	UIText*    Add(UIText&& text, int cellIdx = -1);
 	UIBitmap*  Add(const UIBitmapDesc& bitmapDesc, int cellIdx = -1);
 	UIText*    Add(const UITextDesc& textDesc, int cellIdx = -1);
+	UIButton*  Add(const UIButtonDesc& buttonDesc, int cellIdx = -1);
 	UIPanel*   Add(const UIPanelDesc& panelDesc, int cellIdx = -1);
+	UISlider*  Add(const UISliderDesc& sliderDesc, int cellIdx = -1);
 	UIControl& GetControl(int idx) const;
 	UIBitmap&  GetBitmap(int idx) const;
 	void       LoadAssets(Graphics& graphics, FontManager& fontManager);
@@ -295,14 +304,47 @@ private:
 	bool                  mClicked;
 };
 
+class UISlider final : public UIControl {
+public:
+	explicit UISlider(const UISliderDesc& desc);
+
+	void SetThumb(const UIBitmapDesc& thumbDesc);
+	void LoadAssets(Graphics& graphics, FontManager& fontManager);
+	void Draw(const UIRenderer& renderer, unsigned drawOrder) const;
+	void ComputeRect(const UIRect& parentRect, const UITransform& transform);
+	bool HandleInput(const Input& input);
+	void Tick(float dt);
+	void SetValue(float v);
+
+private:
+	float Snap(float v) const;
+
+private:
+	enum class State {
+		idle,
+		disabled,
+		hovered,
+		dragging,
+	};
+
+	UISliderDesc              mDesc;
+	TexturePtr                mBackground;
+	std::unique_ptr<UIBitmap> mThumb;
+	State                     mState;
+	Vec2                      mLastMouseCoord;
+	float                     value = 0.f;
+	bool                      mFocused;
+	float                     mAnimTime;
+};
+
 class UICanvas final {
 public:
 	explicit UICanvas(const UICanvasDesc& desc);
 
-	UIButton* Add(UIButton&& button);
 	UIText*   Add(const UITextDesc& textDesc);
 	UIBitmap* Add(const UIBitmapDesc& bitmapDesc);
 	UIPanel*  Add(const UIPanelDesc& panelDesc);
+	UIPanel&  Panel();
 	void      LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void      Draw(int canvasWidth, int canvasHeight, const UIRenderer& renderer, unsigned drawOrder);
 	void      HandleInput(const Input& input) const;

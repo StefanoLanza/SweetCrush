@@ -20,7 +20,7 @@ CreditsScreen::CreditsScreen(const GameSettings& gameSettings)
 	panel->Add(MakeScreenText(GameStringId::graphicsBy, 140));
 	panel->Add(MakeScreenText(GameStringId::musicBy, 220));
 	panel->Add(MakeScreenText(GameStringId::fontBy, 300));
-	mBackButton = mCanvas.Add(MakeBackButton());
+	mBackButton = MakeBackButton(mCanvas.Panel());
 }
 
 const char* CreditsScreen::GetName() const {

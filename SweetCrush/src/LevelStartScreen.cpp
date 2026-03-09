@@ -28,7 +28,7 @@ LevelStartScreen::LevelStartScreen(const MatchStats& matchStats, const GameDataM
 	mPanel = mCanvas.Add(MakeInfoPanel());
 	mPanel->Add(MakeScreenText(GameStringId::goal, 40.f));
 	mGoalDesc = mPanel->Add(MakeDynScreenText(160.f));
-	mPlayButton = mCanvas.Add(MakeMenuButton(button3_y, GameStringId::play));
+	mPlayButton = MakeMenuButton(mCanvas.Panel(),button3_y, GameStringId::play);
 }
 
 const char* LevelStartScreen::GetName() const {

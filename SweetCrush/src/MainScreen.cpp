@@ -44,13 +44,31 @@ MainScreen::MainScreen(Engine& engine, const GameSettings& gameSettings)
     , mAccumTime(0) {
 	// Setup UI
 	mCanvas.Add(MakeTitle(GameStringId::title));
-	mStartButton = mCanvas.Add(MakeMenuButton(button0_y, GameStringId::start, button0_color, "icons/play.png"));
-	mSettingsButton = mCanvas.Add(MakeMenuButton(button1_y, GameStringId::settings, button1_color, "icons/gear.png"));
-	mCreditsButton = mCanvas.Add(MakeMenuButton(button2_y, GameStringId::credits, button2_color, "icons/info.png"));
+	mStartButton = MakeMenuButton(mCanvas.Panel(), button0_y, GameStringId::start, button0_color);       //, "icons/play.png"));
+	mSettingsButton = MakeMenuButton(mCanvas.Panel(), button1_y, GameStringId::settings, button1_color); //, "icons/gear.png"));
+	mCreditsButton = MakeMenuButton(mCanvas.Panel(), button2_y, GameStringId::credits, button2_color);   //, "icons/info.png"));
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
-	mQuitButton = mCanvas.Add(MakeMenuButton(button3_y, GameStringId::quit, button3_color, "icons/cross.png"));
+	mQuitButton = MakeMenuButton(mCanvas.Panel(), button3_y, GameStringId::quit, button3_color); //, "icons/cross.png"));
 #endif
 	mCanvas.Add(versionDesc);
+
+	UISliderDesc sliderDesc {
+		.pos = UIAbsolutePos(100.f, 100.f),
+		.size = { 0.f, 96.f, 1.f, 0.f },
+		.horizontalAlignment = UIHorizAlignment::center,
+		.verticalAlignment = UIVertAlignment::top,
+		.backgroundColor = blueColor,
+	};
+	mSlider = mCanvas.Panel().Add(sliderDesc);
+	{
+		UIBitmapDesc iconDesc;
+		iconDesc.horizontalAlignment = UIHorizAlignment::center;
+		iconDesc.verticalAlignment = UIVertAlignment::center;
+		iconDesc.fileName = gameTexturePath[0];
+		iconDesc.sizing = UIBitmapSizing::fit;
+		iconDesc.pivot = { 0.5f, 0.5f };
+		mSlider->SetThumb(iconDesc);
+	}
 
 	mPastryPanel = mCanvas.Add(pastryPanelDesc);
 	for (int i = 0; i < NumPieceTypes; ++i) {

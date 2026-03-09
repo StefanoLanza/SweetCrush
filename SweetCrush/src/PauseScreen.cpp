@@ -31,10 +31,10 @@ const UIPanelDesc panelDesc {
 PauseScreen::PauseScreen()
     : mCanvas(canvasDesc) {
 	UIPanel* panel = mCanvas.Add(panelDesc);
-	mCloseButton = panel->Add(MakeMenuButton(320, GameStringId::continueGame, button3_color, "icons/back.png"));
-	mEndGameButton = panel->Add(MakeMenuButton(200, GameStringId::endGame, button2_color, "icons/cross.png"));
-	mRestartLevelButton = panel->Add(MakeMenuButton(80, GameStringId::restartLevel, button0_color, "icons/replay.png"));
-	// mSettingsButton = panel->Add(MakeMenuButton(440, GameStringId::settings, button1_color, "icons/gear.png"));
+	mCloseButton = MakeMenuButton(*panel, 320, GameStringId::continueGame, button3_color, "icons/back.png");
+	mEndGameButton = MakeMenuButton(*panel, 200, GameStringId::endGame, button2_color, "icons/cross.png");
+	mRestartLevelButton = MakeMenuButton(*panel, 80, GameStringId::restartLevel, button0_color, "icons/replay.png");
+	// mSettingsButton = panel->Add(MakeMenuButton(*panel, 440, GameStringId::settings, button1_color, "icons/gear.png"));
 }
 
 const char* PauseScreen::GetName() const {

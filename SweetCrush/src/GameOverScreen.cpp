@@ -33,8 +33,8 @@ GameOverScreen::GameOverScreen(MatchStats& matchStats)
 	auto panel = mCanvas.Add(panelDesc);
 	mText0 = panel->Add(MakeDynScreenText(40.f));
 	mText1 = panel->Add(MakeDynScreenText(100.f));
-	mReplayLevelButton = mCanvas.Add(MakeMenuButton(button2_y, GameStringId::retry, button0_color, "icons/replay.png"));
-	mEndButton = mCanvas.Add(MakeMenuButton(button3_y, GameStringId::toMainMenu, button1_color, "icons/cross.png"));
+	mReplayLevelButton = MakeMenuButton(mCanvas.Panel(), button2_y, GameStringId::retry, button0_color, "icons/replay.png");
+	mEndButton = MakeMenuButton(mCanvas.Panel(),button3_y, GameStringId::toMainMenu, button1_color, "icons/cross.png");
 }
 
 const char* GameOverScreen::GetName() const {

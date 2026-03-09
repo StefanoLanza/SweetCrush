@@ -123,7 +123,7 @@ UITextDesc MakeDynScreenText(float y) {
 	};
 }
 
-UIButton MakeMenuButton(float y, StringId label, const Color& color, const char* icon) {
+Wind::UIButton* MakeMenuButton(UIPanel& container, float y, StringId label, const Color& color, const char* icon) {
 	const UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(0, y),
 		.size = UIAbsoluteSize(520.f, 100.f),
@@ -149,28 +149,17 @@ UIButton MakeMenuButton(float y, StringId label, const Color& color, const char*
 		.font = "mediumFont",
 		.style = defaultTextStyle,
 	};
-	UIButton button { buttonDesc };
-	button.Add(iconDesc);
-	button.Add(labelDesc);
+	UIButton* button = container.Add(buttonDesc);
+	button->Add(iconDesc);
+	button->Add(labelDesc);
 	return button;
 }
 
-UIButton MakeBackButton() {
-	return MakeMenuButton(button3_y, GameStringId::back, button3_color, "icons/back.png");
-#if 0
-	UIButtonDesc buttonDesc = {
-		.pos = UIAbsolutePos(32, -32),
-		.size = UIAbsoluteSize(96, 96),
-		.horizontalAlignment = UIHorizAlignment::left,
-		.verticalAlignment = UIVertAlignment::bottom,
-		.background = "icons/backButton.png",
-		.backgroundColor = whiteColor, //{ 131.f, 255.f, 255.f, 255.f },
-	};
-	return UIButton { buttonDesc }; //, /*iconDesc,*/ labelDesc };
-#endif
+UIButton* MakeBackButton(Wind::UIPanel& container) {
+	return MakeMenuButton(container, button3_y, GameStringId::back, button3_color); //, "icons/back.png");
 }
 
-UIButton MakeCloseButton() {
+UIButton* MakeCloseButton(Wind::UIPanel& container) {
 	const UIButtonDesc buttonDesc = {
 		.pos = UIAbsolutePos(-32, 32),
 		.size = UIAbsoluteSize(48, 48),
@@ -197,13 +186,13 @@ UIButton MakeCloseButton() {
 		.style = defaultTextStyle,
 		.visible = false,
 	};
-	UIButton button { buttonDesc };
-	button.Add(iconDesc);
-	button.Add(labelDesc);
+	UIButton* button = container.Add(buttonDesc);
+	button->Add(iconDesc);
+	button->Add(labelDesc);
 	return button;
 }
 
-UIButton MakeCheckBox(float y, StringId label, const Color& color) {
+UIButton* MakeCheckBox(Wind::UIPanel& container, float y, StringId label, const Color& color) {
 	const UIBitmapDesc checkedIconDesc {
 		.fileName = "icons/minicheck.png",
 		.pos = UIAbsolutePos(0.f, 0.f),
@@ -237,10 +226,10 @@ UIButton MakeCheckBox(float y, StringId label, const Color& color) {
 		.backgroundColor = color,
 		._9patch = 16.f,
 	};
-	UIButton checkBox { buttonDesc };
-	checkBox.Add(labelDesc);
-	checkBox.Add(checkedIconDesc);
-	checkBox.Add(uncheckedIconDesc);
+	UIButton* checkBox = container.Add(buttonDesc);
+	checkBox->Add(labelDesc);
+	checkBox->Add(checkedIconDesc);
+	checkBox->Add(uncheckedIconDesc);
 	return checkBox;
 }
 

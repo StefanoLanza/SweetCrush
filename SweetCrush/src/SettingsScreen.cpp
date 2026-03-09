@@ -16,9 +16,9 @@ SettingsScreen::SettingsScreen(GameSettings& gameSettings)
     , mCanvas(MakeCanvas()) {
 	// Build UI
 	mCanvas.Add(MakeTitle(GameStringId::settings));
-	mMusicButton = mCanvas.Add(MakeCheckBox(button0_y, GameStringId::music, button0_color));
-	mSfxButton = mCanvas.Add(MakeCheckBox(button1_y, GameStringId::sfx, button1_color));
-	mBackButton = mCanvas.Add(MakeBackButton());
+	mMusicButton = MakeCheckBox(mCanvas.Panel(),button0_y, GameStringId::music, button0_color);
+	mSfxButton = MakeCheckBox(mCanvas.Panel(),button1_y, GameStringId::sfx, button1_color);
+	mBackButton = MakeBackButton(mCanvas.Panel());
 	MakeLanguageButton();
 }
 
@@ -123,7 +123,7 @@ void SettingsScreen::MakeLanguageButton() {
 		.style = defaultTextStyle,
 	};
 
-	mLanguageButton = mCanvas.Add(buttonDesc);
+	mLanguageButton = mCanvas.Panel().Add(buttonDesc);
 
 	UIBitmapDesc iconDesc {
 		.pos = UIAbsolutePos(16.f, 0.f),

@@ -29,6 +29,7 @@ private:
 	Wind::UIButton*     mStartButton = nullptr;
 	Wind::UIButton*     mSettingsButton = nullptr;
 	Wind::UIButton*     mCreditsButton = nullptr;
+	Wind::UISlider*     mSlider = nullptr;
 	Wind::SoundPtr      mButtonSound;
 #if ! defined(__ANDROID__) && ! defined(__OHOS__)
 	Wind::UIButton* mQuitButton = nullptr;

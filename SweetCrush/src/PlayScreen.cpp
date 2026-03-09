@@ -31,7 +31,7 @@ using namespace Wind;
 
 namespace {
 
-UIButton MakeBoosterButton() {
+UIButton* MakeBoosterButton(UIPanel& container) {
 	const UIButtonDesc desc {
 		.pos = UIAbsolutePos(0, 0),
 		.size = UIAbsoluteSize(120.f, 120.f),
@@ -55,9 +55,9 @@ UIButton MakeBoosterButton() {
 		.verticalAlignment = UIVertAlignment::center,
 		.sizing = UIBitmapSizing::fit,
 	};
-	UIButton button { desc };
-	button.Add(iconDesc);
-	button.Add(labelDesc);
+	UIButton* button = container.Add(desc);
+	button->Add(iconDesc);
+	button->Add(labelDesc);
 	return button;
 }
 
@@ -245,9 +245,9 @@ PlayScreen::PlayScreen(Engine& engine, const GameRenderer& gameRenderer, const A
 	mCanvas.Add(speechBubbleDesc);
 
 	UIPanel* bottomPanel = mCanvas.Add(bottomPanelDesc);
-	mBoosterButtons[0] = bottomPanel->Add(MakeBoosterButton());
-	mBoosterButtons[1] = bottomPanel->Add(MakeBoosterButton());
-	mBoosterButtons[2] = bottomPanel->Add(MakeBoosterButton());
+	mBoosterButtons[0] = MakeBoosterButton(*bottomPanel);
+	mBoosterButtons[1] = MakeBoosterButton(*bottomPanel);
+	mBoosterButtons[2] = MakeBoosterButton(*bottomPanel);
 	mPauseButton = bottomPanel->Add(pauseButtonDesc);
 	mPauseButton->Add(pauseButtonBitmapDesc);
 }
@@ -374,7 +374,6 @@ void PlayScreen::UseSelectedBooster(const Input& input) {
 
 void PlayScreen::Draw(UIRenderer& uiRenderer, float dt) {
 	mActionMgr.Run(dt);
-
 	mGameRenderer.DrawBoard(mBoard, mCellSelector->GetSelectedTile(), mGameConfig, mTime);
 	DrawUI(uiRenderer);
 }
@@ -619,6 +618,9 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 	mMovesText->SetText(tmp);
 	mMovesText->SetStyle(textStyle);
 
+	for (int i = 0; i < 3; ++i) {
+		mTickIcon[i]->SetVisible(false);
+	}
 	if (level.goal.id == GoalId::collectMatches) {
 		for (int i = 0; i < 3; ++i) {
 			const int icon = pieceIcons[level.pieceIds[i]];
@@ -628,7 +630,6 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 				SDL_snprintf(tmp, sizeof(tmp), "%d", diff);
 				mGoalCounters[i]->SetText(tmp);
 				mGoalCounters[i]->SetVisible(true);
-				mTickIcon[i]->SetVisible(false);
 			}
 			else {
 				mGoalCounters[i]->SetVisible(false);
@@ -650,7 +651,27 @@ void PlayScreen::DrawUI(UIRenderer& uiRenderer) {
 		}
 		else {
 			mGoalCounters[1]->SetVisible(false);
+			mTickIcon[1]->SetVisible(true);
 		}
+	}
+	else if (level.goal.id == GoalId::collectAllStars) {
+		mGoalIcons[0]->SetVisible(false);
+		mGoalIcons[2]->SetVisible(false);
+		mGoalCounters[0]->SetVisible(false);
+		mGoalCounters[2]->SetVisible(false);
+		mGoalIcons[1]->SetVisible(true);
+		mGoalIcons[1]->SetBitmap(gameTextures[starSprite]);
+#if 0
+		// TODO
+		if (mMatchStats.layerCount > 0) {
+			SDL_snprintf(tmp, sizeof(tmp), "%d", mMatchStats.layerCount);
+			mGoalCounters[1]->SetText(tmp);
+			mGoalCounters[1]->SetVisible(true);
+		}
+		else {
+			mGoalCounters[1]->SetVisible(false);
+		}
+#endif
 	}
 
 	for (int i = 0; i < MaxBoosterTypesPerLevel; ++i) {

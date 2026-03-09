@@ -35,17 +35,19 @@ struct Vec4;
 class INIParser;
 
 // UI
+struct UISize;
 struct UIRect;
+struct UIBitmapDesc;
+struct UIPanelDesc;
+struct UITextDesc;
+struct UISliderDesc;
 class UIPanel;
 class UIBitmap;
 class UIText;
 class UICanvas;
 class UIButton;
+class UISlider;
 class UIRenderer;
-struct UIBitmapDesc;
-struct UIPanelDesc;
-struct UITextDesc;
-struct UISize;
 struct UITextStyle;
 class UITextRenderer;
 struct UITheme;
