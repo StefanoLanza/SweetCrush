@@ -53,20 +53,18 @@ MainScreen::MainScreen(Engine& engine, const GameSettings& gameSettings)
 	mCanvas.Add(versionDesc);
 
 	UISliderDesc sliderDesc {
-		.pos = UIAbsolutePos(100.f, 100.f),
+		.pos = UIAbsolutePos(0.f, 100.f),
 		.size = { 0.f, 96.f, 1.f, 0.f },
 		.horizontalAlignment = UIHorizAlignment::center,
 		.verticalAlignment = UIVertAlignment::top,
-		.backgroundColor = blueColor,
+		.backgroundColor = yellowColor,
 	};
 	mSlider = mCanvas.Panel().Add(sliderDesc);
+	mSlider->SetValue(0.3f);
 	{
-		UIBitmapDesc iconDesc;
-		iconDesc.horizontalAlignment = UIHorizAlignment::center;
-		iconDesc.verticalAlignment = UIVertAlignment::center;
+		UISliderThumbDesc iconDesc;
 		iconDesc.fileName = gameTexturePath[0];
-		iconDesc.sizing = UIBitmapSizing::fit;
-		iconDesc.pivot = { 0.5f, 0.5f };
+		iconDesc.size = { 64.f, 64.f };
 		mSlider->SetThumb(iconDesc);
 	}
 

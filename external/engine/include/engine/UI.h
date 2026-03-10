@@ -121,6 +121,7 @@ struct UIButtonDesc {
 struct UISliderDesc {
 	UIBaseDesc;
 	UIBackgroundDesc;
+	bool  horizontal = true;
 	float min = 0.f;
 	float max = 1.f;
 	float step = 0.f;
@@ -241,6 +242,7 @@ public:
 	void                LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void                SetColor(const Color& color);
 	const UIBitmapDesc& GetDesc() const;
+	UIBitmapDesc&       GetDesc();
 	void                Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	void                ComputeRect(const UIRect& parentRect, const UITransform& transform);
 	void                SetBitmap(const TexturePtr& bitmap);
@@ -304,20 +306,32 @@ private:
 	bool                  mClicked;
 };
 
+struct UISliderThumbDesc {
+	Vec2        size = {};
+	const char* fileName = nullptr;
+	Color       color = whiteColor;
+};
+
 class UISlider final : public UIControl {
 public:
 	explicit UISlider(const UISliderDesc& desc);
 
-	void SetThumb(const UIBitmapDesc& thumbDesc);
-	void LoadAssets(Graphics& graphics, FontManager& fontManager);
-	void Draw(const UIRenderer& renderer, unsigned drawOrder) const;
-	void ComputeRect(const UIRect& parentRect, const UITransform& transform);
-	bool HandleInput(const Input& input);
-	void Tick(float dt);
-	void SetValue(float v);
+	void      SetThumb(const UISliderThumbDesc& thumbDesc);
+	UIBitmap& Add(const UIBitmapDesc& bitmapDesc);
+	UIText&   Add(const UITextDesc& textDesc);
+	UIBitmap& GetBitmap(size_t idx);
+	UIText&   GetText(size_t idx);
+	void      LoadAssets(Graphics& graphics, FontManager& fontManager);
+	void      Draw(const UIRenderer& renderer, unsigned drawOrder) const;
+	void      ComputeRect(const UIRect& parentRect, const UITransform& transform);
+	bool      HandleInput(const Input& input);
+	void      Tick(float dt);
+	float     GetValue() const;
+	void      SetValue(float v);
 
 private:
 	float Snap(float v) const;
+	void  PositionThumb();
 
 private:
 	enum class State {
@@ -328,11 +342,11 @@ private:
 	};
 
 	UISliderDesc              mDesc;
-	TexturePtr                mBackground;
 	std::unique_ptr<UIBitmap> mThumb;
+	UIPanel                   mContainer;
 	State                     mState;
 	Vec2                      mLastMouseCoord;
-	float                     value = 0.f;
+	float                     mValue = 0.f;
 	bool                      mFocused;
 	float                     mAnimTime;
 };

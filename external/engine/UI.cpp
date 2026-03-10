@@ -390,6 +390,10 @@ const UIBitmapDesc& UIBitmap::GetDesc() const {
 	return mDesc;
 }
 
+UIBitmapDesc& UIBitmap::GetDesc() {
+	return mDesc;
+}
+
 void UIBitmap::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	if (mBitmap) {
 		const UIDrawBitmapArgs prm {
@@ -798,64 +802,56 @@ void UIMouseCursor::Draw(const UIRenderer& renderer, const Vec2& mouseCoords, un
 UISlider::UISlider(const UISliderDesc& desc)
     : UIControl { true }
     , mDesc { desc }
+    , mContainer { {
+	      .size = UISize { 0.f, 0.f, 1.f, 1.f },
+	      .background = desc.background,
+	      .backgroundColor = desc.backgroundColor,
+	  } }
     , mState { State::dragging }
     , mLastMouseCoord { 0.f, 0.f }
     , mFocused { false }
     , mAnimTime { 0.f } {
 }
 
-void UISlider::SetThumb(const UIBitmapDesc& thumbDesc) { // TODO In cosntructor ?
-	mThumb = std::make_unique<UIBitmap>(thumbDesc);
+void UISlider::SetThumb(const UISliderThumbDesc& thumbDesc) {
+	UIBitmapDesc bmpDesc;
+	bmpDesc.fileName = thumbDesc.fileName;
+	if (mDesc.horizontal) {
+		bmpDesc.horizontalAlignment = UIHorizAlignment::left;
+		bmpDesc.verticalAlignment = UIVertAlignment::center;
+	}
+	else {
+		bmpDesc.horizontalAlignment = UIHorizAlignment::center;
+		bmpDesc.verticalAlignment = UIVertAlignment::top;
+	}
+	bmpDesc.size = { thumbDesc.size.x, thumbDesc.size.y, 0.f, 0.f };
+	bmpDesc.color = thumbDesc.color;
+	bmpDesc.pivot = { 0.5f, 0.5f };
+	mThumb = std::make_unique<UIBitmap>(bmpDesc);
+}
+
+UIBitmap& UISlider::Add(const UIBitmapDesc& bitmapDesc) {
+	return *mContainer.Add(bitmapDesc);
+}
+
+UIText& UISlider::Add(const UITextDesc& textDesc) {
+	return *mContainer.Add(textDesc);
 }
 
 void UISlider::LoadAssets(Graphics& graphics, FontManager& fontManager) {
-	if (mDesc.background) {
-		mBackground = graphics.LoadTexture(mDesc.background);
-	}
 	if (mThumb) {
 		mThumb->LoadAssets(graphics, fontManager);
 	}
-#if 0
-	for (auto& bitmap : mBitmaps) {
-		bitmap.LoadAssets(graphics, fontManager);
-	}
-	for (auto& text : mTexts) {
-		text.LoadAssets(graphics, fontManager);
-	}
-#endif
+	mContainer.LoadAssets(graphics, fontManager);
 }
 
 void UISlider::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 	// auto style = GetStyle();
 	UIRect rect = TransformRect(mRect, mDesc.pivot, mFinalTransform);
-	if (mBackground) {
-		const UIDrawBitmapArgs prm {
-			.color = mDesc.backgroundColor,
-			.blendMode = UIBlendMode::Auto,
-			.priority = drawOrder,
-			._9patch = mDesc._9patch,
-			.grayscale = false, // style->grayScale,
-		};
-		renderer.DrawBitmap(rect, *mBackground, prm);
-	}
-	else {
-		renderer.DrawSolidRect(rect, mDesc.backgroundColor, UIBlendMode::Auto, drawOrder);
-	}
+	mContainer.Draw(renderer, drawOrder + 1);
 	if (mThumb) {
-		mThumb->Draw(renderer, drawOrder + 1);
+		mThumb->Draw(renderer, drawOrder + 2);
 	}
-#if 0
-	for (auto& bitmap : mBitmaps) {
-		if (bitmap.IsVisible()) {
-			bitmap.Draw(renderer, drawOrder + 1);
-		}
-	}
-	for (auto& text : mTexts) {
-		if (text.IsVisible()) {
-			text.Draw(renderer, drawOrder + 2); // text over bitmap
-		}
-	}
-#endif
 }
 
 void UISlider::ComputeRect(const UIRect& parentRect, const UITransform& parentTransform) {
@@ -865,17 +861,10 @@ void UISlider::ComputeRect(const UIRect& parentRect, const UITransform& parentTr
 
 	UIRect paddedRect = AddPadding(rect, mDesc.padding);
 	if (mThumb) {
-		// TODO Offset
 		mThumb->ComputeRect(paddedRect, finalTransform);
 	}
-#if 0
-	for (auto& bitmap : mBitmaps) {
-		bitmap.ComputeRect(paddedRect, finalTransform);
-	}
-	for (auto& text : mTexts) {
-		text.ComputeRect(paddedRect, finalTransform);
-	}
-#endif
+	PositionThumb();
+	mContainer.ComputeRect(paddedRect, finalTransform);
 	mFinalTransform = finalTransform;
 }
 
@@ -892,8 +881,7 @@ bool UISlider::HandleInput(const Input& input) {
 	const bool mouseOver = RectContainsPoint(r, mouseCoord);
 	const bool mouseDown = input.GetMouseButtonDown(MouseButton::left) || input.GetFingerDown();
 
-	bool        handled = false;
-	const State currState = mState;
+	bool handled = false;
 	switch (mState) {
 	case State::idle:
 		if (mouseOver && mouseDown) {
@@ -902,11 +890,27 @@ bool UISlider::HandleInput(const Input& input) {
 			handled = true;
 		}
 		break;
+	case State::disabled:
+		break;
+	case State::hovered:
+		break;
 	case State::dragging:
 		if (mouseDown) {
-			// TODO Move thumn
-			mThumb->GetTransform().offset.x = mouseCoord.x - mLastMouseCoord.x;
-			// TODO Clamp
+			// Move thumb
+			auto& thumbDesc = mThumb->GetDesc(); // TODO const, and have a dynamic pos property ? or use the transform
+			float t = 0.f;
+			if (mDesc.horizontal) {
+				float x = mouseCoord.x - GetRect().pos.x; // thumbDesc.pos.ax + mouseCoord.x - mLastMouseCoord.x;
+				float w = GetRect().size.x - mThumb->GetRect().size.x;
+				t = std::clamp((x - 0.f) / w, 0.f, 1.f);
+			}
+			else {
+				// TODO
+				thumbDesc.pos.ay += mouseCoord.y - mLastMouseCoord.y;
+				thumbDesc.pos.ay = std::clamp(thumbDesc.pos.ay, 0.f, GetRect().size.y - mThumb->GetRect().size.y);
+			}
+			SetValue(mDesc.min + (mDesc.max - mDesc.min) * t);
+			mLastMouseCoord = mouseCoord;
 			handled = true;
 		}
 		else {
@@ -945,8 +949,30 @@ void UISlider::Tick(float dt) {
 	mAnimTime += dt;
 }
 
+float UISlider::GetValue() const {
+	return mValue;
+}
+
 void UISlider::SetValue(float v) {
-	// TODO
+	v = std::clamp(v, mDesc.min, mDesc.max);
+	v = Snap(v);
+	if (v != mValue) {
+		mValue = v;
+	}
+}
+
+void UISlider::PositionThumb() {
+	if (! mThumb) {
+		return;
+	}
+	auto& thumbDesc = mThumb->GetDesc();
+	float v01 = (mValue - mDesc.min) / (mDesc.max - mDesc.min);
+	if (mDesc.horizontal) {
+		thumbDesc.pos.ax = (GetRect().size.x - mThumb->GetRect().size.x) * v01;
+	}
+	else {
+		thumbDesc.pos.ay = (GetRect().size.y - mThumb->GetRect().size.y) * v01;
+	}
 }
 
 float UISlider::Snap(float v) const {
