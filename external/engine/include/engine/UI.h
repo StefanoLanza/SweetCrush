@@ -115,6 +115,7 @@ struct UIBitmapDesc {
 struct UIButtonDesc {
 	UIBaseDesc;
 	UIBackgroundDesc;
+	float grayScale = 0.f;
 	bool keepPressedOutside = false;
 };
 
@@ -263,10 +264,10 @@ enum class UIButtonState {
 };
 
 struct UIButtonStyle;
-using UIButtonAction = std::function<void(UITransform& transform, float dt)>;
+using UIButtonAction = std::function<void(UIButton& button, float dt)>;
 
 struct UIButtonStyle {
-	float          grayScale = 0.f;
+	UIButtonAction onDisabled;
 	UIButtonAction onIdle;
 	UIButtonAction onPressed;
 	UIButtonAction onHovered;
@@ -274,7 +275,7 @@ struct UIButtonStyle {
 
 class UIButton final : public UIControl {
 public:
-	UIButton(const UIButtonDesc& desc, const UIButtonStyle* style = nullptr);
+	explicit UIButton(const UIButtonDesc& desc, const UIButtonStyle* style = nullptr);
 
 	void          SetEnabled(bool enabled);
 	bool          IsEnabled() const;
@@ -283,6 +284,7 @@ public:
 	UIText&       Add(const UITextDesc& textDesc);
 	UIBitmap&     GetBitmap(size_t idx);
 	UIText&       GetText(size_t idx);
+	UIButtonDesc& GetDesc();
 	void          LoadAssets(Graphics& graphics, FontManager& fontManager);
 	void          Draw(const UIRenderer& renderer, unsigned drawOrder) const;
 	void          ComputeRect(const UIRect& parentRect, const UITransform& transform);

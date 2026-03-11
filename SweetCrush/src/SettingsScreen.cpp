@@ -45,10 +45,10 @@ ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& i
 		dirtyUI = true;
 	}
 	if (mSfxButton->IsClicked()) {
-		mGameConfig.sfxOn = ! mGameConfig.sfxOn;
 		if (mGameConfig.sfxOn) {
 			mToggleSound->Play();
 		}
+		mGameConfig.sfxOn = ! mGameConfig.sfxOn;
 		dirtyUI = true;
 	}
 	if (mLanguageButton->IsClicked()) {

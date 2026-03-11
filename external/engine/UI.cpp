@@ -111,8 +111,13 @@ UIButton::UIButton(const UIButtonDesc& desc, const UIButtonStyle* style)
 }
 
 void UIButton::SetEnabled(bool enabled) {
-	if (mState == UIButtonState::disabled) {
-		mState = UIButtonState::idle;
+	if (enabled) {
+		if (mState == UIButtonState::disabled) {
+			mState = UIButtonState::idle;
+		}
+	}
+	else {
+		mState = UIButtonState::disabled;
 	}
 }
 
@@ -187,6 +192,10 @@ UIText& UIButton::GetText(size_t idx) {
 	return mTexts[idx];
 }
 
+UIButtonDesc& UIButton::GetDesc() {
+	return mDesc;
+}
+
 void UIButton::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 	if (mDesc.background) {
 		mBackground = graphics.LoadTexture(mDesc.background);
@@ -200,7 +209,6 @@ void UIButton::LoadAssets(Graphics& graphics, FontManager& fontManager) {
 }
 
 void UIButton::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
-	auto style = GetStyle();
 	if (mBackground) {
 		UIRect                 rect = TransformRect(mRect, mDesc.pivot, mFinalTransform);
 		const UIDrawBitmapArgs prm {
@@ -208,7 +216,7 @@ void UIButton::Draw(const UIRenderer& renderer, unsigned drawOrder) const {
 			.blendMode = UIBlendMode::Auto,
 			.priority = drawOrder,
 			._9patch = mDesc._9patch,
-			.grayscale = style->grayScale,
+			.grayscale = mDesc.grayScale,
 		};
 		renderer.DrawBitmap(rect, *mBackground, prm);
 	}
@@ -257,26 +265,26 @@ bool UIButton::HandleInput(const Input& input) {
 }
 
 void UIButton::Tick(float dt) {
-	if (mState == UIButtonState::disabled) {
-		return;
-	}
 	auto style = GetStyle();
 	switch (mState) {
 	case UIButtonState::disabled:
+		if (style->onDisabled) {
+			style->onDisabled(*this, dt);
+		}
 		break;
 	case UIButtonState::idle:
 		if (style->onIdle) {
-			style->onIdle(mTransform, dt);
+			style->onIdle(*this, dt);
 		}
 		break;
 	case UIButtonState::hovered:
 		if (style->onHovered) {
-			style->onHovered(mTransform, dt);
+			style->onHovered(*this, dt);
 		}
 		break;
 	case UIButtonState::pressed:
 		if (style->onPressed) {
-			style->onPressed(mTransform, dt);
+			style->onPressed(*this, dt);
 		}
 		break;
 	}

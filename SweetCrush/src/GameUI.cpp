@@ -21,15 +21,22 @@ inline Vec2 Spring(Vec2 curr, Vec2 target, float dt) {
 	return curr + velocity * dt;
 }
 
-void SquashButton(UITransform& transform, float dt) {
+void SquashButton(UIButton& button, float dt) {
 	constexpr float f = 1.025f;
-	transform.offset = { 0.f, 4.f };
-	transform.scale = { f, 1.f / f };
+	button.GetTransform().offset = { 0.f, 4.f };
+	button.GetTransform().scale = { f, 1.f / f };
 }
 
-void ReleaseButton(UITransform& transform, float dt) {
-	transform.offset = { 0.0, 0.f };
-	transform.scale = { 1.f, 1.f };
+void ReleaseButton(UIButton& button, float dt) {
+	button.GetTransform().offset = { 0.0, 0.f };
+	button.GetTransform().scale = { 1.f, 1.f };
+	button.GetDesc().grayScale = 0.f;
+	// Spring(transform.scale, { 1.f, 1.f }, dt); // LerpEase({ 1.05f, 1.f / 1.05f }, { 1.0f, 1.0f }, std::clamp(t, 0.f, 1.f), EaseOutBounce);;
+}
+
+void DisableButton(UIButton& button, float dt) {
+	ReleaseButton(button, dt);
+	button.GetDesc().grayScale = 100.f;
 	// Spring(transform.scale, { 1.f, 1.f }, dt); // LerpEase({ 1.05f, 1.f / 1.05f }, { 1.0f, 1.0f }, std::clamp(t, 0.f, 1.f), EaseOutBounce);;
 }
 
@@ -41,6 +48,7 @@ const UITheme uiTheme {
 		.outlineColor = blackColor,
 	},
 	.buttonStyle {
+		.onDisabled = DisableButton,
 		.onIdle = ReleaseButton,
 		.onPressed = SquashButton,
 		.onHovered = ReleaseButton,
