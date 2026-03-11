@@ -215,11 +215,6 @@ void UICompositor::Blur(unsigned first, unsigned second) const {
 
 	mGraphics.SetFrameBuffer(mFrameBuffers[2]);
 
-	const Vec4 uniforms[] {
-		{ 0.f, 0.f, 0.f, 0.f },
-		{ 1.f, 1.f, 1.f, 1.f },
-	};
-
 	mGraphics.SetPipeline(mPipelineHandle);
 
 	const unsigned textureIds[] = {

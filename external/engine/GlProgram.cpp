@@ -204,7 +204,7 @@ int GlProgram::GetUniformCount() const {
 	glGetProgramiv(mProgram.get(), GL_ACTIVE_UNIFORMS, &count);
 	GLint maxLength = 0;
 	glGetProgramiv(mProgram.get(), GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
-	if (maxLength > sizeof(GlUniform::name)) {
+	if (maxLength > (int)sizeof(GlUniform::name)) {
 		SDL_LogError(0, "size of GlUniform.name is too small. Increase it to at least %d", maxLength);
 		return 0;
 	}

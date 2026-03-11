@@ -405,7 +405,7 @@ void Graphics::Impl::Flush() {
 #endif
 			}
 			else if (su.type == ShaderUniformType::texture) {
-				assert(textureUnit < (GLint)std::size(currTexture));
+				assert(textureUnit < (GLuint)std::size(currTexture));
 				if (su.texture.texture != currTexture[textureUnit]) {
 					glActiveTexture(GL_TEXTURE0 + textureUnit);
 					glBindTexture(GL_TEXTURE_2D, su.texture.texture);
