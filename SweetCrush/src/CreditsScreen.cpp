@@ -1,87 +1,59 @@
 #include "CreditsScreen.h"
+#include "Constants.h"
+#include "GameSettings.h"
+#include "GameUI.h"
 #include "Localization.h"
 #include "ScreenIds.h"
-#include "UIDefs.h"
+
 #include <engine/Engine.h>
-#include <engine/TextRender.h>
-#include <engine/UI.h>
+#include <engine/Input.h>
 
 using namespace Wind;
 
-namespace {
-
-const UIButtonDesc buttonDescs[1] {
-	{
-	    UIAbsolutePos(0, 680),
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::top,
-	},
-};
-
-const UITextDesc titleText {
-	"bigFont", (StringId)GameStringId::credits, { 0, titleY, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, titleTextStyle,
-};
-
-const UITextDesc codeByText {
-	"smallFont", (StringId)GameStringId::codeBy, { 0, 360, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, defaultTextStyle,
-};
-
-const UITextDesc graphicsByText {
-	"smallFont", (StringId)GameStringId::graphicsBy, { 0, 420, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, defaultTextStyle,
-};
-
-const UITextDesc musicByText {
-	"smallFont", (StringId)GameStringId::musicBy, { 0, 480, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, defaultTextStyle,
-};
-
-const UITextDesc versionText {
-	"smallFont", (StringId)GameStringId::version, { 0, 540, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, defaultTextStyle,
-};
-
-const UITextDesc backText {
-	"mediumFont", (StringId)GameStringId::back, UIZeroPos, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center, defaultTextStyle,
-};
-
-} // namespace
-
-CreditsScreen::CreditsScreen(Engine& engine)
-    : mTitle(titleText, engine)
-    , mCodeBy(codeByText, engine)
-    , mGraphicsBy(graphicsByText, engine)
-    , mMusicBy(musicByText, engine)
-    , mVersion(versionText, engine)
-    , mBackButton(MakeButton(buttonDescs[0], buttonBitmapDesc, backText, engine))
-    , mPanel(UIDefaultPanelDesc) {
+CreditsScreen::CreditsScreen(const GameSettings& gameSettings)
+    : mGameSettings(gameSettings)
+    , mCanvas(MakeCanvas()) {
+	// Build UI
+	mCanvas.Add(MakeTitle(GameStringId::credits));
+	auto panel = mCanvas.Add(MakeInfoPanel());
+	panel->Add(MakeScreenText(GameStringId::codeBy, 60));
+	panel->Add(MakeScreenText(GameStringId::graphicsBy, 140));
+	panel->Add(MakeScreenText(GameStringId::musicBy, 220));
+	panel->Add(MakeScreenText(GameStringId::fontBy, 300));
+	mBackButton = MakeBackButton(mCanvas.Panel());
 }
 
-GameScreenId CreditsScreen::Tick(float /*dt*/, const Wind::Input& input) {
-	if (mBackButton.IsPressed(input)) {
-		return ScreenId::mainMenu;
+const char* CreditsScreen::GetName() const {
+	return "CreditsScreen";
+}
+
+ScreenEvent CreditsScreen::Tick(float /*dt*/, const Input& input) {
+	mCanvas.HandleInput(input);
+#if defined(__ANDROID__) || defined(__OHOS__)
+	if (input.GetKeyJustPressed(SDLK_AC_BACK) ||
+#elif defined(_WIN32) || defined(__linux__)
+	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
+#endif
+	    mBackButton->IsClicked()) {
+		return GoBack(ScreenTransition::slideRight);
 	}
-	return ScreenId::credits;
+	return Continue();
 }
 
-void CreditsScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
+void CreditsScreen::Draw(UIRenderer& uiRenderer, float dt) {
+	mCanvas.Tick(dt);
+	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 }
 
-void CreditsScreen::Enter([[maybe_unused]] GameScreenId prevScreen) {
-	mPanel.SetVisible(true);
+void CreditsScreen::Enter(const ScreenNavArgs& args) {
 }
 
 void CreditsScreen::Exit() {
-	mPanel.SetVisible(false);
 }
 
-void CreditsScreen::LoadAssets() {
+void CreditsScreen::LoadAssets(Engine& engine) {
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
 }
 
-void CreditsScreen::BuildUI(UICanvas& canvas) {
-	mPanel.AddText(mTitle);
-	mPanel.AddText(mCodeBy);
-	mPanel.AddText(mGraphicsBy);
-	mPanel.AddText(mMusicBy);
-	mPanel.AddText(mVersion);
-	mPanel.AddButton(mBackButton);
-	canvas.GetPanel().AddPanel(mPanel);
+void CreditsScreen::ParseConfig(const char* varName, const char* varValue) {
 }

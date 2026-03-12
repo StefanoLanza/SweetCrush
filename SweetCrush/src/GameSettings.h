@@ -1,5 +1,7 @@
 #pragma once
 
 struct GameSettings {
-	bool audioOn;
+	bool musicOn;
+	bool sfxOn;
+	bool infoOn;
 };

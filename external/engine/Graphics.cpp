@@ -3,14 +3,20 @@
 #include "Gl.h"
 #include "GlFrameBuffer.h"
 #include "GlProgram.h"
+#include "Hash.h"
 #include "SdlWindow.h"
 #include "Texture.h"
+
 #include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 
 #include <algorithm>
 #include <cassert>
 #include <cstring>
+#include <stdexcept>
 #include <vector>
+
+#define UNIFORM_FILTERING 1
 
 namespace Wind {
 
@@ -45,13 +51,19 @@ enum class ShaderUniformType {
 	texture,
 };
 
+struct TextureAndSampler {
+	unsigned texture;
+	unsigned sampler;
+};
+
 struct ShaderUniform {
 	ShaderUniformType type;
 	GLint             uniform;
 	union {
-		float    fvalue[4];
-		int      ivalue[4];
-		unsigned texture;
+		float             fvalue[4];
+		int               ivalue[4];
+		unsigned          uvalue[4];
+		TextureAndSampler texture;
 	};
 };
 
@@ -64,20 +76,24 @@ Mesh BuildMesh(GLuint numVertices, GLsizei numIndices, const GLfloat vertexData[
 	glGenVertexArrays(1, &mesh.VAO);
 	glBindVertexArray(mesh.VAO);
 
-	// Generate VBO and store it in the VAO
-	glGenBuffers(1, &mesh.VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, numComponents, GL_FLOAT, GL_FALSE, numComponents * sizeof(GLfloat), NULL);
-	glBufferData(GL_ARRAY_BUFFER, numVertices * numComponents * sizeof(GLfloat), vertexData, GL_STATIC_DRAW);
-	if (auto err = glGetError(); err != GL_NO_ERROR) {
-		SDL_LogError(0, "GL Error. Code: %d", err);
+	if (numVertices > 0) {
+		// Generate VBO and store it in the VAO
+		glGenBuffers(1, &mesh.VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, numComponents, GL_FLOAT, GL_FALSE, numComponents * sizeof(GLfloat), NULL);
+		glBufferData(GL_ARRAY_BUFFER, numVertices * numComponents * sizeof(GLfloat), vertexData, GL_STATIC_DRAW);
+		if (auto err = glGetError(); err != GL_NO_ERROR) {
+			SDL_LogError(0, "GL Error. Code: %d", err);
+		}
 	}
 
-	// Generate IBO and store it in the VAO
-	glGenBuffers(1, &mesh.IBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(GLushort), indexData, GL_STATIC_DRAW);
+	if (numIndices > 0) {
+		// Generate IBO and store it in the VAO
+		glGenBuffers(1, &mesh.IBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(GLushort), indexData, GL_STATIC_DRAW);
+	}
 
 	if (auto err = glGetError(); err != GL_NO_ERROR) {
 		SDL_LogError(0, "GL Error. Code: %d", err);
@@ -88,14 +104,13 @@ Mesh BuildMesh(GLuint numVertices, GLsizei numIndices, const GLfloat vertexData[
 }
 
 Mesh BuildQuad() {
-	constexpr GLfloat  vertexData[] = { 0.f, 0.f, 1.f, 0.f, 1.f, 1.f, 0.f, 1.f };
 	constexpr GLushort indexData[] = { 0, 1, 2, 3 };
-	return BuildMesh(4, 4, vertexData, indexData);
+	return BuildMesh(0, 4, nullptr, indexData);
 }
 
 Mesh BuildTriangle() {
 	constexpr GLfloat  vertexData[] = { 0.f, 0.f, 1.f, 0.f, 0.f, 1.f };
-	constexpr GLushort indexData[] = { 0, 1, 2 };
+	constexpr GLushort indexData[] = { 0, 2, 1 };
 	return BuildMesh(3, 3, vertexData, indexData);
 }
 
@@ -108,28 +123,28 @@ struct Graphics::Impl {
 	void           SetPipeline(PipelineHandle pipeline);
 	ProgramHandle  NewProgram(const char* vs, const char* fs, const char* defines);
 	PipelineHandle NewPipeline(const PipelineState& pipelineState);
+	TexturePtr     LoadTexture(std::string_view fileName, TextureInfo texInfo);
 	void           Draw(const DrawCall& drawCall);
 	void           SetFloat4(int uniform, float x, float y, float z, float w);
-	void           SetTexture(int uniform, unsigned texture);
+	void           SetTexture(int uniform, unsigned texture, unsigned sampler);
 	void           RecompileShaders();
-	void           InitGL();
 	InstanceData   AllocInstances(unsigned count, unsigned sizePerInstance, GLint location);
 	void           ResetState();
 
 public:
 	const SdlWindow&           mWindow;
-	int                        mFBWidth = 0;
-	int                        mFBHeight = 0;
 	unsigned                   mFirstUniform;
 	PipelineHandle             mDefaultPipeline;
 	PipelineHandle             mCurrPipeline;
 	std::vector<Mesh>          mMeshes;
-	std::vector<Target>        mTargets;
+	Target                     mTarget;
 	std::vector<Batch>         mBatches;
 	std::vector<GlProgram>     mPrograms;
 	std::vector<ShaderUniform> mShaderUniforms;
 	std::vector<PipelineState> mPipelineStates;
+	std::vector<TexturePtr>    mTextures;
 	std::vector<char>          mInstanceBuffer;
+	std::vector<const char*>   mSearchPaths;
 	unsigned                   mInstanceBufferOffs;
 	GLuint                     mInstanceVBO;
 	unsigned                   mFrameCount;
@@ -138,8 +153,6 @@ public:
 
 Graphics::Impl::Impl(const SdlWindow& window)
     : mWindow(window) {
-	mFBWidth = window.GetWidth();
-	mFBHeight = window.GetHeight();
 	mFirstUniform = 0;
 	mFrameCount = 0;
 	mFrameBegun = false;
@@ -153,9 +166,7 @@ Graphics::Impl::Impl(const SdlWindow& window)
 	glBufferData(GL_ARRAY_BUFFER, instanceDataBufferSize, nullptr, GL_DYNAMIC_DRAW);
 	mInstanceBuffer.resize(instanceDataBufferSize);
 	mInstanceBufferOffs = 0;
-}
 
-void Graphics::Impl::InitGL() {
 	mMeshes.push_back(BuildQuad());
 	mMeshes.push_back(BuildTriangle());
 }
@@ -172,7 +183,6 @@ InstanceData Graphics::Impl::AllocInstances(unsigned count, unsigned stride, GLi
 }
 
 void Graphics::Impl::ResetState() {
-	mTargets.clear();
 	mBatches.clear();
 	mShaderUniforms.clear();
 	mFirstUniform = 0;
@@ -187,13 +197,17 @@ void Graphics::Impl::Draw(const DrawCall& drawCall) {
 	assert(drawCall.drawOrder < (1u << 12));
 	assert(drawCall.numUniforms + drawCall.numTextures < 256);
 	const uint32_t meshIdx = static_cast<unsigned>(drawCall.mesh) - 1;
-	const uint32_t targetIdx = static_cast<uint32_t>(mTargets.size() - 1);
-	assert(targetIdx < 16);
 	// const uint32_t programIdx = static_cast<uint32_t>(drawCall.program) - 1;
+
+#if _DEBUG
+	for (int i = 0; i < drawCall.numUniforms; ++i) {
+		assert(drawCall.uniformLocations[i] >= 0);
+	}
+#endif
 
 	Batch batch;
 	batch.instances = drawCall.instances;
-	batch.sortKey = (targetIdx << 28) | (drawCall.drawOrder << 16) | (drawCall.sortKey << 8) | (meshIdx << 0);
+	batch.sortKey = (drawCall.drawOrder << 16) | (drawCall.sortKey << 8) | (meshIdx << 0);
 	batch.pipelineIdx = static_cast<uint16_t>(mCurrPipeline) - 1;
 	batch.programIdx = static_cast<uint16_t>(drawCall.program) - 1;
 	batch.firstUniform = static_cast<uint16_t>(mFirstUniform);
@@ -201,12 +215,19 @@ void Graphics::Impl::Draw(const DrawCall& drawCall) {
 	mBatches.push_back(batch);
 
 	mShaderUniforms.reserve(mShaderUniforms.size() + batch.numUniforms);
-	for (int i = 0; i < drawCall.numTextures; ++i) {
-		SetTexture(i, drawCall.textures[i]);
+	if (drawCall.samplers) {
+		for (int i = 0; i < drawCall.numTextures; ++i) {
+			SetTexture(i, drawCall.textures[i], drawCall.samplers[i]);
+		}
 	}
-	const float* u = static_cast<const float*>(drawCall.uniformData);
+	else {
+		for (int i = 0; i < drawCall.numTextures; ++i) {
+			SetTexture(i, drawCall.textures[i], 0 /*default */);
+		}
+	}
+	const float* u = static_cast<const float*>(drawCall.uniforms);
 	for (int i = 0; i < drawCall.numUniforms; ++i) {
-		SetFloat4(drawCall.uniforms[i], u[0], u[1], u[2], u[3]);
+		SetFloat4(drawCall.uniformLocations[i], u[0], u[1], u[2], u[3]);
 		u += 4;
 	}
 	mFirstUniform += batch.numUniforms;
@@ -219,8 +240,10 @@ void Graphics::Impl::Flush() {
 	}
 
 	glActiveTexture(GL_TEXTURE0);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_BLEND);
+	glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CW);
+	glCullFace(GL_BACK);
 
 	if (auto err = glGetError(); err != GL_NO_ERROR) {
 		SDL_LogError(0, "GL Error. Code: %d", err);
@@ -228,9 +251,8 @@ void Graphics::Impl::Flush() {
 		return;
 	}
 
-	GLuint   currTexture = 0;
+	GLuint   currTexture[16] {};
 	unsigned currProgramIdx = static_cast<unsigned>(-1);
-	unsigned currTargetIdx = static_cast<unsigned>(-1);
 	unsigned currMeshIdx = static_cast<unsigned>(-1);
 	GLsizei  numIndices = 0;
 	float    xScale = 0.f;
@@ -245,21 +267,25 @@ void Graphics::Impl::Flush() {
 
 	std::stable_sort(std::begin(mBatches), std::end(mBatches), [](const Batch& lhs, const Batch& rhs) { return lhs.sortKey < rhs.sortKey; });
 
-	for (const Batch& batch : mBatches) {
-		if (unsigned targetIdx = (batch.sortKey >> 28) & 0xF; currTargetIdx != targetIdx) {
-			// Change target
-			currTargetIdx = targetIdx;
-			const Target& target = mTargets[targetIdx];
-			// To clip space
-			xScale = 2.f / target.width;
-			yScale = 2.f / target.height;
-			glBindFramebuffer(GL_FRAMEBUFFER, target.fbo);
-			glViewport(0, 0, target.width, target.height);
-		}
+	uint32_t cachedUniformHash[16];
+	uint32_t cachedUniformValue[16][4];
 
+	{
+		// To clip space
+		xScale = 2.f / mTarget.width;
+		yScale = 2.f / mTarget.height;
+		glBindFramebuffer(GL_FRAMEBUFFER, mTarget.fbo);
+		glViewport(0, 0, mTarget.width, mTarget.height);
+	}
+
+	for (const Batch& batch : mBatches) {
 		if (currProgramIdx != batch.programIdx) {
 			currProgramIdx = batch.programIdx;
 			glUseProgram(mPrograms[currProgramIdx].GetProgramId());
+			// Uniforms are per program, reset cached values
+			std::memset(cachedUniformHash, 0, sizeof cachedUniformHash);
+			std::memset(cachedUniformValue, 0, sizeof cachedUniformValue);
+			std::memset(currTexture, ~0, sizeof currTexture);
 			// Ortho matrix
 			if (auto uniform = mPrograms[currProgramIdx].GetOrthoMatrixUniform(); uniform != -1) {
 				glUniform4f(uniform, xScale, yScale, 0.f, 0.f);
@@ -276,7 +302,7 @@ void Graphics::Impl::Flush() {
 		if (batch.pipelineIdx != pipelineIdx) {
 			pipelineIdx = batch.pipelineIdx;
 			const PipelineState& ps = mPipelineStates[batch.pipelineIdx];
-			if (ps.mDepthEnabled) {
+			if (ps.depthEnabled) {
 				if (depthEnabled != 1) {
 					glEnable(GL_DEPTH_TEST);
 					glDepthFunc(GL_LEQUAL);
@@ -289,7 +315,7 @@ void Graphics::Impl::Flush() {
 					depthEnabled = 0;
 				}
 			}
-			if (ps.mDepthWriteEnabled) {
+			if (ps.depthWriteEnabled) {
 				if (depthWriteEnabled != 1) {
 					glDepthMask(GL_TRUE);
 					depthWriteEnabled = 1;
@@ -302,11 +328,12 @@ void Graphics::Impl::Flush() {
 				}
 			}
 
-			if (ps.mBlending) {
+			if (ps.blending) {
 				if (blendEnabled != 1) {
 					glEnable(GL_BLEND);
 					blendEnabled = 1;
 				}
+				glBlendFunc(ps.srcAlpha, ps.dstAlpha); // TODO Cache
 			}
 			else {
 				if (blendEnabled != 0) {
@@ -315,13 +342,13 @@ void Graphics::Impl::Flush() {
 				}
 			}
 
-			if (ps.mScissorTestEnabled) {
+			if (ps.scissorTestEnabled) {
 				if (scissorTest != 1) {
 					glEnable(GL_SCISSOR_TEST);
 					scissorTest = 1;
 				}
-				glScissor(ps.mScissorRect.left, mFBHeight - (ps.mScissorRect.bottom), ps.mScissorRect.right - ps.mScissorRect.left,
-				          ps.mScissorRect.bottom - ps.mScissorRect.top);
+				glScissor(ps.scissorRect.left, ps.scissorRect.top, ps.scissorRect.right - ps.scissorRect.left,
+				          ps.scissorRect.bottom - ps.scissorRect.top);
 			}
 			else {
 				if (scissorTest != 0) {
@@ -336,21 +363,46 @@ void Graphics::Impl::Flush() {
 			continue;
 		}
 
-		// TODO filtering
+		GLuint textureUnit = 0;
 		for (unsigned ui = 0; ui < batch.numUniforms; ++ui) {
 			const ShaderUniform& su = mShaderUniforms[batch.firstUniform + ui];
+			assert(su.uniform >= 0);
+			assert(su.uniform < (GLint)std::size(cachedUniformHash));
 			if (su.type == ShaderUniformType::float4) {
+#if UNIFORM_FILTERING
+				uint32_t hash = HashUint4(su.uvalue);
+				if (cachedUniformHash[su.uniform] != hash || memcmp(cachedUniformValue[su.uniform], su.fvalue, 16)) {
+					memcpy(cachedUniformValue[su.uniform], su.fvalue, 16);
+					cachedUniformHash[su.uniform] = hash;
+					glUniform4f(su.uniform, su.fvalue[0], su.fvalue[1], su.fvalue[2], su.fvalue[3]);
+				}
+#else
 				glUniform4f(su.uniform, su.fvalue[0], su.fvalue[1], su.fvalue[2], su.fvalue[3]);
+#endif
 			}
 			else if (su.type == ShaderUniformType::int4) {
+#if UNIFORM_FILTERING
+				uint32_t hash = HashUint4(su.uvalue);
+				if (cachedUniformHash[su.uniform] != hash || memcmp(cachedUniformValue[su.uniform], su.ivalue, 16)) {
+					memcpy(cachedUniformValue[su.uniform], su.ivalue, 16);
+					cachedUniformHash[su.uniform] = hash;
+					glUniform4i(su.uniform, su.ivalue[0], su.ivalue[1], su.ivalue[2], su.ivalue[3]);
+				}
+#else
 				glUniform4i(su.uniform, su.ivalue[0], su.ivalue[1], su.ivalue[2], su.ivalue[3]);
+
+#endif
 			}
 			else if (su.type == ShaderUniformType::texture) {
-				// TODO uniform slot
-				if (su.texture != currTexture) {
-					glBindTexture(GL_TEXTURE_2D, su.texture);
-					currTexture = su.texture;
+				assert(textureUnit < (GLuint)std::size(currTexture));
+				if (su.texture.texture != currTexture[textureUnit]) {
+					glActiveTexture(GL_TEXTURE0 + textureUnit);
+					glBindTexture(GL_TEXTURE_2D, su.texture.texture);
+					glBindSampler(textureUnit, su.texture.sampler);
+					// glUniform1i(su.texture, textureUnit);
+					currTexture[textureUnit] = su.texture.texture;
 				}
+				++textureUnit;
 			}
 		}
 
@@ -368,10 +420,10 @@ void Graphics::Impl::Flush() {
 				glVertexAttribDivisor(batch.instances.location + i, 1);
 			}
 
-			glDrawElementsInstanced(GL_TRIANGLE_FAN, numIndices, GL_UNSIGNED_SHORT, nullptr, batch.instances.count);
+			glDrawElementsInstanced(GL_TRIANGLE_STRIP, numIndices, GL_UNSIGNED_SHORT, nullptr, batch.instances.count);
 		}
 		else {
-			glDrawElements(GL_TRIANGLE_FAN, numIndices, GL_UNSIGNED_SHORT, nullptr);
+			glDrawElements(GL_TRIANGLE_STRIP, numIndices, GL_UNSIGNED_SHORT, nullptr);
 		}
 	}
 
@@ -379,6 +431,7 @@ void Graphics::Impl::Flush() {
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
 	glUseProgram(0);
+	glBindSampler(0, 0);
 
 	ResetState();
 }
@@ -420,6 +473,33 @@ PipelineHandle Graphics::Impl::NewPipeline(const PipelineState& pipelineState) {
 	return static_cast<PipelineHandle>(mPipelineStates.size());
 }
 
+TexturePtr Graphics::Impl::LoadTexture(std::string_view fileName, TextureInfo texInfo) {
+	try {
+		for (auto& b : mTextures) {
+			if (b->GetFileName() == fileName) {
+				return b;
+			}
+		}
+		char path[260];
+		snprintf(path, sizeof(path), "%s%s", ASSETS_FOLDER, fileName.data());
+
+		SDL_Surface* surface = IMG_Load(path);
+		if (surface == nullptr) {
+			SDL_LogError(0, "Unable to load image %s", fileName.data());
+			throw std::runtime_error(std::string("Unable to load image ") + path);
+		}
+		mTextures.emplace_back(std::make_unique<Texture>(surface, fileName, path, texInfo));
+		SDL_DestroySurface(surface);
+		surface = nullptr;
+
+		return mTextures.back();
+	}
+	catch (const std::exception& e) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", e.what());
+		return nullptr;
+	}
+}
+
 void Graphics::Impl::SetFloat4(int uniform, float x, float y, float z, float w) {
 	ShaderUniform su;
 	su.type = ShaderUniformType::float4;
@@ -431,29 +511,30 @@ void Graphics::Impl::SetFloat4(int uniform, float x, float y, float z, float w) 
 	mShaderUniforms.push_back(su);
 }
 
-void Graphics::Impl::SetTexture(int uniform, unsigned texture) {
+void Graphics::Impl::SetTexture(int uniform, unsigned texture, unsigned sampler) {
 	ShaderUniform su;
 	su.type = ShaderUniformType::texture;
 	su.uniform = uniform;
-	su.texture = texture;
+	su.texture.texture = texture;
+	su.texture.sampler = sampler;
 	mShaderUniforms.push_back(su);
 }
 
 void PipelineState::EnableDepth() {
-	mDepthEnabled = true;
+	depthEnabled = true;
 }
 
 void PipelineState::DisableDepth() {
-	mDepthEnabled = false;
+	depthEnabled = false;
 }
 
 void PipelineState::EnableScissorTest(int x, int y, int width, int height) {
-	mScissorRect = { x, y, x + width, y + height };
-	mScissorTestEnabled = true;
+	scissorRect = { x, y, x + width, y + height };
+	scissorTestEnabled = true;
 }
 
 void PipelineState::DisableScissorTest() {
-	mScissorTestEnabled = false;
+	scissorTestEnabled = false;
 }
 
 Graphics::Graphics(const SdlWindow& window)
@@ -462,35 +543,100 @@ Graphics::Graphics(const SdlWindow& window)
 
 Graphics::~Graphics() = default;
 
+GlFrameBuffer Graphics::CreateFrameBuffer(int width, int height, unsigned flags) {
+	GLuint FBO = 0;
+	glGenFramebuffers(1, &FBO);
+	if (0 == FBO) {
+		SDL_LogError(0, "Cannot create FBO");
+		throw std::runtime_error("Cannot create FBO");
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+	GLuint colorTexture = 0;
+	// Generate color texture attachment
+	if (flags & (unsigned)FBOFlags::color) {
+		glGenTextures(1, &colorTexture);
+		glBindTexture(GL_TEXTURE_2D, colorTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		// Bind texture to frame buffer
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
+	}
+
+	GLuint depthRenderBuffer = 0;
+	if (flags & (unsigned)FBOFlags::depthStencil) {
+		glGenRenderbuffers(1, &depthRenderBuffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
+	}
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		throw std::runtime_error("Framebuffer is not complete");
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0); // unbind
+
+	if (auto err = glGetError(); err != GL_NO_ERROR) {
+		SDL_LogError(0, "GL Error. Code: %d", err);
+	}
+
+	return GlFrameBuffer { width, height, FBO, colorTexture, depthRenderBuffer };
+}
+
 void Graphics::SetFrameBuffer(const GlFrameBuffer& frameBuffer) {
-	mPimpl->mTargets.push_back({ frameBuffer.GetFBO(), frameBuffer.GetWidth(), frameBuffer.GetHeight() });
-	mPimpl->mFBWidth = frameBuffer.GetWidth();
-	mPimpl->mFBHeight = frameBuffer.GetHeight();
+	Flush();
+	mPimpl->mTarget = { frameBuffer.GetFBO(), frameBuffer.GetWidth(), frameBuffer.GetHeight() };
 }
 
 void Graphics::SetDefaultFrameBuffer() {
-	mPimpl->mTargets.push_back({ 0, mPimpl->mWindow.GetWidth(), mPimpl->mWindow.GetHeight() });
-	mPimpl->mFBWidth = mPimpl->mWindow.GetWidth();
-	mPimpl->mFBHeight = mPimpl->mWindow.GetHeight();
+	Flush();
+	mPimpl->mTarget = { 0, mPimpl->mWindow.GetWidth(), mPimpl->mWindow.GetHeight() };
 }
 
-void Graphics::ClearDefaultFrameBuffer(float r, float g, float b, float a) {
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+GlFrameBuffer Graphics::GetDefaultFrameBuffer() const {
+	return { mPimpl->mWindow.GetWidth(), mPimpl->mWindow.GetHeight() };
+}
+
+void Graphics::ClearColor(float r, float g, float b, float a) {
+	glBindFramebuffer(GL_FRAMEBUFFER, mPimpl->mTarget.fbo);
 	glViewport(0, 0, mPimpl->mWindow.GetWidth(), mPimpl->mWindow.GetHeight());
 	glClearColor(r, g, b, a);
 	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void Graphics::ClearDepth(float value) {
+	glBindFramebuffer(GL_FRAMEBUFFER, mPimpl->mTarget.fbo);
+	glDepthMask(GL_TRUE);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glClearDepthf(value);
+}
+
+void Graphics::ClearStencil(uint8_t value) {
+	glBindFramebuffer(GL_FRAMEBUFFER, mPimpl->mTarget.fbo);
+	glStencilMask(0xff); // TODO Needed ?
+	glClear(GL_STENCIL_BUFFER_BIT);
+	glClearStencil(value);
 }
 
 void Graphics::Flush() {
 	mPimpl->Flush();
 }
 
+void Graphics::RegisterSearchPath(const char* path) {
+	assert(path);
+	return mPimpl->mSearchPaths.push_back(path);
+}
+
 int Graphics::GetTargetWidth() const {
-	return mPimpl->mFBWidth;
+	return mPimpl->mTarget.width;
 }
 
 int Graphics::GetTargetHeight() const {
-	return mPimpl->mFBHeight;
+	return mPimpl->mTarget.height;
 }
 
 ProgramHandle Graphics::NewProgram(const char* vs, const char* fs, const char* defines) {
@@ -501,8 +647,8 @@ PipelineHandle Graphics::NewPipeline(const PipelineState& pipelineState) {
 	return mPimpl->NewPipeline(pipelineState);
 }
 
-void Graphics::InitGL() {
-	mPimpl->InitGL();
+TexturePtr Graphics::LoadTexture(std::string_view fileName, TextureInfo texInfo) {
+	return mPimpl->LoadTexture(fileName, texInfo);
 }
 
 void Graphics::BeginFrame() {

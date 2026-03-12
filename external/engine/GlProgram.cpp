@@ -1,4 +1,7 @@
 #include "GlProgram.h"
+
+#include "Config.h"
+#include "Hash.h"
 #include <SDL3/SDL.h>
 #include <cassert>
 #include <malloc.h>
@@ -7,6 +10,8 @@
 namespace Wind {
 
 namespace {
+
+#define SHADERS_FOLDER ASSETS_FOLDER "shaders/"
 
 GLuint CompileShader(const char* sources[], int numSources, GLenum type) {
 	GLuint shader = glCreateShader(type);
@@ -34,12 +39,14 @@ GLuint CompileShaderFromFile(const char* fileName, const char* defines, GLenum t
 
 	const char* version = "#version 310 es\n";
 
+	char path[256];
+	SDL_snprintf(path, sizeof path, "%s%s", SHADERS_FOLDER, fileName);
+
 	GLuint              program = 0;
-	SDL_IOStream* const f = SDL_IOFromFile(fileName, "rb");
+	SDL_IOStream* const f = SDL_IOFromFile(path, "rb");
 	if (f) {
-		const Sint64 length = SDL_SeekIO(f, 0, SDL_IO_SEEK_END);
+		const Sint64 length = SDL_GetIOSize(f);
 		if (length > 0) {
-			SDL_SeekIO(f, 0, SDL_IO_SEEK_SET);
 			std::vector<char> fileData(static_cast<size_t>(length) + 1);
 			SDL_ReadIO(f, fileData.data(), fileData.size());
 			fileData.back() = 0; // null terminate
@@ -51,12 +58,12 @@ GLuint CompileShaderFromFile(const char* fileName, const char* defines, GLenum t
 			program = CompileShader(sources, 3, type);
 		}
 		else {
-			SDL_LogError(0, "Zero length file %s", fileName);
+			SDL_LogError(0, "Zero length file %s", path);
 		}
 		SDL_CloseIO(f);
 	}
 	else {
-		SDL_LogError(0, "Cannot open file %s", fileName);
+		SDL_LogError(0, "Cannot open file %s", path);
 	}
 	return program;
 }
@@ -84,6 +91,10 @@ GlProgram::GlProgram(const char* vertexShaderSource, const char* fragmentShaderS
     , mDefines { defines }
     , mHash { 0 }
     , mOrthoMatrixUniform { -1 } {
+	mHash = Hash(vertexShaderSource) | Hash(fragmentShaderSource);
+	if (defines) {
+		mHash |= Hash(defines);
+	}
 }
 
 bool GlProgram::Compile() {
@@ -110,7 +121,7 @@ bool GlProgram::Compile() {
 	glDeleteShader(fragmentShader);
 	if (valid) {
 		mProgram = std::move(program);
-		// Get default uniforms
+		// Get default uniformLocations
 		mOrthoMatrixUniform = TryGetUniformLocation("orthoMatrix");
 	}
 
@@ -173,13 +184,40 @@ GLint GlProgram::GetOrthoMatrixUniform() const {
 }
 
 bool GlProgram::IsEqual(const char* vertexShaderSource, const char* fragmentShaderSource, std::string_view defines) const {
-	// TODO hash
+	uint64_t hash = Hash(vertexShaderSource) | Hash(fragmentShaderSource);
+	if (defines.empty()) {
+		hash |= Hash(defines.data());
+	}
+	if (hash != mHash) {
+		return false;
+	}
 	return mVertexShaderSource == vertexShaderSource && mFragmentShaderSource == fragmentShaderSource && mDefines == defines;
 }
 
 GlProgram::operator bool() const {
 	GLuint program = mProgram.get();
 	return program != 0;
+}
+
+int GlProgram::GetUniformCount() const {
+	GLint count = 0;
+	glGetProgramiv(mProgram.get(), GL_ACTIVE_UNIFORMS, &count);
+	GLint maxLength = 0;
+	glGetProgramiv(mProgram.get(), GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
+	if (maxLength > (int)sizeof(GlUniform::name)) {
+		SDL_LogError(0, "size of GlUniform.name is too small. Increase it to at least %d", maxLength);
+		return 0;
+	}
+	return count;
+}
+
+GlUniform GlProgram::QueryUniform(int index) const {
+	GLint     size;
+	GLsizei   length;
+	GlUniform u;
+	glGetActiveUniform(mProgram.get(), index, sizeof(GlUniform::name), &length, &size, &u.type, u.name);
+	u.location = glGetUniformLocation(mProgram.get(), u.name);
+	return u;
 }
 
 } // namespace Wind

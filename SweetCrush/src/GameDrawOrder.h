@@ -1,12 +1,15 @@
 #pragma once
 
-#include <engine/DrawOrder.h>
+#include <cstdint>
 
-enum class GameDrawOrder : Wind::DrawOrderType {
-	overBackground = Wind::DrawOrder::background + 1,
-	backgroundTile = Wind::DrawOrder::user,
-	boardTile,
+enum GameDrawOrder : uint32_t {
+	background = 0,
+	backgroundTile,
+	boardPiece,
 	ice,
 	overlays,
-	textOverUI = Wind::DrawOrder::UI + 50,
+	UI,
+	// 32 slots for UI widgets
+	overUI = UI + 32,
+	mousePointer = 200,
 };

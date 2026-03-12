@@ -20,7 +20,7 @@ workspace ("SweetCrush")
 	location (workspacePath)
 	characterset "MBCS"
 	flags   { "MultiProcessorCompile", } --"ConformanceMode", }
-	cppdialect "c++17"
+	cppdialect "c++20"
 	exceptionhandling "On"
 	rtti "Off"
 	startproject "SweetCrush"
@@ -77,20 +77,23 @@ filter {}
 
 project("Engine")
 	kind "StaticLib"
-	files { "external/engine/*.*", }
+	files { "external/engine/**.*", }
 	filter "system:Windows"
-		includedirs { "external/SDL/include","external/SDL_mixer/include", "external/SDL_image/include", }
+		includedirs { "external/SDL/include","external/SDL_mixer/include", "external/SDL_image/include", 
+	 		"external/inih/include", }
 		files {"external/engine/windows/**.*"}
+		removefiles { "external/engine/linux/**.*" }
 	filter "system:linux"
-		includedirs { "/usr/include/SDL3",}
+		includedirs { "/usr/include/SDL3",  "external/inih/include",}
 		files {"external/engine/linux/**.*"}
+		removefiles { "external/engine/windows/**.*" }
 	filter {}
-	includedirs { "external", }
+	includedirs { "external", "external/engine/include/engine", }
 
 project("inih")
 	kind "StaticLib"
-	files { "external/inih/ini.c", "external/inih/ini.h", }
-	includedirs { }
+	files { "external/inih/ini.c", "external/inih/include/inih/ini.h", }
+	includedirs { "external/inih/include/inih", }
 
 project("gameData")
 	kind "SharedLib"
@@ -106,16 +109,16 @@ project("SweetCrush")
 		kind "ConsoleApp"
 	filter {}
 	files { "SweetCrush/src/*.*", }
-	includedirs { ".", "external", "SweetCrush/src", }
+	includedirs { ".", "external", "SweetCrush/src", "external/engine/include",  "external/inih/include",}
 	-- Use precompiled libs
 	filter { filter_msvc }
 		libdirs { "external/precompiled/windows/%{cfg.platform}" } 
 	filter {}
 	filter { "system:linux" }
-		includedirs { "/usr/include/SDL3",}
+		includedirs { "/usr/include/SDL3",} -- TODO Needed?
 		links { "GL", "SDL3", "SDL3_image", "SDL3_mixer", "Engine", "inih", "dl", }
 	filter { filter_windows }
-		includedirs { "external/SDL/include", "external/SDL_Mixer/include", }
+		includedirs { "external/SDL/include", "external/SDL_Mixer/include",}
 		links { "opengl32", "glew32", "SDL3", "SDL3_image", "SDL3_mixer", "Engine", "inih", "gameData", }
 	filter {}
 	debugdir "bin"

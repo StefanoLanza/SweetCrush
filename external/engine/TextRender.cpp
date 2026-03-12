@@ -1,130 +1,131 @@
 #include "TextRender.h"
-#include "Config.h"
-#include "DrawOrder.h"
 #include "Font.h"
 #include "Gl.h"
 #include "GlProgram.h"
 #include "Graphics.h"
 #include "Texture.h"
-#include "SdlWindow.h"
-#include <SDL3/SDL.h>
-#include <cassert>
+#include "UI.h"
 
 namespace Wind {
 
-TextRenderer::TextRenderer(Graphics& graphics)
+UITextRenderer::UITextRenderer(Graphics& graphics)
     : mGraphics { graphics }
-    , mProgramHandle { graphics.NewProgram(SHADERS_FOLDER "font.vs", SHADERS_FOLDER "font.fs") }
+    , mProgramHandle { graphics.NewProgram("ui/font.vs", "ui/font.fs") }
     , mValidProgram { false } {
 	if (mProgramHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(mProgramHandle);
-		mPosRect = program.GetAttribLocation("posRect");
+		mCoords = program.GetAttribLocation("coords");
+		mPosOffset = program.GetUniformLocation("posOffset");
 		mColor = program.GetUniformLocation("color");
 		mOutlineColor = program.GetUniformLocation("outlineColor");
 		mTexture = program.GetUniformLocation("inputTexture");
-		mValidProgram = (mPosRect >= 0 && mColor >= 0 && mOutlineColor >= 0 && mTexture >= 0);
+		mValidProgram = (mCoords >= 0 && mPosOffset >= 0 && mColor >= 0 && mOutlineColor >= 0 && mTexture >= 0);
 	}
 
-	PipelineState pipelineState;
-	pipelineState.mDepthEnabled = false;
-	pipelineState.mBlending = true;
-	pipelineState.mScissorTestEnabled = false;
+	const PipelineState pipelineState {
+		.depthEnabled = false,
+		.scissorTestEnabled = false,
+		.blending = true,
+	};
 	mPipeline = mGraphics.NewPipeline(pipelineState);
+
+	glGenSamplers(1, &mSampler);
+	glSamplerParameteri(mSampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glSamplerParameteri(mSampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glSamplerParameteri(mSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(mSampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
-TextRenderer::~TextRenderer() = default;
+UITextRenderer::~UITextRenderer() = default;
 
-FontPtr TextRenderer::AddFont(const char* fontName) {
-	try {
-		for (const FontPtr& font : mFonts) {
-			if (font->GetName() == fontName) {
-				return font;
-			}
-		}
-
-		char textureFile[260];
-		snprintf(textureFile, sizeof(textureFile), "%s_0.png", fontName);
-
-		char texturePath[260];
-		snprintf(texturePath, sizeof(texturePath), "%s%s_0.png", FONTS_FOLDER, fontName);
-
-		char glyphPath[260];
-		snprintf(glyphPath, sizeof(glyphPath), "%s%s.fnt", FONTS_FOLDER, fontName);
-
-		mFonts.emplace_back(std::make_unique<Font>(fontName, textureFile, texturePath, LoadGlyphs(glyphPath)));
-		return mFonts.back();
-	}
-	catch (const std::exception& e) {
-		SDL_LogError(0, "%s", e.what());
-		return nullptr;
-	}
-}
-
-void TextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, const TextStyle& style, DrawOrderType drawOrder) const {
+void UITextRenderer::Write(const Font& font, std::string_view text, const UIRect& rect, const UITextStyle& style, unsigned drawOrder) const {
 	if (! mValidProgram) {
 		return;
 	}
 
+	float textWidth = static_cast<float>(font.CalculateStringWidth(text));
+	float textHeight = static_cast<float>(font.GetHeight());
+	Vec2  scale { rect.size.x / textWidth, rect.size.y / textHeight };
+	WriteImpl(font, text, rect.pos, scale, style, drawOrder);
+}
+
+void UITextRenderer::Write(const Font& font, std::string_view text, Vec2 pos, const UITextStyle& style, unsigned drawOrder) const {
+	if (! mValidProgram) {
+		return;
+	}
+	WriteImpl(font, text, pos, { 1.f, 1.f }, style, drawOrder);
+}
+
+void UITextRenderer::WriteImpl(const Font& font, std::string_view text, Vec2 pos, Vec2 scale, const UITextStyle& style, unsigned drawOrder) const {
+	if (! mValidProgram) {
+		return;
+	}
 	struct Char {
 		Rect quad;
 		Rect uvs;
 	};
-	InstanceData instanceData = mGraphics.AllocInstances((unsigned)text.length(), sizeof(Char), mPosRect);
+	InstanceData instanceData = mGraphics.AllocInstances((unsigned)text.length(), sizeof(Char), mCoords);
 	if (! instanceData.data) {
 		return;
 	}
 
-	const float fontTexWidth = static_cast<float>(font.GetSurface().Width());
-	const float fontTexHeight = static_cast<float>(font.GetSurface().Height());
+	const float margin = 0.5f;
+	const float fontTexWidth = static_cast<float>(font.GetTexture().Width());
+	const float fontTexHeight = static_cast<float>(font.GetTexture().Height());
 	Char*       chars = static_cast<Char*>(instanceData.data);
-	for (int idx = 0, advance = 0; idx < (int)text.length(); ++idx) {
-		const Glyph& g = font.FindGlyph(text[idx]);
+	float       advance = 0.f;
+	for (int idx = 0; idx < (int)text.length(); ++idx) {
+		int          ridx = idx;
+		const Glyph& g = font.FindGlyph(text[ridx]);
 		chars[idx].quad = {
-			pos.x + static_cast<float>(g.xoffset + advance),
-			pos.y + static_cast<float>(g.yoffset),
-			static_cast<float>(g.width),
-			static_cast<float>(g.height),
+			pos.x + static_cast<float>(g.xoffset - margin) * scale.x + advance,
+			pos.y + static_cast<float>(g.yoffset - margin) * scale.y,
+			static_cast<float>(g.width + 2.0 * margin) * scale.x,
+			static_cast<float>(g.height + 2.0 * margin) * scale.y,
 		};
 		chars[idx].uvs = {
-			static_cast<float>(g.x) / fontTexWidth,
-			static_cast<float>(g.y) / fontTexHeight,
-			static_cast<float>(g.width) / fontTexWidth,
-			static_cast<float>(g.height) / fontTexHeight,
+			static_cast<float>(g.x - margin) / fontTexWidth,
+			static_cast<float>(g.y - margin) / fontTexHeight,
+			static_cast<float>(g.width + 2.f * margin) / fontTexWidth,
+			static_cast<float>(g.height + 2.f * margin) / fontTexHeight,
 		};
-		advance += g.xadvance;
+		advance += g.xadvance * scale.x;
 	}
 
-	const int   uniforms[] = { mColor, mOutlineColor };
+	const int   uniforms[] = { mPosOffset, mColor, mOutlineColor };
 	const float uniformData[][4] = {
+		{ 0.f, 0.f, 0.f, 0.f },
 		{ style.color.r / 255.f, style.color.g / 255.f, style.color.b / 255.f, style.color.a / 255.f },
 		{ style.outlineColor.r / 255.f, style.outlineColor.g / 255.f, style.outlineColor.b / 255.f, style.outlineColor.a / 255.f },
 	};
+	const float shadowUniformData[][4] = {
+		{ style.shadowOffset.x, style.shadowOffset.y, 0.f, 0.f },
+		{ style.shadowColor.r / 255.f, style.shadowColor.g / 255.f, style.shadowColor.b / 255.f, style.shadowColor.a / 255.f },
+		{ style.shadowColor.r / 255.f, style.shadowColor.g / 255.f, style.shadowColor.b / 255.f, 1.f },
+	};
 	mGraphics.SetPipeline(mPipeline);
 
-	const unsigned textureIds[] = { font.GetSurface().GetTextureId() };
+	const unsigned textureIds[] = { font.GetTexture().GetGLId() };
+	const unsigned samplers[] = { mSampler };
 
 	DrawCall drawCall;
-	drawCall.uniforms = uniforms;
-	drawCall.uniformData = reinterpret_cast<const float*>(uniformData);
-	drawCall.numUniforms = sizeof(uniformData) / 16;
+	drawCall.uniformLocations = uniforms;
+	drawCall.numUniforms = std::size(uniforms);
 	drawCall.textures = textureIds;
 	drawCall.numTextures = 1;
+	drawCall.samplers = samplers;
 	drawCall.program = mProgramHandle;
 	drawCall.mesh = quadMesh;
 	drawCall.drawOrder = drawOrder;
 	drawCall.instances = instanceData;
-	mGraphics.Draw(drawCall);
-}
 
-void TextRenderer::WriteAligned(const Font& font, std::string_view text, Vec2 pos, TextAlignment horizontalAlignment, const TextStyle& style,
-                                DrawOrderType drawOrder) const {
-	if (horizontalAlignment == TextAlignment::center) {
-		pos.x += 0.5f * (mGraphics.GetTargetWidth() - font.CalculateStringWidth(text));
+	if (style.shadow) {
+		drawCall.uniforms = shadowUniformData;
+		mGraphics.Draw(drawCall);
 	}
-	else if (horizontalAlignment == TextAlignment::right) {
-		pos.x += (mGraphics.GetTargetWidth() - font.CalculateStringWidth(text));
-	}
-	Write(font, text, pos, style, drawOrder);
+
+	drawCall.uniforms = uniformData;
+	mGraphics.Draw(drawCall);
 }
 
 } // namespace Wind

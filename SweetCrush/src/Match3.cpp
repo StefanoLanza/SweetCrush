@@ -1,83 +1,27 @@
 #include "Match3.h"
 #include "Board.h"
-#include "Boosters.h"
+#include "BoardGenerator.h"
 #include "Constants.h"
-#include "GameConfig.h"
+#include "MatchChecker.h"
 #include "TileSelector.h"
-
-#include <engine/Input.h>
 
 #include <cassert>
 #include <cstring>
 #include <iterator> // std::size
 
+// For debugging
+#define ENABLE_EFFECTS    1
+#define CREATE_NEW_PIECES 1
+
 namespace {
 
-bool CheckMatch(const Cell& a, const Cell& b) {
-	return (a.category == b.category) && (a.category != CellCategory::empty) && (a.pieceId == b.pieceId);
-}
-
-int CountMatches(const Cell& cell, const Board& board, Direction dir) {
-	int dcol = 0;
-	int drow = 0;
-	int iter = 0;
-	switch (dir) {
-	case Direction::left:
-		dcol = -1;
-		drow = 0;
-		iter = cell.col;
-		break;
-	case Direction::right:
-		dcol = +1;
-		drow = 0;
-		iter = board.GetCols() - 1 - cell.col;
-		break;
-	case Direction::top:
-		dcol = 0;
-		drow = -1;
-		iter = cell.row;
-		break;
-	case Direction::bottom:
-		dcol = 0;
-		drow = +1;
-		iter = board.GetRows() - 1 - cell.row;
-		break;
-	}
-	int matches = 0;
-	int col = cell.col + dcol;
-	int row = cell.row + drow;
-	for (int i = 0; i < iter; ++i, ++matches) {
-		const Cell& otherCell = board.GetCell(col, row);
-		if (! CheckMatch(otherCell, cell)) {
-			break;
-		}
-		col += dcol;
-		row += drow;
-	}
-	return matches;
-}
-
-void GenRandomPiece(Cell& cell, const Board& board, Wind::Random& random, const int gemIds[], int numGemTypes) {
-	assert(cell.category == CellCategory::piece);
-	bool          valid = false;
-	constexpr int maxAttempts = 100;
-	int           attempts = 0;
-	cell.hits = 1; // TODO gen ice
-	do {
-		cell.pieceId = static_cast<PieceId>(gemIds[random.Next(0, numGemTypes - 1)]);
-		// Avoid three or more consecutive matches
-		valid = (1 + CountMatches(cell, board, Direction::left) < 3) && (1 + CountMatches(cell, board, Direction::top) < 3) &&
-		        (1 + CountMatches(cell, board, Direction::right) < 3) && (1 + CountMatches(cell, board, Direction::bottom) < 3);
-	} while (! valid && ++attempts < maxAttempts);
-}
-
-void SwapTiles(Board& board, int srcIdx, int dstIdx) {
+void SwapCells(Board& board, int srcIdx, int dstIdx) {
 	Cell& src = board.GetCell(srcIdx);
 	Cell& dst = board.GetCell(dstIdx);
-	std::swap(src.pieceId, dst.pieceId);
-	std::swap(src.hits, dst.hits);
 	std::swap(src.category, dst.category);
-	std::swap(dst.pieceAnim, src.pieceAnim);
+	std::swap(src.pieceId, dst.pieceId);
+	std::swap(src.layers, dst.layers);
+	std::swap(src.effect, dst.effect);
 }
 
 //  OOO
@@ -123,8 +67,8 @@ bool LCombo(int l, int r, int t, int b) {
 bool _5Combo(int l, int r, int t, int b) {
 	int h = l + r + 1;
 	int v = t + b + 1;
-	return ((h > 4) && (v < 3)) || //
-	       ((v > 4) && (h < 3));
+	return ((h == 5) && (v < 3)) || //
+	       ((v == 5) && (h < 3));
 }
 
 bool _4Combo(int l, int r, int t, int b) {
@@ -150,383 +94,395 @@ bool _AnyCombo(int l, int r, int t, int b) {
 } // namespace
 
 enum class Match3::State {
-	selectTiles,
-	checkMatchesAfterSwap,
+	selectAndSwapPieces,
+	checkSwap,
 	collapseColumns,
-	generateNewPieces,
-	checkMatches,
-	insertBoosters,
+	checkMatches
 };
 
-Match3::Match3(Board& board, const GameConfig& gameConfig, TileSelector& tileSelector)
-    : mTileSelector { tileSelector }
-    , mBoard { board }
-    , mGameConfig { gameConfig }
-    , mGemIds {}
-    , mNumGemIds { 0 }
-    , mState { State::selectTiles }
+Match3::Match3(Board& board, BoardGenerator& boardGen, TileSelector& tileSelector)
+    : mBoard { board }
+    , mBoardGen { boardGen }
+    , mTileSelector { tileSelector }
+    , mState { State::selectAndSwapPieces }
     , mUserSwap { 0, 0 }
-    , mNumUserSwaps { 0 }
     , mCascadeCount { 0 } {
 }
 
 Match3::~Match3() = default;
 
-void Match3::SetCallback(Match3Callback&& cbk) {
+void Match3::SetClientCallback(Match3Callback&& cbk) {
 	mCbk = std::move(cbk);
 }
 
-void Match3::NewBoard(uint32_t seed, const char* boardDef, const int gemIds[], int numGemIds) {
-	assert(numGemIds > 0);
-
-	mRandomEngine.Seed(seed);
-
-	// Reset board first
-	for (int row = 0; row < mBoard.GetRows(); ++row) {
-		float y = row * mGameConfig.cellHeightWithSpacing + mGameConfig.boardTop;
-		for (int col = 0; col < mBoard.GetCols(); ++col) {
-			float x = col * mGameConfig.cellWidthWithSpacing + mGameConfig.boardLeft;
-			Cell& cell = mBoard.GetCell(col, row);
-			cell.coords = { x, y };
-			cell.col = col;
-			cell.row = row;
-			cell.category = CellCategory::piece;
-			cell.pieceId = 0;
-			cell.backgroundTileIdx = 1;
-			cell.hits = 0;
-		}
-	}
-
-	if (boardDef) {
-		for (int i = 0; i < mBoard.GetCellCount(); ++i) {
-			Cell& cell = mBoard.GetCell(i);
-			char  ch = boardDef[i];
-			switch (boardDef[i]) {
-			case holeCell:
-				cell.category = CellCategory::hole;
-				break;
-			case obstacleCell:
-				cell.category = CellCategory::obstacle;
-				break;
-			case emptyCell:
-				cell.category = CellCategory::empty;
-				break;
-			default:
-				cell.category = CellCategory::piece;
-				if (ch >= 'A' && ch <= 'Z') {
-					cell.pieceId = ch - 'A';
-					cell.hits = 2;
-				}
-				else {
-					cell.pieceId = ch - 'a';
-					cell.hits = 1;
-				}
-				assert(cell.pieceId < MaxPieceTypes);
-				break;
-			}
-		}
-	}
-	else {
-		// Generate random pieces
-		for (Cell& cell : mBoard.GetCells()) {
-			GenRandomPiece(cell, mBoard, mRandomEngine, gemIds, numGemIds);
-		}
-	}
-
-	assert((int)std::size(mGemIds) >= numGemIds);
-	std::memcpy(mGemIds, gemIds, numGemIds * sizeof gemIds[0]);
-	mNumGemIds = numGemIds;
+void Match3::ClearSelection() {
+	mTileSelector.Reset();
 }
 
-void Match3::Run() {
-	// Clear lists from previous match
-	mSwaps.clear();
+void Match3::Restart() {
+	// Clear lists of previous match
 	mNewPieces.clear();
-	mCollapseList.clear();
-	mNewBoosters.clear();
-
 	mTileSelector.Reset();
-	mState = State::selectTiles;
-	mNumUserSwaps = 0;
+	mState = State::selectAndSwapPieces;
 	mCascadeCount = 0;
 }
 
+void Match3::UseBooster(int cellIdx) {
+	assert(mState == State::selectAndSwapPieces);
+	// TODO handle more booster types
+	KillCell(mBoard.GetCell(cellIdx), nullptr);
+	mState = State::collapseColumns;
+}
+
 void Match3::Update(const Wind::Input& input) {
-	for (const CellPair& s : mSwaps) {
-		SwapTiles(mBoard, s.first, s.second);
-	}
-	mSwaps.clear();
-
-	for (const CellPair& pair : mCollapseList) {
-		SwapTiles(mBoard, pair.first, pair.second);
-	}
-	mCollapseList.clear();
-
 	switch (mState) {
-	case State::selectTiles:
-		SelectTiles(input);
+	case State::selectAndSwapPieces:
+		if (SelectAndSwapPieces(input)) {
+			mState = State::checkSwap;
+		}
+		// else keeping waiting for user selection
 		break;
-	case State::checkMatchesAfterSwap:
-		if (CheckMatchesAfterSwap()) {
-			mState = State::insertBoosters;
+	case State::checkSwap:
+		if (CheckSpecialComboAfterSwap()) {
+			mState = State::collapseColumns;
+		}
+		else if (CheckMatchesAfterSwap()) {
+			mState = State::collapseColumns;
 		}
 		else {
-			// No matches, undo swap
-			mSwaps.push_back(mUserSwap);
-			mState = State::selectTiles;
+			// No matches or special combos, undo swap
+			Match3Event event;
+			event.id = Match3Event::Id::undoSwap;
+			event.pair = mUserSwap;
+			mCbk(event);
+
+			SwapCells(mBoard, mUserSwap.first, mUserSwap.second);
+			mState = State::selectAndSwapPieces;
 		}
-		break;
-	case State::insertBoosters:
-		InsertBoosters();
-		mState = State::collapseColumns;
 		break;
 	case State::collapseColumns:
 		CollapseColumns();
-		mState = State::generateNewPieces;
-		break;
-	case State::generateNewPieces:
 		GenerateNewPieces();
+		// Wait for drop animations before checking matches
 		mState = State::checkMatches;
 		break;
 	case State::checkMatches:
 		if (CheckMatches()) {
-			mState = State::insertBoosters;
+			// Cascade
+			mState = State::collapseColumns;
 		}
 		else {
+			// Back to user selection
 			mCascadeCount = 0;
-			mState = State::selectTiles;
+			mState = State::selectAndSwapPieces;
 		}
 		break;
 	default:
 		assert(false);
 		break;
 	};
-
-	for (const CellPair& pair : mSwaps) {
-		Match3Event event;
-		event.id = Match3Event::Id::swap;
-		event.pair = pair;
-		mCbk(event);
-	}
 }
 
-int Match3::GetNumUserSwaps() const {
-	return mNumUserSwaps;
+bool Match3::IsWaitingForUser() const {
+	return mState == State::selectAndSwapPieces;
 }
 
-void Match3::SelectTiles(const Wind::Input& input) {
-	if (int selected = mTileSelector.GetSelectedCell(); selected > 0) {
-		const Cell& cell = mBoard.GetCell(selected);
-		if (HasBooster(cell)) {
-			TriggerBooster(selected);
-			mTileSelector.Reset();
-			return;
-		}
-	}
-
+bool Match3::SelectAndSwapPieces(const Wind::Input& input) {
 	if (auto [swap, first, second] = mTileSelector.SelectTiles(input); swap) {
-		TrySwap(first, second);
 		mTileSelector.Reset();
+		return TrySwap(first, second);
 	}
+	return false;
 }
 
-void Match3::AddBooster(BoosterType boosterType, int cellIdx) {
-	mNewBoosters.push_back({ boosterType, cellIdx });
-}
+bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int mainCellIdx) {
+	bool       res = true;
+	ComboType  comboType {};
+	bool       horizontalMatch = false;
+	EffectType effectType = EffectType::none;
 
-void Match3::HorizontalRocket(int col, int row) {
-	for (int ncol = 0; ncol < mBoard.GetCols(); ++ncol) {
-		int cellIdx = mBoard.GetCellIndex(ncol, row);
-		if (HasPiece(mBoard.GetCell(cellIdx))) {
-			HitCell(cellIdx);
-		}
-	}
-	HitCell(mBoard.GetCellIndex(col, row)); // remove booster
-}
-
-void Match3::VerticalRocket(int col, int row) {
-	for (int nrow = 0; nrow < mBoard.GetRows(); ++nrow) {
-		int cellIdx = mBoard.GetCellIndex(col, nrow);
-		if (HasPiece(mBoard.GetCell(cellIdx))) {
-			HitCell(cellIdx);
-		}
-	}
-	HitCell(mBoard.GetCellIndex(col, row)); // remove booster
-}
-
-void Match3::Bomb(int col, int row, int radius) {
-	for (int y = -radius; y <= radius; ++y) {
-		int orow = row + y;
-		for (int x = -radius; x <= radius; ++x) {
-			if (x * x + y * y <= radius * radius) { // within radius
-				int ocol = col + x;
-				if (mBoard.IsInside(ocol, orow)) {
-					int cellIdx = mBoard.GetCellIndex(ocol, orow);
-					if (HasPiece(mBoard.GetCell(cellIdx))) {
-						HitCell(cellIdx);
-					}
-				}
-			}
-		}
-	}
-	HitCell(mBoard.GetCellIndex(col, row)); // remove booster
-}
-
-void Match3::DeleteAllPieces(int pieceId) {
-	int cellIdx = 0;
-	for (const Cell& cell : mBoard.GetCells()) {
-		if (HasPiece(cell) && cell.pieceId == pieceId) {
-			HitCell(cellIdx);
-		}
-		++cellIdx;
-	}
-}
-
-bool Match3::CheckCombos(int l, int r, int t, int b, PieceId pieceId, int cellIdx) {
-	bool        res = true;
-	Match3Event event;
+	// TODO 2x2 square ?
 
 	if (T3Combo(l, r, t, b)) {
-		event.match.comboType = ComboType::T3;
+		comboType = ComboType::T3;
+		effectType = EffectType::wrapped;
 	}
 	else if (T4Combo(l, r, t, b)) {
-		event.match.comboType = ComboType::T4;
+		comboType = ComboType::T4;
+		effectType = EffectType::wrapped;
 	}
 	else if (T5Combo(l, r, t, b)) {
-		event.match.comboType = ComboType::T5;
+		comboType = ComboType::T5;
+		effectType = EffectType::colorBomb;
 	}
 	else if (LCombo(l, r, t, b)) {
-		event.match.comboType = ComboType::L;
+		comboType = ComboType::L;
+		effectType = EffectType::wrapped;
 	}
 	else if (_5Combo(l, r, t, b)) {
-		event.match.comboType = ComboType::C5;
+		comboType = ComboType::C5;
+		horizontalMatch = (l + r + 1) == 5;
+		effectType = EffectType::colorBomb;
 	}
 	else if (_4Combo(l, r, t, b)) {
-		event.match.comboType = ComboType::C4;
+		comboType = ComboType::C4;
+		horizontalMatch = (l + r + 1) == 4;
+		effectType = horizontalMatch ? EffectType::hStriped : EffectType::vStriped;
 	}
 	else if (_3Combo(l, r, t, b)) {
-		event.match.comboType = ComboType::C3;
+		comboType = ComboType::C3;
+		horizontalMatch = (l + r + 1) == 3;
 	}
 	else if (_AnyCombo(l, r, t, b)) {
-		event.match.comboType = ComboType::Unknown;
+		comboType = ComboType::Unknown;
 	}
 	else {
 		res = false;
 	}
 
+	Cell& mainCell = mBoard.GetCell(mainCellIdx);
+
 	if (res) {
 		// Inform client
+		Match3Event event;
 		event.id = Match3Event::Id::match;
+		event.match.comboType = comboType;
 		event.match.pieceId = pieceId;
+		event.match.cell = &mainCell;
 		event.match.cascadeCount = mCascadeCount;
-		event.match.cellIdx = cellIdx;
 		mCbk(event);
+
+		int matches[NumRows * NumCols];
+		int numMatches = 0;
+		if (1 + t + b >= 3) {
+			// Kill vertical matches
+			numMatches = CollectMatches(mainCellIdx, 0, -1, matches, numMatches);
+			numMatches = CollectMatches(mainCellIdx, 0, +1, matches, numMatches);
+		}
+		if (1 + l + r >= 3) {
+			// Kill horizontal matches
+			numMatches = CollectMatches(mainCellIdx, -1, 0, matches, numMatches);
+			numMatches = CollectMatches(mainCellIdx, +1, 0, matches, numMatches);
+		}
+		assert(numMatches < NumRows * NumCols);
+
+#if ENABLE_EFFECTS
+		bool makeSpecialCandy = (effectType != EffectType::none);
+		// In Candy Crush, if a special candy appears in a combo, it is activated and NO new special candy is created
+		for (int i = 0; i < numMatches; ++i) {
+			if (IsSpecial(mBoard.GetCell(matches[i]))) {
+				makeSpecialCandy = false;
+				break;
+			}
+		}
+		if (IsSpecial(mainCell)) {
+			makeSpecialCandy = false;
+		}
+
+		// If any candy in the matches is caged/frozen, do *not* create a special candy. Only remove the layer
+		for (int i = 0; i < numMatches; ++i) {
+			if (mBoard.GetCell(matches[i]).layers > 0) {
+				makeSpecialCandy = false;
+				break;
+			}
+		}
+#else
+		const bool isSpecialCombo = false;
+#endif
+
+		if (makeSpecialCandy) {
+			// Special combo. Associate an effect with the piece in the main cell
+			assert(mainCell.category == CellCategory::piece);
+			assert(mainCell.layers == 0);
+			mainCell.effect = effectType;
+
+			// Inform client
+			event.id = Match3Event::Id::newEffect;
+			event.specialPiece.cell = &mainCell;
+			event.specialPiece.pieceId = mainCell.pieceId; // FIXME redundant ?
+			event.specialPiece.type = effectType;
+			mCbk(event);
+		}
+		else {
+			// Kill main piece along with its matches
+			KillCell(mainCell, nullptr);
+		}
+
+		for (int i = 0; i < numMatches; ++i) {
+			KillCell(mBoard.GetCell(matches[i]), makeSpecialCandy ? &mainCell : nullptr);
+		}
 	}
+
 	return res;
 }
 
 bool Match3::CheckCellCombos(int cellIdx) {
 	const Cell& cell = mBoard.GetCell(cellIdx);
-	const int   l = CountMatches(cell, mBoard, Direction::left);
-	const int   r = CountMatches(cell, mBoard, Direction::right);
-	const int   t = CountMatches(cell, mBoard, Direction::top);
-	const int   b = CountMatches(cell, mBoard, Direction::bottom);
-	const bool  res = CheckCombos(l, r, t, b, cell.pieceId, cellIdx);
-
-	if (res) {
-		if (1 + t + b >= 3) {
-			// Kill vertical matches
-			KillMatches(cell, 0, -1);
-			KillMatches(cell, 0, +1);
-		}
-		if (1 + l + r >= 3) {
-			// Kill horizontal matches
-			KillMatches(cell, -1, 0);
-			KillMatches(cell, +1, 0);
-		}
-		HitCell(cellIdx);
+	if (cell.category != CellCategory::piece) {
+		return false; // already deleted
 	}
-
-	return res;
+	const int l = CountMatches(cell, mBoard, CheckDirection::left);
+	const int r = CountMatches(cell, mBoard, CheckDirection::right);
+	const int t = CountMatches(cell, mBoard, CheckDirection::top);
+	const int b = CountMatches(cell, mBoard, CheckDirection::bottom);
+	return CheckCombos(l, r, t, b, cell.pieceId, cellIdx);
 }
 
 bool Match3::CheckMatchesAfterSwap() {
-	bool res = CheckCellCombos(mUserSwap.first);
-	res = CheckCellCombos(mUserSwap.second) || res;
+	// Run both checks !
+	bool res = CheckCellCombos(mUserSwap.second);
+	res = CheckCellCombos(mUserSwap.first) || res;
 	return res;
 }
 
-void Match3::HitCell(int idx) const {
-	Cell& cell = mBoard.GetCell(idx);
-	assert(cell.hits > 0);
-	--cell.hits;
-	if (cell.hits == 0) {
-		// Inform client
-		Match3Event event;
-		event.id = Match3Event::Id::removeTile;
-		event.cellIdx = idx;
-		mCbk(event);
+bool Match3::CheckSpecialCombo(int firstIdx, int secondIdx) {
+	Cell& firstCell = mBoard.GetCell(firstIdx);
+	Cell& secondCell = mBoard.GetCell(secondIdx);
+	assert(firstCell.category == CellCategory::piece);
+	assert(secondCell.category == CellCategory::piece);
 
-		cell.category = CellCategory::empty;
-		cell.pieceId = 255;
-		cell.pieceAnim.spriteIdx = -1;
+	constexpr uint32_t crossMask = (1u << (int)EffectType::hStriped) | (1u << (int)EffectType::vStriped);
+
+	uint32_t firstMask = (1u << (int)firstCell.effect);
+	uint32_t secondMask = (1u << (int)secondCell.effect);
+	bool     crossEffect = false;
+
+	if (firstCell.effect == EffectType::colorBomb && secondCell.effect == EffectType::none) {
+		// Every single candy of that color is removed from the entire board
+		ColorBomb(firstCell, secondCell.pieceId);
+		return true;
+	}
+	else if (firstCell.effect == EffectType::colorBomb && secondCell.effect == EffectType::colorBomb) {
+		ClearBoard();
+		return true;
+	}
+	else if (firstCell.effect == EffectType::colorBomb) {
+		if (secondCell.effect == EffectType::hStriped || secondCell.effect == EffectType::vStriped) {
+			// TODO Transform all candies of secondCell.pieceId into a striped, then activate them
+		}
+	}
+	else if (firstCell.effect == EffectType::colorBomb && secondCell.effect == EffectType::wrapped) {
+		// TODO
+		// 1 eleminate all candies of secondCell.pieceId
+		// 2 Immediately after those candies disappear, the Color Bomb chooses the next most common color currently on the board and removes all of
+		// those as well.
+	}
+
+	// TODO ? (firstMask & crossMask) && (secondMask & crossMask)
+
+	else if (firstCell.effect == EffectType::hStriped && secondCell.effect == EffectType::hStriped) {
+		crossEffect = true;
+	}
+	else if (firstCell.effect == EffectType::vStriped && secondCell.effect == EffectType::vStriped) {
+		crossEffect = true;
+	}
+	else if (firstCell.effect == EffectType::hStriped && secondCell.effect == EffectType::vStriped) {
+		crossEffect = true;
+	}
+	else if (firstCell.effect == EffectType::vStriped && secondCell.effect == EffectType::hStriped) {
+		crossEffect = true;
+	}
+	else if (firstCell.effect == EffectType::hStriped && secondCell.effect == EffectType::wrapped) {
+		firstCell.effect = EffectType::none;
+		secondCell.effect = EffectType::none;
+		KillCell(firstCell);
+		KillCell(secondCell);
+		return true;
 	}
 	else {
-		// Broken one layer. Inform client
-		Match3Event event;
-		event.id = Match3Event::Id::layerBroken;
-		event.cellIdx = idx;
-		mCbk(event);
+		return false; // not a valid combo
 	}
+
+	if (crossEffect) {
+		// hStriped + vStriped effect
+		DeleteColumn(secondCell);
+		DeleteRow(secondCell);
+		firstCell.effect = EffectType::none;
+		secondCell.effect = EffectType::none;
+		KillCell(firstCell);
+		KillCell(secondCell);
+		return true;
+	}
+	return false;
 }
 
-void Match3::InsertBoosters() {
-	for (const Booster& booster : mNewBoosters) {
-		// Replace cell
-		Cell& cell = mBoard.GetCell(booster.cellIdx);
-		cell.category = CellCategory::booster;
-		cell.pieceId = static_cast<PieceId>(booster.type);
-		cell.hits = 1;
+bool Match3::CheckSpecialComboAfterSwap() {
+	if (CheckSpecialCombo(mUserSwap.first, mUserSwap.second)) {
+		return true;
+	}
+	if (CheckSpecialCombo(mUserSwap.second, mUserSwap.first)) {
+		return true;
+	}
+	return false;
+}
+
+void Match3::KillCell(Cell& cell, const Cell* targetCell) {
+	if (cell.category != CellCategory::piece) {
+		return; // already deleted or hole or obstacle
+	}
+	if (cell.layers == 0) {
+		if (cell.effect != EffectType::none) {
+			TriggerEffect(cell);
+		}
+		else {
+			// Inform client
+			Match3Event event {
+				.id = Match3Event::Id::removePiece,
+				.removePiece = { .cell = &cell, .targetCell = targetCell },
+			};
+			mCbk(event);
+
+			cell.category = CellCategory::empty;
+		}
+	}
+	else {
+		// Remove one layer
+		--cell.layers;
 		// Inform client
-		Match3Event event;
-		event.id = Match3Event::Id::newBooster;
-		event.booster = booster;
+		Match3Event event {
+			.id = Match3Event::Id::removeLayer,
+			.removeLayer = { .cell = &cell },
+		};
 		mCbk(event);
 	}
-	mNewBoosters.clear();
 }
 
 void Match3::CollapseColumns() {
-	mCollapseList.clear();
+	CellPairEvent collapseList[NumRows];
 	for (int col = 0; col < mBoard.GetCols(); ++col) {
-		CollapseColumn(col);
-	}
+		int numCollapsed = CollapseColumn(col, collapseList);
+		for (int i = 0; i < numCollapsed; ++i) {
+			SwapCells(mBoard, collapseList[i].first, collapseList[i].second);
 
-	// Inform client
-	for (const CellPair& pair : mCollapseList) {
-		Match3Event event;
-		event.id = Match3Event::Id::dropTile;
-		event.pair = pair;
-		mCbk(event);
+			// Inform client
+			Match3Event event {
+				.id = Match3Event::Id::dropPiece,
+				.pair = collapseList[i],
+			};
+			mCbk(event);
+		}
 	}
-
-	mCheckList.insert(std::end(mCheckList), std::begin(mNewPieces), std::end(mNewPieces));
-	// mCheckList.insert(std::end(mCheckList), std::begin(mCollapseList), std::end(mCollapseList));
 }
 
 void Match3::GenerateNewPieces() {
+#if CREATE_NEW_PIECES
 	for (int cellIdx : mNewPieces) {
 		Cell& cell = mBoard.GetCell(cellIdx);
-		assert(IsEmpty(cell));
+		assert(cell.category == CellCategory::empty);
 		cell.category = CellCategory::piece;
-		GenRandomPiece(cell, mBoard, mRandomEngine, mGemIds, mNumGemIds);
+		mBoardGen.GenRandomPiece(cell, mBoard);
+
+		// Check new pieces. In theory the random generator should not generate pieces that create matches
+		mCheckList.push_back(cellIdx);
+
 		// Inform client
-		Match3Event event;
-		event.id = Match3Event::Id::newPiece;
-		event.newPiece.cellIdx = cellIdx;
-		event.newPiece.targetPieceId = cell.pieceId;
+		Match3Event event {
+			.id = Match3Event::Id::newPiece,
+			.newPiece = { .cell = &cell, .pieceId = cell.pieceId },
+		};
 		mCbk(event);
 	}
+#endif
 	mNewPieces.clear();
 }
 
@@ -541,95 +497,249 @@ bool Match3::CheckMatches() {
 	return res;
 }
 
-void Match3::TrySwap(int first, int second) {
-	const Cell& firstTile = mBoard.GetCell(first);
-	const Cell& secondTile = mBoard.GetCell(second);
+bool Match3::TrySwap(int first, int second) {
+	bool        res = false;
+	const Cell& firstCell = mBoard.GetCell(first);
+	const Cell& secondCell = mBoard.GetCell(second);
 	// Check whether the first and second tiles are adjacent and inside the board
-	if (firstTile.col >= 0 && firstTile.col == secondTile.col - 1 && firstTile.row == secondTile.row) {
+	if (firstCell.col >= 0 && firstCell.col == secondCell.col - 1 && firstCell.row == secondCell.row) {
 		SwapSelectedCells(first, second);
+		res = true;
 	}
-	else if (firstTile.col < mBoard.GetCols() && firstTile.col == secondTile.col + 1 && firstTile.row == secondTile.row) {
+	else if (firstCell.col < mBoard.GetCols() && firstCell.col == secondCell.col + 1 && firstCell.row == secondCell.row) {
 		SwapSelectedCells(second, first);
+		res = true;
 	}
-	else if (firstTile.row >= 0 && firstTile.row == secondTile.row - 1 && firstTile.col == secondTile.col) {
+	else if (firstCell.row >= 0 && firstCell.row == secondCell.row - 1 && firstCell.col == secondCell.col) {
 		SwapSelectedCells(first, second);
+		res = true;
 	}
-	else if (firstTile.row < mBoard.GetRows() && firstTile.row == secondTile.row + 1 && firstTile.col == secondTile.col) {
+	else if (firstCell.row < mBoard.GetRows() && firstCell.row == secondCell.row + 1 && firstCell.col == secondCell.col) {
 		SwapSelectedCells(second, first);
+		res = true;
 	}
+	return res;
 }
 
 void Match3::SwapSelectedCells(int firstTile, int secondTile) {
 	mUserSwap.first = firstTile;
 	mUserSwap.second = secondTile;
-	mSwaps.push_back(mUserSwap);
-	mState = State::checkMatchesAfterSwap;
-	mNumUserSwaps++;
+
+	Match3Event event {
+		.id = Match3Event::Id::swap,
+		.pair = { firstTile, secondTile },
+	};
+	mCbk(event);
+
+	SwapCells(mBoard, firstTile, secondTile);
 }
 
-void Match3::CollapseColumn(int col) {
+int Match3::CollapseColumn(int col, CellPairEvent* collapseList) {
 	int emptyRows[NumRows];
 	int numEmptyRows = 0;
 	int currEmptyRow = 0;
+	int numCollapsed = 0;
 
 	// From bottom to top, stack active tiles
 	for (int row = mBoard.GetRows() - 1; row >= 0; --row) {
 		const int   src = mBoard.GetCellIndex(col, row);
 		const Cell& cell = mBoard.GetCell(src);
-		if (IsEmpty(cell)) {
+		switch (cell.category) {
+		case CellCategory::empty:
 			emptyRows[numEmptyRows++] = row;
-		}
-		else if (HasObstacle(cell)) {
-			numEmptyRows = 0; // block pieces and boosts above
+			break;
+		case CellCategory::obstacle:
+			numEmptyRows = 0; // block pieces above
 			currEmptyRow = 0;
-		}
-		else { // booster or piece
+			break;
+		case CellCategory::piece:
 			if (currEmptyRow < numEmptyRows) {
-				// Fall to an empty cell
+				// Fall to an empty mainCell
 				const int dst = mBoard.GetCellIndex(col, emptyRows[currEmptyRow]);
 				++currEmptyRow;
-				mCollapseList.push_back({ src, dst });
+				collapseList[numCollapsed] = { src, dst };
+				++numCollapsed;
 
+				// Check matches after piece has been dropped to dst mainCell
 				mCheckList.push_back(dst);
 
 				emptyRows[numEmptyRows++] = row;
 			}
+			break;
+		case CellCategory::hole:
+			// skip it
+			break;
+		case CellCategory::star:
+			// skip it
+			break;
+		default:
+			assert(false);
+			break;
 		}
 	}
 
+	// Drop new pieces on the remaining empty rows
 	for (int e = currEmptyRow; e < numEmptyRows; ++e) {
 		mNewPieces.push_back(mBoard.GetCellIndex(col, emptyRows[e]));
 	}
+
+	return numCollapsed;
 }
 
-void Match3::KillMatches(const Cell& cell, int dcol, int drow) {
-	int col = cell.col + dcol;
-	int row = cell.row + drow;
+int Match3::CollectMatches(int mainCellIdx, int deltaCol, int deltaRow, int* matches, int numMatches) const {
+	const Cell& cell = mBoard.GetCell(mainCellIdx);
+	int         col = cell.col + deltaCol;
+	int         row = cell.row + deltaRow;
 	while (col >= 0 && col < mBoard.GetCols() && row >= 0 && row < mBoard.GetRows()) {
 		const int cellIdx = mBoard.GetCellIndex(col, row);
-		Cell&     otherCell = mBoard.GetCell(cellIdx);
+		assert(cellIdx != mainCellIdx); // maincell handled separately
+		const Cell& otherCell = mBoard.GetCell(cellIdx);
 		if (CheckMatch(otherCell, cell)) {
-			HitCell(cellIdx);
+			matches[numMatches] = cellIdx;
+			++numMatches;
 		}
 		else {
 			break;
 		}
-		col += dcol;
-		row += drow;
+		col += deltaCol;
+		row += deltaRow;
+	}
+	return numMatches;
+}
+
+void Match3::TriggerEffect(Cell& cell) {
+	assert(cell.category == CellCategory::piece);
+	assert(cell.effect != EffectType::none);
+	assert(cell.layers == 0);
+
+	switch (cell.effect) {
+	case EffectType::none:
+		break;
+	case EffectType::hStriped:
+		DeleteRow(cell);
+		break;
+	case EffectType::vStriped:
+		DeleteColumn(cell);
+		break;
+	case EffectType::wrapped:
+		Bomb(cell, 1);
+		break;
+	case EffectType::colorBomb:
+		// Color bomb hit by a blast. Choose most frequent candy in board
+		ColorBomb(cell, FindMostFrequentPiece());
+		break;
 	}
 }
 
-void Match3::TriggerBooster(int cellIdx) {
-	const Cell& cell = mBoard.GetCell(cellIdx);
-	assert(cell.category == CellCategory::booster);
-	const BoosterType boosterType = static_cast<BoosterType>(cell.pieceId);
-
-	// Inform client
-	Match3Event event;
-	event.id = Match3Event::Id::boosterTriggered;
-	event.booster.cellIdx = cellIdx;
-	event.booster.type = boosterType;
+void Match3::DeleteRow(Cell& mainCell) {
+	// Inform client e.g. to play some special fx
+	Match3Event event {
+		.id = Match3Event::Id::triggerEffect,
+		.effect = { .mainCell = &mainCell, .type = EffectType::hStriped },
+	};
 	mCbk(event);
 
-	mState = State::collapseColumns;
+	// Delete special candy
+	// Important: do it before triggering, to avoid infinite recursion
+	mainCell.category = CellCategory::empty;
+	mainCell.effect = EffectType::none;
+
+	for (int ncol = 0; ncol < mBoard.GetCols(); ++ncol) {
+		if (mainCell.col != ncol) {
+			KillCell(mBoard.GetCell(ncol, mainCell.row));
+		}
+	}
+}
+
+void Match3::DeleteColumn(Cell& mainCell) {
+	// Inform client e.g. to play some special fx
+	Match3Event event {
+		.id = Match3Event::Id::triggerEffect,
+		.effect = { .mainCell = &mainCell, .type = EffectType::vStriped },
+	};
+	mCbk(event);
+
+	// Delete special candy
+	// Important: do it before triggering, to avoid infinite recursion
+	mainCell.category = CellCategory::empty;
+	mainCell.effect = EffectType::none;
+
+	for (int nrow = 0; nrow < mBoard.GetRows(); ++nrow) {
+		if (mainCell.row != nrow) {
+			KillCell(mBoard.GetCell(mainCell.col, nrow));
+		}
+	}
+}
+
+void Match3::Bomb(Cell& mainCell, int radius) {
+	// Inform client e.g. to play some special fx
+	Match3Event event {
+		.id = Match3Event::Id::triggerEffect,
+		.effect = { .mainCell = &mainCell, .type = EffectType::wrapped },
+	};
+	mCbk(event);
+
+	// Delete special candy
+	// Important: do it before triggering, to avoid infinite recursion
+	mainCell.category = CellCategory::empty;
+	mainCell.effect = EffectType::none;
+
+	// Kill grid around bomb
+	for (int y = -radius; y <= radius; ++y) {
+		int orow = mainCell.row + y;
+		for (int x = -radius; x <= radius; ++x) {
+			int r = x * x + y * y;
+			if (r > 0) {
+				int ocol = mainCell.col + x;
+				if (mBoard.IsInside(ocol, orow)) {
+					KillCell(mBoard.GetCell(ocol, orow));
+				}
+			}
+		}
+	}
+}
+
+void Match3::ColorBomb(Cell& mainCell, PieceId targetPieceId) {
+	// Inform client e.g. to play some special fx
+	Match3Event event {
+		.id = Match3Event::Id::triggerEffect,
+		.effect = { .mainCell = &mainCell, .type = EffectType::colorBomb },
+	};
+	mCbk(event);
+
+	// Delete special candy
+	// Important: do it before triggering, to avoid infinite recursion
+	mainCell.category = CellCategory::empty;
+	mainCell.effect = EffectType::none;
+
+	for (Cell& cell : mBoard.GetCells()) {
+		if (cell.category == CellCategory::piece && cell.pieceId == targetPieceId) {
+			KillCell(cell);
+		}
+	}
+}
+
+void Match3::ClearBoard() {
+	// TODO Are layers removed ?
+	for (Cell& cell : mBoard.GetCells()) {
+		if (cell.category == CellCategory::piece) {
+			KillCell(cell);
+		}
+	}
+}
+
+PieceId Match3::FindMostFrequentPiece() const {
+	int     count[MaxPieceTypes] {};
+	PieceId pieceId = 0;
+	int     highestCount = 0;
+	for (const Cell& cell : mBoard.GetCells()) {
+		if (cell.category == CellCategory::piece) {
+			assert(cell.pieceId < MaxPieceTypes);
+			count[cell.pieceId]++;
+			if (count[cell.pieceId] > highestCount) {
+				pieceId = cell.pieceId;
+			}
+		}
+	}
+	return pieceId;
 }

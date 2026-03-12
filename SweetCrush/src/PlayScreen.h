@@ -1,45 +1,47 @@
 #pragma once
 
-#include "ActionMgr.h"
 #include "Board.h"
-#include "BoostInfoPanel.h"
+#include "BoardGenerator.h"
+#include "Level.h"
 #include "Match3.h"
+
+#include <engine/ActionMgr.h>
 #include <engine/FwdDecl.h>
-#include <engine/GameScreen.h>
+#include <engine/Screen.h>
+#include <engine/UI.h>
 
 class TileSelector;
 struct TileSelectionEvent;
 struct GameSettings;
 struct MatchStats;
 class GameDataModule;
+class GameRenderer;
 
-class PlayScreen final : public Wind::GameScreen {
+class PlayScreen final : public Wind::Screen {
 public:
-	PlayScreen(Wind::Engine& engine, const GameConfig& gameConfig, const GameSettings& gameSettings, ActionMgr& renderActionMgr,
+	PlayScreen(Wind::Engine& engine, const GameRenderer& gameRenderer, const AppConfig& appConfig, const GameSettings& gameSettings,
 	           MatchStats& matchStats, const GameDataModule& gameDataModule);
 	~PlayScreen();
 
-	void               LoadAssets() override;
-	void               BuildUI(Wind::UICanvas& canvas) override;
-	Wind::GameScreenId Tick(float dt, const Wind::Input& input) override;
-	void               Draw(Wind::GameScreenId topScreen) const override;
-	void               Enter(Wind::GameScreenId prevScreen) override;
-	void               Exit() override;
+	const char*       GetName() const override;
+	void              LoadAssets(Wind::Engine& engine) override;
+	Wind::ScreenEvent Tick(float dt, const Wind::Input& input) override;
+	void              Draw(Wind::UIRenderer& uiRenderer, float dt) override;
+	void              Enter(const Wind::ScreenNavArgs& args) override;
+	void              Exit() override;
+	void              ParseConfig(const char* varName, const char* varValue) override;
 
 private:
+	void SelectBooster(const Wind::Input& input);
+	void UseSelectedBooster(const Wind::Input& input);
 	void NewGame();
-	void NextLevel();
-	void ReplayLevel();
-	void StartLevel();
 	void SetupNewBoardAnimation();
-	void OnCellSelectionEvent(const TileSelectionEvent& event);
-	void OnTileRemoved(const Cell& cell);
+	void OnTileSelectionEvent(const TileSelectionEvent& event);
+	void OnPieceRemoved(const Cell& cell);
 	void OnMatch3Event(const Match3Event& event);
-	void TriggerBooster(const Booster& booster);
 	void CheckLevelCompletion();
-	void DrawBoard(const Wind::BitmapRenderer& bitmapRender) const;
-	void DrawUI() const;
-	int  IncreaseScore(const Match& match);
+	void DrawUI(Wind::UIRenderer& uiRenderer);
+	int  IncreaseScore(const MatchEvent& match);
 	void PlayMusic() const;
 	void StopMusic() const;
 	void PauseMusic() const;
@@ -48,20 +50,33 @@ private:
 
 private:
 	Wind::Engine&                 mEngine;
-	const GameConfig&             mGameConfig;
+	const GameRenderer&           mGameRenderer;
+	const AppConfig&              mGameConfig;
 	const GameSettings&           mGameSettings;
-	ActionMgr                     mActionMgr;
-	ActionMgr&                    mRenderActionMgr;
+	Wind::ActionMgr               mActionMgr;
 	MatchStats&                   mMatchStats;
 	const GameDataModule&         mGameDataModule;
 	Board                         mBoard;
-	std::unique_ptr<TileSelector> mTileSelector;
-	BoostInfoPanel                mBoostInfoPanel;
-	Wind::UIPanel                 mPanel;
-	Wind::UIButton                mPauseButton;
+	BoardGenerator                mBoardGenerator;
+	std::unique_ptr<TileSelector> mCellSelector;
+	Wind::UICanvas                mCanvas;
+	Wind::UIButton*               mPauseButton;
+	Wind::UIBitmap*               mGoalIcons[3];
+	Wind::UIText*                 mGoalCounters[3];
+	Wind::UIBitmap*               mTickIcon[3];
+	Wind::UIText*                 mScoreText;
+	Wind::UIText*                 mMovesText;
+	Wind::UIButton*               mBoosterButtons[3];
+	Wind::UIBitmap*               mPet = nullptr;
 	Match3                        mMatch3;
+	std::vector<CellVisual>       mCellGraphics;
 	float                         mTime;
-	Wind::FontPtr                 mFonts[3];
+	Wind::FontPtr                 mFonts[1];
 	Wind::MusicPtr                mMusic;
 	Wind::SoundPtr                mSounds[2];
+	int                           mBoosterCount[MaxBoosterTypesPerLevel] {};
+	int                           mSelectedBooster = -1;
+	bool                          mGameComplete = false;
+	bool                          mLevelComplete = false;
+	int                           mBlockingActionCounter = 0;
 };

@@ -2,7 +2,7 @@
 
 struct Level;
 
-#if defined (__ANDROID__)
+#if defined (__ANDROID__) || defined(__OHOS__)
 
 class GameDataModule {
 public:

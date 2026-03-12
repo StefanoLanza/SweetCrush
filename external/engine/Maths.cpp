@@ -10,8 +10,16 @@ Vec2 operator+(const Vec2& lhs, const Vec2& rhs) {
 	return { lhs.x + rhs.x, lhs.y + rhs.y };
 }
 
+Vec2 operator+(const Vec2& lhs, float s) {
+	return { lhs.x + s, lhs.y + s };
+}
+
 Vec2 operator-(const Vec2& lhs, const Vec2& rhs) {
 	return { lhs.x - rhs.x, lhs.y - rhs.y };
+}
+
+Vec2 operator*(const Vec2& lhs, const Vec2& rhs) {
+	return { lhs.x * rhs.x, lhs.y * rhs.y };
 }
 
 Vec2 operator*(const Vec2& v, float s) {
@@ -20,6 +28,18 @@ Vec2 operator*(const Vec2& v, float s) {
 
 Vec2 operator*(float s, const Vec2& v) {
 	return v * s;
+}
+
+Vec2 operator/(const Vec2& lhs, const Vec2& rhs) {
+	return { lhs.x / rhs.x, lhs.y / rhs.y };
+}
+
+Vec2 operator/(const Vec2& v, float s) {
+	return { v.x / s, v.y / s };
+}
+
+Vec2 operator/(float s, const Vec2& v) {
+	return v / s;
 }
 
 Vec2 operator-(const Vec2& v) {
@@ -52,6 +72,10 @@ Vec2 Clamp(Vec2 v, Vec2 min, Vec2 max) {
 	return { Clamp(v.x, min.x, max.x), Clamp(v.y, min.y, max.y) };
 }
 
+Vec2 Ortho(Vec2 v) {
+	return { v.y, -v.x };
+}
+
 bool RectContainsPoint(const Rect& rect, const Vec2& point) {
 	return std::clamp(point.x, rect.left, rect.right) == point.x && std::clamp(point.y, rect.top, rect.bottom) == point.y;
 }
@@ -80,10 +104,6 @@ Vec2 Spline(const Vec2 p[], int n, float t) {
 	float t2 = t * t;
 	float t3 = t * t * t;
 	return 0.5f * ((2 * p1) + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
-}
-
-float Lerp(float a, float b, float t) {
-	return a + (b - a) * t;
 }
 
 } // namespace Wind

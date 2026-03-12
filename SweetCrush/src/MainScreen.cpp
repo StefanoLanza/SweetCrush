@@ -1,105 +1,163 @@
 #include "MainScreen.h"
 #include "AssetDefs.h"
 #include "Constants.h"
-#include "GameDrawOrder.h"
+#include "GameSettings.h"
+#include "GameUI.h"
 #include "Localization.h"
 #include "ScreenIds.h"
-#include "UIDefs.h"
-#include <cmath>
-#include <engine/BitmapRender.h>
+
+#include <engine/Audio.h>
 #include <engine/Engine.h>
-#include <engine/TextRender.h>
-#include <engine/UI.h>
+#include <engine/Input.h>
+#include <engine/SdlSound.h>
 
 using namespace Wind;
 
 namespace {
 
-const UIButtonDesc buttonDescs[4] {
-	{ UIAbsolutePos(0, 440), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
-	{ UIAbsolutePos(0, 560), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
-	{ UIAbsolutePos(0, 680), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
-	{ UIAbsolutePos(0, 800), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
+const UITextDesc versionDesc {
+	.stringId = GameStringId::version,
+	.pos = { 0.f, 0.f },
+	.horizontalAlignment = UIHorizAlignment::right,
+	.verticalAlignment = UIVertAlignment::bottom,
+	.font = "smallFont",
+	.style = defaultTextStyle,
 };
-const UITextDesc textDescs[5] {
-	{ "bigFont", (StringId)GameStringId::title, UIAbsolutePos(0, titleY), UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top,
-	  titleTextStyle },
-	{ "mediumFont", (StringId)GameStringId::start, UIZeroPos, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
-	{ "mediumFont", (StringId)GameStringId::settings, UIZeroPos, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
-	{ "mediumFont", (StringId)GameStringId::credits, UIZeroPos, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
-	{ "mediumFont", (StringId)GameStringId::quit, UIZeroPos, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
+
+const UIPanelDesc pastryPanelDesc {
+	.pos = UIAbsolutePos(0.f, 250.f),
+	.size = { 0.f, 96.f, 1.f, 0.f },
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::top,
+	.backgroundColor = transparentColor,
+	.grid {
+	    .cols = 9,
+	},
 };
 
 } // namespace
 
-MainScreen::MainScreen(Engine& engine)
+MainScreen::MainScreen(Engine& engine, const GameSettings& gameSettings)
     : mEngine(engine)
-    , mTitle(textDescs[0], engine)
-    , mStartButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
-    , mSettingsButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2], engine))
-    , mCreditsButton(MakeButton(buttonDescs[2], buttonBitmapDesc, textDescs[3], engine))
-    , mQuitButton(MakeButton(buttonDescs[3], buttonBitmapDesc, textDescs[4], engine))
-    , mPanel(UIDefaultPanelDesc)
-    , mTime(0) {
-}
-
-void MainScreen::LoadAssets() {
-}
-
-void MainScreen::BuildUI(UICanvas& canvas) {
-	mPanel.AddText(mTitle);
-	mPanel.AddButton(mStartButton);
-	mPanel.AddButton(mSettingsButton);
-	mPanel.AddButton(mCreditsButton);
-#if ! defined(__ANDROID__) && (defined(_WIN32) || defined(__linux__))
-	mPanel.AddButton(mQuitButton);
+    , mGameSettings(gameSettings)
+    , mCanvas { MakeCanvas() }
+    , mAccumTime(0) {
+	// Setup UI
+	mCanvas.Add(MakeTitle(GameStringId::title));
+	mStartButton = MakeMenuButton(mCanvas.Panel(), button0_y, GameStringId::start, button0_color);       //, "icons/play.png"));
+	mSettingsButton = MakeMenuButton(mCanvas.Panel(), button1_y, GameStringId::settings, button1_color); //, "icons/gear.png"));
+	mCreditsButton = MakeMenuButton(mCanvas.Panel(), button2_y, GameStringId::credits, button2_color);   //, "icons/info.png"));
+#if ! defined(__ANDROID__) && ! defined(__OHOS__)
+	mQuitButton = MakeMenuButton(mCanvas.Panel(), button3_y, GameStringId::quit, button3_color); //, "icons/cross.png"));
 #endif
-	canvas.GetPanel().AddPanel(mPanel);
+	mCanvas.Add(versionDesc);
+
+	UISliderDesc sliderDesc {
+		.pos = UIAbsolutePos(0.f, 100.f),
+		.size = { 0.f, 96.f, 1.f, 0.f },
+		.horizontalAlignment = UIHorizAlignment::center,
+		.verticalAlignment = UIVertAlignment::top,
+		.backgroundColor = yellowColor,
+	};
+	mSlider = mCanvas.Panel().Add(sliderDesc);
+	mSlider->SetValue(0.3f);
+	{
+		UISliderThumbDesc iconDesc;
+		iconDesc.fileName = gameTexturePath[0];
+		iconDesc.size = { 64.f, 64.f };
+		mSlider->SetThumb(iconDesc);
+	}
+
+	mPastryPanel = mCanvas.Add(pastryPanelDesc);
+	for (int i = 0; i < NumPieceTypes; ++i) {
+		UIBitmapDesc iconDesc;
+		iconDesc.horizontalAlignment = UIHorizAlignment::center;
+		iconDesc.verticalAlignment = UIVertAlignment::center;
+		iconDesc.fileName = gameTexturePath[i];
+		iconDesc.sizing = UIBitmapSizing::fit;
+		iconDesc.pivot = { 0.5f, 0.5f };
+		mPastryPanel->Add(iconDesc);
+	}
 }
 
-GameScreenId MainScreen::Tick(float dt, const Wind::Input& input) {
-	mTime += dt;
-	if (mStartButton.IsPressed(input)) {
-		return ScreenId::play;
+const char* MainScreen::GetName() const {
+	return "MainScreen";
+}
+
+void MainScreen::LoadAssets(Engine& engine) {
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
+	mButtonSound = engine.GetAudio().LoadSound("audio/click_001.ogg");
+}
+
+ScreenEvent MainScreen::Tick(float dt, const Wind::Input& input) {
+	mCanvas.Tick(dt);
+	mCanvas.HandleInput(input);
+	mAccumTime += dt;
+
+	if (mStartButton->IsClicked()) {
+		if (mGameSettings.sfxOn) {
+			mButtonSound->Play();
+		}
+		return GoTo(GameScreenIds::levelStart, ScreenTransition::slideTop);
 	}
-	else if (mSettingsButton.IsPressed(input)) {
-		return ScreenId::settings;
+	else if (mSettingsButton->IsClicked()) {
+		if (mGameSettings.sfxOn) {
+			mButtonSound->Play();
+		}
+		return GoTo(GameScreenIds::settings, ScreenTransition::slideLeft);
 	}
-	else if (mCreditsButton.IsPressed(input)) {
-		return ScreenId::credits;
+	else if (mCreditsButton->IsClicked()) {
+		if (mGameSettings.sfxOn) {
+			mButtonSound->Play();
+		}
+		return GoTo(GameScreenIds::credits, ScreenTransition::slideLeft);
 	}
-#if ! defined(__ANDROID__) && (defined(_WIN32) || defined(__linux__))
-	else if (mQuitButton.IsPressed(input)) {
+
+	AnimateUI();
+
+#if defined(__ANDROID__) || defined(__OHOS__)
+	if (input.GetKeyJustPressed(SDLK_AC_BACK)) {
+		mEngine.Quit();
+#elif defined(_WIN32) || defined(__linux__)
+	if (input.GetKeyJustPressed(SDLK_ESCAPE) || mQuitButton->IsClicked()) {
+#endif
 		mEngine.Quit();
 	}
-#endif
-	return ScreenId::mainMenu;
+	return Continue();
 }
 
-void MainScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
-	if (! mPanel.IsVisible()) {
-		return;
-	}
-	constexpr float dx = 66;
-	float           phase = mTime * 4.f;
-	float           x = (RefWindowWidth - (NumGemTypes - 1) * dx) * 0.5f;
-	BitmapExtParams prm;
-	prm.pivot = BitmapPivot::center;
-	prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::overBackground);
-	prm.blending = true;
-	for (int i = 0; i < NumGemTypes; ++i) {
-		const GemDef& gemDef = gemDefs[i];
-		prm.orientation = std::sin(phase * .25f + (float)i) * 0.5f;
-		mEngine.GetBitmapRenderer().DrawBitmapEx(*sprites[gemDef.sprite], { x, 320.f + std::cos(phase) * 4.f }, prm);
-		x += dx;
-		phase += 6.28f / static_cast<float>(NumGemTypes);
+void MainScreen::Draw(UIRenderer& uiRenderer, float dt) {
+	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
+
+	// Rotate and oscillate pastry icons
+	float phase = mAccumTime * 4.f;
+	for (int i = 0; i < NumPieceTypes; ++i) {
+		UITransform& iconTransform = mPastryPanel->GetControl(i).GetTransform();
+		iconTransform.rotation = std::sin(phase * .25f + (float)i) * 0.5f;
+		iconTransform.offset.y = std::cos(phase) * 4.f;
+		phase += 6.28f / static_cast<float>(NumPieceTypes);
 	}
 }
 
-void MainScreen::Enter([[maybe_unused]] GameScreenId prevScreen) {
-	mPanel.SetVisible(true);
+void MainScreen::Enter(const ScreenNavArgs& args) {
+	mAccumTime = 0.f;
+	AnimateUI();
 }
 
 void MainScreen::Exit() {
-	mPanel.SetVisible(false);
+}
+
+void MainScreen::ParseConfig(const char* varName, const char* varValue) {
+}
+
+void MainScreen::AnimateUI() {
+	//	float t = std::min(1.f, mAccumTime * 3.f);
+	//	auto  desc = mSettingsButton.GetDesc();
+	//	mQuitButton.GetDesc Bitmap()->SetColor(Color { desc.color.r, desc.color.g, desc.color.b, 255.f * t });
+	// desc.scale = LerpEase(0.85f, 1.f, t, EaseOutBounce);
+	// desc.pos.ax = LerpEase(-400.f, 0.f, t, EaseOutCubic);
+	// mSettingsButton.SetDesc(desc);
+	// desc = mStartButton.GetDesc();
+	// desc.pos.ax = LerpEase(400.f, 0.f, t, EaseOutCubic);
+	// mStartButton.SetDesc(desc);
 }

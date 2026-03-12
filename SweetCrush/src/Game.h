@@ -1,21 +1,26 @@
 #pragma once
 
+#include <engine/ActionMgr.h>
+#include <engine/Compositor.h>
 #include <engine/FwdDecl.h>
-#include <engine/GameScreen.h>
-#include <engine/GlFrameBuffer.h>
+#include <engine/HalfTone.h> //FIXME
+#include <engine/Screen.h>
+#include <engine/ScreenManager.h>
 #include <engine/UI.h>
+#include <engine/UIRenderer.h>
 
-#include "ActionMgr.h"
 #include "GameDataModule.h"
 #include "GameSettings.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
 
-struct GameConfig;
+struct AppConfig;
+class GameRenderer;
 
 class Game final {
 public:
-	Game(Wind::Engine& engine, const GameConfig& gameConfig, GameDataModule& gameDataModule);
+	Game(Wind::Engine& engine, const GameRenderer& gameRenderer, const AppConfig& gameConfig, GameDataModule& gameDataModule,
+	     Wind::INIParser& iniParser);
 	~Game();
 	void Run();
 
@@ -24,14 +29,15 @@ private:
 	void Tick(float dt);
 
 private:
-	Wind::Engine&                     mEngine;
-	const GameConfig&                 mGameConfig;
-	GameDataModule&                   mGameDataModule;
-	GameSettings                      mGameSettings;
-	Wind::GlFrameBuffer               mFrameBuffer;
-	Wind::UICanvas                    mCanvas;
-	MatchStats                        mMatchStats;
-	ActionMgr                         mRenderActionMgr;
-	Wind::GameScreenId                mScreenId;
-	std::unique_ptr<Wind::GameScreen> mScreens[8];
+	Wind::Engine&                 mEngine;
+	const AppConfig&              mGameConfig;
+	GameDataModule&               mGameDataModule;
+	GameSettings                  mGameSettings;
+	MatchStats                    mMatchStats;
+	Wind::UIMouseCursor           mMouseCursor;
+	Wind::UIRenderer              mUIRenderer;
+	Wind::ScreenManager           mScreenMgr;
+	Wind::UICompositor            mCompositor;
+	std::unique_ptr<Wind::Screen> mScreens[10];
+	Wind::HalfTone                mHalfTone;
 };

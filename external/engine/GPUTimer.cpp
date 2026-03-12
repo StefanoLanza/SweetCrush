@@ -7,7 +7,7 @@
 
 namespace Wind {
 
-#if defined(__ANDROID__)
+#if defined(__ANDROID__) || defined(__OHOS__)
 namespace {
 
 PFNGLQUERYCOUNTEREXTPROC        pglQueryCounterEXT = nullptr;
@@ -24,7 +24,7 @@ GPUTimer::GPUTimer()
 	glGenQueries(std::size(mStartQueries), mStartQueries);
 	glGenQueries(std::size(mEndQueries), mEndQueries);
 
-#if defined(__ANDROID__)
+#if defined(__ANDROID__) || defined(__OHOS__)
 	if (! pglQueryCounterEXT) {
 		pglQueryCounterEXT = reinterpret_cast<PFNGLQUERYCOUNTEREXTPROC>(SDL_GL_GetProcAddress("glQueryCounterEXT"));
 		pglGetQueryObjectui64vEXT = reinterpret_cast<PFNGLGETQUERYOBJECTUI64VEXTPROC>(SDL_GL_GetProcAddress("glGetQueryObjectui64vEXT"));
@@ -41,7 +41,7 @@ GPUTimer::GPUTimer()
 }
 
 void GPUTimer::Start() {
-#if defined(__ANDROID__)
+#if defined(__ANDROID__) || defined(__OHOS__)
 	if (! mIsAvailable) {
 		return;
 	}
@@ -61,7 +61,7 @@ void GPUTimer::Start() {
 }
 
 std::optional<double> GPUTimer::End() {
-#if defined(__ANDROID__)
+#if defined(__ANDROID__) || defined(__OHOS__)
 	if (! mIsAvailable) {
 		return std::nullopt;
 	}
@@ -92,7 +92,7 @@ std::optional<double> GPUTimer::End() {
 	}
 
 	GLint disjointOccurred = 0;
-#if defined(__ANDROID__)
+#if defined(__ANDROID__) || defined(__OHOS__)
 	// On disjoint exception, clear query buffer
 	glGetIntegerv(GL_GPU_DISJOINT_EXT, &disjointOccurred);
 	if (disjointOccurred) {
@@ -107,7 +107,7 @@ std::optional<double> GPUTimer::End() {
 
 	if (available && (0 == disjointOccurred)) {
 		GLuint64 start_ns = 0, end_ns = 0;
-#if defined(__ANDROID__)
+#if defined(__ANDROID__) || defined(__OHOS__)
 		pglGetQueryObjectui64vEXT(mStartQueries[pollFrame], GL_QUERY_RESULT, &start_ns);
 		pglGetQueryObjectui64vEXT(mEndQueries[pollFrame], GL_QUERY_RESULT, &end_ns);
 		if (glGetError() != GL_NO_ERROR) {

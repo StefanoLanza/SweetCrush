@@ -23,28 +23,30 @@ private:
 	// Uniforms
 	GLint mColor = 0;
 	GLint mRotation = 0;
-	GLint mPosRect = 0;
+	GLint mCoords = 0;
 	GLint mUVRect = 0;
+	GLint mMisc = 0;
 	GLint mTexture = 0;
 };
 
 BitmapRenderer::Impl::Impl(Graphics& graphics)
     : mGraphics { graphics }
-    , mProgramHandle { graphics.NewProgram(SHADERS_FOLDER "quad.vs", SHADERS_FOLDER "quad.fs") }
+    , mProgramHandle { graphics.NewProgram("bitmap.vs", "bitmap.fs") }
     , mValidPrograms { false } {
 
 	PipelineState pipelineState;
-	pipelineState.mBlending = true;
+	pipelineState.blending = true;
 	mPipelineBlending = graphics.NewPipeline(pipelineState);
 
 	if (mProgramHandle != nullProgram) {
 		const GlProgram& program = graphics.GetProgram(mProgramHandle);
 		mColor = program.GetUniformLocation("color");
 		mRotation = program.GetUniformLocation("rotation");
-		mPosRect = program.GetUniformLocation("posRect");
+		mCoords = program.GetUniformLocation("posRect");
 		mUVRect = program.GetUniformLocation("uvRect");
+		mMisc = program.GetUniformLocation("misc");
 		mTexture = program.GetUniformLocation("inputTexture");
-		mValidPrograms = (mColor != -1 && mPosRect != -1 && mUVRect != -1 && mTexture != -1);
+		mValidPrograms = (mColor != -1 && mCoords != -1 && mUVRect != -1 && mMisc != -1 && mTexture != -1);
 	}
 }
 
@@ -57,22 +59,22 @@ void BitmapRenderer::Impl::DrawBitmapEx(const Texture& bitmap, float x, float y,
 		return;
 	}
 
-	const float bitmapWidth = (prm.width <= 0.f ? static_cast<float>(bitmap.Width()) : prm.width) * prm.scale;
-	const float bitmapHeight = (prm.height <= 0.f ? static_cast<float>(bitmap.Height()) : prm.height) * prm.scale;
-	const float pivot_x = bitmapWidth * prm.pivot.x;
-	const float pivot_y = bitmapHeight * prm.pivot.y;
+	const float bitmapWidth = static_cast<float>(bitmap.Width());
+	const float bitmapHeight = static_cast<float>(bitmap.Height());
+	const float rectWidth = (prm.width <= 0.f ? bitmapWidth : prm.width) * prm.scale.x;
+	const float rectHeight = (prm.height <= 0.f ? bitmapHeight : prm.height) * prm.scale.y;
+	const float pivot_x = rectWidth * prm.pivot.x;
+	const float pivot_y = rectHeight * prm.pivot.y;
 
-	float left = x - pivot_x;
-	float top = y - pivot_y;
-	float right = left + bitmapWidth;
-	float bottom = top + bitmapHeight;
-
-	const int   uniforms[] = { mPosRect, mUVRect, mColor, mRotation };
+	const int uniforms[] = {
+		mCoords, mUVRect, mColor, mRotation, mMisc,
+	};
 	const float uniformData[][4] = {
-		{ left, top, right, bottom },
+		{ x - pivot_x, y - pivot_y, rectWidth, rectHeight },
 		{ prm.texRect.left, prm.texRect.top, prm.texRect.right, prm.texRect.bottom },
 		{ prm.color.r / 255.f, prm.color.g / 255.f, prm.color.b / 255.f, prm.color.a / 255.f },
 		{ std::cos(prm.orientation), std::sin(prm.orientation), x, y },
+		{ prm.grayscale / 100.f, 0.f, 0.f, 0.f },
 	};
 
 	if (prm.blending) {
@@ -82,18 +84,18 @@ void BitmapRenderer::Impl::DrawBitmapEx(const Texture& bitmap, float x, float y,
 		mGraphics.SetDefaultPipeline();
 	}
 
-	const unsigned textureIds[] = { bitmap.GetTextureId() };
+	const unsigned textureIds[] = { bitmap.GetGLId() };
 
 	DrawCall drawCall;
-	drawCall.uniforms = uniforms;
-	drawCall.uniformData = uniformData;
-	drawCall.numUniforms = sizeof(uniformData) / 16;
+	drawCall.uniformLocations = uniforms;
+	drawCall.uniforms = uniformData;
+	drawCall.numUniforms = std::size(uniforms);
 	drawCall.textures = textureIds;
 	drawCall.numTextures = 1;
 	drawCall.program = mProgramHandle;
 	drawCall.mesh = quadMesh;
 	drawCall.drawOrder = prm.drawOrder;
-	drawCall.sortKey = (bitmap.GetTextureId() & 255); // sort by texture
+	drawCall.sortKey = (bitmap.GetGLId() & 255); // sort by texture
 	mGraphics.Draw(drawCall);
 }
 

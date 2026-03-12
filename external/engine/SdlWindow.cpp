@@ -3,6 +3,7 @@
 #include <SDL3/SDL.h>
 #include <stdexcept>
 #include <string>
+#include <cassert>
 
 namespace Wind {
 
@@ -19,14 +20,19 @@ SdlWindow::SdlWindow(const char* title, int width, int height, const char* iconF
 	SDL_GetWindowSize(mSDLWindow.get(), &mWidth, &mHeight);
 
 	if (iconFile) {
-		SDL_Surface* icon = SDL_LoadPNG(iconFile);
-		if (icon) {
-			SDL_SetWindowIcon(mSDLWindow.get(), icon);
-			SDL_DestroySurface(icon);
-		}
-		else {
-			SDL_Log("Failed to load icon: %s", SDL_GetError());
-		}
+		SetIcon(iconFile);
+	}
+}
+
+void SdlWindow::SetIcon(const char* iconFile) {
+	assert(iconFile);
+	SDL_Surface* icon = SDL_LoadPNG(iconFile);
+	if (icon) {
+		SDL_SetWindowIcon(mSDLWindow.get(), icon);
+		SDL_DestroySurface(icon);
+	}
+	else {
+		SDL_Log("Failed to load icon: %s", SDL_GetError());
 	}
 }
 

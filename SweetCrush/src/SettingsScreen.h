@@ -1,31 +1,34 @@
 #pragma once
 
 #include <engine/FwdDecl.h>
-#include <engine/GameScreen.h>
+#include <engine/Screen.h>
 #include <engine/UI.h>
 
 struct GameSettings;
 
-class SettingsScreen final : public Wind::GameScreen {
+class SettingsScreen final : public Wind::Screen {
 public:
-	SettingsScreen(Wind::Engine& engine, GameSettings& gameSettings);
+	explicit SettingsScreen(GameSettings& gameSettings);
 
-	void               LoadAssets() override;
-	void               BuildUI(Wind::UICanvas& canvas) override;
-	Wind::GameScreenId Tick(float dt, const Wind::Input& input) override;
-	void               Draw(Wind::GameScreenId topScreen) const override;
-	void               Enter(Wind::GameScreenId prevScreen) override;
-	void               Exit() override;
-
-private:
-	void RefreshLanguageButton();
-	void RefreshAudioButton();
+	const char*       GetName() const override;
+	void              LoadAssets(Wind::Engine& engine) override;
+	Wind::ScreenEvent Tick(float dt, const Wind::Input& input) override;
+	void              Draw(Wind::UIRenderer& uiRenderer, float dt) override;
+	void              Enter(const Wind::ScreenNavArgs& args) override;
+	void              Exit() override;
+	void              ParseConfig(const char* varName, const char* varValue) override;
 
 private:
-	GameSettings&  mGameConfig;
-	Wind::UIText   mTitle;
-	Wind::UIButton mLanguageButton;
-	Wind::UIButton mAudioButton;
-	Wind::UIButton mBackButton;
-	Wind::UIPanel  mPanel;
+	void RefreshUI();
+	void MakeLanguageButton();
+
+private:
+	GameSettings&   mGameConfig;
+	Wind::UICanvas  mCanvas;
+	Wind::UIButton* mMusicButton = nullptr;
+	Wind::UIButton* mSfxButton = nullptr;
+	Wind::UIButton* mLanguageButton = nullptr;
+	Wind::UIButton* mBackButton = nullptr;
+	Wind::SoundPtr  mButtonSound;
+	Wind::SoundPtr  mToggleSound;
 };

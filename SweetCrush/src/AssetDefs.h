@@ -1,45 +1,27 @@
 #pragma once
 
-#include "Boosters.h"
+#include "Effects.h"
 #include <engine/FwdDecl.h>
 
-constexpr int NumSprites = 22;
-constexpr int NumGemTypes = 11;
+using SpriteID = uint8_t;
+
+constexpr int NumGameTextures = 23;
+constexpr int NumPieceTypes = 9;
 constexpr int NumBoardTiles = 1;
 constexpr int NumObstacleTypes = 1;
+constexpr int NumBoosters = 3;
 
-struct SpriteDef {
-	/*	const char** bitmaps;
-	    int          numBitmaps;
-	    float        animationFreq;*/
-	const char* bitmap;
-};
+extern const char*      gameTexturePath[NumGameTextures];
+extern Wind::TexturePtr gameTextures[NumGameTextures];
+extern const char*      gameTexturePath[NumGameTextures];
+extern const SpriteID   boardTileIcons[NumBoardTiles];
+extern const SpriteID   pieceIcons[NumPieceTypes];
+extern const SpriteID   obstacleIcons[NumObstacleTypes];
+extern const SpriteID   boosterIcons[NumBoosters];
 
-struct GemDef {
-	int sprite;
-};
-
-struct ObstacleDef {
-	int sprite;
-};
-
-struct BoosterDef {
-	int   sprite;
-	float scaleDev;
-};
-
-struct BoardTileDef {
-	int sprite;
-};
-
-extern const SpriteDef    spriteDefs[NumSprites];
-extern const BoardTileDef boardTileDefs[NumBoardTiles];
-extern const GemDef       gemDefs[NumGemTypes];
-extern const ObstacleDef  obstacleDefs[NumObstacleTypes];
-extern const BoosterDef   boosterDefs[NumBoosters];
-extern Wind::TexturePtr   sprites[NumSprites];
-
-extern const int sparkleSprite;
-extern const int iceSprite;
-extern const int brokenIceSprite;
-extern const int selectionSprite;
+extern const SpriteID iceSprites[3];
+extern const SpriteID selectionSprite;
+extern const SpriteID glowSprite;
+extern const SpriteID blastSprite;
+extern const SpriteID starSprite;
+extern const SpriteID colorBombIcon;

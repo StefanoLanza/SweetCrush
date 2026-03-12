@@ -5,14 +5,14 @@
 #include "Blitter.h"
 #include "Color.h"
 #include "Config.h"
+#include "FontManager.h"
 #include "Gl.h"
 #include "GlContext.h"
-#include "GlProgram.h"
 #include "Graphics.h"
 #include "Input.h"
 #include "SdlWindow.h"
 #include "TextRender.h"
-#include "Texture.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -23,31 +23,32 @@ namespace Wind {
 
 namespace {
 
-constexpr uint64_t MaxFrameTicks = 300;
+constexpr uint64_t MaxFrameTicksNS = 300'000'000;
 
 } // namespace
 
 struct Engine::Implementation {
-	SdlWindow&              mWindow;
-	GlContext               mGlContext;
-	Input                   mInput;
-	Graphics                mGraphics;
-	Audio                   mAudio;
-	BitmapRenderer          mBitmapRenderer;
-	Blitter                 mBlitter;
-	TextRenderer            mTextRenderer;
-	std::vector<TexturePtr> mTextures;
-	uint64_t                mElapsedTicks;
-	float                   mAccumTime;
-	bool                    mQuit;
-	bool                    mAppInBackground;
-	DisplayOrientation      mDisplayOrientation;
+	SdlWindow&         mWindow;
+	GlContext          mGlContext;
+	Input              mInput;
+	Graphics           mGraphics;
+	Audio              mAudio;
+	BitmapRenderer     mBitmapRenderer;
+	FontManager        mFontManager;
+	Blitter            mBlitter;
+	UITextRenderer       mTextRenderer;
+	uint64_t           mElapsedTicks;
+	float              mAccumTime;
+	bool               mQuit;
+	bool               mAppInBackground;
+	DisplayOrientation mDisplayOrientation;
 
 	explicit Implementation(SdlWindow& window)
 	    : mWindow { window }
 	    , mGlContext(mWindow)
 	    , mGraphics(mWindow)
 	    , mBitmapRenderer { mGraphics }
+	    , mFontManager { mGraphics }
 	    , mBlitter { mGraphics }
 	    , mTextRenderer { mGraphics }
 	    , mElapsedTicks(0)
@@ -55,64 +56,44 @@ struct Engine::Implementation {
 	    , mQuit(false)
 	    , mAppInBackground(false)
 	    , mDisplayOrientation { DisplayOrientation::portrait } {
-		LoadTexture("images/null.png", {}); // placeholder
 	}
 
-	void       Start(const RenderCallback& renderCkb, const UpdateCallback& updateCbk);
-	TexturePtr LoadTexture(std::string_view fileName, TextureInfo texInfo);
-	void       ParseEvent();
+	void Start(const RenderCallback& renderCkb, const UpdateCallback& updateCbk);
+	void ParseEvent();
 };
 
 void Engine::Implementation::Start(const RenderCallback& renderCbk, const UpdateCallback& updateCbk) {
 	constexpr float fixedTimeStep = 1.f / 60.f;
 
+	SDL_HideCursor();
 	mWindow.Show();
 	mAccumTime = 0.f;
 	updateCbk(fixedTimeStep); // first update
-	mElapsedTicks = SDL_GetTicks();
+	mElapsedTicks = SDL_GetTicksNS();
 	while (! mQuit) {
-		const uint64_t currentTicks = SDL_GetTicks();
+		const uint64_t currentTicks = SDL_GetTicksNS();
 		uint64_t       lastFrameTicks = currentTicks - mElapsedTicks;
 		mElapsedTicks = currentTicks;
-		lastFrameTicks = std::min(lastFrameTicks, MaxFrameTicks);
-		const float lastFrameSeconds = static_cast<float>(lastFrameTicks) * 0.001f;
-
-		// Update app logic with a fixed time step
-		mAccumTime += lastFrameSeconds;
-		const int steps = static_cast<int>(std::floor(mAccumTime / fixedTimeStep));
-		mAccumTime -= steps * fixedTimeStep;
-		for (int i = 0; i < steps; ++i) {
-			ParseEvent();
-			updateCbk(fixedTimeStep);
-		}
+		lastFrameTicks = std::min(lastFrameTicks, MaxFrameTicksNS);
+		const float lastFrameSeconds = static_cast<float>(lastFrameTicks) * 1e-9f;
 
 		if (! mAppInBackground) {
+			// Update app logic with a fixed time step
+			mAccumTime += lastFrameSeconds;
+			const int steps = static_cast<int>(std::floor(mAccumTime / fixedTimeStep));
+			mAccumTime -= steps * fixedTimeStep;
+			for (int i = 0; i < steps; ++i) {
+				ParseEvent();
+				updateCbk(fixedTimeStep);
+			}
+
 			mGraphics.BeginFrame();
 			if (! mQuit) {
 				renderCbk(lastFrameSeconds);
 			}
 			mGraphics.EndFrame();
 			SDL_GL_SwapWindow(mWindow);
-			SDL_HideCursor();
 		}
-	}
-}
-
-TexturePtr Engine::Implementation::LoadTexture(std::string_view fileName, TextureInfo texInfo) {
-	try {
-		for (auto& b : mTextures) {
-			if (b->GetFileName() == fileName) {
-				return b;
-			}
-		}
-		char path[260];
-		snprintf(path, sizeof(path), "%s%s", ASSETS_FOLDER, fileName.data());
-		mTextures.emplace_back(std::make_unique<Texture>(fileName, path, texInfo));
-		return mTextures.back();
-	}
-	catch (const std::exception& e) {
-		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", e.what());
-		return mTextures.empty() ? nullptr : mTextures[0]; // placeholder
 	}
 }
 
@@ -164,8 +145,7 @@ Engine::Engine(SdlWindow& window)
     : mPimpl(std::make_unique<Implementation>(window)) {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	// SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	SDL_GL_SetSwapInterval(1);
-	mPimpl->mGraphics.InitGL();
+	SDL_GL_SetSwapInterval(1); // 1: vsync on
 }
 
 Engine::~Engine() = default;
@@ -186,7 +166,7 @@ Input& Engine::GetInput() const {
 	return mPimpl->mInput;
 }
 
-TextRenderer& Engine::GetTextRenderer() const {
+UITextRenderer& Engine::GetTextRenderer() const {
 	return mPimpl->mTextRenderer;
 }
 
@@ -205,12 +185,12 @@ BitmapRenderer& Engine::GetBitmapRenderer() const {
 	return mPimpl->mBitmapRenderer;
 }
 
-void Engine::Start(const RenderCallback& renderCbk, const UpdateCallback& updateCbk) {
-	mPimpl->Start(renderCbk, updateCbk);
+FontManager& Engine::GetFontManager() const {
+	return mPimpl->mFontManager;
 }
 
-TexturePtr Engine::LoadTexture(std::string_view fileName, TextureInfo texInfo) {
-	return mPimpl->LoadTexture(fileName, texInfo);
+void Engine::Start(const RenderCallback& renderCbk, const UpdateCallback& updateCbk) {
+	mPimpl->Start(renderCbk, updateCbk);
 }
 
 } // namespace Wind

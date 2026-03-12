@@ -2,14 +2,21 @@
 
 #include <engine/StringTable.h>
 
-enum class GameStringId : Wind::StringId {
+enum GameStringId {
 	empty,
 	title,
+	tap,
+	time_,
+	moves,
 	score,
 	start,
+	play,
 	settings,
-	audioOn,
-	audioOff,
+	languageScreen,
+	graphicsSettings,
+	audioSettings,
+	music,
+	sfx,
 	nextLanguage,
 	credits,
 	quit,
@@ -19,8 +26,11 @@ enum class GameStringId : Wind::StringId {
 	codeBy,
 	graphicsBy,
 	musicBy,
+	fontBy,
 	version,
 	back,
+	level,
+	goal,
 	yourScoreIs,
 	yourFinalScoreIs,
 	yourReachedLevel,
@@ -28,24 +38,27 @@ enum class GameStringId : Wind::StringId {
 	pauseGame,
 	continueGame,
 	restartLevel,
-	exitGame,
+	endGame,
 	ok,
-	levelComplete,
+	complete,
 	nextLevel,
 	gameComplete,
 	// boosters
-	hRocket,
-	hRocketDescription,
-	vRocket,
-	vRocketDescription,
-	miniBomb,
-	miniBombDescription,
-	bomb,
-	bombDescription,
-	//
+	hStriped,
+	hStripedDescription,
+	vStriped,
+	vStripedDescription,
+	colorBomb,
+	colorBombDescription,
+	wrapped,
+	wrappedDescription,
 };
 
-enum class Language { english, spanish, italian };
+enum class Language {
+	english,
+	spanish,
+	italian
+};
 constexpr int NumLanguages = 3;
 
 void        SetLanguage(Language language);

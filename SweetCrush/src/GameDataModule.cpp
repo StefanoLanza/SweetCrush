@@ -1,7 +1,7 @@
 #include "GameDataModule.h"
 #include <SDL3/SDL_log.h>
 
-#if defined(__ANDROID__)
+#if defined(__ANDROID__) || defined(__OHOS__)
 
 #include "../gameData/Levels.h"
 

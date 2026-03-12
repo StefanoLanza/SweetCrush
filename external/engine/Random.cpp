@@ -7,6 +7,7 @@ namespace Wind {
 
 Random::Random()
     : mState { 1 } {
+	Seed(1);
 }
 
 Random::Random(uint32_t seed) {
@@ -14,10 +15,12 @@ Random::Random(uint32_t seed) {
 }
 
 void Random::Seed(uint32_t seed) {
-	if (seed == 0) {
-		seed = 1; // avoid zero state
-	}
-	mState = seed;
+// A simple 32-bit "SplitMix" style hash to scramble the seed
+    seed = (seed ^ (seed >> 16)) * 0x45d9f3b;
+    seed = (seed ^ (seed >> 16)) * 0x45d9f3b;
+    seed = seed ^ (seed >> 16);
+    
+    mState = (seed == 0) ? 42 : seed; // ensure not zero
 }
 
 int Random::Next() {
@@ -28,8 +31,8 @@ int Random::Next(int min, int max) {
 	if (min > max) {
 		std::swap(min, max);
 	}
-	uint32_t r = Next() % static_cast<uint32_t>(max - min + 1);
-	return min + static_cast<int>(r);
+	uint32_t span = Next() % static_cast<uint32_t>(max - min + 1);
+	return min + static_cast<int>(span);
 }
 
 float Random::NextF() {
@@ -50,7 +53,9 @@ uint32_t Random::NextState() {
 	mState ^= mState << 13;
 	mState ^= mState >> 17;
 	mState ^= mState << 5;
-	return mState;
+	// Scramble the output with a 32-bit multiplier constant
+    // 0x2545F491 is a common choice for 32-bit scrambling
+    return mState * 0x2545F491;
 }
 
 } // namespace Wind

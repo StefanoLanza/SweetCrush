@@ -1,113 +1,77 @@
 #include "GameOverScreen.h"
-#include "GameDrawOrder.h"
+#include "Constants.h"
+#include "GameUI.h"
 #include "Localization.h"
 #include "MatchStats.h"
 #include "ScreenIds.h"
-#include "UIDefs.h"
+
 #include <engine/Engine.h>
-#include <engine/TextRender.h>
-#include <engine/UI.h>
+
 #include <cstdio>
 
 using namespace Wind;
 
 namespace {
 
-const UIButtonDesc buttonDescs[] {
-	{
-	    UIAbsolutePos(0, 560),
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::top,
-	},
-	{
-	    UIAbsolutePos(0, 680),
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::top,
-	},
+const UIPanelDesc panelDesc {
+	.pos = UIAbsolutePos(0.f, 0.f),
+	.size = UIAbsoluteSize(520.f, 300.f),
+	.horizontalAlignment = UIHorizAlignment::center,
+	.verticalAlignment = UIVertAlignment::center,
+	.background = "UI/button.png",
+	.backgroundColor = panel0_color,
+	._9patch = 16.f,
 };
 
-const UITextDesc textDescs[] {
-	{
-	    "bigFont",
-	    (StringId)GameStringId::gameOver,
-	    UIAbsolutePos(0, titleY),
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::top,
-	    titleTextStyle,
-	},
-	{
-	    "mediumFont",
-	    (StringId)GameStringId::retry,
-	    UIZeroPos,
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::center,
-	},
-	{
-	    "mediumFont",
-	    (StringId)GameStringId::toMainMenu,
-	    UIZeroPos,
-	    UIAutoSize,
-	    UIHorizAlignment::center,
-	    UIVertAlignment::center,
-	},
-};
-
-} // namespace
-
-GameOverScreen::GameOverScreen(Engine& engine, const MatchStats& matchStats)
-    : mEngine(engine)
-    , mMatchStats(matchStats)
-    , mTitle(textDescs[0], engine)
-    , mReplayLevelButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
-    , mContinueButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2], engine))
-    , mPanel(UIDefaultPanelDesc) {
 }
 
-void GameOverScreen::LoadAssets() {
-	mFont = mEngine.GetTextRenderer().AddFont("smallFont");
+GameOverScreen::GameOverScreen(MatchStats& matchStats)
+    : mMatchStats(matchStats)
+    , mCanvas(MakeCanvas()) {
+	// Build UI
+	mCanvas.Add(MakeTitle(GameStringId::gameOver));
+	auto panel = mCanvas.Add(panelDesc);
+	mText0 = panel->Add(MakeDynScreenText(40.f));
+	mText1 = panel->Add(MakeDynScreenText(100.f));
+	mReplayLevelButton = MakeMenuButton(mCanvas.Panel(), button2_y, GameStringId::retry, button0_color); //, "icons/replay.png");
+	mEndButton = MakeMenuButton(mCanvas.Panel(),button3_y, GameStringId::toMainMenu, button1_color); //, "icons/cross.png");
 }
 
-void GameOverScreen::BuildUI(UICanvas& canvas) {
-	mPanel.AddText(mTitle);
-	mPanel.AddButton(mReplayLevelButton);
-	mPanel.AddButton(mContinueButton);
-	canvas.GetPanel().AddPanel(mPanel);
+const char* GameOverScreen::GetName() const {
+	return "GameOverScreen";
 }
 
-GameScreenId GameOverScreen::Tick(float /*dt*/, const Wind::Input& input) {
-	if (mContinueButton.IsPressed(input)) {
-		return ScreenId::mainMenu;
-	}
-	else if (mReplayLevelButton.IsPressed(input)) {
-		return ScreenId::play;
-	}
-	return ScreenId::gameOver;
+void GameOverScreen::LoadAssets(Engine& engine) {
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
 }
 
-void GameOverScreen::Draw(GameScreenId topScreen) const {
-	if (topScreen != ScreenId::gameOver) {
-		return;
+ScreenEvent GameOverScreen::Tick(float dt, const Input& input) {
+	mCanvas.Tick(dt);
+	mCanvas.HandleInput(input);
+	if (mEndButton->IsClicked()) {
+		return GoTo(GameScreenIds::mainMenu, ScreenTransition::slideBottom);
 	}
-	if (! mFont) {
-		return;
+	else if (mReplayLevelButton->IsClicked()) {
+		return GoTo(GameScreenIds::play, ScreenTransition::slideBottom);
 	}
-	const auto&     textRenderer = mEngine.GetTextRenderer();
-	char            tmp[256];
-	const TextStyle textStyle { whiteColor, blackColor };
-	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourReachedLevel), mMatchStats.level + 1);
-	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 350 }, TextAlignment::center, textStyle, (DrawOrder)GameDrawOrder::textOverUI);
+	return Continue();
+}
+
+void GameOverScreen::Draw(UIRenderer& uiRenderer, float dt) {
+	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
+}
+
+void GameOverScreen::Enter(const ScreenNavArgs& args) {
+	char tmp[256];
+	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourReachedLevel), mMatchStats.levelIndex + 1);
+	mText0->SetText(tmp);
 	snprintf(tmp, sizeof(tmp), "%s %d", GetLocalizedString(GameStringId::yourScoreIs), mMatchStats.score);
-	textRenderer.WriteAligned(*mFont, tmp, Vec2 { 0, 410 }, TextAlignment::center, textStyle, (DrawOrder)GameDrawOrder::textOverUI);
-}
-
-void GameOverScreen::Enter(GameScreenId /*prevScreen*/) {
-	mPanel.SetVisible(true);
+	mText1->SetText(tmp);
 }
 
 void GameOverScreen::Exit() {
-	mPanel.SetVisible(false);
+	mMatchStats.levelIndex = 0;
+}
+
+void GameOverScreen::ParseConfig(const char* varName, const char* varValue) {
 }

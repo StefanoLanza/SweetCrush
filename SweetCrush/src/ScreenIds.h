@@ -1,10 +1,9 @@
 #pragma once
 
-#include <engine/GameScreen.h>
+#include <engine/Screen.h>
 
-enum ScreenId : Wind::GameScreenId {
-	empty = 255,
-	mainMenu = 0,
+enum class GameScreenIds : Wind::ScreenId::Type {
+	mainMenu,
 	credits,
 	settings,
 	play,
@@ -12,4 +11,6 @@ enum ScreenId : Wind::GameScreenId {
 	gameComplete,
 	pauseGame,
 	levelComplete,
+	effectInfo,
+	levelStart,
 };

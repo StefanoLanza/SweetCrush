@@ -1,91 +1,126 @@
 #include "Actions.h"
+#include "AppConfig.h"
 #include "AssetDefs.h"
 #include "Board.h"
 #include "Constants.h"
-#include "GameConfig.h"
 #include "GameDrawOrder.h"
+#include "GameRenderer.h"
+#include "GameUI.h"
+
+#include <engine/BitmapRender.h>
+#include <engine/Easings.h>
+#include <engine/TextRender.h>
+#include <engine/UI.h>
+
+#include <cassert>
 #include <cmath>
 #include <cstdio>
-#include <engine/BitmapRender.h>
-#include <engine/Engine.h>
-#include <engine/TextRender.h>
 
 using namespace Wind;
 
-ActionFunc MoveTile(Cell& cell, const Vec2& targetCoords, float speed) {
-	const Vec2 velocity = Normalize(targetCoords - cell.pieceAnim.coords) * speed;
-	return [&cell, targetCoords, velocity](float dt, float /*t*/) {
-		const Vec2 newCoords = cell.pieceAnim.coords + velocity * dt;
-		cell.pieceAnim.coords = Clamp(newCoords, cell.pieceAnim.coords, targetCoords);
-		return cell.pieceAnim.coords == targetCoords;
-	};
-}
-
-ActionFunc ReturnTile(Cell& cell, float speed) {
-	return MoveTile(cell, cell.coords, speed);
-}
-
-ActionFunc ScaleTile(Cell& cell, float startScale, float endScale) {
-	return [&cell, startScale, endScale](float /*dt*/, float t) {
-		cell.pieceAnim.scale = Lerp(endScale, startScale, 1.f - std::pow(t, 2.f));
+ActionFunc MovePieceTo(CellVisual& cell, const Vec2& targetCoords) {
+	return [&cell, initialCoords = cell.coords, targetCoords](float dt, float t01) {
+		cell.coords = LerpEase(initialCoords, targetCoords, t01, EaseInOutCirc);
 		return false;
 	};
 }
 
-ActionFunc DrawMovingSprite(const Cell& cell, const Engine& engine, Vec2 targetPos, int sprite) {
-	return [&engine, xy0 = cell.coords, starIconCoord = targetPos, sprite](float /*dt*/, float t) {
-		const BitmapRenderer& bitmapRender = engine.GetBitmapRenderer();
-		BitmapExtParams       prm;
-		prm.scale = 1.f; // + t * 8.f; // TODO curve
+ActionFunc MovePieceFromTo(CellVisual& cell, const Wind::Vec2& startCoords, const Wind::Vec2& endCoords) {
+	return [&cell, startCoords, endCoords](float dt, float t01) {
+		cell.coords = LerpEase(startCoords, endCoords, t01, EaseInQuad);
+		return false;
+	};
+}
+
+ActionFunc FallPieceFromTo(CellVisual& cell, float xCoord, float startYCoord, float endYCoord) {
+	cell.coords.x = xCoord;
+	return [&cell, startYCoord, endYCoord](float dt, float t01) {
+		cell.coords.y = LerpEase(startYCoord, endYCoord, t01, EaseOutBounce);
+		return false;
+	};
+}
+
+ActionFunc MovePieceTo(CellVisual& visual, const Wind::Vec2& targetCoords, float speed) {
+	const Vec2 velocity = Normalize(targetCoords - visual.coords) * speed;
+	return [&visual, targetCoords, velocity](float dt, float /*t01*/) {
+		visual.coords = Clamp(visual.coords + velocity * dt, visual.coords, targetCoords);
+		return visual.coords == targetCoords;
+	};
+}
+
+ActionFunc ScalePiece(CellVisual& visual, float startScale, float endScale) {
+	return [&visual, startScale, endScale](float /*dt*/, float t01) {
+		visual.scale = LerpEase(startScale, endScale, t01, EaseInQuad);
+		return false;
+	};
+}
+
+ActionFunc FadeInAlpha(CellVisual& visual) {
+	return [&visual](float /*dt*/, float t01) {
+		visual.bkgAlpha = LerpEase(0.f, 1.f, t01, EaseInQuad);
+		return false;
+	};
+}
+
+ActionFunc DrawMovingSprite(const Cell& cell, const BitmapRenderer& bitmapRenderer, Vec2 targetPos, int sprite) {
+	return [&bitmapRenderer, xy0 = cell.coords, starIconCoord = targetPos, sprite](float /*dt*/, float t01) {
+		BitmapExtParams prm;
 		prm.pivot = BitmapPivot::center;
-		prm.orientation = t * 3.f;
-		prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::overlays);
+		prm.orientation = t01 * 3.f;
+		prm.drawOrder = GameDrawOrder::overlays;
 		prm.blending = true;
-		Vec2 xy = Lerp(xy0, starIconCoord, t);
-		if (sprites[sprite]) {
-			bitmapRender.DrawBitmapEx(*sprites[sprite], xy, prm);
+		Vec2 xy = Lerp(xy0, starIconCoord, t01);
+		bitmapRenderer.DrawBitmapEx(*gameTextures[sprite], xy, prm);
+		return false;
+	};
+}
+
+ActionFunc DrawMatchScore(int score, const Cell& cell, const UITextRenderer& textRenderer, const AppConfig& gameConfig, const Font& font) {
+	Vec2 xy = cell.coords + Vec2 { gameConfig.board.cellWidth, gameConfig.board.cellHeight } * 0.5f;
+	return [&textRenderer, &font, xy, score, scrollSpeed = gameConfig.scoreTextScrollSpeed](float /*dt*/, float t) {
+		char tmp[64];
+		snprintf(tmp, sizeof(tmp), "%d", score);
+		float y = xy.y - t * scrollSpeed;
+		textRenderer.Write(font, tmp, Vec2 { xy.x, y }, defaultTextStyle, GameDrawOrder::overlays);
+		return false;
+	};
+}
+
+ActionFunc DrawBrokenIce(const Cell& cell, const BitmapRenderer& bitmapRenderer, const AppConfig& gameConfig) {
+	Vec2 xy = cell.coords + Vec2 { gameConfig.board.cellWidth, gameConfig.board.cellHeight } * 0.5f;
+	return [&bitmapRenderer, xy](float /*dt*/, float t01) {
+		BitmapExtParams prm;
+		prm.scale.x = 1.f + t01 * 0.5f;
+		prm.scale.y = prm.scale.x;
+		prm.pivot = BitmapPivot::center;
+		prm.drawOrder = GameDrawOrder::ice;
+		prm.blending = true;
+		prm.color.a = LerpEase(255.f, 0.f, t01, EaseInCubic);
+		bitmapRenderer.DrawBitmapEx(*gameTextures[iceSprites[1]], xy, prm);
+		return false;
+	};
+}
+
+ActionFunc DrawLaser(Vec2 startCoords, Vec2 endCoords, const GameRenderer& gameRenderer) {
+	return [&gameRenderer, startCoords, endCoords](float /*dt*/, float t01) {
+		if (t01 > 0.0f) {
+			t01 = EaseOutQuint(t01);
+			Vec2  interpEndCoords = Lerp(startCoords, endCoords, t01);
+			Color color = Lerp(yellowColor, whiteColor, t01);
+			gameRenderer.DrawLaser(startCoords, interpEndCoords, 64.f, color);
 		}
 		return false;
 	};
 }
 
-ActionFunc DrawExplosion(const Cell& cell, const Engine& engine, const GameConfig& gameConfig) {
-	Vec2 xy = cell.coords + Vec2 { gameConfig.cellWidth, gameConfig.cellHeight } * 0.5f;
-	return [&engine, xy](float /*dt*/, float t) {
-		const BitmapRenderer& bitmapRender = engine.GetBitmapRenderer();
-		BitmapExtParams       prm;
-		prm.scale = 1.f + t * 4.f;
-		prm.pivot = BitmapPivot::center;
-		prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::overlays);
-		prm.blending = true;
-		bitmapRender.DrawBitmapEx(*sprites[sparkleSprite], xy, prm);
-		return false;
-	};
-}
-
-ActionFunc DrawMatchScore(int score, const Cell& cell, const Engine& engine, const GameConfig& gameConfig, const Font& font) {
-	Vec2 xy = cell.coords + Vec2 { gameConfig.cellWidth, gameConfig.cellHeight } * 0.5f;
-	return [&engine, &font, xy, score, scrollSpeed = gameConfig.scoreTextScrollSpeed](float /*dt*/, float t) {
-		const TextRenderer& textRender = engine.GetTextRenderer();
-		char                tmp[64];
-		snprintf(tmp, sizeof(tmp), "%d", score);
-		float y = xy.y - t * scrollSpeed;
-		textRender.Write(font, tmp, Vec2 { xy.x, y }, defaultTextStyle, DrawOrder::UI - 1); // below UI
-		return false;
-	};
-}
-
-ActionFunc DrawBrokenIce(const Cell& cell, const Engine& engine, const GameConfig& gameConfig) {
-	Vec2 xy = cell.coords + Vec2 { gameConfig.cellWidth, gameConfig.cellHeight } * 0.5f;
-	return [&engine, xy](float /*dt*/, float t01) {
-		const BitmapRenderer& bitmapRender = engine.GetBitmapRenderer();
-		BitmapExtParams       prm;
-		prm.scale = 1.f + t01 * 0.5f;
-		prm.pivot = BitmapPivot::center;
-		prm.drawOrder = static_cast<DrawOrderType>(GameDrawOrder::ice);
-		prm.blending = true;
-		prm.color.a = 255.f * (1.f - t01 * t01 * t01 * t01); // ease-in
-		bitmapRender.DrawBitmapEx(*sprites[brokenIceSprite], xy, prm);
+ActionFunc DrawBlast(Vec2 center, float startRadius, float endRadius, const GameRenderer& gameRenderer) {
+	return [&gameRenderer, center, startRadius, endRadius](float /*dt*/, float t01) {
+		t01 = EaseOutQuint(t01);
+		float radius = Lerp(startRadius, endRadius, t01);
+		Color color = whiteColor;
+		color.a = 255.f * t01;
+		float width = radius * 0.5f;
+		gameRenderer.DrawBlast(center, radius, width, color);
 		return false;
 	};
 }

@@ -9,15 +9,9 @@
 
 namespace Wind {
 
-Texture::Texture(std::string_view fileName, std::string_view path, TextureInfo info)
+Texture::Texture(SDL_Surface* surface, std::string_view fileName, std::string_view path, TextureInfo info)
     : mFileName(fileName)
     , mHasAlpha { false } {
-	SDL_Surface* surface = IMG_Load(path.data());
-	if (surface == nullptr) {
-		SDL_LogError(0, "Unable to load image %s", fileName.data());
-		throw std::runtime_error(std::string("Unable to load image ") + std::string(fileName));
-	}
-
 	GLuint textureId = 0;
 	glGenTextures(1, &textureId);
 	glBindTexture(GL_TEXTURE_2D, textureId);
@@ -40,7 +34,7 @@ Texture::Texture(std::string_view fileName, std::string_view path, TextureInfo i
 		internalFormat = GL_RG8;
 		break;
 	case 1:
-		mode = GL_LUMINANCE_ALPHA;
+		mode = GL_RED;
 		internalFormat = GL_R8;
 		break;
 	default:
@@ -51,6 +45,10 @@ Texture::Texture(std::string_view fileName, std::string_view path, TextureInfo i
 	if (info.mipmaps) {
 		levels = (int)std::floor(std::log2(std::max(surface->w, surface->h))) + 1;
 	}
+	if (formatDetails->bytes_per_pixel == 1) {
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	}
+	// Tell OpenGL the row alignment matches SDL's pitch
 	glTexStorage2D(GL_TEXTURE_2D, levels, internalFormat, surface->w, surface->h);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, surface->w, surface->h, mode, GL_UNSIGNED_BYTE, surface->pixels);
 	if (info.mipmaps) {
@@ -76,9 +74,6 @@ Texture::Texture(std::string_view fileName, std::string_view path, TextureInfo i
 		mHeight = surface->h;
 		mTextureId.reset(textureId);
 	}
-
-	SDL_DestroySurface(surface);
-	surface = nullptr;
 }
 
 const std::string& Texture::GetFileName() const {
@@ -93,7 +88,7 @@ int Texture::Height() const {
 	return mHeight;
 }
 
-GLuint Texture::GetTextureId() const {
+GLuint Texture::GetGLId() const {
 	return mTextureId.get();
 }
 

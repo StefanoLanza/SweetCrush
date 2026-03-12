@@ -2,13 +2,12 @@
 
 #include "Board.h"
 #include <engine/FwdDecl.h>
-#include <engine/Random.h>
 #include <functional>
 #include <vector>
 
-enum class BoosterType;
+enum class EffectType;
 
-struct CellPair {
+struct CellPairEvent {
 	int first;
 	int second;
 };
@@ -24,111 +23,114 @@ enum class ComboType {
 	Unknown
 };
 
-enum class Direction {
-	left,
-	right,
-	top,
-	bottom
+struct MatchEvent {
+	ComboType   comboType;
+	PieceId     pieceId;
+	const Cell* cell;
+	int         cascadeCount;
 };
 
-struct Match {
-	ComboType comboType;
-	PieceId   pieceId;
-	int       cellIdx;
-	int       cascadeCount;
+struct NewSpecialPieceEvent {
+	EffectType  type;
+	const Cell* cell;
+	PieceId     pieceId;
 };
 
-struct Booster {
-	BoosterType type;
-	int         cellIdx;
+struct NewPieceEvent {
+	const Cell* cell;
+	PieceId     pieceId;
 };
 
-struct NewPiece {
-	int     cellIdx;
-	PieceId targetPieceId;
+struct RemovePieceEvent {
+	const Cell* cell;
+	const Cell* targetCell; // for suck anims
+};
+
+struct RemoveLayerEvent {
+	const Cell* cell;
+};
+
+struct EffectEvent {
+	const Cell* mainCell;
+	EffectType  type;
 };
 
 struct Match3Event {
 	enum class Id {
 		swap,
+		undoSwap,
 		match,
-		removeTile,
+		removePiece,
 		newPiece,
-		dropTile,
-		newBooster,
-		boosterTriggered,
-		layerBroken,
+		dropPiece,
+		newEffect,
+		triggerEffect,
+		removeLayer,
 	};
 	Id id;
 	union {
-		Match    match;
-		CellPair pair;
-		NewPiece newPiece;
-		Booster  booster;
-		int      cellIdx;
+		MatchEvent           match;
+		CellPairEvent        pair;
+		NewPieceEvent        newPiece;
+		NewSpecialPieceEvent specialPiece;
+		EffectEvent          effect;
+		RemovePieceEvent     removePiece;
+		RemoveLayerEvent     removeLayer;
 	};
 };
 
 using Match3Callback = std::function<void(const Match3Event& event)>;
 
-class Board;
 class TileSelector;
-struct GameConfig;
-struct Cell;
-struct GameInput;
+class BoardGenerator;
+struct AppConfig;
 
 class Match3 final {
 public:
-	Match3(Board& board, const GameConfig& gameConfig, TileSelector& tileSelector);
+	Match3(Board& board, BoardGenerator& boardGen, TileSelector& tileSelector);
 	~Match3();
 
-	void SetCallback(Match3Callback&& cbk);
-	void NewBoard(uint32_t seed, const char* boardDef, const int gemIds[], int gemIdCount);
-	void Run();
+	void SetClientCallback(Match3Callback&& cbk);
+	void ClearSelection();
+	void Restart();
+	void UseBooster(int cellIdx);
 	void Update(const Wind::Input& input);
-	int  GetNumUserSwaps() const;
-	void AddBooster(BoosterType pieceId, int cellIdx);
-	// Boosters
-	void HorizontalRocket(int col, int row);
-	void VerticalRocket(int col, int row);
-	void Bomb(int col, int row, int radius);
-	void DeleteAllPieces(int pieceId);
+	bool IsWaitingForUser() const;
 
 private:
-	// States
-	void SelectTiles(const Wind::Input& input);
+	bool SelectAndSwapPieces(const Wind::Input& input);
 	bool CheckCombos(int h, int v, int t, int b, PieceId pieceId, int cellIdx);
 	bool CheckCellCombos(int cellIdx);
 	bool CheckMatchesAfterSwap();
-	void HitCell(int idx) const;
-	void InsertBoosters();
+	bool CheckSpecialComboAfterSwap();
+	bool CheckSpecialCombo(int firstIdx, int secondIdx);
+	void KillCell(Cell& cell, const Cell* targetCell = nullptr);
 	void CollapseColumns();
 	void GenerateNewPieces();
 	bool CheckMatches();
-
-	void TrySwap(int first, int second);
+	bool TrySwap(int first, int second);
 	void SwapSelectedCells(int firstTile, int secondTile);
-	void CollapseColumn(int col);
-	void KillMatches(const Cell& cell, int dcol, int drow);
-	void TriggerBooster(int cellIdx);
+	int  CollapseColumn(int col, CellPairEvent* collapseList);
+	int  CollectMatches(int mainCellIdx, int deltaCol, int deltaRow, int* matches, int numMatches) const;
+	void TriggerEffect(Cell& cell);
+	// Effects
+	void DeleteRow(Cell& mainCell);
+	void DeleteColumn(Cell& mainCell);
+	void Bomb(Cell& mainCell, int radius);
+	void ColorBomb(Cell& mainCell, PieceId targetPieceId);
+	void ClearBoard();
+	PieceId FindMostFrequentPiece() const;
 
 private:
 	enum class State;
 
-	TileSelector&         mTileSelector;
-	Board&                mBoard;
-	const GameConfig&     mGameConfig;
-	Match3Callback        mCbk;
-	int                   mGemIds[8];
-	int                   mNumGemIds;
-	Wind::Random          mRandomEngine;
-	State                 mState;
-	CellPair              mUserSwap;
-	std::vector<CellPair> mSwaps;
-	std::vector<int>      mNewPieces;
-	std::vector<int>      mCheckList;
-	std::vector<CellPair> mCollapseList;
-	std::vector<Booster>  mNewBoosters;
-	int                   mNumUserSwaps;
-	int                   mCascadeCount;
+	Board&           mBoard;
+	BoardGenerator&  mBoardGen;
+	TileSelector&    mTileSelector;
+	Match3Callback   mCbk;
+	State            mState;
+	CellPairEvent    mUserSwap;
+	std::vector<int> mNewPieces;
+	std::vector<int> mCheckList;
+	int              mCascadeCount;
 };

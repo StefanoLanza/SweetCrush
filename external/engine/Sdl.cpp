@@ -4,13 +4,13 @@
 
 namespace Wind {
 
-Sdl::Sdl(unsigned int flags, bool createDefaultDepthBuffer) {
+Sdl::Sdl(unsigned int flags) {
 	SDL_LogInfo(0, "Initializing SDL");
 	if (! SDL_Init(flags)) {
 		SDL_LogError(0, "%s", SDL_GetError());
 		throw std::runtime_error("Failed to init SDL");
 	}
-#if defined(__ANDROID__)
+#if defined(__ANDROID__) || defined(__OHOS__)
 	/*SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);*/
@@ -34,10 +34,8 @@ Sdl::Sdl(unsigned int flags, bool createDefaultDepthBuffer) {
 		SDL_LogError(0, "%s", SDL_GetError());
 		throw std::runtime_error("Failed to init SDL");
 	}
-	if (! createDefaultDepthBuffer) {
-		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
-	}
 #endif
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0); // No depth buffer by default
 #ifdef _DEBUG
 	// Debug OpenGL context
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);

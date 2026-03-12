@@ -1,0 +1,8 @@
+uniform   vec4 orthoMatrix;
+out vec2 vTexCoord;
+
+void main() {
+	vec2 tri = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
+	gl_Position = vec4(-1.0 + 2.0 * tri, 0.0, 1.0); // to clip space
+	vTexCoord = tri;
+}

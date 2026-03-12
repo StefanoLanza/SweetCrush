@@ -42,6 +42,10 @@ void SdlMusic::Resume() const {
     }
 }
 
+void SdlMusic::SetVolume(float volume) const {
+	MIX_SetTrackGain(mTrack, volume);
+}
+
 SdlMusic::operator MIX_Audio *() const {
 	return mMusic.get();
 }

@@ -1,87 +1,145 @@
 #include "SettingsScreen.h"
-#include "GameConfig.h"
-#include "GameSettings.h"
+#include "AppConfig.h"
+#include "GameUI.h"
 #include "Localization.h"
 #include "ScreenIds.h"
-#include "UIDefs.h"
+
+#include <engine/Audio.h>
 #include <engine/Engine.h>
-#include <engine/TextRender.h>
-#include <engine/UI.h>
+#include <engine/Input.h>
+#include <engine/SdlSound.h>
 
 using namespace Wind;
 
-namespace {
-
-const UIButtonDesc buttonDescs[] { { { 0, 440, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
-	                               { { 0, 560, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top },
-	                               { { 0, 680, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top } };
-const UITextDesc   textDescs[] {
-    { "bigFont", (StringId)GameStringId::settings, { 0, titleY, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::top, titleTextStyle },
-    { "mediumFont", (StringId)GameStringId::nextLanguage, { 0, 0, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
-    { "mediumFont", (StringId)GameStringId::audioOn, { 0, 0, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
-    { "mediumFont", (StringId)GameStringId::back, { 0, 0, 0, 0 }, UIAutoSize, UIHorizAlignment::center, UIVertAlignment::center },
-};
-
-} // namespace
-
-SettingsScreen::SettingsScreen(Engine& engine, GameSettings& gameSettings)
+SettingsScreen::SettingsScreen(GameSettings& gameSettings)
     : mGameConfig(gameSettings)
-    , mTitle(textDescs[0], engine)
-    , mLanguageButton(MakeButton(buttonDescs[0], buttonBitmapDesc, textDescs[1], engine))
-    , mAudioButton(MakeButton(buttonDescs[1], buttonBitmapDesc, textDescs[2], engine))
-    , mBackButton(MakeButton(buttonDescs[2], buttonBitmapDesc, textDescs[3], engine))
-    , mPanel(UIDefaultPanelDesc) {
+    , mCanvas(MakeCanvas()) {
+	// Build UI
+	mCanvas.Add(MakeTitle(GameStringId::settings));
+	mMusicButton = MakeCheckBox(mCanvas.Panel(),button0_y, GameStringId::music, button0_color);
+	mSfxButton = MakeCheckBox(mCanvas.Panel(),button1_y, GameStringId::sfx, button1_color);
+	mBackButton = MakeBackButton(mCanvas.Panel());
+	MakeLanguageButton();
 }
 
-void SettingsScreen::LoadAssets() {
+const char* SettingsScreen::GetName() const {
+	return "SettingsScreen";
 }
 
-void SettingsScreen::BuildUI(UICanvas& canvas) {
-	mPanel.AddText(mTitle);
-	mPanel.AddButton(mLanguageButton);
-	mPanel.AddButton(mAudioButton);
-	mPanel.AddButton(mBackButton);
-	canvas.GetPanel().AddPanel(mPanel);
-	RefreshLanguageButton();
-	RefreshAudioButton();
+void SettingsScreen::LoadAssets(Engine& engine) {
+	mCanvas.LoadAssets(engine.GetGraphics(), engine.GetFontManager());
+	mButtonSound = engine.GetAudio().LoadSound("audio/click_001.ogg");
+	mToggleSound = engine.GetAudio().LoadSound("audio/click_001.ogg");
 }
 
-GameScreenId SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
-	if (mLanguageButton.IsPressed(input)) {
+ScreenEvent SettingsScreen::Tick([[maybe_unused]] float dt, const Wind::Input& input) {
+	mCanvas.Tick(dt);
+	mCanvas.HandleInput(input);
+
+	bool dirtyUI = false;
+	if (mMusicButton->IsClicked()) {
+		mGameConfig.musicOn = ! mGameConfig.musicOn;
+		if (mGameConfig.sfxOn) {
+			mToggleSound->Play();
+		}
+		dirtyUI = true;
+	}
+	if (mSfxButton->IsClicked()) {
+		if (mGameConfig.sfxOn) {
+			mToggleSound->Play();
+		}
+		mGameConfig.sfxOn = ! mGameConfig.sfxOn;
+		dirtyUI = true;
+	}
+	if (mLanguageButton->IsClicked()) {
 		SetNextLanguage();
-	}
-	else if (mAudioButton.IsPressed(input)) {
-		if (mGameConfig.audioOn) {
-			mGameConfig.audioOn = false;
+		if (mGameConfig.sfxOn) {
+			mToggleSound->Play();
 		}
-		else {
-			mGameConfig.audioOn = true;
+		dirtyUI = true;
+	}
+	if (dirtyUI) {
+		RefreshUI();
+	}
+
+#if defined(__ANDROID__) || defined(__OHOS__)
+	if (input.GetKeyJustPressed(SDLK_AC_BACK) ||
+#elif defined(_WIN32) || defined(__linux__)
+	if (input.GetKeyJustPressed(SDLK_ESCAPE) ||
+#endif
+	    mBackButton->IsClicked()) {
+		if (mGameConfig.sfxOn) {
+			mButtonSound->Play();
 		}
-		RefreshAudioButton();
+		return GoBack(ScreenTransition::slideRight);
 	}
-	else if (mBackButton.IsPressed(input)) {
-		return ScreenId::mainMenu;
-	}
-	return ScreenId::settings;
+	return Continue();
 }
 
-void SettingsScreen::Draw([[maybe_unused]] GameScreenId topScreen) const {
+void SettingsScreen::Draw(Wind::UIRenderer& uiRenderer, float dt) {
+	mCanvas.Draw(RefWindowWidth, RefWindowHeight, uiRenderer, 0);
 }
 
-void SettingsScreen::Enter([[maybe_unused]] GameScreenId prevScreen) {
-	mPanel.SetVisible(true);
+void SettingsScreen::Enter(const ScreenNavArgs& args) {
+	RefreshUI();
 }
 
 void SettingsScreen::Exit() {
-	mPanel.SetVisible(false);
 }
 
-void SettingsScreen::RefreshLanguageButton() {
-	GameStringId stringId = GameStringId::nextLanguage;
-	mLanguageButton.GetText()->SetText(static_cast<StringId>(stringId));
+void SettingsScreen::ParseConfig(const char* varName, const char* varValue) {
 }
 
-void SettingsScreen::RefreshAudioButton() {
-	const StringId stringId = static_cast<StringId>(mGameConfig.audioOn ? GameStringId::audioOn : GameStringId::audioOff);
-	mAudioButton.GetText()->SetText(stringId);
+void SettingsScreen::RefreshUI() {
+	bool musicOn = mGameConfig.musicOn;
+	bool sfxOn = mGameConfig.sfxOn;
+	mMusicButton->GetBitmap(0).SetVisible(musicOn);
+	mMusicButton->GetBitmap(1).SetVisible(! musicOn);
+	mSfxButton->GetBitmap(0).SetVisible(sfxOn);
+	mSfxButton->GetBitmap(1).SetVisible(! sfxOn);
+
+	for (int i = 0; i < 3; ++i) {
+		UIBitmap& icon = mLanguageButton->GetBitmap(i);
+		icon.SetVisible(static_cast<int>(GetCurrentLanguage()) == i);
+	}
+}
+
+void SettingsScreen::MakeLanguageButton() {
+	const UIButtonDesc buttonDesc = {
+		.pos = UIAbsolutePos(0, button2_y),
+		.size = UIAbsoluteSize(520.f, 100.f),
+		.horizontalAlignment = UIHorizAlignment::center,
+		.verticalAlignment = UIVertAlignment::top,
+		.padding = buttonPadding,
+		.background = "UI/button.png",
+		.backgroundColor = button2_color,
+		._9patch = 16.f,
+	};
+	const UITextDesc labelDesc {
+		.stringId = GameStringId::languageScreen,
+		.horizontalAlignment = UIHorizAlignment::left,
+		.verticalAlignment = UIVertAlignment::center,
+		.font = "mediumFont",
+		.style = defaultTextStyle,
+	};
+
+	mLanguageButton = mCanvas.Panel().Add(buttonDesc);
+
+	UIBitmapDesc iconDesc {
+		.pos = UIAbsolutePos(16.f, 0.f),
+		.horizontalAlignment = UIHorizAlignment::right,
+		.verticalAlignment = UIVertAlignment::center,
+		.sizing = UIBitmapSizing::fit,
+	};
+	const char* languageIcons[] {
+		"icons/uk.png",
+		"icons/spain.png",
+		"icons/italy.png",
+	};
+	for (int i = 0; i < 3; ++i) {
+		iconDesc.fileName = languageIcons[i];
+		mLanguageButton->Add(iconDesc);
+	}
+
+	mLanguageButton->Add(labelDesc);
 }

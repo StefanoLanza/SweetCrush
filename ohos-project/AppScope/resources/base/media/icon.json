@@ -1,0 +1,7 @@
+{
+  "application_icon":
+  {
+    "background" : "$color:background",
+    "foreground" : "$media:foreground"
+  }
+}

@@ -1,27 +1,39 @@
 #pragma once
 
 #include <engine/FwdDecl.h>
-#include <engine/GameScreen.h>
+#include <engine/Screen.h>
 #include <engine/UI.h>
 
-class MainScreen final : public Wind::GameScreen {
-public:
-	explicit MainScreen(Wind::Engine& engine);
+class GameRenderer;
+struct GameSettings;
 
-	void               LoadAssets() override;
-	void               BuildUI(Wind::UICanvas& canvas) override;
-	Wind::GameScreenId Tick(float dt, const Wind::Input& input) override;
-	void               Draw(Wind::GameScreenId topScreen) const override;
-	void               Enter(Wind::GameScreenId prevScreen) override;
-	void               Exit() override;
+class MainScreen final : public Wind::Screen {
+public:
+	explicit MainScreen(Wind::Engine& engine, const GameSettings& gameSettings);
+
+	const char*       GetName() const override;
+	void              LoadAssets(Wind::Engine& engine) override;
+	Wind::ScreenEvent Tick(float dt, const Wind::Input& input) override;
+	void              Draw(Wind::UIRenderer& uiRenderer, float dt) override;
+	void              Enter(const Wind::ScreenNavArgs& args) override;
+	void              Exit() override;
+	void              ParseConfig(const char* varName, const char* varValue) override;
 
 private:
-	Wind::Engine&  mEngine;
-	Wind::UIText   mTitle;
-	Wind::UIButton mStartButton;
-	Wind::UIButton mSettingsButton;
-	Wind::UIButton mCreditsButton;
-	Wind::UIButton mQuitButton;
-	Wind::UIPanel  mPanel;
-	float          mTime;
+	void AnimateUI();
+
+private:
+	Wind::Engine&       mEngine;
+	const GameSettings& mGameSettings;
+	Wind::UICanvas      mCanvas;
+	Wind::UIButton*     mStartButton = nullptr;
+	Wind::UIButton*     mSettingsButton = nullptr;
+	Wind::UIButton*     mCreditsButton = nullptr;
+	Wind::UISlider*     mSlider = nullptr;
+	Wind::SoundPtr      mButtonSound;
+#if ! defined(__ANDROID__) && ! defined(__OHOS__)
+	Wind::UIButton* mQuitButton = nullptr;
+#endif
+	Wind::UIPanel* mPastryPanel = nullptr;
+	float          mAccumTime;
 };

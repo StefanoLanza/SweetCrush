@@ -1,24 +1,26 @@
 #include "Input.h"
 #include "SdlWindow.h"
 
-#include <iterator> // std::size
 #include <cassert>
+#include <iterator> // std::size
 
 namespace Wind {
 
 Input::Input()
-    : mMouseCoord { 0.f, 0.f }
-    , mMappedMouseCoord { 0.f, 0.f }
-    , mMouseButtonDown(false)
-    , mMouseButtonPressed(false)
+    : mMouseCoord { -100.f, -100.f }
+    , mMappedMouseCoord { -100.f, -100.f }
+    , mMouseButtonDown{}
+    , mMouseButtonPressed{}
+    , mMouseButtonReleased{}
     , mFingerDown(false)
     , mFingerPressed(false)
+    , mFingerReleased(false)
     , mKeyDown { false }
     , mKeyPressed {}
     , mNumKeyPressed { 0 } {
 }
 
-bool Input::GetKeyPressed(KeyCode key) const {
+bool Input::GetKeyJustPressed(KeyCode key) const {
 	for (int i = 0; i < mNumKeyPressed; ++i) {
 		if (mKeyPressed[i] == key) {
 			return true;
@@ -44,12 +46,16 @@ Vec2 Input::GetMappedMouseCoord() const {
 	return mMappedMouseCoord;
 }
 
-bool Input::GetMouseButtonDown() const {
-	return mMouseButtonDown;
+bool Input::GetMouseButtonDown(MouseButton button) const {
+	return mMouseButtonDown[(int)button];
 }
 
-bool Input::GetMouseButtonPressed() const {
-	return mMouseButtonPressed;
+bool Input::GetMouseButtonPressed(MouseButton button) const {
+	return mMouseButtonPressed[(int)button];
+}
+
+bool Input::GetMouseButtonReleased(MouseButton button) const {
+	return mMouseButtonReleased[(int)button];
 }
 
 bool Input::GetFingerDown() const {
@@ -60,9 +66,17 @@ bool Input::GetFingerPressed() const {
 	return mFingerPressed;
 }
 
+bool Input::GetFingerReleased() const {
+	return mFingerReleased;
+}
+
 void Input::BeginFrame() {
-	mMouseButtonPressed = false;
+	for (int i = 0; i < 3; ++i) {
+		mMouseButtonPressed[i] = false;
+		mMouseButtonReleased[i] = false;
+	}
 	mFingerPressed = false;
+	mFingerReleased = false;
 	mNumKeyPressed = 0;
 }
 
@@ -90,9 +104,11 @@ void Input::ParseEvent(const SDL_Event& event, const SdlWindow& window) {
 		mMouseCoord.x = event.tfinger.x * static_cast<float>(window.GetWidth());
 		mMouseCoord.y = event.tfinger.y * static_cast<float>(window.GetHeight());
 		mMappedMouseCoord = mMouseCoord;
+		mFingerPressed = true;
 		break;
 	case SDL_EVENT_FINGER_UP:
 		mFingerDown = false;
+		mFingerReleased = true;
 		break;
 	case SDL_EVENT_FINGER_MOTION:
 		mMouseCoord.x = event.tfinger.x * static_cast<float>(window.GetWidth());
@@ -100,12 +116,18 @@ void Input::ParseEvent(const SDL_Event& event, const SdlWindow& window) {
 		mMappedMouseCoord = mMouseCoord;
 		break;
 	case SDL_EVENT_MOUSE_BUTTON_DOWN:
-		mMouseButtonPressed = true;
-		mMouseButtonDown = true;
+		if (event.button.button >= 1 && event.button.button < 4) {
+			mMouseButtonPressed[event.button.button - 1] = true;
+			mMouseButtonDown[event.button.button - 1] = true;
+			mMouseButtonReleased[event.button.button - 1] = false;
+		}
 		break;
 	case SDL_EVENT_MOUSE_BUTTON_UP:
-		mMouseButtonDown = false;
-		mMouseButtonPressed = false;
+		if (event.button.button >= 1 && event.button.button < 4) {
+			mMouseButtonDown[event.button.button - 1] = false;
+			mMouseButtonPressed[event.button.button - 1] = false;
+			mMouseButtonReleased[event.button.button - 1] = true;
+		}
 		break;
 	case SDL_EVENT_MOUSE_MOTION:
 		mMouseCoord.x = static_cast<float>(event.motion.x);
@@ -113,13 +135,13 @@ void Input::ParseEvent(const SDL_Event& event, const SdlWindow& window) {
 		mMappedMouseCoord = mMouseCoord;
 		break;
 	case SDL_EVENT_WINDOW_MOUSE_LEAVE:
-		mMouseCoord = { - 1000.f, -1000.f };
+		mMouseCoord = { -1000.f, -1000.f };
 		break;
 	default:
 		break;
 	}
 
-#elif  SDL_MAJOR_VERSION == 2
+#elif SDL_MAJOR_VERSION == 2
 	// TODO
 #endif
 }

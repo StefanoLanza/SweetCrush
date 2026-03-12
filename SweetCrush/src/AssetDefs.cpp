@@ -2,53 +2,51 @@
 
 using namespace Wind;
 
-const SpriteDef spriteDefs[NumSprites] {
-	{ "null.png" },
-	{ "gameartguppy/pastry_cookie01.png" },
-	{ "gameartguppy/pastry_cookie02.png" },
-	{ "gameartguppy/pastry_croissant.png" },
-	{ "gameartguppy/pastry_cupcake.png" },
-	{ "gameartguppy/pastry_donut.png" },
-	{ "gameartguppy/pastry_macaroon.png" },
-	{ "gameartguppy/pastry_pie.png" },
-	{ "gameartguppy/pastry_poptart01.png" },
-	{ "gameartguppy/pastry_poptart02.png" },
-	{ "gameartguppy/pastry_starcookie01.png" },
-	{ "gameartguppy/pastry_starcookie02.png" },
-	{ "boosters/bomb_yellow.png" },
-	{ "boosters/bomb_green.png" },
-	{ "boosters/bomb_blue.png" },
-	{ "boosters/bomb_red.png" },
-	{ "gameartguppy/board.png" },
-	{ "sparkle.png" },
-	{ "gameartguppy/block_ice_01a.png" },
-	{ "gameartguppy/block_ice_02.png" },
-	{ "gameartguppy/block_ice_03.png" },
-	{ "outline.png" },
+Wind::TexturePtr gameTextures[NumGameTextures];
+
+// TODO Atlas row cols and tile size
+const char* gameTexturePath[NumGameTextures] {
+	"gameartguppy/pastry_cookie01.png",
+	"gameartguppy/pastry_croissant.png",
+	"gameartguppy/pastry_cookie02.png",
+	"gameartguppy/pastry_cupcake.png",
+	"gameartguppy/pastry_donut.png",
+	"gameartguppy/pastry_macaroon.png",
+	"gameartguppy/pastry_poptart01.png",
+	"gameartguppy/pastry_pie.png",
+	"gameartguppy/pastry_poptart02.png",
+	"gameartguppy/board.png",
+	// Effects
+	"gameartguppy/pastry_starcookie01.png",
+	"gameartguppy/pastry_starcookie01.png",
+	"gameartguppy/pastry_starcookie02.png",     // wrapped
+	"gameartguppy/candy_06_jawbreaker_100.png", // color bomb
+	// Ice
+	"gameartguppy/block_ice_01a.png",
+	"gameartguppy/block_ice_02.png",
+	"gameartguppy/block_ice_03.png",
+	"outline.png",
+	"glow.png",
+	// Boosters
+	"gameartguppy/candy_05_candycane_100.png",
+	"gameartguppy/candy_04_lollipop_100.png",
+	"gameartguppy/candy_09_gummibear_100.png",
+	"blast.png",
 };
 
-const BoardTileDef boardTileDefs[NumBoardTiles] {
-	{ 16 },
+const SpriteID pieceIcons[NumPieceTypes] { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+const SpriteID boardTileIcons[NumBoardTiles] { 9 };
+const SpriteID obstacleIcons[NumObstacleTypes] { 0 };
+const SpriteID colorBombIcon = 13;
+const SpriteID iceSprites[3] = { 14, 15, 16 };
+
+const SpriteID boosterIcons[NumBoosters] = {
+	19,
+	20,
+	21,
 };
 
-const GemDef gemDefs[NumGemTypes] {
-	{ 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 }, { 7 }, { 8 }, { 9 }, { 10 }, { 11 },
-};
-
-const ObstacleDef obstacleDefs[NumObstacleTypes] {
-	{ 0 }, // wall
-};
-
-const BoosterDef boosterDefs[NumBoosters] {
-	{ 12, 0.1f },
-	{ 13, 0.1f },
-	{ 14, 0.1f },
-	{ 15, 0.1f },
-};
-
-Wind::TexturePtr sprites[NumSprites];
-
-const int sparkleSprite = 17;
-const int iceSprite = 18;
-const int brokenIceSprite = 19;
-const int selectionSprite = 21;
+const SpriteID selectionSprite = 17;
+const SpriteID glowSprite = 18;
+const SpriteID starSprite = 10;
+const SpriteID blastSprite = 22;

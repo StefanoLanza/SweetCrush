@@ -1,28 +1,28 @@
 #pragma once
 
 #include <engine/FwdDecl.h>
-#include <engine/GameScreen.h>
+#include <engine/Screen.h>
 #include <engine/UI.h>
 
 struct MatchStats;
 
-class GameOverScreen final : public Wind::GameScreen {
+class GameOverScreen final : public Wind::Screen {
 public:
-	GameOverScreen(Wind::Engine& engine, const MatchStats& matchStats);
+	explicit GameOverScreen(MatchStats& matchStats);
 
-	void               LoadAssets() override;
-	void               BuildUI(Wind::UICanvas& canvas) override;
-	Wind::GameScreenId Tick(float dt, const Wind::Input& input) override;
-	void               Draw(Wind::GameScreenId topScreen) const override;
-	void               Enter(Wind::GameScreenId prevScreen) override;
-	void               Exit() override;
+	const char*       GetName() const override;
+	void              LoadAssets(Wind::Engine& engine) override;
+	Wind::ScreenEvent Tick(float dt, const Wind::Input& input) override;
+	void              Draw(Wind::UIRenderer& uiRenderer, float dt) override;
+	void              Enter(const Wind::ScreenNavArgs& args) override;
+	void              Exit() override;
+	void              ParseConfig(const char* varName, const char* varValue) override;
 
 private:
-	Wind::Engine&     mEngine;
-	const MatchStats& mMatchStats;
-	Wind::UIText      mTitle;
-	Wind::UIButton    mReplayLevelButton;
-	Wind::UIButton    mContinueButton;
-	Wind::UIPanel     mPanel;
-	Wind::FontPtr     mFont;
+	MatchStats&     mMatchStats;
+	Wind::UICanvas  mCanvas;
+	Wind::UIText*   mText0 = nullptr;
+	Wind::UIText*   mText1 = nullptr;
+	Wind::UIButton* mReplayLevelButton = nullptr;
+	Wind::UIButton* mEndButton = nullptr;
 };
