@@ -133,13 +133,11 @@ struct Graphics::Impl {
 
 public:
 	const SdlWindow&           mWindow;
-	int                        mFBWidth = 0;
-	int                        mFBHeight = 0;
 	unsigned                   mFirstUniform;
 	PipelineHandle             mDefaultPipeline;
 	PipelineHandle             mCurrPipeline;
 	std::vector<Mesh>          mMeshes;
-	std::vector<Target>        mTargets;
+	Target                     mTarget;
 	std::vector<Batch>         mBatches;
 	std::vector<GlProgram>     mPrograms;
 	std::vector<ShaderUniform> mShaderUniforms;
@@ -155,8 +153,6 @@ public:
 
 Graphics::Impl::Impl(const SdlWindow& window)
     : mWindow(window) {
-	mFBWidth = window.GetWidth();
-	mFBHeight = window.GetHeight();
 	mFirstUniform = 0;
 	mFrameCount = 0;
 	mFrameBegun = false;
@@ -187,7 +183,6 @@ InstanceData Graphics::Impl::AllocInstances(unsigned count, unsigned stride, GLi
 }
 
 void Graphics::Impl::ResetState() {
-	mTargets.clear();
 	mBatches.clear();
 	mShaderUniforms.clear();
 	mFirstUniform = 0;
@@ -202,8 +197,6 @@ void Graphics::Impl::Draw(const DrawCall& drawCall) {
 	assert(drawCall.drawOrder < (1u << 12));
 	assert(drawCall.numUniforms + drawCall.numTextures < 256);
 	const uint32_t meshIdx = static_cast<unsigned>(drawCall.mesh) - 1;
-	const uint32_t targetIdx = static_cast<uint32_t>(mTargets.size() - 1);
-	assert(targetIdx < 16);
 	// const uint32_t programIdx = static_cast<uint32_t>(drawCall.program) - 1;
 
 #if _DEBUG
@@ -214,7 +207,7 @@ void Graphics::Impl::Draw(const DrawCall& drawCall) {
 
 	Batch batch;
 	batch.instances = drawCall.instances;
-	batch.sortKey = (targetIdx << 28) | (drawCall.drawOrder << 16) | (drawCall.sortKey << 8) | (meshIdx << 0);
+	batch.sortKey = (drawCall.drawOrder << 16) | (drawCall.sortKey << 8) | (meshIdx << 0);
 	batch.pipelineIdx = static_cast<uint16_t>(mCurrPipeline) - 1;
 	batch.programIdx = static_cast<uint16_t>(drawCall.program) - 1;
 	batch.firstUniform = static_cast<uint16_t>(mFirstUniform);
@@ -260,7 +253,6 @@ void Graphics::Impl::Flush() {
 
 	GLuint   currTexture[16] {};
 	unsigned currProgramIdx = static_cast<unsigned>(-1);
-	unsigned currTargetIdx = static_cast<unsigned>(-1);
 	unsigned currMeshIdx = static_cast<unsigned>(-1);
 	GLsizei  numIndices = 0;
 	float    xScale = 0.f;
@@ -278,18 +270,15 @@ void Graphics::Impl::Flush() {
 	uint32_t cachedUniformHash[16];
 	uint32_t cachedUniformValue[16][4];
 
-	for (const Batch& batch : mBatches) {
-		if (unsigned targetIdx = (batch.sortKey >> 28) & 0xF; currTargetIdx != targetIdx) {
-			// Change target
-			currTargetIdx = targetIdx;
-			const Target& target = mTargets[targetIdx];
-			// To clip space
-			xScale = 2.f / target.width;
-			yScale = 2.f / target.height;
-			glBindFramebuffer(GL_FRAMEBUFFER, target.fbo);
-			glViewport(0, 0, target.width, target.height);
-		}
+	{
+		// To clip space
+		xScale = 2.f / mTarget.width;
+		yScale = 2.f / mTarget.height;
+		glBindFramebuffer(GL_FRAMEBUFFER, mTarget.fbo);
+		glViewport(0, 0, mTarget.width, mTarget.height);
+	}
 
+	for (const Batch& batch : mBatches) {
 		if (currProgramIdx != batch.programIdx) {
 			currProgramIdx = batch.programIdx;
 			glUseProgram(mPrograms[currProgramIdx].GetProgramId());
@@ -358,7 +347,7 @@ void Graphics::Impl::Flush() {
 					glEnable(GL_SCISSOR_TEST);
 					scissorTest = 1;
 				}
-				glScissor(ps.scissorRect.left, mFBHeight - (ps.scissorRect.bottom), ps.scissorRect.right - ps.scissorRect.left,
+				glScissor(ps.scissorRect.left, ps.scissorRect.top, ps.scissorRect.right - ps.scissorRect.left,
 				          ps.scissorRect.bottom - ps.scissorRect.top);
 			}
 			else {
@@ -599,15 +588,13 @@ GlFrameBuffer Graphics::CreateFrameBuffer(int width, int height, unsigned flags)
 }
 
 void Graphics::SetFrameBuffer(const GlFrameBuffer& frameBuffer) {
-	mPimpl->mTargets.push_back({ frameBuffer.GetFBO(), frameBuffer.GetWidth(), frameBuffer.GetHeight() });
-	mPimpl->mFBWidth = frameBuffer.GetWidth();
-	mPimpl->mFBHeight = frameBuffer.GetHeight();
+	Flush();
+	mPimpl->mTarget = { frameBuffer.GetFBO(), frameBuffer.GetWidth(), frameBuffer.GetHeight() };
 }
 
 void Graphics::SetDefaultFrameBuffer() {
-	mPimpl->mTargets.push_back({ 0, mPimpl->mWindow.GetWidth(), mPimpl->mWindow.GetHeight() });
-	mPimpl->mFBWidth = mPimpl->mWindow.GetWidth();
-	mPimpl->mFBHeight = mPimpl->mWindow.GetHeight();
+	Flush();
+	mPimpl->mTarget = { 0, mPimpl->mWindow.GetWidth(), mPimpl->mWindow.GetHeight() };
 }
 
 GlFrameBuffer Graphics::GetDefaultFrameBuffer() const {
@@ -615,24 +602,21 @@ GlFrameBuffer Graphics::GetDefaultFrameBuffer() const {
 }
 
 void Graphics::ClearColor(float r, float g, float b, float a) {
-	auto& target = mPimpl->mTargets.back();
-	glBindFramebuffer(GL_FRAMEBUFFER, target.fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, mPimpl->mTarget.fbo);
 	glViewport(0, 0, mPimpl->mWindow.GetWidth(), mPimpl->mWindow.GetHeight());
 	glClearColor(r, g, b, a);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void Graphics::ClearDepth(float value) {
-	auto& target = mPimpl->mTargets.back();
-	glBindFramebuffer(GL_FRAMEBUFFER, target.fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, mPimpl->mTarget.fbo);
 	glDepthMask(GL_TRUE);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glClearDepthf(value);
 }
 
 void Graphics::ClearStencil(uint8_t value) {
-	auto& target = mPimpl->mTargets.back();
-	glBindFramebuffer(GL_FRAMEBUFFER, target.fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, mPimpl->mTarget.fbo);
 	glStencilMask(0xff); // TODO Needed ?
 	glClear(GL_STENCIL_BUFFER_BIT);
 	glClearStencil(value);
@@ -648,11 +632,11 @@ void Graphics::RegisterSearchPath(const char* path) {
 }
 
 int Graphics::GetTargetWidth() const {
-	return mPimpl->mFBWidth;
+	return mPimpl->mTarget.width;
 }
 
 int Graphics::GetTargetHeight() const {
-	return mPimpl->mFBHeight;
+	return mPimpl->mTarget.height;
 }
 
 ProgramHandle Graphics::NewProgram(const char* vs, const char* fs, const char* defines) {
